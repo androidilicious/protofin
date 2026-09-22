@@ -56,6 +56,19 @@ Open <http://127.0.0.1:5000> and click **Initialize Pipeline**. Node.js 18+ is n
 
 Policy constants live in `allocation.py`. Set `LLM_MODEL` in `.env` to change the model and `HEADLINES_MODE` (`off`, `display`, `decide`) to control whether headlines enter the decision. The rule: the live pipeline and the backtest consume the same inputs, all of which have full point-in-time history.
 
+## Public static site (Cloudflare Pages or GitHub Pages)
+
+The `site/` folder is a static version of the dashboard with the whole decision running in the browser:
+
+- `site/data/signals.json` is built by the GitHub Action in `.github/workflows/build-signals.yml` on weekday evenings (market data, rate shock, EPU/GPR regime, FOMC stance, the committee prompt, and one stored reference reply). Nothing in it is secret.
+- `site/js/allocation.js` is a line-for-line port of `allocation.py` (checked against Python to 1e-16); `site/js/pipeline.js` calls the model, parses the reply with the same rules, and allocates.
+- The model is configurable on the page or by URL: `?provider=reference` (stored run, no key), `?provider=byok&baseUrl=...&model=...` with the key typed into the page or passed as `#key=...` (a URL fragment never leaves the browser), `?provider=browser` (WebLLM, needs WebGPU, downloads about 1 GB once), or `?provider=site` when the Cloudflare Function proxy has a key.
+- Keys never touch the site. A bring-your-own key goes from the visitor's browser straight to the provider they name and is stored, if at all, in their own localStorage. The optional proxy in `site/functions/api/chat/completions.js` reads `OPENAI_API_KEY` from the Pages project's environment variables and only ever returns the model's reply.
+
+**Deploy on Cloudflare Pages** (one time): Workers & Pages → Create → Pages → Connect to Git → this repository, build command empty, build output directory `site`. Optionally add `OPENAI_API_KEY` (and `LLM_MODEL`) under Settings → Environment variables to enable the site-key option. Every push, including the scheduled signals commit, redeploys. From a terminal instead: `npx wrangler login` then `npx wrangler pages deploy site --project-name protofin`.
+
+Cloudflare's Python Workers cannot run the data step (yfinance, torch), which is why the signals are built in GitHub Actions and committed.
+
 ## Backtesting
 
 ```

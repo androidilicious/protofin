@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin Macro Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style type="text/tailwindcss">
+        .glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .fres { opacity: 0; transform: translateX(6px); transition: all .3s; }
+        .fres.show { opacity: 1; transform: none; }
+        .chat-bubble {
+            position: relative;
+            background: #1e293b;
+            border-radius: .4em;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #334155;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .chat-bubble.left:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #334155;
+            border-bottom: 0;
+            margin-left: -10px;
+            margin-bottom: -10px;
+        }
+        .chat-bubble.right:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #334155;
+            border-bottom: 0;
+            margin-right: -10px;
+            margin-bottom: -10px;
+        }
+        
+        /* Custom Tooltip Styling */
+        .tooltip {
+            @apply absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-64 p-3 bg-slate-950 text-slate-300 text-xs rounded-lg border border-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 text-left shadow-2xl font-sans tracking-normal leading-relaxed;
+        }
+        .tooltip::after {
+            content: '';
+            @apply absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-700;
+        }
+        .info-icon {
+            @apply inline-block ml-1 text-slate-500 text-[10px] bg-slate-800 rounded-full w-4 h-4 text-center leading-4;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 font-sans min-h-screen flex flex-col p-6 overflow-x-hidden">
+    
+    <header class="mb-8 text-center w-full max-w-7xl mx-auto">
+        <h1 class="text-4xl font-extrabold text-white tracking-wider uppercase flex items-center justify-center gap-3">
+            <span class="text-blue-500">Protofin</span> Macro Intelligence <span class="text-xs bg-blue-800 px-2 py-1 rounded tracking-widest">PROTOTYPE</span>
+        </h1>
+        <p class="text-slate-400 mt-2 text-sm tracking-widest">AUTONOMOUS BLACK-LITTERMAN ENGINE</p>
+        <button id="runBtn" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-8 rounded border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] transition duration-300 uppercase tracking-widest text-sm">
+            Initialize Pipeline
+        </button>
+        <button id="forceBtn" class="hidden">Force re-run</button>
+        <div id="settings" class="mt-5 mx-auto max-w-4xl bg-slate-800/70 border border-slate-700 rounded-lg p-4 text-left text-xs">
+            <div class="flex flex-wrap items-end gap-3">
+                <label class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Model provider</span>
+                    <select id="provider" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200">
+                        <option value="reference">Stored reference run (no key needed)</option>
+                        <option value="byok">Your API key (OpenAI-compatible)</option>
+                        <option value="site" id="siteOpt">Site key (proxy)</option>
+                        <option value="browser">In-browser model (WebGPU, ~1 GB download)</option>
+                    </select></label>
+                <label id="baseWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Base URL</span>
+                    <input id="baseUrl" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-72" placeholder="https://api.openai.com/v1"></label>
+                <label id="modelWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Model</span>
+                    <input id="model" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-44" placeholder="gpt-4o"></label>
+                <label id="keyWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">API key</span>
+                    <input id="apiKey" type="password" autocomplete="off" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-64" placeholder="sk-..."></label>
+                <label id="browserWrap" class="flex flex-col gap-1 hidden"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Browser model</span>
+                    <select id="browserModel" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200">
+                        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (about 1 GB)</option>
+                        <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (about 0.7 GB)</option>
+                        <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (about 0.4 GB)</option>
+                    </select></label>
+                <label class="flex items-center gap-2 text-slate-400"><input id="remember" type="checkbox" class="accent-blue-500"> remember on this device</label>
+            </div>
+            <p id="settingsNote" class="mt-2 text-[11px] text-slate-500">Your key is used only from your browser, straight to the provider you name. It is never sent to this site. Works with OpenAI, Groq, OpenRouter, Together, or a local Ollama (<span class="font-mono">http://localhost:11434/v1</span>, with OLLAMA_ORIGINS set). URL options: <span class="font-mono">?provider=byok&amp;model=gpt-4o-mini&amp;baseUrl=...</span>, key via <span class="font-mono">#key=...</span> (fragment, not sent to any server).</p>
+            <p id="signalsNote" class="mt-1 text-[11px] text-slate-500"></p>
+        </div>
+    </header>
+
+    <div class="max-w-7xl w-full mx-auto space-y-6">
+
+        <!-- Pipeline flow: archify-rendered SVG inline (shadow DOM), values appear as each step lights -->
+        <div id="diagramWrap" class="bg-slate-800 rounded-lg p-4 border border-slate-700 transition-all duration-500">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-slate-300 font-bold uppercase tracking-wider text-xs flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-slate-400"></span> Pipeline Flow
+                    <span class="text-[10px] text-slate-500 normal-case tracking-normal">archify render &middot; each step lights as its values arrive</span>
+                </h2>
+                <div class="flex items-center gap-3 text-[10px]">
+                    <button id="replayBtn" class="px-2 py-0.5 rounded border border-slate-600 text-slate-300 hover:border-blue-400 hover:text-blue-300 uppercase tracking-widest" disabled>&#9654; Replay</button>
+                    <span id="diagramStatus" class="text-slate-500"></span>
+                    <a href="./protofin-pipeline.html" target="_blank" class="text-blue-400 underline underline-offset-2">full archify page</a>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <div id="diagramHost" class="rounded border border-slate-700 bg-slate-950 p-2 min-h-[200px]"></div>
+                <ol id="flowResults" class="bg-slate-900 rounded border border-slate-700 p-3 text-xs font-mono space-y-2 min-h-[200px]">
+                    <li class="text-slate-600 italic">Run the pipeline to see each step's values here.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Top Row: Data & Quant -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Step 1: Data -->
+            <div id="step1" class="bg-slate-800 rounded-lg p-5 border border-slate-700 opacity-30 transition-all duration-500 relative min-h-[200px]">
+                <h2 class="text-blue-400 font-bold uppercase tracking-wider text-xs mb-4 flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-blue-500"></span> 1. Data Ingestion
+                </h2>
+                <div id="spinner1" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
+                    <span class="text-blue-500 text-sm font-bold animate-pulse">Fetching Real-Time Market Data...</span>
+                </div>
+                <div id="dataContent" class="hidden flex gap-4 text-sm h-full">
+                    <div class="flex-1 flex flex-col gap-4">
+                        <div class="relative group cursor-help p-3 bg-slate-900 rounded border border-slate-700 text-center flex-1 transition hover:bg-slate-800">
+                            <span class="text-slate-500 text-xs uppercase block mb-1">10Y Treasury Yield <span class="info-icon">i</span></span>
+                            <span id="yieldData" class="text-2xl text-red-400 font-mono">--</span>
+                            <div class="tooltip"><strong class="text-blue-400">Source:</strong> Live yfinance API (^TNX).<br><strong class="text-slate-400">Calculation:</strong> Grabs the most recent daily market closing yield.</div>
+                        </div>
+                        <div class="relative group cursor-help p-3 bg-slate-900 rounded border border-slate-700 text-center flex-1 transition hover:bg-slate-800">
+                            <span class="text-slate-500 text-xs uppercase block mb-1">SPY 1M Return <span class="info-icon">i</span></span>
+                            <span id="spyData" class="text-2xl text-blue-400 font-mono">--</span>
+                            <div class="tooltip"><strong class="text-blue-400">Source:</strong> Live yfinance API (SPY).<br><strong class="text-slate-400">Calculation:</strong> % change between today's close and the close exactly 21 trading days ago.</div>
+                        </div>
+                    </div>
+                    <div class="relative group cursor-help flex-1 p-3 bg-slate-900 rounded border border-slate-700 flex flex-col transition hover:bg-slate-800 text-xs">
+                        <span class="text-slate-500 uppercase block mb-2">News &amp; Policy Text <span class="info-icon">i</span> <span id="newsMode" class="ml-1 px-1.5 py-0.5 rounded border border-slate-600 text-[9px] text-slate-400"></span></span>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div class="bg-slate-950 rounded p-2 text-center"><span class="text-slate-500 block text-[10px] uppercase">FOMC hawkish</span><span id="fomcScore" class="font-mono text-blue-300">--</span><span id="fomcDate" class="text-slate-600 block text-[10px]"></span></div>
+                            <div class="bg-slate-950 rounded p-2 text-center"><span class="text-slate-500 block text-[10px] uppercase">Headline tone</span><span id="newsSent" class="font-mono text-blue-300">--</span><span id="newsCount" class="text-slate-600 block text-[10px]"></span></div>
+                        </div>
+                        <p id="newsRead" class="text-slate-300 italic leading-tight mb-2"></p>
+                        <ul id="newsList" class="text-slate-400 leading-tight space-y-0.5 overflow-hidden"></ul>
+                        <p id="newsData" class="text-slate-600 italic font-serif leading-tight mt-2 text-[10px]">--</p>
+                        <div class="tooltip"><strong class="text-blue-400">Sources:</strong> Latest FOMC statement from federalreserve.gov scored hawkish/dovish by FOMC-RoBERTa; macro headlines from Google News RSS scored by FinBERT; the committee's headline read is an LLM structured extraction with quotes. Headlines have no archive, so by default they are display only and do not enter the view, the fingerprint or the allocation; the FOMC stance (archived since 2008) does. Set HEADLINES_MODE=decide in .env for demo mode. The grey line is the old single Yahoo headline, kept for comparison.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: SVAR -->
+            <div id="step2" class="bg-slate-800 rounded-lg p-5 border border-slate-700 opacity-30 transition-all duration-500 relative min-h-[200px]">
+                <h2 class="text-orange-400 font-bold uppercase tracking-wider text-xs mb-4 flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-orange-500"></span> 2. Quant SVAR Shock
+                </h2>
+                <div id="spinner2" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
+                    <span class="text-orange-500 text-sm font-bold animate-pulse">Computing Matrix Shocks...</span>
+                </div>
+                <div id="svarContent" class="hidden h-full flex flex-col justify-center relative group cursor-help">
+                    <p id="svarText" class="text-orange-300 font-mono text-center mb-6"></p>
+                    <div class="w-full h-4 bg-slate-900 rounded-full relative overflow-hidden border border-slate-700">
+                        <div class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-slate-500 z-10"></div>
+                        <div class="absolute top-0 bottom-0 bg-gradient-to-r from-green-500 via-transparent to-red-500 w-full opacity-50"></div>
+                        <div id="svarNeedle" class="absolute top-0 bottom-0 w-2 bg-orange-500 rounded-full shadow-[0_0_10px_orange] transition-all duration-1000 z-20" style="left: 50%;"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500 uppercase mt-2 font-bold">
+                        <span>Dovish (Easing)</span>
+                        <span>Hawkish (Tightening)</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-4 text-center text-[10px] uppercase tracking-widest">
+                        <div class="bg-slate-900 rounded border border-slate-700 p-2"><span class="text-slate-500 block">EPU 30d</span><span id="epuVal" class="text-orange-300 font-mono text-sm">--</span><span id="epuPct" class="text-slate-500 block"></span></div>
+                        <div class="bg-slate-900 rounded border border-slate-700 p-2"><span class="text-slate-500 block">GPR 30d</span><span id="gprVal" class="text-orange-300 font-mono text-sm">--</span><span id="gprPct" class="text-slate-500 block"></span></div>
+                        <div class="bg-slate-900 rounded border border-slate-700 p-2"><span class="text-slate-500 block">Uncertainty</span><span id="regimeVal" class="font-mono text-sm">--</span><span class="text-slate-500 block">regime</span></div>
+                    </div>
+                    
+                    <div class="tooltip" style="bottom: 80%;"><strong class="text-orange-400">Source:</strong> Python Backend.<br><strong class="text-slate-400">Calculation:</strong> (Current 10Y yield) minus (3-month average yield), in basis points; &plusmn;100 bps fills the gauge. EPU (Baker-Bloom-Davis policy uncertainty) and GPR (Caldara-Iacoviello geopolitical risk) are 30-day means ranked against 10 years of history. Elevated uncertainty lowers the confidence applied to the LLM views by one notch.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Row: Debate -->
+        <div id="step3" class="w-full bg-slate-800 rounded-lg p-6 border border-slate-700 opacity-30 transition-all duration-500 min-h-[300px] relative">
+            <h2 class="text-purple-400 font-bold uppercase tracking-wider text-xs mb-6 flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-purple-500"></span> 3. Agent Debate (Chain of Thought)
+                <div class="relative group cursor-help ml-2 inline-block">
+                    <span class="info-icon">i</span>
+                    <div class="tooltip left-0 transform translate-x-0 ml-4"><strong class="text-purple-400">Source:</strong> the model provider you choose above (temperature 0).<br><strong class="text-slate-400">Calculation:</strong> Multi-agent prompt engineering forces an adversarial simulation. The Economist argues growth, the Risk Manager argues downside, and the CIO forces a quantitative synthesis.</div>
+                </div>
+            </h2>
+            <div id="spinner3" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
+                <span class="text-purple-500 text-sm font-bold animate-pulse">Agents Synthesizing Signals...</span>
+            </div>
+            <p id="modelLine" class="text-[10px] text-slate-500 uppercase tracking-widest mb-3"></p>
+            <div id="aiContent" class="hidden w-full max-w-5xl mx-auto space-y-6">
+                
+                <div id="econBlock" class="hidden opacity-0 transition-opacity duration-500 w-3/4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xl">📈</span> <span class="text-xs text-blue-400 font-bold uppercase tracking-wider">Macro Economist</span>
+                    </div>
+                    <div class="chat-bubble left border-l-2 border-l-blue-500 text-blue-50">
+                        <span id="econText"></span>
+                    </div>
+                </div>
+                
+                <div id="riskBlock" class="hidden opacity-0 transition-opacity duration-500 w-3/4 ml-auto text-right">
+                    <div class="flex items-center justify-end gap-2 mb-1">
+                        <span class="text-xs text-red-400 font-bold uppercase tracking-wider">Risk Manager</span> <span class="text-xl">🛡️</span>
+                    </div>
+                    <div class="chat-bubble right border-r-2 border-r-red-500 text-red-50 !bg-slate-900 inline-block text-left w-full">
+                        <span id="riskText"></span>
+                    </div>
+                </div>
+                
+                <div id="cioBlock" class="hidden opacity-0 transition-opacity duration-500 w-full pt-4 border-t border-slate-700">
+                    <div class="flex items-center gap-2 mb-2 justify-center">
+                        <span class="text-xl">⚖️</span> <span class="text-xs text-purple-400 font-bold uppercase tracking-wider">Chief Investment Officer Synthesis</span>
+                    </div>
+                    <div class="text-center text-purple-100 font-medium text-lg max-w-4xl mx-auto">
+                        "<span id="cioText"></span>"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Views & Allocation -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Step 4: Predictions & Grounding -->
+            <div id="step4" class="bg-slate-800 rounded-lg p-5 border border-slate-700 opacity-30 transition-all duration-500 relative">
+                <h2 class="text-teal-400 font-bold uppercase tracking-wider text-xs mb-4 flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-teal-500"></span> 4. The "Views" (Q Vector) & Grounding
+                </h2>
+                <div id="spinner4" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
+                    <span class="text-teal-500 text-sm font-bold animate-pulse">Extracting Matrix Variables...</span>
+                </div>
+                <div id="viewsContent" class="hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="relative group cursor-help bg-slate-900 p-4 rounded border border-slate-700 hover:bg-slate-800 transition">
+                            <span class="block text-slate-500 text-[10px] uppercase tracking-widest mb-1">SPY Expected Return (12M, E[R]) <span class="info-icon">i</span></span>
+                            <span id="spyQ" class="text-3xl text-green-400 font-mono font-bold"></span>
+                            <div class="tooltip"><strong class="text-teal-400">Source:</strong> LLM Output Parser.<br><strong class="text-slate-400">Calculation:</strong> 12-month total return forecast parsed from the CIO Agent. Used as the Q vector for Equities in Black-Litterman. If missing or implausible, views are rejected and the prior is used.</div>
+                        </div>
+                        <div class="relative group cursor-help bg-slate-900 p-4 rounded border border-slate-700 hover:bg-slate-800 transition">
+                            <span class="block text-slate-500 text-[10px] uppercase tracking-widest mb-1">TLT Expected Return (12M, E[R]) <span class="info-icon">i</span></span>
+                            <span id="tltQ" class="text-3xl text-red-400 font-mono font-bold"></span>
+                            <div class="tooltip"><strong class="text-teal-400">Source:</strong> LLM Output Parser.<br><strong class="text-slate-400">Calculation:</strong> 12-month total return forecast parsed from the CIO Agent. Used as the Q vector for Bonds in Black-Litterman. If missing or implausible, views are rejected and the prior is used.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative group cursor-help bg-slate-900 p-4 rounded border border-slate-700 flex justify-between items-center hover:bg-slate-800 transition">
+                        <span class="text-slate-500 text-[10px] uppercase tracking-widest">Model Confidence (Omega Scale): <span class="info-icon">i</span></span>
+                        <span id="cioConf" class="text-lg text-white font-bold tracking-widest uppercase px-3 py-1 bg-teal-900/50 rounded border border-teal-500"></span>
+                        <div class="tooltip right-0 transform translate-x-0 left-auto"><strong class="text-teal-400">Source:</strong> LLM Output Parser.<br><strong class="text-slate-400">Calculation:</strong> High confidence shrinks the uncertainty matrix (Omega) by 50%. Low confidence doubles it. When the EPU/GPR regime is elevated, the reported confidence is downgraded one notch before use (shown as reported &rarr; used).</div>
+                    </div>
+
+                    <p id="viewNote" class="text-[10px] uppercase tracking-widest text-center text-slate-500"></p>
+
+                    <div class="relative group cursor-help bg-teal-900/20 p-4 rounded border border-teal-800/50 mt-4 hover:bg-teal-900/30 transition">
+                        <span class="block text-teal-500 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Grounding Information <span class="info-icon">i</span></span>
+                        <p id="groundingText" class="text-slate-300 text-sm italic"></p>
+                        <div class="tooltip top-full bottom-auto mt-2"><strong class="text-teal-400">Source:</strong> LLM Output Parser.<br><strong class="text-slate-400">Calculation:</strong> A generated summary explicitly tying the AI's numerical outputs back to the live quantitative inputs, preventing hallucinations.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Final Allocation -->
+            <div id="step5" class="bg-slate-800 rounded-lg p-5 border border-slate-700 opacity-30 transition-all duration-500 relative flex flex-col items-center justify-center">
+                <h2 class="text-green-400 font-bold uppercase tracking-wider text-xs mb-4 w-full flex items-center gap-2 absolute top-5 left-5">
+                    <span class="h-2 w-2 rounded-full bg-green-500"></span> 5. Black-Litterman Portfolio
+                    <div class="relative group cursor-help ml-2 inline-block">
+                        <span class="info-icon">i</span>
+                        <div class="tooltip left-0 transform translate-x-0 ml-4 w-72"><strong class="text-green-400">Source:</strong> Python NumPy Math Engine.<br><strong class="text-slate-400">Calculation:</strong> Historical covariance (Σ) from 1y daily returns. 60/40 equilibrium prior (Π). BL posterior: <br><code class="text-green-300 font-mono text-[10px] bg-slate-900 p-1 rounded mt-1 block">E[R] = [(τΣ)⁻¹ + PᵀΩ⁻¹P]⁻¹ [(τΣ)⁻¹Π + PᵀΩ⁻¹Q]</code><span class="block mt-1">Then a long-only, fully invested mean-variance optimum inside a 40&ndash;80% SPY tilt band, a 2pp no-trade band against current holdings, and a 10pp per-run move cap. Unchanged evidence returns the stored decision.</span></div>
+                    </div>
+                </h2>
+                <div id="spinner5" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
+                    <span class="text-green-500 text-sm font-bold animate-pulse">Running Optimizer...</span>
+                </div>
+                
+                <div id="chartContent" class="hidden w-full flex flex-col items-center justify-center mt-8">
+                    <div class="w-48 h-48 relative">
+                        <canvas id="allocationChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                            <span id="chartLabel" class="text-3xl font-bold text-white font-mono"></span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-widest">Equities</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 w-full max-w-sm flex justify-between text-sm font-mono border-t border-slate-700 pt-4">
+                        <span class="text-green-400 font-bold tracking-widest">SPY: <span id="lblSpy"></span></span>
+                        <span class="text-red-400 font-bold tracking-widest">TLT: <span id="lblTlt"></span></span>
+                    </div>
+                    <div class="mt-4 w-full max-w-sm text-[11px] font-mono space-y-1">
+                        <div class="flex justify-between"><span class="text-slate-500">UNCONSTRAINED BL (SPY / TLT)</span><span id="bdUnc" class="text-slate-400"></span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">OPTIMIZER TARGET (40&ndash;80 BAND)</span><span id="bdTarget" class="text-slate-300"></span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">PREVIOUS HOLDING</span><span id="bdPrev" class="text-slate-400"></span></div>
+                    </div>
+                    <div id="tradeStatus" class="mt-3 text-[10px] uppercase tracking-widest text-center px-3 py-1 rounded border border-slate-600 text-slate-400"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { loadSettings, saveSettings, runPipeline } from "./js/pipeline.js";
+        async function typeWriter(elementId, text, speed=10) {
+            document.getElementById(elementId).innerHTML = '';
+            let i = 0;
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    document.getElementById(elementId).innerHTML += text.charAt(i);
+                    i++;
+                    if (i >= text.length) { clearInterval(interval); resolve(); }
+                }, speed);
+            });
+        }
+
+        // ---------- inline archify diagram + step player ----------
+        const STEPS = ['run', 'ingest', 'shock', 'regime', 'fomc', 'committee', 'allocate', 'render'];
+        const STEP_LABEL = { run: 'Run', ingest: 'Yahoo Finance', shock: 'Rate shock', regime: 'EPU / GPR', fomc: 'FOMC stance',
+                             committee: 'gpt-4o committee', allocate: 'Black-Litterman', render: 'Render' };
+        let lastRun = null, diagramWrapEl = null;
+        async function loadDiagram() {
+            const html = await (await fetch('./protofin-pipeline.html', { cache: 'no-store' })).text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const svg = doc.querySelector('svg');
+            if (!svg) return null;
+            const css = Array.from(doc.querySelectorAll('style')).map(x => x.textContent).join('\n').replace(/:root/g, '[data-theme]');
+            const host = document.getElementById('diagramHost');
+            const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
+            root.innerHTML = '';
+            const style = document.createElement('style');
+            style.textContent = css + `
+                :host { display:block; }
+                svg { width:100%; height:auto; display:block; }
+                .pf-dim [data-node-id], .pf-dim [data-edge-id], .pf-dim [data-edge-key] { opacity:.18; transition: opacity .35s; }
+                .pf-dim [data-node-id].pf-on, .pf-dim [data-edge-id].pf-on, .pf-dim [data-edge-key].pf-on { opacity:1; }
+                [data-node-id].pf-on { filter: drop-shadow(0 0 7px rgba(96,165,250,.95)); }
+                [data-node-id].pf-done { filter: drop-shadow(0 0 3px rgba(56,189,248,.6)); }`;
+            const wrap = document.createElement('div');
+            wrap.setAttribute('data-theme', 'dark');
+            wrap.appendChild(svg.cloneNode(true));
+            root.append(style, wrap);
+            diagramWrapEl = wrap;
+            // crop the canvas to the drawn content (lanes, nodes, edges, labels) so it fills the column
+            requestAnimationFrame(() => {
+                try {
+                    const svgEl = wrap.querySelector('svg');
+                    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+                    svgEl.querySelectorAll('[data-node-id], [data-edge-id], [data-edge-key], .c-lane, text').forEach(el => {
+                        const b = el.getBBox(); if (!b.width && !b.height) return;
+                        x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+                    });
+                    if (x1 > x0 && y1 > y0) svgEl.setAttribute('viewBox', `${x0 - 12} ${y0 - 12} ${x1 - x0 + 24} ${y1 - y0 + 24}`);
+                } catch (e) { /* keep the original viewBox */ }
+            });
+            return wrap;
+        }
+        function stepValues(d) {
+            const f = (d.news || {}).fomc, e = d.epu, g = d.gpr;
+            const pct = v => v ? `${v.percentile_10y.toFixed(0)}th pct` : 'n/a';
+            const sg = v => (v > 0 ? '+' : '') + v;
+            return {
+                run:       `clicked &middot; data as of ${d.as_of}`,
+                ingest:    `10Y ${d.yield} &middot; cash ${d.risk_free}% &middot; SPY 1m ${d.spy_return} &middot; covariance from 1y daily returns`,
+                shock:     `${sg(d.svar_value.toFixed(0))} bps vs 3-month average`,
+                regime:    `EPU ${pct(e)} &middot; GPR ${pct(g)} &middot; regime ${d.uncertainty_regime.toUpperCase()}`,
+                fomc:      f ? `hawkish ${sg(f.score.toFixed(2))} (statement ${f.date})` : 'unavailable',
+                committee: `SPY ${d.spy_q}% &middot; TLT ${d.tlt_q}% (12m) &middot; confidence ${d.confidence_reported}${d.confidence !== d.confidence_reported ? ' &rarr; ' + d.confidence + ' (regime)' : ''}`,
+                allocate:  `prior ${d.prior_spy}/${d.prior_tlt} + views &rarr; posterior ${d.posterior_spy}/${d.posterior_tlt} &rarr; target ${d.target_spy} / ${d.target_tlt}`,
+                render:    `SPY ${d.spy_weight}% / TLT ${d.tlt_weight}%${d.prototype_mode ? '' : ' &middot; ' + d.trade_status}`,
+            };
+        }
+        async function playDiagram(d) {
+            if (!diagramWrapEl) await loadDiagram();
+            const wrap = diagramWrapEl; if (!wrap) return;
+            const list = document.getElementById('flowResults'); list.innerHTML = '';
+            wrap.classList.add('pf-dim');
+            wrap.querySelectorAll('.pf-on, .pf-done').forEach(x => x.classList.remove('pf-on', 'pf-done'));
+            const vals = stepValues(d);
+            for (let i = 0; i < STEPS.length; i++) {
+                const id = STEPS[i];
+                wrap.querySelectorAll(`[data-edge-to="${id}"]`).forEach(x => x.classList.add('pf-on'));
+                const node = wrap.querySelector(`[data-node-id="${id}"]`);
+                if (node) node.classList.add('pf-on');
+                const li = document.createElement('li'); li.className = 'fres';
+                li.innerHTML = `<span class="text-slate-500">${i + 1}. ${STEP_LABEL[id]}</span><br><span class="text-slate-200">${vals[id]}</span>`;
+                list.appendChild(li); requestAnimationFrame(() => li.classList.add('show'));
+                await new Promise(r => setTimeout(r, 650));
+                if (node) { node.classList.remove('pf-on'); node.classList.add('pf-done', 'pf-on'); }
+            }
+        }
+        async function refreshDiagram() {
+            document.getElementById('diagramStatus').innerText = 'diagram labels: committed reference run; live values on the right';
+        }
+        document.getElementById('replayBtn').addEventListener('click', () => { if (lastRun) playDiagram(lastRun); });
+        loadDiagram();
+        let forceNext = false;
+        let SIGNALS = null;
+        const $ = id => document.getElementById(id);
+        const settings = loadSettings();
+        function showSettings() {
+            $('provider').value = settings.provider; $('baseUrl').value = settings.baseUrl; $('model').value = settings.model;
+            $('apiKey').value = settings.apiKey || ''; $('browserModel').value = settings.browserModel;
+            const p = settings.provider;
+            $('baseWrap').classList.toggle('hidden', p !== 'byok'); $('keyWrap').classList.toggle('hidden', p !== 'byok');
+            $('modelWrap').classList.toggle('hidden', p === 'browser' || p === 'reference'); $('browserWrap').classList.toggle('hidden', p !== 'browser');
+        }
+        function readSettings() {
+            settings.provider = $('provider').value; settings.baseUrl = $('baseUrl').value.trim() || 'https://api.openai.com/v1';
+            settings.model = $('model').value.trim() || 'gpt-4o'; settings.apiKey = $('apiKey').value.trim(); settings.browserModel = $('browserModel').value;
+            if ($('remember').checked) saveSettings(settings); else { try { localStorage.removeItem('protofin.settings'); } catch (e) {} }
+        }
+        ['provider', 'baseUrl', 'model', 'apiKey', 'browserModel', 'remember'].forEach(id => $(id).addEventListener('change', () => { readSettings(); showSettings(); }));
+        showSettings();
+        try { $('remember').checked = !!localStorage.getItem('protofin.settings'); } catch (e) {}
+        // site proxy available? (Cloudflare Pages Function with a server-side key)
+        fetch('./api/chat/completions', { cache: 'no-store' }).then(r => r.ok ? r.json() : { configured: false }).then(j => { if (!j.configured) $('siteOpt').disabled = true; else $('siteOpt').textContent = `Site key (proxy, ${j.model})`; }).catch(() => { $('siteOpt').disabled = true; });
+        async function loadSignals() {
+            const r = await fetch('./data/signals.json', { cache: 'no-store' });
+            SIGNALS = await r.json();
+            $('signalsNote').textContent = `Signals built ${SIGNALS.generated_at} for market data as of ${SIGNALS.as_of}` + (SIGNALS.reference_run ? `; stored reference run by ${SIGNALS.reference_run.model}.` : '; no stored reference run.');
+        }
+        loadSignals();
+        // ?autorun=1 starts the pipeline on load (used for screenshots and demos)
+        window.addEventListener('load', () => {
+            const q = new URLSearchParams(location.search);
+            if (q.get('autorun') === '1') document.getElementById(q.get('force') === '1' ? 'forceBtn' : 'runBtn').click();
+        });
+        document.getElementById('forceBtn').addEventListener('click', () => { forceNext = true; document.getElementById('runBtn').click(); });
+        document.getElementById('runBtn').addEventListener('click', async () => {
+            // Reset UI
+            [1,2,3,4,5].forEach(i => {
+                document.getElementById(`step${i}`).classList.remove('glow');
+                document.getElementById(`step${i}`).classList.add('opacity-30');
+            });
+            ['dataContent', 'svarContent', 'aiContent', 'viewsContent', 'chartContent', 'spinner1', 'spinner2', 'spinner3', 'spinner4', 'spinner5', 'econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).classList.remove('opacity-100'));
+            
+            const btn = document.getElementById('runBtn');
+            btn.disabled = true;
+            btn.innerText = 'System Running...';
+            btn.classList.add('animate-pulse', 'border-yellow-500', 'text-yellow-500');
+            btn.classList.remove('border-blue-400', 'text-white');
+
+            // --- STEP 1 & 2 ---
+            document.getElementById('step1').classList.remove('opacity-30');
+            document.getElementById('step2').classList.remove('opacity-30');
+            document.getElementById('step1').classList.add('glow');
+            document.getElementById('step2').classList.add('glow');
+            document.getElementById('spinner1').classList.remove('hidden');
+            document.getElementById('spinner2').classList.remove('hidden');
+
+            try {
+                forceNext = false;
+                if (!SIGNALS) await loadSignals();
+                readSettings();
+                const data = await runPipeline(SIGNALS, settings, msg => { btn.innerText = msg.slice(0, 60); });
+                lastRun = data; document.getElementById('replayBtn').disabled = false;
+                await playDiagram(data);
+                refreshDiagram();
+
+                document.getElementById('spinner1').classList.add('hidden');
+                document.getElementById('spinner2').classList.add('hidden');
+                document.getElementById('dataContent').classList.remove('hidden');
+                document.getElementById('svarContent').classList.remove('hidden');
+
+                document.getElementById('yieldData').innerText = data.yield;
+                document.getElementById('spyData').innerText = data.spy_return;
+                document.getElementById('newsData').innerText = `Yahoo (old input): "${data.headline}"`;
+                const nw = data.news || {};
+                const nm = document.getElementById('newsMode');
+                nm.innerText = nw.headlines_in_decision ? 'HEADLINES IN DECISION' : 'FOMC IN DECISION · HEADLINES DISPLAY ONLY';
+                nm.className = 'ml-1 px-1.5 py-0.5 rounded border text-[9px] ' + (nw.headlines_in_decision ? 'border-amber-600 text-amber-300' : 'border-slate-600 text-slate-400');
+                document.getElementById('fomcScore').innerText = nw.fomc ? (nw.fomc.score > 0 ? '+' : '') + nw.fomc.score.toFixed(2) : 'n/a';
+                document.getElementById('fomcDate').innerText = nw.fomc ? `statement ${nw.fomc.date}` : '';
+                document.getElementById('newsSent').innerText = (nw.sentiment === null || nw.sentiment === undefined) ? 'n/a' : (nw.sentiment > 0 ? '+' : '') + nw.sentiment.toFixed(2);
+                document.getElementById('newsCount').innerText = nw.headline_count ? `${nw.headline_count} macro headlines, FinBERT` : '';
+                const ex = nw.extraction;
+                document.getElementById('newsRead').innerText = ex ? `Read: growth ${ex.growth}, inflation ${ex.inflation}, policy ${ex.policy}, ${ex.nature}. ${ex.summary || ''}` : '';
+                document.getElementById('newsList').innerHTML = (nw.headlines || []).slice(0, 5).map(h => `<li><span class="${h.label === 'positive' ? 'text-green-500' : h.label === 'negative' ? 'text-red-400' : 'text-slate-500'}">&#9632;</span> ${h.title.replace(/</g, '&lt;')}</li>`).join('');
+                
+                document.getElementById('svarText').innerText = data.svar_shock;
+                let val = parseFloat(data.svar_value);
+                let percent = 50 + (val / 2); 
+                if(percent < 5) percent = 5; if(percent > 95) percent = 95;
+                document.getElementById('svarNeedle').style.left = `${percent}%`;
+                const fmtIdx = (snap, v, pEl) => { document.getElementById(v).innerText = snap ? snap.mean_30d.toFixed(0) : 'n/a'; document.getElementById(pEl).innerText = snap ? `${snap.percentile_10y.toFixed(0)}th pct` : 'unavailable'; };
+                fmtIdx(data.epu, 'epuVal', 'epuPct'); fmtIdx(data.gpr, 'gprVal', 'gprPct');
+                const rg = document.getElementById('regimeVal'); rg.innerText = data.uncertainty_regime.toUpperCase();
+                rg.className = 'font-mono text-sm ' + (data.uncertainty_regime === 'elevated' ? 'text-amber-400' : 'text-teal-400');
+
+                await new Promise(r => setTimeout(r, 1000));
+                document.getElementById('step1').classList.remove('glow');
+                document.getElementById('step2').classList.remove('glow');
+
+                // --- STEP 3 ---
+                document.getElementById('step3').classList.remove('opacity-30');
+                document.getElementById('step3').classList.add('glow');
+                document.getElementById('spinner3').classList.remove('hidden');
+                await new Promise(r => setTimeout(r, 500));
+                
+                document.getElementById('spinner3').classList.add('hidden');
+                document.getElementById('aiContent').classList.remove('hidden');
+                document.getElementById('modelLine').innerText = `model: ${data.model_used} · ${data.model_source}`;
+                
+                document.getElementById('econBlock').classList.remove('hidden');
+                setTimeout(() => document.getElementById('econBlock').classList.add('opacity-100'), 50);
+                await typeWriter('econText', data.economist, 5);
+                await new Promise(r => setTimeout(r, 800));
+
+                document.getElementById('riskBlock').classList.remove('hidden');
+                setTimeout(() => document.getElementById('riskBlock').classList.add('opacity-100'), 50);
+                await typeWriter('riskText', data.risk, 5);
+                await new Promise(r => setTimeout(r, 800));
+
+                document.getElementById('cioBlock').classList.remove('hidden');
+                setTimeout(() => document.getElementById('cioBlock').classList.add('opacity-100'), 50);
+                await typeWriter('cioText', data.cio, 5);
+                
+                await new Promise(r => setTimeout(r, 1000));
+                document.getElementById('step3').classList.remove('glow');
+
+                // --- STEP 4 ---
+                document.getElementById('step4').classList.remove('opacity-30');
+                document.getElementById('step4').classList.add('glow');
+                document.getElementById('spinner4').classList.remove('hidden');
+                await new Promise(r => setTimeout(r, 500)); 
+                
+                document.getElementById('spinner4').classList.add('hidden');
+                document.getElementById('viewsContent').classList.remove('hidden');
+
+                const fmtQ = v => (v === null || v === undefined) ? 'n/a' : `${v > 0 ? '+' : ''}${v}%`;
+                document.getElementById('spyQ').innerText = fmtQ(data.spy_q);
+                document.getElementById('tltQ').innerText = fmtQ(data.tlt_q);
+                document.getElementById('cioConf').innerText = data.confidence_reported && data.confidence_reported !== data.confidence
+                    ? `${data.confidence_reported.toUpperCase()} → ${data.confidence.toUpperCase()}` : data.confidence.toUpperCase();
+                document.getElementById('groundingText').innerText = data.grounding;
+                const vn = document.getElementById('viewNote');
+                vn.innerText = data.view_note;
+                vn.className = 'text-[10px] uppercase tracking-widest text-center ' + (data.llm_parse_ok ? 'text-teal-600' : 'text-amber-400');
+
+                await new Promise(r => setTimeout(r, 800));
+                document.getElementById('step4').classList.remove('glow');
+
+                // --- STEP 5 ---
+                document.getElementById('step5').classList.remove('opacity-30');
+                document.getElementById('step5').classList.add('glow');
+                document.getElementById('spinner5').classList.remove('hidden');
+                await new Promise(r => setTimeout(r, 500)); 
+                
+                document.getElementById('spinner5').classList.add('hidden');
+                document.getElementById('chartContent').classList.remove('hidden');
+                
+                document.getElementById('chartLabel').innerText = `${data.spy_weight.toFixed(0)}%`;
+                document.getElementById('lblSpy').innerText = `${data.spy_weight.toFixed(1)}%`;
+                document.getElementById('lblTlt').innerText = `${data.tlt_weight.toFixed(1)}%`;
+                document.getElementById('bdUnc').innerText = `${data.unconstrained_spy.toFixed(1)} / ${data.unconstrained_tlt.toFixed(1)}`;
+                document.getElementById('bdTarget').innerText = `${data.target_spy.toFixed(1)} / ${data.target_tlt.toFixed(1)}`;
+                document.getElementById('bdPrev').innerText = data.prototype_mode ? 'n/a (prototype: no stored holding)' : data.previous_spy === null ? 'none' : `${data.previous_spy.toFixed(1)} / ${(100 - data.previous_spy).toFixed(1)}`;
+                if (data.prototype_mode) document.getElementById('forceBtn').style.display = 'none';
+                const ts = document.getElementById('tradeStatus');
+                ts.innerText = (data.cached ? 'CACHED · ' : '') + data.trade_status;
+                ts.className = 'mt-3 text-[10px] uppercase tracking-widest text-center px-3 py-1 rounded border ' +
+                    (data.cached ? 'border-blue-700 text-blue-300' : data.trade_status.startsWith('held') ? 'border-slate-600 text-slate-400' : 'border-amber-600 text-amber-300');
+
+                const ctx = document.getElementById('allocationChart').getContext('2d');
+                if(window.myChart) window.myChart.destroy();
+                
+                Chart.defaults.color = '#94a3b8';
+                window.myChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Equities (SPY)', 'Bonds (TLT)'],
+                        datasets: [{
+                            data: [data.spy_weight, data.tlt_weight],
+                            backgroundColor: ['#22c55e', '#ef4444'],
+                            borderColor: '#1e293b',
+                            borderWidth: 2,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { 
+                        cutout: '80%', 
+                        responsive: true, 
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        animation: { animateScale: true, animateRotate: true }
+                    }
+                });
+
+                document.getElementById('step5').classList.remove('glow');
+
+            } catch (e) {
+                alert("Pipeline Error: " + e.message);
+            }
+
+            btn.disabled = false;
+            btn.innerText = 'Initialize Pipeline';
+            btn.classList.remove('animate-pulse', 'border-yellow-500', 'text-yellow-500');
+            btn.classList.add('border-blue-400', 'text-white');
+        });
+    </script>
+</body>
+</html>
