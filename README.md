@@ -79,7 +79,7 @@ The GitHub Action only keeps `site/data/signals.json` current in the repo and ne
 | Secret | Where | Who can read it |
 | --- | --- | --- |
 | Your OpenAI key for local runs and the reference reply | `.env` on your machine (git-ignored) | Only the local scripts |
-| Optional site-wide key so visitors need none | `npx wrangler pages secret put OPENAI_API_KEY --project-name protofin` | Only the Pages Function; never the browser. Anyone opening the page can then spend on your key, so rate-limit `/api/*` or keep it off for open links |
+| Site-wide key so visitors need none (configured) | Cloudflare Pages secret, set with `npx wrangler pages secret put OPENAI_API_KEY --project-name protofin`; a new deploy is needed after changing it | Only the Pages Function in `functions/api/chat/completions.js`; it forwards the fixed prompt and returns the reply. Anyone opening the page can spend on the key, so add a Cloudflare rate-limiting rule on `/api/*` for open links. Remove with `npx wrangler pages secret delete OPENAI_API_KEY --project-name protofin` |
 | A visitor's own key | Their browser, and their localStorage if they tick "remember" | Sent straight to the provider they name; never to this site |
 | GitHub | Nothing | The workflow references no secrets |
 
