@@ -1,26 +1,21 @@
-// Browser pipeline: signals.json (built by CI) -> configurable model -> parse -> allocate.
-// Same prompt, same parser rules and the same allocation math as the Python server.
+// Browser pipeline: a saved run (built by scripts/build_signals.py) -> model reply -> parse -> allocate.
+// Providers: 'saved' replays the committee reply stored with the run (no key, no network);
+// 'browser' runs a small open model locally with WebLLM (WebGPU). No API keys anywhere.
 import { allocate } from './allocation.js';
 
 export const DOWNGRADE = { High: 'Medium', Medium: 'Low', Low: 'Low' };
 
-// ---------- model providers ----------
-// settings: { provider: 'byok' | 'site' | 'browser' | 'reference', baseUrl, model, apiKey, browserModel }
 export const DEFAULTS = {
-  provider: 'reference',
-  baseUrl: 'https://api.openai.com/v1',
-  model: 'gpt-4o',
-  apiKey: '',
+  provider: 'saved',
   browserModel: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
+  run: 'latest',
 };
 
 export function settingsFromUrl(defaults = DEFAULTS) {
   const q = new URLSearchParams(location.search);
   const s = { ...defaults };
-  for (const k of ['provider', 'baseUrl', 'model', 'browserModel']) if (q.get(k)) s[k] = q.get(k);
-  // the key is accepted only from the fragment (never sent to any server by the browser) or the UI
-  const frag = new URLSearchParams(location.hash.replace(/^#/, ''));
-  if (frag.get('key')) { s.apiKey = frag.get('key'); s.provider = s.provider === 'reference' ? 'byok' : s.provider; }
+  for (const k of ['provider', 'browserModel', 'run']) if (q.get(k)) s[k] = q.get(k);
+  if (!['saved', 'browser'].includes(s.provider)) s.provider = 'saved';
   return s;
 }
 
@@ -33,20 +28,25 @@ export function saveSettings(s) {
   try { localStorage.setItem('protofin.settings', JSON.stringify(s)); } catch (e) { /* ignore */ }
 }
 
-async function openAiCompatible(prompt, { baseUrl, model, apiKey }, extraHeaders = {}) {
-  const r = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}), ...extraHeaders },
-    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0, max_tokens: 400 }),
-  });
-  if (!r.ok) throw new Error(`${r.status} ${await r.text().catch(() => '')}`.slice(0, 300));
-  const j = await r.json();
-  return j.choices?.[0]?.message?.content || '';
+// ---------- saved runs ----------
+export async function listRuns() {
+  try {
+    const r = await fetch('./data/runs/index.json', { cache: 'no-store' });
+    if (!r.ok) return [];
+    return await r.json();
+  } catch (e) { return []; }
+}
+export async function loadRun(id) {
+  const path = id && id !== 'latest' ? `./data/runs/${id}.json` : './data/signals.json';
+  const r = await fetch(path, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`could not load run ${id}`);
+  return await r.json();
 }
 
+// ---------- in-browser model ----------
 let webllmEngine = null, webllmModelLoaded = null;
 async function browserModel(prompt, { browserModel }, onProgress) {
-  if (!('gpu' in navigator)) throw new Error('This browser has no WebGPU; the in-browser model needs Chrome or Edge on a machine with a GPU.');
+  if (!('gpu' in navigator)) throw new Error('This browser has no WebGPU; the in-browser model needs a recent Chrome or Edge with a GPU.');
   const { CreateMLCEngine } = await import('https://esm.run/@mlc-ai/web-llm');
   if (!webllmEngine || webllmModelLoaded !== browserModel) {
     webllmEngine = await CreateMLCEngine(browserModel, { initProgressCallback: p => onProgress && onProgress(p.text) });
@@ -58,20 +58,12 @@ async function browserModel(prompt, { browserModel }, onProgress) {
   return r.choices?.[0]?.message?.content || '';
 }
 
-export async function callModel(prompt, settings, signals, onProgress) {
-  switch (settings.provider) {
-    case 'byok':
-      if (!settings.apiKey) throw new Error('Enter an API key, or choose another provider.');
-      return { raw: await openAiCompatible(prompt, settings), model: settings.model, source: `your key via ${settings.baseUrl}` };
-    case 'site':
-      return { raw: await openAiCompatible(prompt, { baseUrl: '/api', model: settings.model, apiKey: '' }), model: settings.model, source: 'site proxy (Cloudflare Function)' };
-    case 'browser':
-      return { raw: await browserModel(prompt, settings, onProgress), model: settings.browserModel, source: 'in-browser (WebLLM, WebGPU)' };
-    case 'reference':
-    default:
-      if (!signals.reference_run) throw new Error('No stored reference run in signals.json; choose a provider.');
-      return { raw: signals.reference_run.raw, model: signals.reference_run.model, source: `stored reference run (${signals.reference_run.generated_at})` };
+export async function callModel(run, settings, onProgress) {
+  if (settings.provider === 'browser') {
+    return { raw: await browserModel(run.prompt, settings, onProgress), model: settings.browserModel, source: 'in-browser (WebLLM, WebGPU), nothing leaves your machine' };
   }
+  if (!run.reference_run) throw new Error('This run has no stored committee reply.');
+  return { raw: run.reference_run.raw, model: run.reference_run.model, source: `saved run from ${run.reference_run.generated_at}` };
 }
 
 // ---------- parsing (mirrors server.parse_llm) ----------
@@ -95,19 +87,19 @@ export function parseReply(text) {
 }
 
 // ---------- full run ----------
-export async function runPipeline(signals, settings, onProgress) {
-  const { raw, model, source } = await callModel(signals.prompt, settings, signals, onProgress);
+export async function runPipeline(run, settings, onProgress) {
+  const { raw, model, source } = await callModel(run, settings, onProgress);
   const { fields, problems } = parseReply(raw);
   const ok = problems.length === 0;
-  const rf = signals.risk_free;
+  const rf = run.risk_free;
   const confidenceReported = fields.confidence || 'Low';
-  const confidence = signals.uncertainty_regime === 'elevated' ? DOWNGRADE[confidenceReported] : confidenceReported;
+  const confidence = run.uncertainty_regime === 'elevated' ? DOWNGRADE[confidenceReported] : confidenceReported;
   const views = ok ? [fields.spy_q, fields.tlt_q] : null;
   const viewNote = ok ? `views applied as excess return over cash (${rf.toFixed(2)}%)` : `LLM views rejected (${problems.join('; ')}); using equilibrium prior only`;
-  const d = allocate(signals.sigma, views, confidence, rf, null);
+  const d = allocate(run.sigma, views, confidence, rf, null);
   const r2 = x => Math.round(x * 100) / 100, r1 = x => Math.round(x * 10) / 10;
   return {
-    ...signals,
+    ...run,
     prototype_mode: true, cached: false, timestamp: new Date().toISOString(),
     model_used: model, model_source: source, llm_raw: raw,
     economist: fields.economist || '(no economist output parsed)', risk: fields.risk || '(no risk-manager output parsed)',

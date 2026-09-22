@@ -62,8 +62,9 @@ The `site/` folder is a static version of the dashboard with the whole decision 
 
 - `site/data/signals.json` is built by the GitHub Action in `.github/workflows/build-signals.yml` on weekday evenings (market data, rate shock, EPU/GPR regime, FOMC stance, the committee prompt, and one stored reference reply). Nothing in it is secret.
 - `site/js/allocation.js` is a line-for-line port of `allocation.py` (checked against Python to 1e-16); `site/js/pipeline.js` calls the model, parses the reply with the same rules, and allocates.
-- The model is configurable on the page or by URL: `?provider=reference` (stored run, no key), `?provider=byok&baseUrl=...&model=...` with the key typed into the page or passed as `#key=...` (a URL fragment never leaves the browser), `?provider=browser` (WebLLM, needs WebGPU, downloads about 1 GB once), or `?provider=site` when the Cloudflare Function proxy has a key.
-- Keys never touch the site. A bring-your-own key goes from the visitor's browser straight to the provider they name and is stored, if at all, in their own localStorage. The optional proxy in `site/functions/api/chat/completions.js` reads `OPENAI_API_KEY` from the Pages project's environment variables and only ever returns the model's reply.
+- Two committee options, neither involving an API key on the site: **Saved run** replays a real gpt-4o reply recorded when the signals were built (one per deploy, browsable in a dropdown, `?run=<id>`), and **In-browser model** runs a small open model locally through WebLLM (`?provider=browser`, needs WebGPU, downloads about 1 GB once; nothing leaves the visitor's machine).
+- Saved runs live in `site/data/runs/<id>.json` with `site/data/runs/index.json` as the list; `site/data/signals.json` is always the latest. The archive keeps the last 60 builds.
+- Light and dark themes: a toggle in the header, `?theme=light|dark`, remembered per device.
 
 **Deploying** is done from a laptop, so no cloud credential is stored anywhere but Wrangler's local login:
 
@@ -79,9 +80,9 @@ The GitHub Action only keeps `site/data/signals.json` current in the repo and ne
 | Secret | Where | Who can read it |
 | --- | --- | --- |
 | Your OpenAI key for local runs and the reference reply | `.env` on your machine (git-ignored) | Only the local scripts |
-| Site-wide key so visitors need none (configured) | Cloudflare Pages secret, set with `npx wrangler pages secret put OPENAI_API_KEY --project-name protofin`; a new deploy is needed after changing it | Only the Pages Function in `functions/api/chat/completions.js`; it forwards the fixed prompt and returns the reply. Anyone opening the page can spend on the key, so add a Cloudflare rate-limiting rule on `/api/*` for open links. Remove with `npx wrangler pages secret delete OPENAI_API_KEY --project-name protofin` |
-| A visitor's own key | Their browser, and their localStorage if they tick "remember" | Sent straight to the provider they name; never to this site |
+| Cloudflare Pages | Nothing | The site is static plus saved runs; no function, no proxy, no key |
 | GitHub | Nothing | The workflow references no secrets |
+| A visitor | Nothing | Saved runs need no key; the in-browser model runs locally |
 
 Cloudflare's Python Workers cannot run the data step (yfinance, torch), which is why the signals are built in GitHub Actions and committed.
 

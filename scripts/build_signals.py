@@ -55,6 +55,27 @@ def main():
     print(f"signals -> {OUT} (as of {sig['as_of']}, regime {sig['uncertainty_regime']}, "
           f"FOMC {(sig['news']['fomc'] or {}).get('score')})")
 
+    # Saved-runs archive: one file per build that carries a real committee reply, plus an index.
+    if sig["reference_run"]:
+        runs_dir = os.path.join(BASE, "site", "data", "runs")
+        os.makedirs(runs_dir, exist_ok=True)
+        run_id = sig["generated_at"].replace(":", "").replace("-", "").replace("+0000", "Z")
+        with open(os.path.join(runs_dir, f"{run_id}.json"), "w", encoding="utf-8") as fh:
+            json.dump(sig, fh, indent=1)
+        index_path = os.path.join(runs_dir, "index.json")
+        try:
+            index = json.load(open(index_path, encoding="utf-8"))
+        except (OSError, ValueError):
+            index = []
+        index = [r for r in index if r["id"] != run_id]
+        index.append({"id": run_id, "as_of": sig["as_of"], "generated_at": sig["generated_at"],
+                      "model": sig["reference_run"]["model"], "regime": sig["uncertainty_regime"],
+                      "fomc": (sig["news"]["fomc"] or {}).get("score")})
+        index.sort(key=lambda r: r["generated_at"], reverse=True)
+        with open(index_path, "w", encoding="utf-8") as fh:
+            json.dump(index[:60], fh, indent=1)
+        print(f"saved run {run_id} ({len(index)} in archive)")
+
 
 if __name__ == "__main__":
     main()

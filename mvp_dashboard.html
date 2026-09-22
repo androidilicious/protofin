@@ -11,6 +11,30 @@
     </script>
     <style type="text/tailwindcss">
         .glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        /* ---- light theme: overrides for the dark utilities used on this page ---- */
+        html.light body { background:#f4f5f7; color:#1f2937; }
+        html.light .bg-slate-900, html.light .bg-slate-950 { background:#ffffff; }
+        html.light .bg-slate-800 { background:#f9fafb; }
+        html.light .bg-slate-800\/70, html.light .bg-slate-800\/80, html.light .bg-slate-900\/50 { background:rgba(249,250,251,.92); }
+        html.light .border-slate-700, html.light .border-slate-600 { border-color:#d7dbe2; }
+        html.light .text-white, html.light .text-slate-200, html.light .text-slate-300 { color:#1f2937; }
+        html.light .text-slate-400 { color:#4b5563; }
+        html.light .text-slate-500 { color:#6b7280; }
+        html.light .text-slate-600 { color:#6b7280; }
+        html.light .text-blue-50, html.light .text-red-50, html.light .text-purple-100 { color:#1f2937; }
+        html.light .text-blue-300, html.light .text-blue-400 { color:#1d4ed8; }
+        html.light .text-teal-400, html.light .text-teal-600 { color:#0f766e; }
+        html.light .text-orange-300 { color:#c2410c; }
+        html.light .text-green-400 { color:#15803d; }
+        html.light .text-red-400 { color:#b91c1c; }
+        html.light .text-purple-400 { color:#6d28d9; }
+        html.light .text-amber-300, html.light .text-amber-400 { color:#b45309; }
+        html.light .chat-bubble { background:#ffffff; border-color:#d7dbe2; }
+        html.light .chat-bubble.left:after, html.light .chat-bubble.right:after { border-top-color:#d7dbe2; }
+        html.light .tooltip { background:#ffffff; color:#374151; border-color:#d7dbe2; }
+        html.light .info-icon { background:#e5e7eb; color:#6b7280; }
+        html.light .glow { box-shadow:0 0 15px rgba(37,99,235,.25); }
+        html.light select, html.light input { background:#ffffff; color:#1f2937; border-color:#d7dbe2; }
         .fres { opacity: 0; transform: translateX(6px); transition: all .3s; }
         .fres.show { opacity: 1; transform: none; }
         .chat-bubble {
@@ -73,6 +97,7 @@
         <button id="runBtn" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-8 rounded border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] transition duration-300 uppercase tracking-widest text-sm">
             Initialize Pipeline
         </button>
+        <button id="themeBtn" type="button" class="mt-6 ml-3 px-3 py-1 rounded border border-slate-600 text-slate-400 hover:text-slate-200 hover:border-slate-400 text-[10px] uppercase tracking-widest" title="Switch light / dark">Light mode</button>
         <button id="forceBtn" class="mt-6 ml-3 text-slate-500 hover:text-slate-300 text-[10px] uppercase tracking-widest underline underline-offset-4" title="Bypass the stored decision and call the LLM again on the same evidence">Force re-run</button>
     </header>
 
@@ -288,6 +313,23 @@
     </div>
 
     <script>
+        // ---------- theme ----------
+        function applyTheme(mode) {
+            document.documentElement.classList.toggle('light', mode === 'light');
+            document.documentElement.classList.toggle('dark', mode !== 'light');
+            const b = document.getElementById('themeBtn'); if (b) b.innerText = mode === 'light' ? 'Dark mode' : 'Light mode';
+            const host = document.getElementById('diagramHost');
+            const wrap = host && host.shadowRoot && host.shadowRoot.querySelector('[data-theme]');
+            if (wrap) wrap.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
+            try { localStorage.setItem('protofin.theme', mode); } catch (e) {}
+        }
+        function currentTheme() {
+            const q = new URLSearchParams(location.search).get('theme'); if (q === 'light' || q === 'dark') return q;
+            try { const t = localStorage.getItem('protofin.theme'); if (t) return t; } catch (e) {}
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        applyTheme(currentTheme());
+        document.getElementById('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
         async function typeWriter(elementId, text, speed=10) {
             document.getElementById(elementId).innerHTML = '';
             let i = 0;
@@ -323,7 +365,7 @@
                 [data-node-id].pf-on { filter: drop-shadow(0 0 7px rgba(96,165,250,.95)); }
                 [data-node-id].pf-done { filter: drop-shadow(0 0 3px rgba(56,189,248,.6)); }`;
             const wrap = document.createElement('div');
-            wrap.setAttribute('data-theme', 'dark');
+            wrap.setAttribute('data-theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
             wrap.appendChild(svg.cloneNode(true));
             root.append(style, wrap);
             diagramWrapEl = wrap;

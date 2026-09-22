@@ -11,6 +11,30 @@
     </script>
     <style type="text/tailwindcss">
         .glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        /* ---- light theme: overrides for the dark utilities used on this page ---- */
+        html.light body { background:#f4f5f7; color:#1f2937; }
+        html.light .bg-slate-900, html.light .bg-slate-950 { background:#ffffff; }
+        html.light .bg-slate-800 { background:#f9fafb; }
+        html.light .bg-slate-800\/70, html.light .bg-slate-800\/80, html.light .bg-slate-900\/50 { background:rgba(249,250,251,.92); }
+        html.light .border-slate-700, html.light .border-slate-600 { border-color:#d7dbe2; }
+        html.light .text-white, html.light .text-slate-200, html.light .text-slate-300 { color:#1f2937; }
+        html.light .text-slate-400 { color:#4b5563; }
+        html.light .text-slate-500 { color:#6b7280; }
+        html.light .text-slate-600 { color:#6b7280; }
+        html.light .text-blue-50, html.light .text-red-50, html.light .text-purple-100 { color:#1f2937; }
+        html.light .text-blue-300, html.light .text-blue-400 { color:#1d4ed8; }
+        html.light .text-teal-400, html.light .text-teal-600 { color:#0f766e; }
+        html.light .text-orange-300 { color:#c2410c; }
+        html.light .text-green-400 { color:#15803d; }
+        html.light .text-red-400 { color:#b91c1c; }
+        html.light .text-purple-400 { color:#6d28d9; }
+        html.light .text-amber-300, html.light .text-amber-400 { color:#b45309; }
+        html.light .chat-bubble { background:#ffffff; border-color:#d7dbe2; }
+        html.light .chat-bubble.left:after, html.light .chat-bubble.right:after { border-top-color:#d7dbe2; }
+        html.light .tooltip { background:#ffffff; color:#374151; border-color:#d7dbe2; }
+        html.light .info-icon { background:#e5e7eb; color:#6b7280; }
+        html.light .glow { box-shadow:0 0 15px rgba(37,99,235,.25); }
+        html.light select, html.light input { background:#ffffff; color:#1f2937; border-color:#d7dbe2; }
         .fres { opacity: 0; transform: translateX(6px); transition: all .3s; }
         .fres.show { opacity: 1; transform: none; }
         .chat-bubble {
@@ -73,31 +97,26 @@
         <button id="runBtn" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-8 rounded border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] transition duration-300 uppercase tracking-widest text-sm">
             Initialize Pipeline
         </button>
+        <button id="themeBtn" type="button" class="mt-6 ml-3 px-3 py-1 rounded border border-slate-600 text-slate-400 hover:text-slate-200 hover:border-slate-400 text-[10px] uppercase tracking-widest" title="Switch light / dark">Light mode</button>
         <button id="forceBtn" class="hidden">Force re-run</button>
         <div id="settings" class="mt-5 mx-auto max-w-4xl bg-slate-800/70 border border-slate-700 rounded-lg p-4 text-left text-xs">
             <div class="flex flex-wrap items-end gap-3">
-                <label class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Model provider</span>
+                <label class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Committee</span>
                     <select id="provider" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200">
-                        <option value="reference">Stored reference run (no key needed)</option>
-                        <option value="byok">Your API key (OpenAI-compatible)</option>
-                        <option value="site" id="siteOpt">Site key (proxy)</option>
-                        <option value="browser">In-browser model (WebGPU, ~1 GB download)</option>
+                        <option value="saved">Saved run (gpt-4o reply stored at build time)</option>
+                        <option value="browser">In-browser model (WebGPU, runs on your machine)</option>
                     </select></label>
-                <label id="baseWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Base URL</span>
-                    <input id="baseUrl" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-72" placeholder="https://api.openai.com/v1"></label>
-                <label id="modelWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Model</span>
-                    <input id="model" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-44" placeholder="gpt-4o"></label>
-                <label id="keyWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">API key</span>
-                    <input id="apiKey" type="password" autocomplete="off" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-64" placeholder="sk-..."></label>
+                <label id="runWrap" class="flex flex-col gap-1"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Run</span>
+                    <select id="runSel" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200 w-80"><option value="latest">latest</option></select></label>
                 <label id="browserWrap" class="flex flex-col gap-1 hidden"><span class="text-slate-500 uppercase tracking-widest text-[10px]">Browser model</span>
                     <select id="browserModel" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-slate-200">
-                        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (about 1 GB)</option>
+                        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (about 1 GB download, once)</option>
                         <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (about 0.7 GB)</option>
                         <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (about 0.4 GB)</option>
                     </select></label>
                 <label class="flex items-center gap-2 text-slate-400"><input id="remember" type="checkbox" class="accent-blue-500"> remember on this device</label>
             </div>
-            <p id="settingsNote" class="mt-2 text-[11px] text-slate-500">Your key is used only from your browser, straight to the provider you name. It is never sent to this site. Works with OpenAI, Groq, OpenRouter, Together, or a local Ollama (<span class="font-mono">http://localhost:11434/v1</span>, with OLLAMA_ORIGINS set). URL options: <span class="font-mono">?provider=byok&amp;model=gpt-4o-mini&amp;baseUrl=...</span>, key via <span class="font-mono">#key=...</span> (fragment, not sent to any server).</p>
+            <p id="settingsNote" class="mt-2 text-[11px] text-slate-500">Saved runs replay a real committee reply recorded when the signals were built, so the page needs no key and makes no model call. The in-browser option runs a small open model locally through WebGPU; nothing leaves your machine. URL options: <span class="font-mono">?provider=browser</span>, <span class="font-mono">?run=&lt;id&gt;</span>.</p>
             <p id="signalsNote" class="mt-1 text-[11px] text-slate-500"></p>
         </div>
     </header>
@@ -198,7 +217,7 @@
                 <span class="h-2 w-2 rounded-full bg-purple-500"></span> 3. Agent Debate (Chain of Thought)
                 <div class="relative group cursor-help ml-2 inline-block">
                     <span class="info-icon">i</span>
-                    <div class="tooltip left-0 transform translate-x-0 ml-4"><strong class="text-purple-400">Source:</strong> the model provider you choose above (temperature 0).<br><strong class="text-slate-400">Calculation:</strong> Multi-agent prompt engineering forces an adversarial simulation. The Economist argues growth, the Risk Manager argues downside, and the CIO forces a quantitative synthesis.</div>
+                    <div class="tooltip left-0 transform translate-x-0 ml-4"><strong class="text-purple-400">Source:</strong> a saved gpt-4o reply, or a small open model running in your browser (temperature 0).<br><strong class="text-slate-400">Calculation:</strong> Multi-agent prompt engineering forces an adversarial simulation. The Economist argues growth, the Risk Manager argues downside, and the CIO forces a quantitative synthesis.</div>
                 </div>
             </h2>
             <div id="spinner3" class="absolute inset-0 flex items-center justify-center bg-slate-800/80 rounded-lg hidden z-10">
@@ -315,7 +334,24 @@
     </div>
 
     <script type="module">
-        import { loadSettings, saveSettings, runPipeline } from "./js/pipeline.js";
+        import { loadSettings, saveSettings, runPipeline, listRuns, loadRun } from "./js/pipeline.js";
+        // ---------- theme ----------
+        function applyTheme(mode) {
+            document.documentElement.classList.toggle('light', mode === 'light');
+            document.documentElement.classList.toggle('dark', mode !== 'light');
+            const b = document.getElementById('themeBtn'); if (b) b.innerText = mode === 'light' ? 'Dark mode' : 'Light mode';
+            const host = document.getElementById('diagramHost');
+            const wrap = host && host.shadowRoot && host.shadowRoot.querySelector('[data-theme]');
+            if (wrap) wrap.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
+            try { localStorage.setItem('protofin.theme', mode); } catch (e) {}
+        }
+        function currentTheme() {
+            const q = new URLSearchParams(location.search).get('theme'); if (q === 'light' || q === 'dark') return q;
+            try { const t = localStorage.getItem('protofin.theme'); if (t) return t; } catch (e) {}
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        applyTheme(currentTheme());
+        document.getElementById('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
         async function typeWriter(elementId, text, speed=10) {
             document.getElementById(elementId).innerHTML = '';
             let i = 0;
@@ -351,7 +387,7 @@
                 [data-node-id].pf-on { filter: drop-shadow(0 0 7px rgba(96,165,250,.95)); }
                 [data-node-id].pf-done { filter: drop-shadow(0 0 3px rgba(56,189,248,.6)); }`;
             const wrap = document.createElement('div');
-            wrap.setAttribute('data-theme', 'dark');
+            wrap.setAttribute('data-theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
             wrap.appendChild(svg.cloneNode(true));
             root.append(style, wrap);
             diagramWrapEl = wrap;
@@ -404,37 +440,38 @@
             }
         }
         async function refreshDiagram() {
-            document.getElementById('diagramStatus').innerText = 'diagram labels: committed reference run; live values on the right';
+            document.getElementById('diagramStatus').innerText = 'diagram labels: latest saved run; values on the right are this run';
         }
         document.getElementById('replayBtn').addEventListener('click', () => { if (lastRun) playDiagram(lastRun); });
         loadDiagram();
         let forceNext = false;
-        let SIGNALS = null;
+        let RUN = null, RUNS = [];
         const $ = id => document.getElementById(id);
         const settings = loadSettings();
         function showSettings() {
-            $('provider').value = settings.provider; $('baseUrl').value = settings.baseUrl; $('model').value = settings.model;
-            $('apiKey').value = settings.apiKey || ''; $('browserModel').value = settings.browserModel;
-            const p = settings.provider;
-            $('baseWrap').classList.toggle('hidden', p !== 'byok'); $('keyWrap').classList.toggle('hidden', p !== 'byok');
-            $('modelWrap').classList.toggle('hidden', p === 'browser' || p === 'reference'); $('browserWrap').classList.toggle('hidden', p !== 'browser');
+            $('provider').value = settings.provider; $('browserModel').value = settings.browserModel;
+            $('browserWrap').classList.toggle('hidden', settings.provider !== 'browser');
+            if ([...$('runSel').options].some(o => o.value === settings.run)) $('runSel').value = settings.run;
         }
         function readSettings() {
-            settings.provider = $('provider').value; settings.baseUrl = $('baseUrl').value.trim() || 'https://api.openai.com/v1';
-            settings.model = $('model').value.trim() || 'gpt-4o'; settings.apiKey = $('apiKey').value.trim(); settings.browserModel = $('browserModel').value;
+            settings.provider = $('provider').value; settings.browserModel = $('browserModel').value; settings.run = $('runSel').value;
             if ($('remember').checked) saveSettings(settings); else { try { localStorage.removeItem('protofin.settings'); } catch (e) {} }
         }
-        ['provider', 'baseUrl', 'model', 'apiKey', 'browserModel', 'remember'].forEach(id => $(id).addEventListener('change', () => { readSettings(); showSettings(); }));
-        showSettings();
+        ['provider', 'browserModel', 'remember'].forEach(id => $(id).addEventListener('change', () => { readSettings(); showSettings(); }));
+        $('runSel').addEventListener('change', async () => { readSettings(); await loadSelectedRun(); });
         try { $('remember').checked = !!localStorage.getItem('protofin.settings'); } catch (e) {}
-        // site proxy available? (Cloudflare Pages Function with a server-side key)
-        fetch('./api/chat/completions', { cache: 'no-store' }).then(r => r.ok ? r.json() : { configured: false }).then(j => { if (!j.configured) $('siteOpt').disabled = true; else $('siteOpt').textContent = `Site key (proxy, ${j.model})`; }).catch(() => { $('siteOpt').disabled = true; });
-        async function loadSignals() {
-            const r = await fetch('./data/signals.json', { cache: 'no-store' });
-            SIGNALS = await r.json();
-            $('signalsNote').textContent = `Signals built ${SIGNALS.generated_at} for market data as of ${SIGNALS.as_of}` + (SIGNALS.reference_run ? `; stored reference run by ${SIGNALS.reference_run.model}.` : '; no stored reference run.');
+        async function loadSelectedRun() {
+            RUN = await loadRun(settings.run);
+            $('signalsNote').textContent = `Run built ${RUN.generated_at} for market data as of ${RUN.as_of}; regime ${RUN.uncertainty_regime}` + (RUN.reference_run ? `; stored reply by ${RUN.reference_run.model}.` : '; no stored reply.');
         }
-        loadSignals();
+        async function initRuns() {
+            RUNS = await listRuns();
+            const sel = $('runSel'); sel.innerHTML = '<option value="latest">latest</option>';
+            for (const r of RUNS) { const o = document.createElement('option'); o.value = r.id; o.textContent = `${r.as_of} · built ${r.generated_at.slice(0, 16).replace('T', ' ')} · ${r.regime} · ${r.model}`; sel.appendChild(o); }
+            showSettings();
+            await loadSelectedRun();
+        }
+        initRuns();
         // ?autorun=1 starts the pipeline on load (used for screenshots and demos)
         window.addEventListener('load', () => {
             const q = new URLSearchParams(location.search);
@@ -466,9 +503,9 @@
 
             try {
                 forceNext = false;
-                if (!SIGNALS) await loadSignals();
+                if (!RUN) await loadSelectedRun();
                 readSettings();
-                const data = await runPipeline(SIGNALS, settings, msg => { btn.innerText = msg.slice(0, 60); });
+                const data = await runPipeline(RUN, settings, msg => { btn.innerText = msg.slice(0, 60); });
                 lastRun = data; document.getElementById('replayBtn').disabled = false;
                 await playDiagram(data);
                 refreshDiagram();
