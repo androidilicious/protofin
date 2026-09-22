@@ -79,7 +79,7 @@ deploy.cmd              # rebuilds signals + a fresh committee run from the loca
 | Secret | Where | Who can read it |
 | --- | --- | --- |
 | Your OpenAI key, used for local runs and to record the saved committee replies | `.env` on your machine, git-ignored | Only the local scripts |
-| The same key, for the live-backtest endpoint only | Cloudflare Pages secret `OPENAI_API_KEY`, set with `npx wrangler pages secret put` | Only `functions/api/committee.js`. It accepts a month index, builds the prompts itself from the committed month data, runs the three persona calls, and returns replies and timings. Rate-limited per visitor address (60 months/day, 12/minute) and site-wide (1500 months/day) with KV counters; limits are `[vars]` in `wrangler.toml` |
+| The same key, for the live-backtest endpoint only | Cloudflare Pages secret `OPENAI_API_KEY`, set with `npx wrangler pages secret put` | Only `functions/api/committee.js`. It accepts a month index, builds the prompts itself from the committed month data, runs the three persona calls, and returns replies and timings. Rate-limited per visitor address (60 months/day, 12/minute) and site-wide (300 months/day, sized to the free KV write quota) with KV counters; limits are `[vars]` in `wrangler.toml` |
 | GitHub | Nothing | The workflow references no secrets |
 | Visitors | Nothing | Saved runs need no key; the live endpoint spends the site's budget within the limits above |
 
