@@ -46,12 +46,16 @@ jobs:
           git diff --cached --quiet || git commit -m "signals: $(date -u +%F)"
           git push
       - name: Upload site for GitHub Pages
+        if: vars.DEPLOY_GITHUB_PAGES == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
+  # Optional: GitHub Pages deploy (set repository variable DEPLOY_GITHUB_PAGES=true and enable Pages).
+  # Cloudflare Pages deploys on its own from the pushed commit, so this job is not needed there.
   deploy-pages:
     needs: build
+    if: vars.DEPLOY_GITHUB_PAGES == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
