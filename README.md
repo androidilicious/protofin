@@ -65,7 +65,17 @@ The `site/` folder is a static version of the dashboard with the whole decision 
 - The model is configurable on the page or by URL: `?provider=reference` (stored run, no key), `?provider=byok&baseUrl=...&model=...` with the key typed into the page or passed as `#key=...` (a URL fragment never leaves the browser), `?provider=browser` (WebLLM, needs WebGPU, downloads about 1 GB once), or `?provider=site` when the Cloudflare Function proxy has a key.
 - Keys never touch the site. A bring-your-own key goes from the visitor's browser straight to the provider they name and is stored, if at all, in their own localStorage. The optional proxy in `site/functions/api/chat/completions.js` reads `OPENAI_API_KEY` from the Pages project's environment variables and only ever returns the model's reply.
 
-**Deploy on Cloudflare Pages** (one time): Workers & Pages → Create → Pages → Connect to Git → this repository, build command empty, build output directory `site`. Optionally add `OPENAI_API_KEY` (and `LLM_MODEL`) under Settings → Environment variables to enable the site-key option. Every push, including the scheduled signals commit, redeploys. From a terminal instead: `npx wrangler login` then `npx wrangler pages deploy site --project-name protofin`.
+**Deploy on Cloudflare Pages** (independent app, one time). Either path:
+
+- Dashboard: Workers & Pages → Create → Pages → Connect to Git → `androidilicious/protofin`, branch `main`, build command empty, build output directory `site`. Every push, including the scheduled signals commit, redeploys. The site gets a `*.pages.dev` URL immediately; a custom domain can be added later.
+- Terminal, from the repo root (`wrangler.toml` already names the project and output folder):
+  ```
+  npx wrangler login
+  npx wrangler pages deploy
+  ```
+  Redeploy after each signals refresh with the second command, or use the Git path so it is automatic.
+
+Optionally add `OPENAI_API_KEY` (and `LLM_MODEL`) under the Pages project → Settings → Environment variables to enable the site-key option; the key stays server-side in the Pages Function. GitHub Pages is intentionally not used: the account's custom domain redirects project sites elsewhere.
 
 Cloudflare's Python Workers cannot run the data step (yfinance, torch), which is why the signals are built in GitHub Actions and committed.
 
