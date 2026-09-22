@@ -65,17 +65,23 @@ The `site/` folder is a static version of the dashboard with the whole decision 
 - The model is configurable on the page or by URL: `?provider=reference` (stored run, no key), `?provider=byok&baseUrl=...&model=...` with the key typed into the page or passed as `#key=...` (a URL fragment never leaves the browser), `?provider=browser` (WebLLM, needs WebGPU, downloads about 1 GB once), or `?provider=site` when the Cloudflare Function proxy has a key.
 - Keys never touch the site. A bring-your-own key goes from the visitor's browser straight to the provider they name and is stored, if at all, in their own localStorage. The optional proxy in `site/functions/api/chat/completions.js` reads `OPENAI_API_KEY` from the Pages project's environment variables and only ever returns the model's reply.
 
-**Deploy on Cloudflare Pages** (independent app, one time). Either path:
+**Deploying** is done from a laptop, so no cloud credential is stored anywhere but Wrangler's local login:
 
-- Dashboard: Workers & Pages → Create → Pages → Connect to Git → `androidilicious/protofin`, branch `main`, build command empty, build output directory `site`. Every push, including the scheduled signals commit, redeploys. The site gets a `*.pages.dev` URL immediately; a custom domain can be added later.
-- Terminal, from the repo root (`wrangler.toml` already names the project and output folder):
-  ```
-  npx wrangler login
-  npx wrangler pages deploy
-  ```
-  Redeploy after each signals refresh with the second command, or use the Git path so it is automatic.
+```
+npx wrangler login      # once; opens the browser
+deploy.cmd              # rebuilds signals + reference run from the local .env, then publishes site/
+```
 
-Optionally add `OPENAI_API_KEY` (and `LLM_MODEL`) under the Pages project → Settings → Environment variables to enable the site-key option; the key stays server-side in the Pages Function. GitHub Pages is intentionally not used: the account's custom domain redirects project sites elsewhere.
+The GitHub Action only keeps `site/data/signals.json` current in the repo and needs no secrets. GitHub Pages is intentionally not used: the account's custom domain redirects project sites elsewhere.
+
+**Secrets, and where each one lives**
+
+| Secret | Where | Who can read it |
+| --- | --- | --- |
+| Your OpenAI key for local runs and the reference reply | `.env` on your machine (git-ignored) | Only the local scripts |
+| Optional site-wide key so visitors need none | `npx wrangler pages secret put OPENAI_API_KEY --project-name protofin` | Only the Pages Function; never the browser. Anyone opening the page can then spend on your key, so rate-limit `/api/*` or keep it off for open links |
+| A visitor's own key | Their browser, and their localStorage if they tick "remember" | Sent straight to the provider they name; never to this site |
+| GitHub | Nothing | The workflow references no secrets |
 
 Cloudflare's Python Workers cannot run the data step (yfinance, torch), which is why the signals are built in GitHub Actions and committed.
 
