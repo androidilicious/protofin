@@ -116,9 +116,9 @@ def collect(headlines=True, headlines_in_decision=False, model_name="gpt-4o", lo
         f"(3-month average {yield_3mo_avg:.2f}%). Cash (13-week T-bill) yield {rf_pct:.2f}%. "
         f"SPY 1-month return {spy_return_1m:+.2f}%. "
         f"SPY annualized volatility {np.sqrt(sigma[0, 0]) * 100:.1f}%, "
-        f"TLT {np.sqrt(sigma[1, 1]) * 100:.1f}%. Latest headline: '{headline}'. "
+        f"TLT {np.sqrt(sigma[1, 1]) * 100:.1f}%. "
         f"Uncertainty: {uncertainty_text}"
-    )
+    )   # the single Yahoo headline is display-only and deliberately NOT in the prompt
     if headlines_in_decision:
         top = "\n".join(f"- {h['title']}" for h in news.get("headlines", [])[:8])
         data_payload += f" News features: {news_text}" + (f"\nRecent macro headlines:\n{top}" if top else "")
@@ -128,7 +128,7 @@ def collect(headlines=True, headlines_in_decision=False, model_name="gpt-4o", lo
 
     fingerprint = hashlib.sha256(json.dumps({
         "as_of": as_of, "yield": round(current_yield, 3), "avg": round(yield_3mo_avg, 3),
-        "spy_1m": round(spy_return_1m, 3), "rf": round(rf_pct, 3), "headline": headline,
+        "spy_1m": round(spy_return_1m, 3), "rf": round(rf_pct, 3),
         "epu": epu and epu["mean_30d"], "gpr": gpr and gpr["mean_30d"],
         "fomc": news.get("fomc") and news["fomc"]["score"],
         "sentiment": news.get("sentiment") if headlines_in_decision else None,
