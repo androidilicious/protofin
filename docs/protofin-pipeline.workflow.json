@@ -1,0 +1,201 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Protofin Prototype Pipeline",
+    "quality_profile": "showcase",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "signals",
+        "label": "Signals",
+        "focus": [
+          "ingest",
+          "shock",
+          "regime",
+          "fomc"
+        ],
+        "note": "2026-09-21: 10Y 4.96%, shock +29 bps, regime elevated, FOMC +0.42."
+      },
+      {
+        "id": "decision",
+        "label": "Views to allocation",
+        "focus": [
+          "committee",
+          "allocate",
+          "render"
+        ],
+        "note": "Views SPY 5.0% TLT 2.5% (Medium used as Low) -> 66.7/33.3."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "Dashboard"
+    },
+    {
+      "id": "signals",
+      "label": "Data + signals"
+    },
+    {
+      "id": "decide",
+      "label": "Views + allocation"
+    }
+  ],
+  "mainPath": [
+    "run",
+    "ingest",
+    "shock",
+    "regime",
+    "fomc",
+    "committee",
+    "allocate",
+    "render"
+  ],
+  "nodes": [
+    {
+      "id": "run",
+      "lane": "ui",
+      "col": 0,
+      "type": "frontend",
+      "label": "Run",
+      "sublabel": "run 2026-09-21",
+      "width": 122
+    },
+    {
+      "id": "render",
+      "lane": "ui",
+      "col": 5,
+      "type": "frontend",
+      "label": "Render",
+      "sublabel": "SPY 66.7% TLT 33.3%",
+      "width": 122
+    },
+    {
+      "id": "ingest",
+      "lane": "signals",
+      "col": 0,
+      "type": "external",
+      "label": "Yahoo Finance",
+      "sublabel": "10Y 4.96% SPY1m 1.27",
+      "width": 122
+    },
+    {
+      "id": "shock",
+      "lane": "signals",
+      "col": 1,
+      "type": "backend",
+      "label": "Rate Shock",
+      "sublabel": "+29 bps vs 3mo avg",
+      "width": 122
+    },
+    {
+      "id": "regime",
+      "lane": "signals",
+      "col": 2,
+      "type": "backend",
+      "label": "EPU / GPR",
+      "sublabel": "EPU 80 GPR 87 elev",
+      "width": 122
+    },
+    {
+      "id": "fomc",
+      "lane": "signals",
+      "col": 3,
+      "type": "backend",
+      "label": "FOMC Stance",
+      "sublabel": "hawkish +0.42",
+      "width": 122
+    },
+    {
+      "id": "committee",
+      "lane": "decide",
+      "col": 3,
+      "type": "cloud",
+      "label": "gpt-4o Committee",
+      "sublabel": "SPY 5.0% TLT 2.5%",
+      "tag": "12m return views",
+      "width": 122
+    },
+    {
+      "id": "allocate",
+      "lane": "decide",
+      "col": 4,
+      "type": "backend",
+      "label": "Black-Litterman",
+      "sublabel": "target 66.7/33.3",
+      "tag": "40-80% SPY",
+      "width": 122
+    }
+  ],
+  "edges": [
+    {
+      "id": "click",
+      "from": "run",
+      "to": "ingest",
+      "label": "GET /api/run_pipeline",
+      "variant": "default"
+    },
+    {
+      "id": "ingest-shock",
+      "from": "ingest",
+      "to": "shock",
+      "variant": "default"
+    },
+    {
+      "id": "shock-regime",
+      "from": "shock",
+      "to": "regime",
+      "variant": "default"
+    },
+    {
+      "id": "regime-fomc",
+      "from": "regime",
+      "to": "fomc",
+      "variant": "default"
+    },
+    {
+      "id": "fomc-committee",
+      "from": "fomc",
+      "to": "committee",
+      "label": "all signals in prompt",
+      "variant": "emphasis"
+    },
+    {
+      "id": "views",
+      "from": "committee",
+      "to": "allocate",
+      "label": "views + confidence",
+      "variant": "emphasis"
+    },
+    {
+      "id": "respond",
+      "from": "allocate",
+      "to": "render",
+      "label": "JSON response",
+      "variant": "emphasis",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Last run: inputs",
+      "items": [
+        "As of 2026-09-21: 10Y 4.96%, cash 3.98%, SPY 1m 1.27%",
+        "Rate shock +29 bps; EPU 80th, GPR 87th pct; regime elevated",
+        "FOMC stance +0.42 (statement 2026-09-16); headlines display only"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Last run: decision",
+      "items": [
+        "Committee: SPY 5.0%, TLT 2.5%, confidence Medium used as Low",
+        "Posterior excess 2.24/0.38 -> target 66.7/33.3",
+        "Final 66.7/33.3 (prototype mode: optimizer target applied directly)"
+      ]
+    }
+  ]
+}
