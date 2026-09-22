@@ -56,9 +56,9 @@ Open <http://127.0.0.1:5000> and click **Initialize Pipeline**. Node.js 18+ is n
 
 Policy constants live in `allocation.py`. Set `LLM_MODEL` in `.env` to change the model and `HEADLINES_MODE` (`off`, `display`, `decide`) to control whether headlines enter the decision. The rule: the live pipeline and the backtest consume the same inputs, all of which have full point-in-time history.
 
-## Public static site (Cloudflare Pages or GitHub Pages)
+## Public static site: https://protofin.pages.dev
 
-The `site/` folder is a static version of the dashboard with the whole decision running in the browser:
+The `site/` folder is a static version of the dashboard with the whole decision running in the browser, deployed as an independent Cloudflare Pages app (project `protofin`). The Pages Function lives in `functions/` at the repo root, which is where Cloudflare looks for it.
 
 - `site/data/signals.json` is built by the GitHub Action in `.github/workflows/build-signals.yml` on weekday evenings (market data, rate shock, EPU/GPR regime, FOMC stance, the committee prompt, and one stored reference reply). Nothing in it is secret.
 - `site/js/allocation.js` is a line-for-line port of `allocation.py` (checked against Python to 1e-16); `site/js/pipeline.js` calls the model, parses the reply with the same rules, and allocates.
