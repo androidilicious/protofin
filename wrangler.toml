@@ -1,3 +1,16 @@
 name = "protofin"
 compatibility_date = "2026-09-01"
 pages_build_output_dir = "site"
+
+# KV counters for the rate-limited backtest endpoint (functions/api/committee.js)
+[[kv_namespaces]]
+binding = "RATE"
+id = "76eeaee6ce004c4faaa316525293eae0"
+
+# Non-secret knobs for that endpoint. OPENAI_API_KEY is a Pages secret, set with
+#   npx wrangler pages secret put OPENAI_API_KEY --project-name protofin
+[vars]
+LLM_MODEL = "gpt-4o"
+LIMIT_MONTHS_PER_IP_PER_DAY = "60"
+LIMIT_MONTHS_PER_IP_PER_MINUTE = "12"
+LIMIT_MONTHS_GLOBAL_PER_DAY = "1500"

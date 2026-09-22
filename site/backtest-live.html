@@ -53,7 +53,7 @@
         <section class="card p-4 text-xs">
             <div class="flex flex-wrap items-end gap-4">
                 <label class="flex flex-col gap-1"><span class="eyebrow">Committee</span>
-                    <select id="mode"><option value="saved">Replay saved gpt-4o masked views (instant, 272 months)</option><option value="browser">In-browser committee (economist ∥ risk → CIO, WebGPU)</option></select></label>
+                    <select id="mode"><option value="saved">Replay saved gpt-4o masked views (instant, 272 months)</option><option value="site">Live gpt-4o committee via this site (economist ∥ risk → CIO; rate-limited per visitor)</option><option value="browser">In-browser committee (needs WebGPU; small models, often unusable)</option></select></label>
                 <label id="modelWrap" class="flex flex-col gap-1 hidden"><span class="eyebrow">Browser model</span>
                     <select id="browserModel"><option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (recommended, ~1 GB)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~0.7 GB)</option><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (fastest; often ignores the format, retried automatically)</option></select></label>
                 <label class="flex flex-col gap-1"><span class="eyebrow">Start</span><select id="start"></select></label>
@@ -62,7 +62,7 @@
                 <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="250">calm</option><option value="120" selected>normal</option><option value="30">fast</option></select></label>
                 <span class="flex-1"></span><span id="status" class="muted"></span>
             </div>
-            <p class="mt-2 muted">Every month the committee sees only relative numbers: returns, volatility, correlation, percentile ranks of rates and of the uncertainty indexes, and basis-point changes. No dates, levels or headlines. The decision is then scored on the month that followed. Saved replay uses gpt-4o views recorded once for the research; the in-browser option runs three persona calls per month on your GPU (roughly 10–60 s a month depending on the model), so start a few years back rather than in 2004.</p>
+            <p class="mt-2 muted">Every month the committee sees only relative numbers: returns, volatility, correlation, percentile ranks of rates and of the uncertainty indexes, and basis-point changes. No dates, levels or headlines. The decision is then scored on the month that followed. Saved replay uses gpt-4o views recorded once for the research; the in-browser option runs three persona calls per month on your GPU (roughly 10–60 s a month depending on the model), so start a few years back rather than in 2004. The live gpt-4o option uses the site's own key through a server-side endpoint that only accepts a month index, with a per-visitor limit of a few dozen months a day and a site-wide daily cap.</p>
         </section>
 
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-3" id="tiles"></div>
@@ -111,8 +111,8 @@
         months.forEach((m, i) => { if (i % 12 === 0 || i === months.length - 1) { const o = document.createElement('option'); o.value = i; o.textContent = m.as_of; startSel.appendChild(o); } });
         startSel.value = q.get('start') || '0';
         if (q.get('mode')) $('mode').value = q.get('mode');
-        if ($('mode').value === 'browser' && !q.get('start')) startSel.value = String([...startSel.options].map(o => +o.value).filter(v => v <= months.length - 36).pop() ?? 0);
-        $('mode').addEventListener('change', () => { $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser'); if ($('mode').value === 'browser' && startSel.value === '0') startSel.value = String(Math.max(0, months.length - 36)); });
+        if (['browser', 'site'].includes($('mode').value) && !q.get('start')) startSel.value = String([...startSel.options].map(o => +o.value).filter(v => v <= months.length - 36).pop() ?? 0);
+        $('mode').addEventListener('change', () => { $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser'); if (['browser', 'site'].includes($('mode').value) && startSel.value === '0') startSel.value = String([...startSel.options].map(o => +o.value).filter(v => v <= months.length - 36).pop() ?? 0); });
         $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser');
 
         function mkCharts() {
@@ -162,7 +162,9 @@
             if (name === 'cio') { $('cioT').innerText = p.fields.cio || (p.problems && p.problems.length ? 'CIO reply unusable (' + p.problems.join('; ') + ') → prior only' : p.raw); $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s' + (p.retried ? ' · retried' : ''); $('laneC').classList.remove('on'); }
         }
         function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
-        function modeLabel() { return $('mode').value === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : 'replaying saved gpt-4o masked views · no model call'; }
+        function modeLabel() { const v = $('mode').value; return v === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : v === 'site' ? `live gpt-4o committee via site · 3 calls per month · ${LIMITS ? LIMITS.per_ip_per_day + ' months/day per visitor' : 'rate-limited'}` : 'replaying saved gpt-4o masked views · no model call'; }
+        let LIMITS = null;
+        fetch('./api/committee', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.configured) { LIMITS = j.limits; $('modeChip').innerText = modeLabel(); } else { [...$('mode').options].find(o => o.value === 'site').disabled = true; if ($('mode').value === 'site') $('mode').value = 'saved'; } }).catch(() => {});
         function setup() { bt = new LiveBacktest(months, opts()); mkCharts(); $('tiles').innerHTML = ''; $('ticker').innerHTML = ''; $('prog').style.width = '0%'; showMonth(months[bt.i], null); $('modeChip').innerText = modeLabel(); $('modeChip').className = 'chip ' + ($('mode').value === 'browser' ? 'warn' : 'accent'); $('status').innerText = ''; }
         let running = false;
         ['mode', 'browserModel', 'start', 'cost', 'gate', 'speed'].forEach(id => $(id).addEventListener('change', () => { if (!running) setup(); }));
@@ -179,10 +181,10 @@
                     const rec = await bt.step(onEvent);
                     showMonth(m, rec); pushLast(bt.hist); tiles(bt.summary());
                     $('prog').style.width = `${((bt.i - bt.opts.start) / total * 100).toFixed(1)}%`;
-                    $('status').innerText = `${bt.i - bt.opts.start} / ${total} months`;
+                    $('status').innerText = `${bt.i - bt.opts.start} / ${total} months` + (rec.remaining ? ` · quota left today ${rec.remaining.today}` : '');
                 }
                 if (bt.i >= months.length) { running = false; $('runBtn').innerText = '▶ Run again'; $('status').innerText = `done · ${total} months`; }
-            } catch (e) { running = false; $('runBtn').innerText = '▶ Resume'; $('status').innerText = 'error: ' + e.message; }
+            } catch (e) { running = false; $('runBtn').innerText = e.status === 429 ? '▶ Resume later' : '▶ Resume'; $('status').innerText = (e.status === 429 ? 'rate limit: ' : 'error: ') + e.message + (e.remaining ? ` (remaining today ${e.remaining.today}, this minute ${e.remaining.this_minute})` : ''); }
         });
         if (q.get('autorun') === '1') $('runBtn').click();
     </script>

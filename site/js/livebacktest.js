@@ -44,6 +44,20 @@ export class LiveBacktest {
       if (m.saved) { views = [m.saved.spy_q, m.saved.tlt_q]; confRep = m.saved.confidence; detail = { source: 'saved gpt-4o masked view', econ: null, risk: null, cio: `SPY ${m.saved.spy_q}% · TLT ${m.saved.tlt_q}% · ${confRep}` }; }
       else { detail = { source: 'no saved view', cio: 'prior only' }; }
       await new Promise(r => setTimeout(r, this.opts.delayMs ?? 120));
+    } else if (this.opts.mode === 'site') {
+      // gpt-4o via the site's rate-limited endpoint; prompts are built server-side from the month index
+      onEvent && onEvent('stage1-start', { parallel: true });
+      const r = await fetch('./api/committee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { const err = new Error(j.error || `committee endpoint ${r.status}`); err.status = r.status; err.remaining = j.remaining; throw err; }
+      const ev = parseView(j.economist_raw, 'economist'), rv = parseView(j.risk_raw, 'risk');
+      onEvent && onEvent('economist', { raw: j.economist_raw, view: ev, ms: j.timings.economist_ms, ok: true });
+      onEvent && onEvent('risk', { raw: j.risk_raw, view: rv, ms: j.timings.risk_ms, ok: true });
+      onEvent && onEvent('cio-start', {});
+      const { fields, problems } = parseCio(j.cio_raw);
+      onEvent && onEvent('cio', { raw: j.cio_raw, fields, problems, ms: j.timings.cio_ms });
+      if (problems.length === 0) { views = [fields.spy_q, fields.tlt_q]; confRep = fields.confidence; } else this.rejected++;
+      detail = { source: `${j.model} via site endpoint (economist ∥ risk concurrent, then CIO)`, econ: ev, risk: rv, cio: fields.cio, problems, remaining: j.remaining, timings: j.timings };
     } else {
       await ensureEngine(this.opts.browserModel, this.opts.onProgress);
       onEvent && onEvent('stage1-start', {});

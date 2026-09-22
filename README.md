@@ -79,9 +79,9 @@ deploy.cmd              # rebuilds signals + a fresh committee run from the loca
 | Secret | Where | Who can read it |
 | --- | --- | --- |
 | Your OpenAI key, used for local runs and to record the saved committee replies | `.env` on your machine, git-ignored | Only the local scripts |
-| Cloudflare Pages | Nothing | Static files plus saved runs; no function, no proxy |
+| The same key, for the live-backtest endpoint only | Cloudflare Pages secret `OPENAI_API_KEY`, set with `npx wrangler pages secret put` | Only `functions/api/committee.js`. It accepts a month index, builds the prompts itself from the committed month data, runs the three persona calls, and returns replies and timings. Rate-limited per visitor address (60 months/day, 12/minute) and site-wide (1500 months/day) with KV counters; limits are `[vars]` in `wrangler.toml` |
 | GitHub | Nothing | The workflow references no secrets |
-| Visitors | Nothing | Saved runs need no key; the in-browser model runs locally |
+| Visitors | Nothing | Saved runs need no key; the live endpoint spends the site's budget within the limits above |
 
 ---
 
@@ -110,7 +110,7 @@ Findings from the September 2026 run, 273 months: the mask held except for the 2
 
 ### Live backtest (browser, monthly resolution)
 
-`scripts/build_backtest_months.py` writes `site/data/backtest_months.json`: per month since 2004, the masked payload, the three persona prompts, sigma, cash rate, regime, the realised next-month returns, and the saved gpt-4o view. `site/js/livebacktest.js` steps through the months, decides with either the saved views (instant) or the in-browser committee (10–60 s a month), scores each decision on the following month, and animates growth-of-100 against fixed 60/40 and prior-only with a weights track, a per-month committee panel and a decision log.
+`scripts/build_backtest_months.py` writes `site/data/backtest_months.json`: per month since 2004, the masked payload, the three persona prompts, sigma, cash rate, regime, the realised next-month returns, and the saved gpt-4o view. `site/js/livebacktest.js` steps through the months and decides with one of three committees: the saved gpt-4o views (instant replay), a **live gpt-4o committee through the site's rate-limited endpoint** (economist and risk manager concurrently, then the CIO, about 5 s a month), or the in-browser model (needs WebGPU; small models are often unusable and are retried once with a compact prompt). Each decision is scored on the following month and the page animates growth-of-100 against fixed 60/40 and prior-only with a weights track, a per-month committee panel and a decision log.
 
 ### Other checks
 
