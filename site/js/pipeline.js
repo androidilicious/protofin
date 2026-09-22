@@ -52,8 +52,12 @@ async function browserModel(prompt, { browserModel }, onProgress) {
     webllmEngine = await CreateMLCEngine(browserModel, { initProgressCallback: p => onProgress && onProgress(p.text) });
     webllmModelLoaded = browserModel;
   }
+  // Small models drift from the format; a strict system message and an example line help a lot.
+  const system = 'You are the investment committee. Reply with EXACTLY seven lines, each starting with one of these labels and nothing else before or after: '
+    + 'Economist:, Risk_Manager:, CIO_Decision:, Grounding_Summary:, SPY_Expected_Return_Percent:, TLT_Expected_Return_Percent:, CIO_Confidence:. '
+    + 'The two Expected_Return lines contain only a number (example: SPY_Expected_Return_Percent: 6.5). CIO_Confidence is one word: High, Medium or Low. No markdown.';
   const r = await webllmEngine.chat.completions.create({
-    messages: [{ role: 'user', content: prompt }], temperature: 0, max_tokens: 400,
+    messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], temperature: 0, max_tokens: 400,
   });
   return r.choices?.[0]?.message?.content || '';
 }
@@ -67,15 +71,21 @@ export async function callModel(run, settings, onProgress) {
 }
 
 // ---------- parsing (mirrors server.parse_llm) ----------
-export function parseReply(text) {
+export function parseReply(raw) {
+  // Tolerant of small models: strip markdown, accept "SPY expected return: 6%" style lines as fallbacks.
+  const text = (raw || '').replace(/\*\*|__|`/g, '');
   const f = { economist: null, risk: null, cio: null, grounding: null, spy_q: null, tlt_q: null, confidence: null };
-  const grab = (label, key) => { const m = text.match(new RegExp(label + '\\s*(.*)')); if (m) f[key] = m[1].trim(); };
-  grab('Economist:', 'economist'); grab('Risk_Manager:', 'risk'); grab('CIO_Decision:', 'cio'); grab('Grounding_Summary:', 'grounding');
-  for (const [label, key] of [['SPY_Expected_Return_Percent:', 'spy_q'], ['TLT_Expected_Return_Percent:', 'tlt_q']]) {
-    const m = text.match(new RegExp(label + '\\s*([-+]?\\d+(?:\\.\\d+)?)'));
+  const grab = (label, key) => { const m = text.match(new RegExp(label + '\\s*(.*)', 'i')); if (m) f[key] = m[1].trim(); };
+  grab('Economist:', 'economist'); grab('Risk[_ ]?Manager:', 'risk'); grab('CIO[_ ]?Decision:', 'cio'); grab('Grounding[_ ]?Summary:', 'grounding');
+  const num = '([-+]?\\d+(?:\\.\\d+)?)';
+  for (const [asset, key] of [['SPY', 'spy_q'], ['TLT', 'tlt_q']]) {
+    let m = text.match(new RegExp(asset + '[_ ]?Expected[_ ]?Return[_ ]?Percent\\s*[:=]?\\s*' + num, 'i'))
+         || text.match(new RegExp('^[^\\n]*' + asset + '[^\\n]*?(?:return|expect)[^\\n]*?' + num + '\\s*%', 'im'))      // number followed by %
+         || text.match(new RegExp('^[^\\n]*' + asset + '[^\\n]*?(?:return|expect)[^\\n]*?[:=]\\s*' + num, 'im'))      // number after a colon
+         || text.match(new RegExp('^[^\\n]*' + asset + '\\s*[:=]\\s*' + num + '\\s*%', 'im'));
     if (m) f[key] = parseFloat(m[1]);
   }
-  const c = text.match(/CIO_Confidence:\s*(High|Medium|Low)/i);
+  const c = text.match(/CIO[_ ]?Confidence\s*[:=]?\s*(High|Medium|Low)/i) || text.match(/confidence[^\n]{0,40}?\b(High|Medium|Low)\b/i);
   if (c) f.confidence = c[1][0].toUpperCase() + c[1].slice(1).toLowerCase();
   const problems = [];
   for (const k of ['spy_q', 'tlt_q']) {

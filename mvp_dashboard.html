@@ -73,6 +73,13 @@
         .tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; width: 17rem; padding: 10px 12px; background: var(--surface-3); color: var(--text-2); font-size: 11px; line-height: 1.45; border-radius: 10px; border: 1px solid var(--border-strong); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50; text-align: left; box-shadow: var(--shadow); }
         .group:hover > .tooltip { opacity: 1; }
         .info-icon { display: inline-block; margin-left: 4px; width: 15px; height: 15px; border-radius: 50%; background: var(--surface-3); color: var(--muted); font-size: 10px; line-height: 15px; text-align: center; border: 1px solid var(--border); }
+        .modal-bg { position: fixed; inset: 0; background: rgba(2,6,23,.55); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; }
+        .modal { width: 100%; max-width: 1000px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; box-shadow: var(--shadow); }
+        .tab { padding: 8px 14px; border-radius: 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--muted); cursor: pointer; border: 1px solid transparent; }
+        .tab.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+        pre.prompt { white-space: pre-wrap; word-break: break-word; font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-height: 60vh; overflow: auto; }
+        .mermaid-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; overflow-x: auto; }
+        .mermaid-box { display:flex; justify-content:center; } .mermaid-box svg { max-width: none; height: auto; }
         .fres { opacity: 0; transform: translateX(6px); transition: all .3s; }
         .fres.show { opacity: 1; transform: none; }
         .note { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; text-align: center; }
@@ -103,6 +110,7 @@
             </div>
             <div class="flex-1"></div>
             <a id="backtestLink" href="/research/out/backtest_report.html" target="_blank" class="btn btn-ghost">Backtest</a>
+            <button id="promptBtn" type="button" class="btn btn-ghost" title="See the exact prompt, how the committee runs, and the raw reply">&#9432; Prompt &amp; flow</button>
             <button id="themeBtn" type="button" class="btn btn-ghost" title="Switch light / dark">Light mode</button>
             <button id="replayBtn" class="btn btn-ghost" disabled>&#9654; Replay flow</button>
             <button id="runBtn" class="btn btn-primary">Run pipeline</button>
@@ -280,6 +288,36 @@
         </div>
     </main>
 
+    <div id="promptModal" class="modal-bg hidden">
+        <div class="modal">
+            <div class="flex items-center gap-3 p-4 border-b" style="border-color:var(--border)">
+                <div class="cardhead t2"><span class="dot" style="color:var(--accent)"></span> Prompt &amp; flow</div>
+                <div class="flex gap-2 ml-4">
+                    <span class="tab on" data-tab="flow">How it runs</span>
+                    <span class="tab" data-tab="prompt">Exact prompt</span>
+                    <span class="tab" data-tab="raw">Raw reply</span>
+                </div>
+                <span class="flex-1"></span>
+                <button id="promptClose" class="btn btn-ghost">Close</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div id="tab-flow">
+                    <p class="t2 text-sm leading-relaxed mb-3"><b class="t1">Sequential, not parallel.</b> The committee is one model call. The three voices are written in order inside a single reply: the economist argues, the risk manager answers that argument, the CIO synthesises both. Only the last three lines become numbers. Nothing runs concurrently, and no agent sees anything the others do not.</p>
+                    <div id="mermaidBox" class="mermaid-box"></div>
+                    <p class="muted text-xs mt-3">Signals are gathered first (four data sources, deterministic). The model call is the only non-deterministic step, run at temperature 0. Everything after the reply is closed-form mathematics.</p>
+                </div>
+                <div id="tab-prompt" class="hidden">
+                    <p class="muted text-xs mb-2">There is no separate system prompt for the hosted model; this single user message is the whole input. The in-browser model additionally receives a short system line insisting on the seven-line format. <span id="promptWhich"></span></p>
+                    <pre id="promptText" class="prompt">Run the pipeline to see the prompt for a run.</pre>
+                </div>
+                <div id="tab-raw" class="hidden">
+                    <p class="muted text-xs mb-2">Verbatim model output. If a small model ignores the format, the views are rejected and the 60/40 prior is used; this is where to see why. <span id="rawWhich"></span></p>
+                    <pre id="rawText" class="prompt">Run the pipeline to see the model's reply.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ---------- theme ----------
         function applyTheme(mode) {
@@ -291,6 +329,7 @@
             if (wrap) wrap.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
             try { localStorage.setItem('protofin.theme', mode); } catch (e) {}
             if (window.myChart && lastRun) drawChart(lastRun);
+            if (document.getElementById('promptModal') && !document.getElementById('promptModal').classList.contains('hidden')) renderFlow();
         }
         function currentTheme() {
             const q = new URLSearchParams(location.search).get('theme'); if (q === 'light' || q === 'dark') return q;
@@ -444,6 +483,49 @@
             });
         }
 
+        // ---------- prompt & flow modal ----------
+        const FLOW_DIAGRAM = `flowchart TB
+  S["Signals<br/>yields · rate shock · EPU/GPR · FOMC stance"] --> P["One prompt<br/>(single user message)"]
+  P --> M[("Model<br/>gpt-4o saved reply, or local model<br/>one call · temperature 0")]
+  M --> R["One reply, seven labelled lines"]
+  subgraph seq ["Inside the reply, in order"]
+    direction LR
+    E["1 · Economist"] --> K["2 · Risk manager"] --> C["3 · CIO decision"] --> N["4 · SPY % · TLT % · confidence"]
+  end
+  R --> E
+  N --> G{"Uncertainty<br/>regime elevated?"}
+  G -- yes --> D["Confidence −1 notch"] --> B
+  G -- no --> B["Black-Litterman blend<br/>+ constrained optimizer"]
+  B --> O["Split · rendered"]`;
+        let mermaidReady = null;
+        async function renderFlow() {
+            const box = document.getElementById('mermaidBox');
+            try {
+                if (!mermaidReady) mermaidReady = import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(m => m.default);
+                const mermaid = await mermaidReady;
+                const light = document.documentElement.classList.contains('light');
+                mermaid.initialize({ startOnLoad: false, flowchart: { useMaxWidth: false, nodeSpacing: 40, rankSpacing: 36, htmlLabels: true }, theme: 'base', themeVariables: light
+                    ? { primaryColor: '#eef2f8', primaryTextColor: '#0f172a', primaryBorderColor: '#94a3b8', lineColor: '#2563eb', secondaryColor: '#f7f9fc', tertiaryColor: '#f7f9fc', fontFamily: 'Inter, sans-serif', fontSize: '13px', clusterBkg: '#f7f9fc', clusterBorder: '#c9d2e0', edgeLabelBackground: '#ffffff' }
+                    : { primaryColor: '#18233a', primaryTextColor: '#e8ecf5', primaryBorderColor: '#33415f', lineColor: '#5b96ff', secondaryColor: '#0d1526', tertiaryColor: '#0d1526', fontFamily: 'Inter, sans-serif', fontSize: '13px', clusterBkg: '#0d1526', clusterBorder: '#33415f', edgeLabelBackground: '#111a2e' } });
+                const { svg } = await mermaid.render('pfFlow' + Date.now(), FLOW_DIAGRAM);
+                box.innerHTML = svg;
+            } catch (e) { box.innerHTML = '<p class="muted text-xs">Diagram could not load (offline?). ' + e.message + '</p>'; }
+        }
+        function fillPromptModal(d) {
+            const prompt = (d && d.prompt) || window.CURRENT_PROMPT;
+            if (prompt) { document.getElementById('promptText').innerText = prompt; document.getElementById('promptWhich').innerText = d && d.as_of ? `Run with data as of ${d.as_of}.` : ''; }
+            if (d && d.llm_raw !== undefined) { document.getElementById('rawText').innerText = d.llm_raw || '(empty reply)'; document.getElementById('rawWhich').innerText = `${d.model_used || ''}${d.llm_parse_ok ? ' · parsed OK' : ' · REJECTED: ' + (d.llm_problems || []).join('; ')}`; }
+        }
+        function showTab(name) {
+            document.querySelectorAll('#promptModal .tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+            ['flow', 'prompt', 'raw'].forEach(n => document.getElementById('tab-' + n).classList.toggle('hidden', n !== name));
+            if (name === 'flow') renderFlow();
+        }
+        document.querySelectorAll('#promptModal .tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        document.getElementById('promptBtn').addEventListener('click', () => { fillPromptModal(lastRun); document.getElementById('promptModal').classList.remove('hidden'); showTab(new URLSearchParams(location.search).get('tab') || 'flow'); });
+        document.getElementById('promptClose').addEventListener('click', () => document.getElementById('promptModal').classList.add('hidden'));
+        document.getElementById('promptModal').addEventListener('click', e => { if (e.target.id === 'promptModal') e.target.classList.add('hidden'); });
+        window.addEventListener('load', () => { if (new URLSearchParams(location.search).get('show') === 'prompt') document.getElementById('promptBtn').click(); });
         let forceNext = false;
         // ?autorun=1 starts the pipeline on load (used for screenshots and demos)
         window.addEventListener('load', () => {
@@ -562,6 +644,7 @@
                 ts.className = 'status-chip ' + (data.cached ? 'accent' : data.trade_status.startsWith('held') ? '' : data.prototype_mode ? '' : 'warn');
                 drawChart(data);
                 fillHero(data);
+                fillPromptModal(data);
                 document.getElementById('step5').classList.remove('glow');
             } catch (e) {
                 alert("Pipeline Error: " + e.message);

@@ -79,21 +79,23 @@ def parse_llm(text):
               "spy_q": None, "tlt_q": None, "confidence": None}
     labels = {"Economist:": "economist", "Risk_Manager:": "risk", "CIO_Decision:": "cio",
               "Grounding_Summary:": "grounding"}
+    text = re.sub(r"\*\*|__|`", "", text or "")   # tolerate markdown from smaller models
     for raw in text.splitlines():
         line = raw.strip()
         for label, key in labels.items():
-            if line.startswith(label):
+            if line.lower().startswith(label.lower()):
                 fields[key] = line[len(label):].strip()
-        for label, key in (("SPY_Expected_Return_Percent:", "spy_q"),
-                           ("TLT_Expected_Return_Percent:", "tlt_q")):
-            if line.startswith(label):
-                match = NUMBER.search(line[len(label):])
-                if match:
-                    fields[key] = float(match.group())
-        if line.startswith("CIO_Confidence:"):
-            value = line.split(":", 1)[1].strip().strip(".").lower()
-            if value in ("high", "medium", "low"):
-                fields["confidence"] = value.capitalize()
+    for asset, key in (("SPY", "spy_q"), ("TLT", "tlt_q")):
+        m = (re.search(asset + r"[_ ]?Expected[_ ]?Return[_ ]?Percent\s*[:=]?\s*([-+]?\d+(?:\.\d+)?)", text, re.I)
+             or re.search(r"^[^\n]*" + asset + r"[^\n]*?(?:return|expect)[^\n]*?([-+]?\d+(?:\.\d+)?)\s*%", text, re.I | re.M)   # number followed by %
+             or re.search(r"^[^\n]*" + asset + r"[^\n]*?(?:return|expect)[^\n]*?[:=]\s*([-+]?\d+(?:\.\d+)?)", text, re.I | re.M)  # number after a colon
+             or re.search(r"^[^\n]*" + asset + r"\s*[:=]\s*([-+]?\d+(?:\.\d+)?)\s*%", text, re.I | re.M))
+        if m:
+            fields[key] = float(m.group(1))
+    m = (re.search(r"CIO[_ ]?Confidence\s*[:=]?\s*(High|Medium|Low)", text, re.I)
+         or re.search(r"confidence[^\n]{0,40}?\b(High|Medium|Low)\b", text, re.I))
+    if m:
+        fields["confidence"] = m.group(1).capitalize()
 
     problems = []
     for key in ("spy_q", "tlt_q"):
@@ -230,6 +232,10 @@ def run_pipeline():
             "spy_weight": round(final_spy * 100, 1),
             "tlt_weight": round((1 - final_spy) * 100, 1),
             "trade_status": trade_status,
+            "prompt": prompt,
+            "llm_raw": llm_output,
+            "model_used": LLM_MODEL,
+            "model_source": "OpenAI API via local server, temperature 0, seed 42",
             "policy": {"tilt_band_spy": [MIN_SPY * 100, MAX_SPY * 100],
                        "no_trade_band_pp": NO_TRADE_BAND * 100, "max_move_pp": MAX_MOVE * 100},
         }
