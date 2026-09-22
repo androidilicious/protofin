@@ -2,8 +2,8 @@
 // either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY } from './allocation.js';
-import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js';
+import { allocate, EQUILIBRIUM_SPY } from './allocation.js?v=202609221937';
+import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609221937';
 
 export async function loadMonths() {
   const r = await fetch('./data/backtest_months.json', { cache: 'no-store' });

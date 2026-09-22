@@ -6,4 +6,5 @@ set PYTHONIOENCODING=utf-8
 python scripts\build_signals.py --reference || exit /b 1
 copy /y docs\protofin-pipeline.html site\protofin-pipeline.html >nul
 if exist research\out\backtest_report.html copy /y research\out\backtest_report.html site\backtest.html >nul
+python scripts\stamp_site.py
 npx wrangler pages deploy site --project-name protofin --branch main --commit-dirty=true
