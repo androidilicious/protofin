@@ -52,6 +52,45 @@ export async function browserCall(prompt, settings, onProgress) {
   return r.choices?.[0]?.message?.content || '';
 }
 
+// Small models sometimes copy the bracketed placeholders ("[2 concise sentences ...]") or echo the data
+// instead of answering. Detect that and retry once with a compact prompt that shows a FILLED example.
+export function templateEcho(raw) {
+  const t = (raw || '').trim();
+  if (t.length < 15) return true;
+  if (/^\[[^\]]*\]$/.test(t)) return true;                       // the whole reply is one bracketed placeholder
+  if (!/\d/.test(t)) return true;                                 // a view with no numbers at all is unusable
+  if (/\[[^\]]*(sentence|number|synthesis|view|High, Medium|discuss|outlook)[^\]]*\]/i.test(t)) return true;
+  if (/\{ECONOMIST_VIEW\}|\{RISK_VIEW\}/.test(t)) return true;
+  if (/All figures are point-in-time/i.test(t) && !/Return[_ ]?Percent/i.test(t)) return true;   // echoed the data block
+  return false;
+}
+const EXAMPLES = {
+  economist: 'Economist_View: Growth is cooling while inflation is still above target, so equities face a headwind and long bonds offer some cushion.\nEconomist_SPY_Return_Percent: 4\nEconomist_TLT_Return_Percent: 3',
+  risk: 'Risk_View: The main risk is a further rise in yields that hurts both assets at once; correlation is unstable and drawdown protection from bonds is not guaranteed.\nRisk_SPY_Return_Percent: 2\nRisk_TLT_Return_Percent: 1',
+  cio: 'CIO_Decision: I side with the risk manager on bonds because yields are still rising, and with the economist on equities because momentum is intact.\nGrounding_Summary: 12-month equity return, the 3-month move in long yields, and elevated policy uncertainty.\nSPY_Expected_Return_Percent: 5\nTLT_Expected_Return_Percent: 2\nCIO_Confidence: Medium',
+};
+export function compactPrompt(role, prompt) {
+  const dataStart = prompt.indexOf('Point-in-time data');
+  const fmt = prompt.indexOf('Format EXACTLY');
+  const data = dataStart >= 0 && fmt > dataStart ? prompt.slice(dataStart, fmt).trim() : prompt;
+  const persona = prompt.split('\n')[0];
+  const labels = role === 'economist' ? 'Economist_View, Economist_SPY_Return_Percent, Economist_TLT_Return_Percent'
+    : role === 'risk' ? 'Risk_View, Risk_SPY_Return_Percent, Risk_TLT_Return_Percent'
+    : 'CIO_Decision, Grounding_Summary, SPY_Expected_Return_Percent, TLT_Expected_Return_Percent, CIO_Confidence';
+  return `${persona}\n${data}\n\nReply with only these lines, in this order: ${labels}.\nWrite your OWN sentences and numbers for THIS data. Here is an example of the shape with different numbers (do not copy its words):\n${EXAMPLES[role]}`;
+}
+export async function browserRoleCall(role, prompt, settings, onProgress) {
+  let raw = await browserCall(prompt, settings, onProgress);
+  let bad = templateEcho(raw) || (role === 'cio' && parseCio(raw).problems.length > 0) || (role !== 'cio' && parseView(raw, role).spy === null);
+  if (bad) {
+    const retry = await browserCall(compactPrompt(role, prompt), settings, onProgress);
+    const retryBad = templateEcho(retry) || (role === 'cio' && parseCio(retry).problems.length > 0) || (role !== 'cio' && parseView(retry, role).spy === null);
+    if (!retryBad || templateEcho(raw)) raw = retry;
+    return { raw, retried: true, ok: !retryBad };
+  }
+  return { raw, retried: false, ok: true };
+}
+
 // ---------- parsing (mirrors committee.py) ----------
 const clean = t => (t || '').replace(/\*\*|__|`/g, '');
 const NUM = '([-+]?\\d+(?:\\.\\d+)?)';
@@ -109,7 +148,7 @@ export async function runCommittee(run, settings, onEvent, onProgress) {
     model = settings.browserModel; source = 'in-browser (WebLLM); independent views executed back to back on one GPU';
     await ensureEngine(settings.browserModel, onProgress);
     onEvent && onEvent('stage1-start', { parallel: false });
-    const call = async role => { const s = performance.now(); const out = await browserCall(prompts[role], settings, onProgress); timings[role + '_ms'] = Math.round(performance.now() - s); onEvent && onEvent(role, { raw: out, view: parseView(out, role) }); return out; };
+    const call = async role => { const s = performance.now(); const r = await browserRoleCall(role, prompts[role], settings, onProgress); timings[role + '_ms'] = Math.round(performance.now() - s); onEvent && onEvent(role, { raw: r.raw, view: parseView(r.raw, role), retried: r.retried, ok: r.ok }); return r.raw; };
     // Promise.all keeps the code shape of the parallel version; the engine serialises the two generations.
     [econRaw, riskRaw] = await Promise.all([call('economist'), call('risk')]);
     parallel = false;
@@ -137,14 +176,15 @@ export async function runCommittee(run, settings, onEvent, onProgress) {
   const econ = parseView(econRaw, 'economist'), risk = parseView(riskRaw, 'risk');
   cioPrompt = prompts.cio.replace('{ECONOMIST_VIEW}', econRaw.trim()).replace('{RISK_VIEW}', riskRaw.trim());
   onEvent && onEvent('cio-start', {});
+  let cioRetried = false;
   if (settings.provider === 'browser') {
-    const s = performance.now(); cioRaw = await browserCall(cioPrompt, settings, onProgress); timings.cio_ms = Math.round(performance.now() - s);
+    const s = performance.now(); const r = await browserRoleCall('cio', cioPrompt, settings, onProgress); cioRaw = r.raw; cioRetried = r.retried; timings.cio_ms = Math.round(performance.now() - s);
   } else {
     cioRaw = run.reference_run.cio_raw;
     await new Promise(r => setTimeout(r, Math.min(3000, (timings.cio_ms || 2000) * 0.35)));
   }
   const { fields, problems } = parseCio(cioRaw);
-  onEvent && onEvent('cio', { raw: cioRaw, fields, problems });
+  onEvent && onEvent('cio', { raw: cioRaw, fields, problems, retried: cioRetried });
   timings.total_ms = timings.total_ms || Math.round(performance.now() - t0);
   return { econRaw, riskRaw, cioRaw, cioPrompt, econ, risk, fields, problems, timings, parallel, model, source };
 }

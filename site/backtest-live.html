@@ -55,7 +55,7 @@
                 <label class="flex flex-col gap-1"><span class="eyebrow">Committee</span>
                     <select id="mode"><option value="saved">Replay saved gpt-4o masked views (instant, 272 months)</option><option value="browser">In-browser committee (economist ∥ risk → CIO, WebGPU)</option></select></label>
                 <label id="modelWrap" class="flex flex-col gap-1 hidden"><span class="eyebrow">Browser model</span>
-                    <select id="browserModel"><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (fastest, ~0.4 GB)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~0.7 GB)</option><option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (~1 GB)</option></select></label>
+                    <select id="browserModel"><option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (recommended, ~1 GB)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~0.7 GB)</option><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (fastest; often ignores the format, retried automatically)</option></select></label>
                 <label class="flex flex-col gap-1"><span class="eyebrow">Start</span><select id="start"></select></label>
                 <label class="flex flex-col gap-1" title="Transaction cost per unit of turnover, one way. 5 bps = 0.05% of the amount traded."><span class="eyebrow">Trade cost (bps, one-way)</span><input id="cost" type="number" value="5" min="0" max="50" class="w-20"></label>
                 <label class="flex items-center gap-2 t2"><input id="gate" type="checkbox" checked> EPU/GPR trust gate</label>
@@ -155,10 +155,11 @@
         }
         function onEvent(name, p) {
             if (name === 'stage1-start') { ['econT', 'riskT', 'cioT', 'cioN'].forEach(id => $(id).innerText = ''); $('laneE').classList.add('on'); $('laneR').classList.add('on'); $('tE').innerText = ''; $('tR').innerText = ''; $('tC').innerText = ''; }
-            if (name === 'economist') { $('econT').innerText = p.view.text; $('tE').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneE').classList.remove('on'); }
-            if (name === 'risk') { $('riskT').innerText = p.view.text; $('tR').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneR').classList.remove('on'); }
+            const flag = p => (p.retried ? ' · retried' : '') + (p.ok === false ? ' · unusable' : '');
+            if (name === 'economist') { $('econT').innerText = p.view.text; $('tE').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneE').classList.remove('on'); }
+            if (name === 'risk') { $('riskT').innerText = p.view.text; $('tR').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneR').classList.remove('on'); }
             if (name === 'cio-start') $('laneC').classList.add('on');
-            if (name === 'cio') { $('cioT').innerText = p.fields.cio || p.raw; $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneC').classList.remove('on'); }
+            if (name === 'cio') { $('cioT').innerText = p.fields.cio || (p.problems && p.problems.length ? 'CIO reply unusable (' + p.problems.join('; ') + ') → prior only' : p.raw); $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s' + (p.retried ? ' · retried' : ''); $('laneC').classList.remove('on'); }
         }
         function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
         function modeLabel() { return $('mode').value === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : 'replaying saved gpt-4o masked views · no model call'; }

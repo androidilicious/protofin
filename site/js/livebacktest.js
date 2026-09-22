@@ -3,7 +3,7 @@
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
 import { allocate, EQUILIBRIUM_SPY } from './allocation.js';
-import { ensureEngine, browserCall, parseView, parseCio, DOWNGRADE } from './pipeline.js';
+import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js';
 
 export async function loadMonths() {
   const r = await fetch('./data/backtest_months.json', { cache: 'no-store' });
@@ -47,13 +47,13 @@ export class LiveBacktest {
     } else {
       await ensureEngine(this.opts.browserModel, this.opts.onProgress);
       onEvent && onEvent('stage1-start', {});
-      const call = async role => { const t = performance.now(); const out = await browserCall(m.prompts[role], this.opts); const v = parseView(out, role); onEvent && onEvent(role, { raw: out, view: v, ms: Math.round(performance.now() - t) }); return { out, v }; };
+      const call = async role => { const t = performance.now(); const rr = await browserRoleCall(role, m.prompts[role], this.opts); const out = rr.raw; const v = parseView(out, role); onEvent && onEvent(role, { raw: out, view: v, ms: Math.round(performance.now() - t), retried: rr.retried, ok: rr.ok }); return { out, v }; };
       const [e, r] = await Promise.all([call('economist'), call('risk')]);
       const cioPrompt = m.prompts.cio.replace('{ECONOMIST_VIEW}', e.out.trim()).replace('{RISK_VIEW}', r.out.trim());
       onEvent && onEvent('cio-start', {});
-      const t = performance.now(); const cioRaw = await browserCall(cioPrompt, this.opts);
+      const t = performance.now(); const rc = await browserRoleCall('cio', cioPrompt, this.opts); const cioRaw = rc.raw;
       const { fields, problems } = parseCio(cioRaw);
-      onEvent && onEvent('cio', { raw: cioRaw, fields, problems, ms: Math.round(performance.now() - t) });
+      onEvent && onEvent('cio', { raw: cioRaw, fields, problems, ms: Math.round(performance.now() - t), retried: rc.retried });
       if (problems.length === 0) { views = [fields.spy_q, fields.tlt_q]; confRep = fields.confidence; } else this.rejected++;
       detail = { source: this.opts.browserModel, econ: e.v, risk: r.v, cio: fields.cio, problems, cioNums: problems.length ? null : [fields.spy_q, fields.tlt_q, fields.confidence] };
     }
