@@ -57,7 +57,7 @@
                 <label id="modelWrap" class="flex flex-col gap-1 hidden"><span class="eyebrow">Browser model</span>
                     <select id="browserModel"><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (fastest, ~0.4 GB)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~0.7 GB)</option><option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (~1 GB)</option></select></label>
                 <label class="flex flex-col gap-1"><span class="eyebrow">Start</span><select id="start"></select></label>
-                <label class="flex flex-col gap-1"><span class="eyebrow">Cost, bps one-way</span><input id="cost" type="number" value="5" min="0" max="50" class="w-20"></label>
+                <label class="flex flex-col gap-1" title="Transaction cost per unit of turnover, one way. 5 bps = 0.05% of the amount traded."><span class="eyebrow">Trade cost (bps, one-way)</span><input id="cost" type="number" value="5" min="0" max="50" class="w-20"></label>
                 <label class="flex items-center gap-2 t2"><input id="gate" type="checkbox" checked> EPU/GPR trust gate</label>
                 <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="250">calm</option><option value="120" selected>normal</option><option value="30">fast</option></select></label>
                 <span class="flex-1"></span><span id="status" class="muted"></span>
@@ -80,7 +80,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <section class="card p-5 lg:col-span-3">
-                <div class="flex items-center justify-between mb-3"><div class="eyebrow purple">Committee · current month <span id="curMonth" class="mono t1"></span></div><span id="curRegime" class="chip"></span></div>
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2"><div class="eyebrow purple">Committee · current month <span id="curMonth" class="mono t1"></span></div><div class="flex gap-2"><span id="modeChip" class="chip accent"></span><span id="curRegime" class="chip"></span></div></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                     <div id="laneE" class="inner p-3 lane" style="border-left-color:var(--accent)"><div class="flex justify-between"><span class="eyebrow accent">Economist</span><span id="tE" class="faint text-[10px]"></span></div><p id="econT" class="t1 text-xs leading-snug mt-1 min-h-[40px]"></p></div>
                     <div id="laneR" class="inner p-3 lane" style="border-left-color:var(--neg)"><div class="flex justify-between"><span class="eyebrow neg">Risk manager</span><span id="tR" class="faint text-[10px]"></span></div><p id="riskT" class="t1 text-xs leading-snug mt-1 min-h-[40px]"></p></div>
@@ -111,6 +111,7 @@
         months.forEach((m, i) => { if (i % 12 === 0 || i === months.length - 1) { const o = document.createElement('option'); o.value = i; o.textContent = m.as_of; startSel.appendChild(o); } });
         startSel.value = q.get('start') || '0';
         if (q.get('mode')) $('mode').value = q.get('mode');
+        if ($('mode').value === 'browser' && !q.get('start')) startSel.value = String([...startSel.options].map(o => +o.value).filter(v => v <= months.length - 36).pop() ?? 0);
         $('mode').addEventListener('change', () => { $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser'); if ($('mode').value === 'browser' && startSel.value === '0') startSel.value = String(Math.max(0, months.length - 36)); });
         $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser');
 
@@ -136,14 +137,14 @@
             wChart.data.labels.push(h.dates.at(-1)); wChart.data.datasets[0].data.push(h.wlive.at(-1)); wChart.data.datasets[1].data.push(h.wprior.at(-1)); wChart.update(); }
         function tiles(s) {
             const pct = v => (v * 100).toFixed(1) + '%';
-            const rows = [['Live CAGR', pct(s.live.cagr), 'accent'], ['60/40 CAGR', pct(s.fixed.cagr), 'muted'], ['Live Sharpe', s.live.sharpe.toFixed(2), 'accent'], ['60/40 Sharpe', s.fixed.sharpe.toFixed(2), 'muted'], ['Live max DD', pct(s.live.maxdd), 'neg'], ['Trades live / 60/40', `${s.live.trades} / ${s.fixed.trades}`, 't2']];
+            const rows = [['Live CAGR', pct(s.live.cagr), 'accent'], ['60/40 CAGR', pct(s.fixed.cagr), 'muted'], ['Live Sharpe', s.live.sharpe.toFixed(2), 'accent'], ['60/40 Sharpe', s.fixed.sharpe.toFixed(2), 'muted'], ['Live max drawdown', pct(s.live.maxdd), 'neg'], ['Trades live / 60/40', `${s.live.trades} / ${s.fixed.trades}`, 't2']];
             $('tiles').innerHTML = rows.map(([k, v, c]) => `<div class="inner p-3"><div class="eyebrow">${k}</div><div class="kpi ${c}">${v}</div></div>`).join('');
         }
         function showMonth(m, rec, ev) {
             $('curMonth').innerText = m.as_of; $('curRegime').innerText = `regime ${m.regime}`; $('curRegime').className = 'chip ' + (m.regime === 'elevated' ? 'warn' : 'teal');
             $('payloadP').innerText = m.payload.replace(/\n/g, ' · ');
             if (rec) {
-                $('econT').innerText = rec.econ ? rec.econ.text : (rec.source || ''); $('riskT').innerText = rec.risk ? rec.risk.text : '';
+                $('econT').innerText = rec.econ ? rec.econ.text : 'not stored for the research views (single masked call)'; $('riskT').innerText = rec.risk ? rec.risk.text : 'not stored for the research views (single masked call)';
                 $('cioT').innerText = rec.cio || ''; $('cioN').innerText = rec.views ? `views SPY ${rec.views[0]}% · TLT ${rec.views[1]}% · confidence ${rec.confRep}${rec.conf !== rec.confRep ? ' → ' + rec.conf : ''} → SPY weight ${(rec.w * 100).toFixed(1)}%` : `rejected → prior only → SPY weight ${(rec.w * 100).toFixed(1)}%`;
                 ['laneE', 'laneR', 'laneC'].forEach(id => $(id).classList.remove('on'));
                 const tk = $('ticker'); const d = document.createElement('div');
@@ -160,9 +161,11 @@
             if (name === 'cio') { $('cioT').innerText = p.fields.cio || p.raw; $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneC').classList.remove('on'); }
         }
         function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
-        function setup() { bt = new LiveBacktest(months, opts()); mkCharts(); $('tiles').innerHTML = ''; $('ticker').innerHTML = ''; $('prog').style.width = '0%'; showMonth(months[bt.i], null); }
-        setup();
+        function modeLabel() { return $('mode').value === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : 'replaying saved gpt-4o masked views · no model call'; }
+        function setup() { bt = new LiveBacktest(months, opts()); mkCharts(); $('tiles').innerHTML = ''; $('ticker').innerHTML = ''; $('prog').style.width = '0%'; showMonth(months[bt.i], null); $('modeChip').innerText = modeLabel(); $('modeChip').className = 'chip ' + ($('mode').value === 'browser' ? 'warn' : 'accent'); $('status').innerText = ''; }
         let running = false;
+        ['mode', 'browserModel', 'start', 'cost', 'gate', 'speed'].forEach(id => $(id).addEventListener('change', () => { if (!running) setup(); }));
+        setup();
         $('resetBtn').addEventListener('click', () => { running = false; $('runBtn').innerText = '▶ Run'; setup(); });
         $('runBtn').addEventListener('click', async () => {
             if (running) { running = false; $('runBtn').innerText = '▶ Resume'; return; }
