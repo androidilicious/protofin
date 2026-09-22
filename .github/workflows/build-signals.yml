@@ -19,6 +19,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -43,4 +46,9 @@ jobs:
           git add site/data/signals.json site/protofin-pipeline.html data/news/fomc_index.csv
           git diff --cached --quiet || git commit -m "signals: $(date -u +%F)"
           git push
-      # Cloudflare Pages (Git integration) redeploys from the pushed commit; nothing else to do here.
+      # Redeploy to Cloudflare Pages when an API token is configured (project created by direct upload).
+      # Alternative: connect the repo under Workers & Pages -> protofin -> Settings -> Builds, then this
+      # step is unnecessary and can stay skipped.
+      - name: Deploy to Cloudflare Pages
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx --yes wrangler@4 pages deploy site --project-name protofin --branch main --commit-dirty=true
