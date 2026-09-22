@@ -7,7 +7,7 @@ A single-page dashboard that runs one pipeline end to end:
    **Headlines** (display only by default): macro headlines from Google News RSS scored by FinBERT plus an LLM structured extraction with quotes. They have no archive, so `HEADLINES_MODE=display` keeps them off the view, the fingerprint and the allocation; `decide` puts them in for demos; `off` skips the fetch.
 2. **Rate-shock signal**: current 10Y yield minus its 3-month average, in basis points.
    **Uncertainty regime**: the Baker-Bloom-Davis Economic Policy Uncertainty index (EPU) and the Caldara-Iacoviello Geopolitical Risk index (GPR), as 30-day means ranked against 10 years of history. The regime is *elevated* when either index is in its top decile or both are in their top quintile.
-3. **Agent debate** (OpenAI): Economist, Risk Manager and CIO produce 12-month return forecasts for SPY and TLT plus a confidence label.
+3. **Investment committee** (`committee.py`): three persona calls. A macro economist (asset manager) and a head of risk (bank) each give an independent view with their own SPY/TLT numbers; the two calls run concurrently and neither sees the other. The CIO then receives both replies verbatim and sets the 12-month return views and a confidence label. With the in-browser model the two views are still independent but execute back to back on one GPU.
 4. **Black-Litterman posterior**: the forecasts are converted to excess returns over the 13-week T-bill yield and blended with a 60/40 equilibrium prior; confidence scales the view uncertainty. An elevated uncertainty regime downgrades the reported confidence one notch before it is used. It never upgrades it.
 5. **Constrained allocation**: a long-only, fully invested mean-variance optimum inside a 40–80% SPY tilt band.
 
@@ -94,6 +94,10 @@ python research/backtest_chart.py      # writes research/out/backtest_report.htm
 ```
 
 Five strategies run on identical dates, prices, covariance windows and costs, through the same `allocation.py` code the dashboard uses: fixed 60/40, prior only with the trade policy, a placeholder rate-shock rule, the same rule with the EPU/GPR confidence gate, and the LLM views recorded in the run log (a forward test that grows with every live run). Add `logged_llm_gated` to `--strategies` to gate the logged views too. Historical LLM views are deliberately not simulated: there is no point-in-time news archive, and a current model has read the history it would be forecasting.
+
+## Live backtest in the browser: https://protofin.pages.dev/backtest-live.html
+
+`scripts/build_backtest_months.py` writes `site/data/backtest_months.json`: one masked, point-in-time payload per month since 2004 (returns, vols, correlation, percentile ranks, bps changes; no dates, levels or headlines), the three persona prompts, sigma, cash rate, regime, the realised next-month SPY/TLT returns, and the saved gpt-4o masked view from the research run. `site/js/livebacktest.js` steps through the months in the browser, decides with either the saved gpt-4o views (instant replay) or the in-browser committee (economist ∥ risk → CIO on WebGPU, roughly 10–60 s a month), scores each decision on the following month, and animates growth-of-100 against fixed 60/40 and prior-only, with the SPY weight track, a per-month committee panel and a decision log. Monthly steps with a flat one-way cost; the Python harness in `research/backtest.py` remains the daily-resolution reference.
 
 ## Masked historical replay (leakage-controlled LLM test)
 

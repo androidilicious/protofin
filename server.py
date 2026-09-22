@@ -22,6 +22,7 @@ from allocation import MAX_MOVE, MAX_SPY, MIN_SPY, NO_TRADE_BAND, allocate
 import macro_indexes
 import news_pipeline
 import signals
+import committee
 
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -161,15 +162,16 @@ def run_pipeline():
                 news["extraction"] = news_pipeline.extract_shocks(news["headlines"], client, model=LLM_MODEL)
             except Exception as exc:  # noqa: BLE001
                 news["extraction"], news["extraction_error"] = None, str(exc)[:120]
-        response = client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-            seed=42,
-            max_tokens=400,
-        )
-        llm_output = response.choices[0].message.content or ""
-        fields, problems = parse_llm(llm_output)
+        def _call(prompt_text):
+            r = client.chat.completions.create(model=LLM_MODEL, messages=[{"role": "user", "content": prompt_text}],
+                                               temperature=0.0, seed=42, max_tokens=400)
+            return r.choices[0].message.content or ""
+        com = committee.run_committee(sig["prompts"], _call, parallel=True)
+        llm_output = com["cio_raw"]
+        fields = {"economist": com["economist"]["text"], "risk": com["risk"]["text"],
+                  "cio": com["cio"]["cio"], "grounding": com["cio"]["grounding"],
+                  "spy_q": com["cio"]["spy_q"], "tlt_q": com["cio"]["tlt_q"], "confidence": com["cio"]["confidence"]}
+        problems = com["problems"]
         llm_parse_ok = not problems
 
         # 4-5. Black-Litterman posterior (views as EXCESS returns over cash), constrained
@@ -233,7 +235,13 @@ def run_pipeline():
             "tlt_weight": round((1 - final_spy) * 100, 1),
             "trade_status": trade_status,
             "prompt": prompt,
+            "prompts": sig["prompts"],
             "llm_raw": llm_output,
+            "economist_raw": com["economist_raw"], "risk_raw": com["risk_raw"], "cio_raw": com["cio_raw"],
+            "cio_prompt": com["cio_prompt"],
+            "economist_q": [com["economist"]["spy"], com["economist"]["tlt"]],
+            "risk_q": [com["risk"]["spy"], com["risk"]["tlt"]],
+            "committee_timing": com["timings"],
             "model_used": LLM_MODEL,
             "model_source": "OpenAI API via local server, temperature 0, seed 42",
             "policy": {"tilt_band_spy": [MIN_SPY * 100, MAX_SPY * 100],

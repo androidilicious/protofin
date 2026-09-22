@@ -110,6 +110,7 @@
             </div>
             <div class="flex-1"></div>
             <a id="backtestLink" href="./backtest.html" target="_blank" class="btn btn-ghost">Backtest</a>
+            <a id="liveBacktestLink" href="./backtest-live.html" target="_blank" class="btn btn-ghost">Live backtest</a>
             <button id="promptBtn" type="button" class="btn btn-ghost" title="See the exact prompt, how the committee runs, and the raw reply">&#9432; Prompt &amp; flow</button>
             <button id="themeBtn" type="button" class="btn btn-ghost" title="Switch light / dark">Light mode</button>
             <button id="replayBtn" class="btn btn-ghost" disabled>&#9654; Replay flow</button>
@@ -237,23 +238,46 @@
         <!-- ---------- committee ---------- -->
         <section id="step3" class="card p-6 opacity-30 relative min-h-[260px]">
             <div class="cardhead purple mb-1"><span class="dot"></span> 3 · Investment committee</div>
-            <p id="modelLine" class="eyebrow mb-5"></p>
-            <div id="spinner3" class="spinner hidden" style="color:var(--purple)">Committee deliberating…</div>
-            <div id="aiContent" class="hidden timeline space-y-5 max-w-5xl">
-                <div id="econBlock" class="hidden opacity-0 transition-opacity duration-500 relative">
-                    <div class="tmark">&#128200;</div>
-                    <div class="eyebrow accent mb-1">Macro economist</div>
-                    <div class="bubble econ"><span id="econText"></span></div>
+            <p id="modelLine" class="eyebrow mb-4"></p>
+            <div id="spinner3" class="spinner hidden" style="color:var(--purple)">Convening the committee…</div>
+            <div id="aiContent" class="hidden space-y-4">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="stage1Chip" class="chip accent">stage 1 · two independent views</span>
+                    <span id="stage1Mode" class="chip"></span>
+                    <span class="muted text-xs">neither persona sees the other</span>
                 </div>
-                <div id="riskBlock" class="hidden opacity-0 transition-opacity duration-500 relative">
-                    <div class="tmark">&#128737;</div>
-                    <div class="eyebrow neg mb-1">Risk manager</div>
-                    <div class="bubble risk"><span id="riskText"></span></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div id="econBlock" class="inner p-4 relative transition-opacity duration-500" style="border-left:3px solid var(--accent)">
+                        <div class="flex items-center justify-between mb-1">
+                            <div><div class="eyebrow accent">Macro economist</div><div class="faint text-[11px]">chief economist at an asset manager</div></div>
+                            <span id="econTime" class="chip"></span>
+                        </div>
+                        <div id="econSpin" class="muted text-xs italic animate-pulse hidden">thinking…</div>
+                        <p class="t1 text-sm leading-relaxed"><span id="econText"></span></p>
+                        <div id="econNums" class="mono text-[11px] muted mt-2"></div>
+                    </div>
+                    <div id="riskBlock" class="inner p-4 relative transition-opacity duration-500" style="border-left:3px solid var(--neg)">
+                        <div class="flex items-center justify-between mb-1">
+                            <div><div class="eyebrow neg">Risk manager</div><div class="faint text-[11px]">head of risk at a bank's investment arm</div></div>
+                            <span id="riskTime" class="chip"></span>
+                        </div>
+                        <div id="riskSpin" class="muted text-xs italic animate-pulse hidden">thinking…</div>
+                        <p class="t1 text-sm leading-relaxed"><span id="riskText"></span></p>
+                        <div id="riskNums" class="mono text-[11px] muted mt-2"></div>
+                    </div>
                 </div>
-                <div id="cioBlock" class="hidden opacity-0 transition-opacity duration-500 relative">
-                    <div class="tmark">&#9878;</div>
-                    <div class="eyebrow purple mb-1">Chief investment officer</div>
-                    <div class="bubble cio">"<span id="cioText"></span>"</div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1" style="height:1px; background:var(--border)"></div>
+                    <span id="stage2Chip" class="chip">stage 2 · CIO reads both views and decides</span>
+                    <div class="flex-1" style="height:1px; background:var(--border)"></div>
+                </div>
+                <div id="cioBlock" class="bubble cio relative transition-opacity duration-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <div><div class="eyebrow purple">Chief investment officer</div><div class="faint text-[11px]">weighs both, resolves disagreement, sets the numbers</div></div>
+                        <span id="cioTime" class="chip"></span>
+                    </div>
+                    <div id="cioSpin" class="muted text-xs italic animate-pulse hidden">synthesising…</div>
+                    "<span id="cioText"></span>"
                 </div>
             </div>
         </section>
@@ -322,17 +346,19 @@
             </div>
             <div class="p-5 space-y-4">
                 <div id="tab-flow">
-                    <p class="t2 text-sm leading-relaxed mb-3"><b class="t1">Sequential, not parallel.</b> The committee is one model call. The three voices are written in order inside a single reply: the economist argues, the risk manager answers that argument, the CIO synthesises both. Only the last three lines become numbers. Nothing runs concurrently, and no agent sees anything the others do not.</p>
+                    <p class="t2 text-sm leading-relaxed mb-3"><b class="t1">Two independent views, then a decision.</b> The economist and the risk manager are separate model calls with different personas and the same data; neither sees the other. For saved gpt-4o runs the two calls are made concurrently. For the in-browser model they are still independent but execute one after the other, because one GPU generates one reply at a time. The CIO then receives both replies verbatim and sets the numbers that feed Black-Litterman.</p>
                     <div id="mermaidBox" class="mermaid-box"></div>
                     <p class="muted text-xs mt-3">Signals are gathered first (four data sources, deterministic). The model call is the only non-deterministic step, run at temperature 0. Everything after the reply is closed-form mathematics.</p>
                 </div>
                 <div id="tab-prompt" class="hidden">
-                    <p class="muted text-xs mb-2">There is no separate system prompt for the hosted model; this single user message is the whole input. The in-browser model additionally receives a short system line insisting on the seven-line format. <span id="promptWhich"></span></p>
-                    <pre id="promptText" class="prompt">Run the pipeline to see the prompt for a run.</pre>
+                    <p class="muted text-xs mb-2">Three user messages, one per persona; there is no separate system prompt for the hosted model (the in-browser model gets a short format-only system line). The CIO prompt is shown with the two views inserted, exactly as sent. <span id="promptWhich"></span></p>
+                    <div class="flex gap-2 mb-2"><span class="tab on" data-p="economist">Economist</span><span class="tab" data-p="risk">Risk manager</span><span class="tab" data-p="cio">CIO</span></div>
+                    <pre id="promptText" class="prompt">Run the pipeline to see the prompts for a run.</pre>
                 </div>
                 <div id="tab-raw" class="hidden">
-                    <p class="muted text-xs mb-2">Verbatim model output. If a small model ignores the format, the views are rejected and the 60/40 prior is used; this is where to see why. <span id="rawWhich"></span></p>
-                    <pre id="rawText" class="prompt">Run the pipeline to see the model's reply.</pre>
+                    <p class="muted text-xs mb-2">Verbatim model output for each persona. If a small model ignores the format, the CIO's numbers are rejected and the 60/40 prior is used; this is where to see why. <span id="rawWhich"></span></p>
+                    <div class="flex gap-2 mb-2"><span class="tab on" data-r="economist">Economist</span><span class="tab" data-r="risk">Risk manager</span><span class="tab" data-r="cio">CIO</span></div>
+                    <pre id="rawText" class="prompt">Run the pipeline to see the model's replies.</pre>
                 </div>
             </div>
         </div>
@@ -375,7 +401,7 @@
         // ---------- inline archify diagram + step player ----------
         const STEPS = ['run', 'ingest', 'shock', 'regime', 'fomc', 'committee', 'allocate', 'render'];
         const STEP_LABEL = { run: 'Run', ingest: 'Yahoo Finance', shock: 'Rate shock', regime: 'EPU / GPR', fomc: 'FOMC stance',
-                             committee: 'gpt-4o committee', allocate: 'Black-Litterman', render: 'Render' };
+                             committee: 'Committee (economist &#8741; risk &rarr; CIO)', allocate: 'Black-Litterman', render: 'Render' };
         let lastRun = null, diagramWrapEl = null;
         async function loadDiagram() {
             const html = await (await fetch('./protofin-pipeline.html', { cache: 'no-store' })).text();
@@ -422,7 +448,7 @@
                 shock:     `${sg(d.svar_value.toFixed(0))} bps vs 3-month average`,
                 regime:    `EPU ${pct(e)} &middot; GPR ${pct(g)} &middot; regime ${d.uncertainty_regime.toUpperCase()}`,
                 fomc:      f ? `hawkish ${sg(f.score.toFixed(2))} (statement ${f.date})` : 'unavailable',
-                committee: `SPY ${d.spy_q}% &middot; TLT ${d.tlt_q}% (12m) &middot; confidence ${d.confidence_reported}${d.confidence !== d.confidence_reported ? ' &rarr; ' + d.confidence + ' (regime)' : ''}`,
+                committee: `${d.economist_q && d.economist_q[0] != null ? 'economist ' + d.economist_q[0] + '/' + d.economist_q[1] + ' &#8741; risk ' + d.risk_q[0] + '/' + d.risk_q[1] + ' &rarr; ' : ''}CIO SPY ${d.spy_q}% &middot; TLT ${d.tlt_q}% &middot; confidence ${d.confidence_reported}${d.confidence !== d.confidence_reported ? ' &rarr; ' + d.confidence + ' (regime)' : ''}`,
                 allocate:  `prior ${d.prior_spy}/${d.prior_tlt} + views &rarr; posterior ${d.posterior_spy}/${d.posterior_tlt} &rarr; target ${d.target_spy} / ${d.target_tlt}`,
                 render:    `SPY ${d.spy_weight}% / TLT ${d.tlt_weight}%${d.prototype_mode ? '' : ' &middot; ' + d.trade_status}`,
             };
@@ -451,6 +477,55 @@
         }
         document.getElementById('replayBtn').addEventListener('click', () => { if (lastRun) playDiagram(lastRun); });
         loadDiagram();
+
+        // ---------- committee lanes ----------
+        const fmtMs = ms => ms == null ? '' : (ms >= 1000 ? (ms / 1000).toFixed(1) + ' s' : ms + ' ms');
+        const fmtPair = (q, label) => (q && q[0] != null) ? `${label}: SPY ${q[0] > 0 ? '+' : ''}${q[0]}% · TLT ${q[1] > 0 ? '+' : ''}${q[1]}%` : '';
+        function committeeReset() {
+            ['econText', 'riskText', 'cioText', 'econNums', 'riskNums', 'econTime', 'riskTime', 'cioTime', 'stage1Mode'].forEach(id => document.getElementById(id).innerText = '');
+            ['econSpin', 'riskSpin', 'cioSpin'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).style.opacity = '.35');
+        }
+        function laneStart(role) {
+            const k = role === 'economist' ? 'econ' : role === 'risk' ? 'risk' : 'cio';
+            document.getElementById(k + 'Spin').classList.remove('hidden');
+            document.getElementById(k + 'Block').style.opacity = '1';
+        }
+        async function laneDone(role, text, q, ms, speed = 4) {
+            const k = role === 'economist' ? 'econ' : role === 'risk' ? 'risk' : 'cio';
+            document.getElementById(k + 'Spin').classList.add('hidden');
+            document.getElementById(k + 'Block').style.opacity = '1';
+            if (ms != null) document.getElementById(k + 'Time').innerText = fmtMs(ms);
+            if (k !== 'cio') document.getElementById(k + 'Nums').innerText = fmtPair(q, 'own view');
+            await typeWriter(k + 'Text', text || '', speed);
+        }
+        function stageMode(parallel, legacy) {
+            const el = document.getElementById('stage1Mode');
+            el.innerText = legacy ? 'legacy single reply' : parallel ? 'ran concurrently' : 'independent, executed back to back on one GPU';
+            el.className = 'chip ' + (parallel ? 'teal' : '');
+        }
+        // server mode: the whole result arrives at once; animate both lanes together, then the CIO
+        async function animateCommittee(d) {
+            committeeReset();
+            const t = d.committee_timing || {};
+            stageMode(!!t.parallel, !d.economist_raw);
+            laneStart('economist'); laneStart('risk');
+            await new Promise(r => setTimeout(r, 400));
+            await Promise.all([laneDone('economist', d.economist, d.economist_q, t.economist_ms), laneDone('risk', d.risk, d.risk_q, t.risk_ms)]);
+            await new Promise(r => setTimeout(r, 300));
+            laneStart('cio');
+            await new Promise(r => setTimeout(r, 400));
+            await laneDone('cio', d.cio, null, t.cio_ms);
+        }
+        // site mode: pipeline.js emits events while the committee is actually running
+        let committeeLive = false;
+        function committeeEvent(name, payload) {
+            committeeLive = true;
+            if (name === 'stage1-start') { document.getElementById('spinner3').classList.add('hidden'); document.getElementById('aiContent').classList.remove('hidden'); document.getElementById('step3').classList.remove('opacity-30'); document.getElementById('step3').classList.add('glow'); committeeReset(); stageMode(!!payload.parallel, !!payload.legacy); laneStart('economist'); laneStart('risk'); }
+            if (name === 'economist' || name === 'risk') laneDone(name, payload.view.text, [payload.view.spy, payload.view.tlt], null, 3);
+            if (name === 'cio-start') laneStart('cio');
+            if (name === 'cio') laneDone('cio', payload.fields.cio || payload.raw, null, null, 3);
+        }
 
         // ---------- decision summary ----------
         function fillHero(d) {
@@ -488,7 +563,7 @@
         }
 
         // ---------- prompt & flow modal ----------
-        const FLOW_DIAGRAM = `flowchart TB
+        const FLOW_DIAGRAM_OLD = `flowchart TB
   S["Signals<br/>yields · rate shock · EPU/GPR · FOMC stance"] --> P["One prompt<br/>(single user message)"]
   P --> M[("Model<br/>gpt-4o saved reply, or local model<br/>one call · temperature 0")]
   M --> R["One reply, seven labelled lines"]
@@ -497,6 +572,24 @@
     E["1 · Economist"] --> K["2 · Risk manager"] --> C["3 · CIO decision"] --> N["4 · SPY % · TLT % · confidence"]
   end
   R --> E
+  N --> G{"Uncertainty<br/>regime elevated?"}
+  G -- yes --> D["Confidence −1 notch"] --> B
+  G -- no --> B["Black-Litterman blend<br/>+ constrained optimizer"]
+  B --> O["Split · rendered"]`;
+        const FLOW_DIAGRAM = `flowchart TB
+  S["Signals<br/>yields · rate shock · EPU/GPR · FOMC stance"] --> P1["Economist prompt"]
+  S --> P2["Risk-manager prompt"]
+  subgraph par ["Stage 1 · independent, in parallel (concurrent API calls; back to back on one local GPU)"]
+    direction LR
+    P1 --> E[("Macro economist<br/>own view + SPY/TLT numbers")]
+    P2 --> K[("Risk manager<br/>own view + SPY/TLT numbers")]
+  end
+  E --> C
+  K --> C
+  S --> C
+  subgraph cio ["Stage 2 · synthesis"]
+    C[("CIO<br/>reads both views verbatim, decides")] --> N["SPY % · TLT % · confidence"]
+  end
   N --> G{"Uncertainty<br/>regime elevated?"}
   G -- yes --> D["Confidence −1 notch"] --> B
   G -- no --> B["Black-Litterman blend<br/>+ constrained optimizer"]
@@ -515,11 +608,24 @@
                 box.innerHTML = svg;
             } catch (e) { box.innerHTML = '<p class="muted text-xs">Diagram could not load (offline?). ' + e.message + '</p>'; }
         }
+        let modalPrompts = null, modalRaws = null;
         function fillPromptModal(d) {
-            const prompt = (d && d.prompt) || window.CURRENT_PROMPT;
-            if (prompt) { document.getElementById('promptText').innerText = prompt; document.getElementById('promptWhich').innerText = d && d.as_of ? `Run with data as of ${d.as_of}.` : ''; }
-            if (d && d.llm_raw !== undefined) { document.getElementById('rawText').innerText = d.llm_raw || '(empty reply)'; document.getElementById('rawWhich').innerText = `${d.model_used || ''}${d.llm_parse_ok ? ' · parsed OK' : ' · REJECTED: ' + (d.llm_problems || []).join('; ')}`; }
+            const prompts = (d && d.prompts) || window.CURRENT_PROMPTS || null;
+            if (prompts) {
+                modalPrompts = { economist: prompts.economist, risk: prompts.risk, cio: (d && d.cio_prompt) || prompts.cio };
+                document.getElementById('promptWhich').innerText = d && d.as_of ? `Run with data as of ${d.as_of}.` : '';
+                showPrompt('economist');
+            } else if (d && d.prompt) { modalPrompts = { economist: d.prompt, risk: '(legacy single-call run)', cio: '(legacy single-call run)' }; showPrompt('economist'); }
+            if (d && d.llm_raw !== undefined) {
+                modalRaws = { economist: d.economist_raw || d.llm_raw, risk: d.risk_raw || d.llm_raw, cio: d.cio_raw || d.llm_raw };
+                document.getElementById('rawWhich').innerText = `${d.model_used || ''}${d.llm_parse_ok ? ' · CIO numbers parsed OK' : ' · CIO REJECTED: ' + (d.llm_problems || []).join('; ')}`;
+                showRaw('cio');
+            }
         }
+        function showPrompt(k) { if (!modalPrompts) return; document.querySelectorAll('#tab-prompt .tab').forEach(t => t.classList.toggle('on', t.dataset.p === k)); document.getElementById('promptText').innerText = modalPrompts[k] || ''; }
+        function showRaw(k) { if (!modalRaws) return; document.querySelectorAll('#tab-raw .tab').forEach(t => t.classList.toggle('on', t.dataset.r === k)); document.getElementById('rawText').innerText = modalRaws[k] || '(empty reply)'; }
+        document.querySelectorAll('#tab-prompt .tab').forEach(t => t.addEventListener('click', () => showPrompt(t.dataset.p)));
+        document.querySelectorAll('#tab-raw .tab').forEach(t => t.addEventListener('click', () => showRaw(t.dataset.r)));
         function showTab(name) {
             document.querySelectorAll('#promptModal .tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
             ['flow', 'prompt', 'raw'].forEach(n => document.getElementById('tab-' + n).classList.toggle('hidden', n !== name));
@@ -548,7 +654,7 @@
         try { $('remember').checked = !!localStorage.getItem('protofin.settings'); } catch (e) {}
         async function loadSelectedRun() {
             RUN = await loadRun(settings.run);
-            window.CURRENT_PROMPT = RUN.prompt;
+            window.CURRENT_PROMPT = RUN.prompt; window.CURRENT_PROMPTS = RUN.prompts || null;
             $('signalsNote').textContent = `run built ${RUN.generated_at.slice(0, 16).replace('T', ' ')} UTC · data as of ${RUN.as_of} · regime ${RUN.uncertainty_regime}`;
         }
         async function initRuns() {
@@ -567,8 +673,8 @@
         document.getElementById('forceBtn').addEventListener('click', () => { forceNext = true; document.getElementById('runBtn').click(); });
         document.getElementById('runBtn').addEventListener('click', async () => {
             [1,2,3,4,5].forEach(i => { document.getElementById(`step${i}`).classList.remove('glow'); document.getElementById(`step${i}`).classList.add('opacity-30'); });
-            ['dataContent', 'svarContent', 'aiContent', 'viewsContent', 'chartContent', 'spinner1', 'spinner2', 'spinner3', 'spinner4', 'spinner5', 'econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            ['econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).classList.remove('opacity-100'));
+            ['dataContent', 'svarContent', 'aiContent', 'viewsContent', 'chartContent', 'spinner1', 'spinner2', 'spinner3', 'spinner4', 'spinner5'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            committeeReset();
             document.getElementById('heroCard').classList.add('hidden');
 
             const btn = document.getElementById('runBtn');
@@ -582,7 +688,7 @@
                 forceNext = false;
                 if (!RUN) await loadSelectedRun();
                 readSettings();
-                const data = await runPipeline(RUN, settings, msg => { btn.innerText = msg.slice(0, 60); });
+                const data = await runPipeline(RUN, settings, msg => { btn.innerText = msg.slice(0, 60); }, committeeEvent);
                 lastRun = data; document.getElementById('replayBtn').disabled = false;
                 await playDiagram(data);
                 refreshDiagram();
@@ -619,24 +725,20 @@
                 document.getElementById('step1').classList.remove('glow'); document.getElementById('step2').classList.remove('glow');
 
                 // --- committee ---
-                document.getElementById('step3').classList.remove('opacity-30'); document.getElementById('step3').classList.add('glow');
-                document.getElementById('spinner3').classList.remove('hidden');
-                await new Promise(r => setTimeout(r, 400));
-                document.getElementById('spinner3').classList.add('hidden');
-                document.getElementById('aiContent').classList.remove('hidden');
-                document.getElementById('modelLine').innerText = data.model_used ? `model: ${data.model_used} · ${data.model_source}` : 'gpt-4o · temperature 0 · fixed-format reply';
-                document.getElementById('econBlock').classList.remove('hidden');
-                setTimeout(() => document.getElementById('econBlock').classList.add('opacity-100'), 50);
-                await typeWriter('econText', data.economist, 5);
+                document.getElementById('modelLine').innerText = data.model_used ? `model: ${data.model_used} · ${data.model_source}` : 'gpt-4o · temperature 0 · two independent views, then the CIO';
+                if (!committeeLive) {
+                    document.getElementById('step3').classList.remove('opacity-30'); document.getElementById('step3').classList.add('glow');
+                    document.getElementById('spinner3').classList.remove('hidden');
+                    await new Promise(r => setTimeout(r, 400));
+                    document.getElementById('spinner3').classList.add('hidden');
+                    document.getElementById('aiContent').classList.remove('hidden');
+                    await animateCommittee(data);
+                } else {
+                    const t = data.committee_timing || {};
+                    ['economist', 'risk', 'cio'].forEach(role => { const k = role === 'economist' ? 'econ' : role; const ms = t[role + '_ms']; if (ms != null) document.getElementById(k + 'Time').innerText = fmtMs(ms); });
+                }
+                committeeLive = false;
                 await new Promise(r => setTimeout(r, 500));
-                document.getElementById('riskBlock').classList.remove('hidden');
-                setTimeout(() => document.getElementById('riskBlock').classList.add('opacity-100'), 50);
-                await typeWriter('riskText', data.risk, 5);
-                await new Promise(r => setTimeout(r, 500));
-                document.getElementById('cioBlock').classList.remove('hidden');
-                setTimeout(() => document.getElementById('cioBlock').classList.add('opacity-100'), 50);
-                await typeWriter('cioText', data.cio, 5);
-                await new Promise(r => setTimeout(r, 700));
                 document.getElementById('step3').classList.remove('glow');
 
                 // --- views ---

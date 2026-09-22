@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
+import committee
 import macro_indexes
 import news_pipeline
 
@@ -124,7 +125,8 @@ def collect(headlines=True, headlines_in_decision=False, model_name="gpt-4o", lo
         data_payload += f" News features: {news_text}" + (f"\nRecent macro headlines:\n{top}" if top else "")
     else:
         data_payload += f" Policy text: {news_text}"
-    prompt = build_prompt(data_payload, svar_shock_text)
+    prompt = build_prompt(data_payload, svar_shock_text)          # legacy single-call prompt
+    prompts = committee.build_prompts(data_payload, svar_shock_text)  # economist ∥ risk → CIO
 
     fingerprint = hashlib.sha256(json.dumps({
         "as_of": as_of, "yield": round(current_yield, 3), "avg": round(yield_3mo_avg, 3),
@@ -161,4 +163,5 @@ def collect(headlines=True, headlines_in_decision=False, model_name="gpt-4o", lo
                  "text": news_text, "headlines_in_decision": headlines_in_decision},
         "horizon_months": HORIZON_MONTHS,
         "prompt": prompt,
+        "prompts": prompts,
     }

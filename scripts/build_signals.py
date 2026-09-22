@@ -34,12 +34,20 @@ def main():
     key = os.getenv("OPENAI_API_KEY")
     if args.reference and key and key != "YOUR_API_KEY_HERE":
         from openai import OpenAI
+        import committee
         client = OpenAI(api_key=key)
-        r = client.chat.completions.create(model=args.model, messages=[{"role": "user", "content": sig["prompt"]}],
-                                           temperature=0.0, seed=42, max_tokens=400)
-        sig["reference_run"] = {"model": args.model, "raw": r.choices[0].message.content or "",
-                                "generated_at": sig["generated_at"]}
-        print("reference run stored")
+
+        def _call(prompt_text):
+            r = client.chat.completions.create(model=args.model, messages=[{"role": "user", "content": prompt_text}],
+                                               temperature=0.0, seed=42, max_tokens=400)
+            return r.choices[0].message.content or ""
+        com = committee.run_committee(sig["prompts"], _call, parallel=True)
+        sig["reference_run"] = {"model": args.model, "generated_at": sig["generated_at"], "parallel": True,
+                                "economist_raw": com["economist_raw"], "risk_raw": com["risk_raw"],
+                                "cio_raw": com["cio_raw"], "cio_prompt": com["cio_prompt"], "timings": com["timings"],
+                                "raw": com["cio_raw"]}   # 'raw' kept for older page code
+        print(f"reference run stored (economist {com['timings']['economist_ms']} ms || risk {com['timings']['risk_ms']} ms "
+              f"-> CIO {com['timings']['cio_ms']} ms; parse problems: {com['problems'] or 'none'})")
     elif args.reference:
         # keep the last stored reference so keyless visitors still get a real committee reply
         try:

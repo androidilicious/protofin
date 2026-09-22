@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin Live Backtest</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg:#0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(45,212,191,.10), transparent 55%);
+            --surface:#111a2e; --surface-2:#0d1526; --surface-3:#18233a; --border:#263250; --border-strong:#33415f; --text:#e8ecf5; --text-2:#b4bdd1; --muted:#7b869f; --faint:#566178;
+            --accent:#5b96ff; --accent-soft:rgba(91,150,255,.14); --pos:#34d399; --neg:#f87171; --warn:#fbbf24; --purple:#b79cff; --orange:#fb923c; --teal:#2dd4bf; --grid:#1f2a44;
+            --shadow:0 10px 30px rgba(0,0,0,.35); --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; }
+        html.light { --bg:#f3f5f9; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(13,148,136,.08), transparent 55%);
+            --surface:#fff; --surface-2:#f7f9fc; --surface-3:#eef2f8; --border:#dfe4ee; --border-strong:#c9d2e0; --text:#0f172a; --text-2:#3b465c; --muted:#6b7486; --faint:#8b94a7;
+            --accent:#2563eb; --accent-soft:rgba(37,99,235,.10); --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --purple:#6d28d9; --orange:#c2410c; --teal:#0f766e; --grid:#e5e9f0; --shadow:0 8px 24px rgba(15,23,42,.08); }
+        html, body { background:var(--bg); color:var(--text); font-family:var(--font); }
+        body { background-image:var(--bg-grad); background-attachment:fixed; }
+        .mono { font-family:var(--mono); }
+        .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); }
+        .inner { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; }
+        .t1{color:var(--text)} .t2{color:var(--text-2)} .muted{color:var(--muted)} .faint{color:var(--faint)} .accent{color:var(--accent)} .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .purple{color:var(--purple)} .teal{color:var(--teal)}
+        .eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--muted); }
+        .kpi { font-family:var(--mono); font-size:26px; font-weight:600; }
+        .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-2); font-family:var(--mono); }
+        .chip.accent{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)} .chip.warn{border-color:var(--warn);color:var(--warn)} .chip.teal{border-color:var(--teal);color:var(--teal)}
+        .btn { border-radius:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; font-size:12px; padding:10px 20px; transition:transform .15s, filter .2s; }
+        .btn:active{transform:translateY(1px)} .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(91,150,255,.35)} .btn-primary:hover{filter:brightness(1.08)} .btn-primary:disabled{opacity:.6}
+        .btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text-2)} .btn-ghost:hover{border-color:var(--accent);color:var(--accent)} .btn-ghost:disabled{opacity:.45}
+        select, input { background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-size:12px; }
+        .topbar { position:sticky; top:0; z-index:40; backdrop-filter:blur(10px); background:color-mix(in srgb, var(--bg) 78%, transparent); border-bottom:1px solid var(--border); }
+        .brand{font-weight:800;letter-spacing:.04em;font-size:20px} .brand span{color:var(--accent)}
+        .progress { height:8px; border-radius:999px; background:var(--surface-3); overflow:hidden; } .progress > div { height:100%; background:linear-gradient(90deg, var(--accent), var(--teal)); transition:width .3s; }
+        .lane { border-left:3px solid var(--border-strong); }
+        .lane.on { animation: pulse 1.2s ease-in-out infinite; } @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,.0)} 50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)} }
+        .ticker { max-height:220px; overflow-y:auto; font-family:var(--mono); font-size:11px; }
+        .ticker div { padding:4px 0; border-bottom:1px dashed var(--border); }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+    <div class="topbar"><div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-4">
+        <div><div class="brand"><span>Protofin</span> Live Backtest</div><div class="eyebrow">month by month · masked payloads · decisions scored on realised returns</div></div>
+        <div class="flex-1"></div>
+        <a href="./index.html" class="btn btn-ghost">Dashboard</a>
+        <a href="./backtest.html" target="_blank" class="btn btn-ghost">Static report</a>
+        <button id="themeBtn" class="btn btn-ghost">Light mode</button>
+        <button id="resetBtn" class="btn btn-ghost">Reset</button>
+        <button id="runBtn" class="btn btn-primary">&#9654; Run</button>
+    </div></div>
+
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        <section class="card p-4 text-xs">
+            <div class="flex flex-wrap items-end gap-4">
+                <label class="flex flex-col gap-1"><span class="eyebrow">Committee</span>
+                    <select id="mode"><option value="saved">Replay saved gpt-4o masked views (instant, 272 months)</option><option value="browser">In-browser committee (economist ∥ risk → CIO, WebGPU)</option></select></label>
+                <label id="modelWrap" class="flex flex-col gap-1 hidden"><span class="eyebrow">Browser model</span>
+                    <select id="browserModel"><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (fastest, ~0.4 GB)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~0.7 GB)</option><option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (~1 GB)</option></select></label>
+                <label class="flex flex-col gap-1"><span class="eyebrow">Start</span><select id="start"></select></label>
+                <label class="flex flex-col gap-1"><span class="eyebrow">Cost, bps one-way</span><input id="cost" type="number" value="5" min="0" max="50" class="w-20"></label>
+                <label class="flex items-center gap-2 t2"><input id="gate" type="checkbox" checked> EPU/GPR trust gate</label>
+                <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="250">calm</option><option value="120" selected>normal</option><option value="30">fast</option></select></label>
+                <span class="flex-1"></span><span id="status" class="muted"></span>
+            </div>
+            <p class="mt-2 muted">Every month the committee sees only relative numbers: returns, volatility, correlation, percentile ranks of rates and of the uncertainty indexes, and basis-point changes. No dates, levels or headlines. The decision is then scored on the month that followed. Saved replay uses gpt-4o views recorded once for the research; the in-browser option runs three persona calls per month on your GPU (roughly 10–60 s a month depending on the model), so start a few years back rather than in 2004.</p>
+        </section>
+
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3" id="tiles"></div>
+
+        <section class="card p-5">
+            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div class="eyebrow">Growth of 100, net of costs</div>
+                <div class="flex gap-2"><span class="chip accent">live committee</span><span class="chip">fixed 60/40</span><span class="chip teal">prior only</span></div>
+            </div>
+            <div class="progress mb-3"><div id="prog" style="width:0%"></div></div>
+            <div style="height:320px"><canvas id="navChart"></canvas></div>
+            <div class="eyebrow mt-4 mb-1">SPY weight, %</div>
+            <div style="height:140px"><canvas id="wChart"></canvas></div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <section class="card p-5 lg:col-span-3">
+                <div class="flex items-center justify-between mb-3"><div class="eyebrow purple">Committee · current month <span id="curMonth" class="mono t1"></span></div><span id="curRegime" class="chip"></span></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div id="laneE" class="inner p-3 lane" style="border-left-color:var(--accent)"><div class="flex justify-between"><span class="eyebrow accent">Economist</span><span id="tE" class="faint text-[10px]"></span></div><p id="econT" class="t1 text-xs leading-snug mt-1 min-h-[40px]"></p></div>
+                    <div id="laneR" class="inner p-3 lane" style="border-left-color:var(--neg)"><div class="flex justify-between"><span class="eyebrow neg">Risk manager</span><span id="tR" class="faint text-[10px]"></span></div><p id="riskT" class="t1 text-xs leading-snug mt-1 min-h-[40px]"></p></div>
+                </div>
+                <div id="laneC" class="inner p-3 lane" style="border-left-color:var(--purple)"><div class="flex justify-between"><span class="eyebrow purple">CIO decision</span><span id="tC" class="faint text-[10px]"></span></div><p id="cioT" class="t1 text-sm leading-snug mt-1 min-h-[36px]"></p><div id="cioN" class="mono text-[11px] muted mt-1"></div></div>
+                <p id="payloadP" class="faint text-[10px] mono mt-3 leading-snug"></p>
+            </section>
+            <section class="card p-5 lg:col-span-2">
+                <div class="eyebrow mb-2">Decision log <span class="faint">(newest first)</span></div>
+                <div id="ticker" class="ticker"></div>
+            </section>
+        </div>
+    </main>
+
+    <script type="module">
+        import { LiveBacktest, loadMonths } from './js/livebacktest.js';
+        const $ = id => document.getElementById(id);
+        const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+        let bt = null, navChart = null, wChart = null;
+        // theme
+        function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} if (navChart) restyleCharts(); }
+        const q = new URLSearchParams(location.search);
+        applyTheme(q.get('theme') || (() => { try { return localStorage.getItem('protofin.theme'); } catch (e) { return null; } })() || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+        $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+
+        const months = await loadMonths();
+        const startSel = $('start');
+        months.forEach((m, i) => { if (i % 12 === 0 || i === months.length - 1) { const o = document.createElement('option'); o.value = i; o.textContent = m.as_of; startSel.appendChild(o); } });
+        startSel.value = q.get('start') || '0';
+        if (q.get('mode')) $('mode').value = q.get('mode');
+        $('mode').addEventListener('change', () => { $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser'); if ($('mode').value === 'browser' && startSel.value === '0') startSel.value = String(Math.max(0, months.length - 36)); });
+        $('modelWrap').classList.toggle('hidden', $('mode').value !== 'browser');
+
+        function mkCharts() {
+            const grid = cssVar('--grid'), tick = cssVar('--muted');
+            const base = { responsive: true, maintainAspectRatio: false, animation: { duration: 250 }, interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}` } } },
+                scales: { x: { grid: { color: grid }, ticks: { color: tick, maxTicksLimit: 10, font: { family: 'JetBrains Mono', size: 10 } } }, y: { grid: { color: grid }, ticks: { color: tick, font: { family: 'JetBrains Mono', size: 10 } } } } };
+            if (navChart) navChart.destroy(); if (wChart) wChart.destroy();
+            navChart = new Chart($('navChart'), { type: 'line', data: { labels: [], datasets: [
+                { label: 'Live committee', data: [], borderColor: cssVar('--accent'), backgroundColor: cssVar('--accent-soft'), borderWidth: 2.5, pointRadius: 0, tension: .25, fill: true },
+                { label: 'Fixed 60/40', data: [], borderColor: cssVar('--muted'), borderWidth: 1.5, pointRadius: 0, tension: .25, borderDash: [4, 3] },
+                { label: 'Prior only', data: [], borderColor: cssVar('--teal'), borderWidth: 1.5, pointRadius: 0, tension: .25 } ] }, options: base });
+            wChart = new Chart($('wChart'), { type: 'line', data: { labels: [], datasets: [
+                { label: 'Live SPY %', data: [], borderColor: cssVar('--accent'), borderWidth: 2, pointRadius: 0, stepped: true },
+                { label: 'Prior SPY %', data: [], borderColor: cssVar('--teal'), borderWidth: 1.2, pointRadius: 0, stepped: true } ] },
+                options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: 35, max: 85 } } } });
+        }
+        function restyleCharts() { const d = bt ? bt.hist : null; mkCharts(); if (d) pushAll(d); }
+        function pushAll(h) { navChart.data.labels = h.dates.slice(); navChart.data.datasets[0].data = h.live.map(v => v * 100); navChart.data.datasets[1].data = h.fixed.map(v => v * 100); navChart.data.datasets[2].data = h.prior.map(v => v * 100); navChart.update('none');
+            wChart.data.labels = h.dates.slice(); wChart.data.datasets[0].data = h.wlive.slice(); wChart.data.datasets[1].data = h.wprior.slice(); wChart.update('none'); }
+        function pushLast(h) { navChart.data.labels.push(h.dates.at(-1)); navChart.data.datasets[0].data.push(h.live.at(-1) * 100); navChart.data.datasets[1].data.push(h.fixed.at(-1) * 100); navChart.data.datasets[2].data.push(h.prior.at(-1) * 100); navChart.update();
+            wChart.data.labels.push(h.dates.at(-1)); wChart.data.datasets[0].data.push(h.wlive.at(-1)); wChart.data.datasets[1].data.push(h.wprior.at(-1)); wChart.update(); }
+        function tiles(s) {
+            const pct = v => (v * 100).toFixed(1) + '%';
+            const rows = [['Live CAGR', pct(s.live.cagr), 'accent'], ['60/40 CAGR', pct(s.fixed.cagr), 'muted'], ['Live Sharpe', s.live.sharpe.toFixed(2), 'accent'], ['60/40 Sharpe', s.fixed.sharpe.toFixed(2), 'muted'], ['Live max DD', pct(s.live.maxdd), 'neg'], ['Trades live / 60/40', `${s.live.trades} / ${s.fixed.trades}`, 't2']];
+            $('tiles').innerHTML = rows.map(([k, v, c]) => `<div class="inner p-3"><div class="eyebrow">${k}</div><div class="kpi ${c}">${v}</div></div>`).join('');
+        }
+        function showMonth(m, rec, ev) {
+            $('curMonth').innerText = m.as_of; $('curRegime').innerText = `regime ${m.regime}`; $('curRegime').className = 'chip ' + (m.regime === 'elevated' ? 'warn' : 'teal');
+            $('payloadP').innerText = m.payload.replace(/\n/g, ' · ');
+            if (rec) {
+                $('econT').innerText = rec.econ ? rec.econ.text : (rec.source || ''); $('riskT').innerText = rec.risk ? rec.risk.text : '';
+                $('cioT').innerText = rec.cio || ''; $('cioN').innerText = rec.views ? `views SPY ${rec.views[0]}% · TLT ${rec.views[1]}% · confidence ${rec.confRep}${rec.conf !== rec.confRep ? ' → ' + rec.conf : ''} → SPY weight ${(rec.w * 100).toFixed(1)}%` : `rejected → prior only → SPY weight ${(rec.w * 100).toFixed(1)}%`;
+                ['laneE', 'laneR', 'laneC'].forEach(id => $(id).classList.remove('on'));
+                const tk = $('ticker'); const d = document.createElement('div');
+                const ret = (rec.w * rec.r_spy + (1 - rec.w) * rec.r_tlt) * 100;
+                d.innerHTML = `<span class="muted">${rec.as_of}</span> w <span class="accent">${(rec.w * 100).toFixed(0)}%</span> ${rec.views ? `views ${rec.views[0]}/${rec.views[1]} ${rec.conf}` : 'prior'} → month <span class="${ret >= 0 ? 'pos' : 'neg'}">${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%</span>`;
+                tk.prepend(d); while (tk.children.length > 60) tk.lastChild.remove();
+            }
+        }
+        function onEvent(name, p) {
+            if (name === 'stage1-start') { ['econT', 'riskT', 'cioT', 'cioN'].forEach(id => $(id).innerText = ''); $('laneE').classList.add('on'); $('laneR').classList.add('on'); $('tE').innerText = ''; $('tR').innerText = ''; $('tC').innerText = ''; }
+            if (name === 'economist') { $('econT').innerText = p.view.text; $('tE').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneE').classList.remove('on'); }
+            if (name === 'risk') { $('riskT').innerText = p.view.text; $('tR').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneR').classList.remove('on'); }
+            if (name === 'cio-start') $('laneC').classList.add('on');
+            if (name === 'cio') { $('cioT').innerText = p.fields.cio || p.raw; $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s'; $('laneC').classList.remove('on'); }
+        }
+        function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
+        function setup() { bt = new LiveBacktest(months, opts()); mkCharts(); $('tiles').innerHTML = ''; $('ticker').innerHTML = ''; $('prog').style.width = '0%'; showMonth(months[bt.i], null); }
+        setup();
+        let running = false;
+        $('resetBtn').addEventListener('click', () => { running = false; $('runBtn').innerText = '▶ Run'; setup(); });
+        $('runBtn').addEventListener('click', async () => {
+            if (running) { running = false; $('runBtn').innerText = '▶ Resume'; return; }
+            if (bt.i >= months.length) setup();
+            running = true; $('runBtn').innerText = '❚❚ Pause';
+            const total = months.length - bt.opts.start;
+            try {
+                while (running && bt.i < months.length) {
+                    const m = months[bt.i]; showMonth(m, null);
+                    const rec = await bt.step(onEvent);
+                    showMonth(m, rec); pushLast(bt.hist); tiles(bt.summary());
+                    $('prog').style.width = `${((bt.i - bt.opts.start) / total * 100).toFixed(1)}%`;
+                    $('status').innerText = `${bt.i - bt.opts.start} / ${total} months`;
+                }
+                if (bt.i >= months.length) { running = false; $('runBtn').innerText = '▶ Run again'; $('status').innerText = `done · ${total} months`; }
+            } catch (e) { running = false; $('runBtn').innerText = '▶ Resume'; $('status').innerText = 'error: ' + e.message; }
+        });
+        if (q.get('autorun') === '1') $('runBtn').click();
+    </script>
+</body>
+</html>

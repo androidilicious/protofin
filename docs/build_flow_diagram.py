@@ -36,7 +36,7 @@ def build_spec(r):
         "shock": f"{r['svar_value']:+.0f} bps vs 3mo avg",
         "regime": f"EPU {e.get('percentile_10y', 0):.0f} GPR {g.get('percentile_10y', 0):.0f} {r['uncertainty_regime'][:4]}",
         "fomc": f"hawkish {f.get('score', 0):+.2f}",
-        "committee": f"SPY {r['spy_q']}% TLT {r['tlt_q']}%",
+        "committee": f"CIO SPY {r['spy_q']}% TLT {r['tlt_q']}%",
         "allocate": f"target {r['target_spy']}/{r['target_tlt']}",
         "render": f"SPY {r['spy_weight']}% TLT {r['tlt_weight']}%",
     }
