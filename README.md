@@ -5,6 +5,7 @@ An AI investment committee inside a rule-based allocator. Two large-language-mod
 - **Live demo:** https://protofin.pages.dev
 - **Live backtest:** https://protofin.pages.dev/backtest-live.html
 - **Static backtest report:** https://protofin.pages.dev/backtest.html
+- **How a decision is made, step by step, in plain language:** [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md), or filled in live from any saved run at https://protofin.pages.dev/how.html
 - **Design note:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 Duke × BNY CIO Office project, prototype stage, September 2026.

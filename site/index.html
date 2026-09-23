@@ -111,6 +111,7 @@
             <div class="flex-1"></div>
             <a id="backtestLink" href="./backtest.html" target="_blank" class="btn btn-ghost">Backtest</a>
             <a id="liveBacktestLink" href="./backtest-live.html" target="_blank" class="btn btn-ghost">Live backtest</a>
+            <a id="howLink" href="./how.html" target="_blank" class="btn btn-ghost" title="Every step of this decision, with the arithmetic">How it works</a>
             <button id="promptBtn" type="button" class="btn btn-ghost" title="See the exact prompt, how the committee runs, and the raw reply">&#9432; Prompt &amp; flow</button>
             <button id="themeBtn" type="button" class="btn btn-ghost" title="Switch light / dark">Light mode</button>
             <button id="replayBtn" class="btn btn-ghost" disabled>&#9654; Replay flow</button>
@@ -154,6 +155,7 @@
                     </div>
                     <div class="splitbar mt-4"><div id="heroBarSpy" style="width:60%; background:var(--pos)"></div><div id="heroBarTlt" style="width:40%; background:var(--neg)"></div></div>
                     <div class="mt-2 flex justify-between text-[11px] mono muted"><span>60/40 anchor · band 40–80% stocks</span><span id="heroAsOf"></span></div>
+                    <a id="whyLink" href="./how.html" target="_blank" class="inline-block mt-3 text-xs accent underline underline-offset-4">Why this split? Every step with the arithmetic &rarr;</a>
                 </div>
                 <div class="lg:col-span-3">
                     <div id="heroChips" class="flex flex-wrap gap-2 mb-3"></div>
@@ -365,7 +367,7 @@
     </div>
 
     <script type="module">
-        import { loadSettings, saveSettings, runPipeline, listRuns, loadRun } from "./js/pipeline.js?v=202609222012";
+        import { loadSettings, saveSettings, runPipeline, listRuns, loadRun } from "./js/pipeline.js?v=202609222113";
         // ---------- theme ----------
         function applyTheme(mode) {
             document.documentElement.classList.toggle('light', mode === 'light');
@@ -655,6 +657,7 @@
         async function loadSelectedRun() {
             RUN = await loadRun(settings.run);
             window.CURRENT_PROMPT = RUN.prompt; window.CURRENT_PROMPTS = RUN.prompts || null;
+            $('whyLink').href = './how.html?run=' + encodeURIComponent(settings.run || 'latest');
             $('signalsNote').textContent = `run built ${RUN.generated_at.slice(0, 16).replace('T', ' ')} UTC · data as of ${RUN.as_of} · regime ${RUN.uncertainty_regime}`;
         }
         async function initRuns() {

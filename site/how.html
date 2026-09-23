@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin · How a decision is made</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --bg:#0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%); --surface:#111a2e; --surface-2:#0d1526; --surface-3:#18233a; --border:#263250; --border-strong:#33415f; --text:#e8ecf5; --text-2:#b4bdd1; --muted:#7b869f; --faint:#566178; --accent:#5b96ff; --accent-soft:rgba(91,150,255,.14); --pos:#34d399; --neg:#f87171; --warn:#fbbf24; --purple:#b79cff; --teal:#2dd4bf; --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; --shadow:0 10px 30px rgba(0,0,0,.35); }
+        html.light { --bg:#f3f5f9; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.10), transparent 60%); --surface:#fff; --surface-2:#f7f9fc; --surface-3:#eef2f8; --border:#dfe4ee; --border-strong:#c9d2e0; --text:#0f172a; --text-2:#3b465c; --muted:#6b7486; --faint:#8b94a7; --accent:#2563eb; --accent-soft:rgba(37,99,235,.10); --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --purple:#6d28d9; --teal:#0f766e; --shadow:0 8px 24px rgba(15,23,42,.08); }
+        html, body { background:var(--bg); color:var(--text); font-family:var(--font); } body { background-image:var(--bg-grad); background-attachment:fixed; }
+        .mono{font-family:var(--mono)} .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)} .inner{background:var(--surface-2);border:1px solid var(--border);border-radius:12px}
+        .t1{color:var(--text)} .t2{color:var(--text-2)} .muted{color:var(--muted)} .faint{color:var(--faint)} .accent{color:var(--accent)} .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .purple{color:var(--purple)} .teal{color:var(--teal)}
+        .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+        .btn{border-radius:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:12px;padding:10px 20px} .btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text-2)} .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+        .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--border)} .brand{font-weight:800;letter-spacing:.04em;font-size:20px} .brand span{color:var(--accent)}
+        .step{display:grid;grid-template-columns:56px 1fr;gap:16px} .num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+        .step h3{font-size:18px;font-weight:700;margin-bottom:6px} .step p{color:var(--text-2);line-height:1.6;font-size:14.5px}
+        table{width:100%;border-collapse:collapse;font-size:13px} th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--border)} th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase} td.n{font-family:var(--mono);text-align:right} th.n{text-align:right}
+        .calc{font-family:var(--mono);font-size:13px;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);line-height:1.7}
+        .callout{border-left:3px solid var(--warn);background:var(--surface-2);padding:10px 14px;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--text-2);line-height:1.55}
+        select{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px}
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="topbar"><div class="max-w-5xl mx-auto px-6 py-3 flex flex-wrap items-center gap-4">
+        <div><div class="brand"><span>Protofin</span> How a decision is made</div><div class="eyebrow">the same steps, filled in from a real run</div></div>
+        <div class="flex-1"></div>
+        <label class="flex items-center gap-2 text-xs"><span class="eyebrow">Run</span><select id="runSel"><option value="latest">latest</option></select></label>
+        <a href="./index.html" class="btn btn-ghost">Dashboard</a>
+        <button id="themeBtn" class="btn btn-ghost">Light mode</button>
+    </div></div>
+
+    <main class="max-w-5xl mx-auto px-6 py-8 space-y-6">
+        <div class="card p-6">
+            <div class="eyebrow mb-2">This run</div>
+            <div id="runLine" class="t1 text-base"></div>
+            <p class="muted text-sm mt-2">Eight steps take a set of prices and a committee's opinion to a stock/bond split. Every number below is recomputed from the selected run with the same code the dashboard uses. Words in <span class="accent">blue</span> are the jargon you will meet elsewhere; the sentence next to each is what it means.</p>
+        </div>
+
+        <div id="steps" class="space-y-6"></div>
+
+        <div class="card p-6">
+            <div class="eyebrow mb-2">Glossary</div>
+            <table>
+                <tr><th style="width:26%">Term</th><th>Plain meaning</th></tr>
+                <tr><td class="accent">over cash</td><td>a return minus the T-bill yield; negative means cash would have been better</td></tr>
+                <tr><td class="accent">baseline / prior</td><td>the returns that make 60/40 self-consistent under the optimizer's rule; where the portfolio stays if the committee has nothing new to say</td></tr>
+                <tr><td class="accent">confidence</td><td>the CIO's one word for how far the evidence justifies deviating from neutral; it sets the blend weights</td></tr>
+                <tr><td class="accent">regime gate</td><td>elevated policy or geopolitical uncertainty lowers the confidence one step, never raises it</td></tr>
+                <tr><td class="accent">δ (delta)</td><td>the price of risk; scales the baseline and brakes the tilt</td></tr>
+                <tr><td class="accent">band</td><td>the hard 40–80% limit on the stock share</td></tr>
+                <tr><td class="accent">prior only</td><td>the strategy that uses the baseline with no committee, to isolate what the rules do on their own</td></tr>
+            </table>
+        </div>
+    </main>
+
+    <script type="module">
+        import { allocate, equilibriumPrior, constrainedSpyWeight, DELTA, EQUILIBRIUM_SPY, MIN_SPY, MAX_SPY } from './js/allocation.js';
+        import { listRuns, loadRun, parseCio, parseReply, parseView, DOWNGRADE } from './js/pipeline.js';
+        const $ = id => document.getElementById(id);
+        function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} }
+        const q = new URLSearchParams(location.search);
+        applyTheme(q.get('theme') || (() => { try { return localStorage.getItem('protofin.theme'); } catch (e) { return null; } })() || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+        $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+
+        const f2 = x => (Math.round(x * 100) / 100).toFixed(2), f1 = x => (Math.round(x * 10) / 10).toFixed(1), f5 = x => x.toFixed(5), sg = x => (x >= 0 ? '+' : '') + x;
+        const W = { High: [1 / 3, 2 / 3], Medium: [1 / 2, 1 / 2], Low: [2 / 3, 1 / 3] };
+
+        function explain(run) {
+            const S = run.sigma, rf = run.risk_free, ref = run.reference_run || {};
+            // committee numbers from the stored replies (new three-call runs or legacy single reply)
+            let cio = null, econ = null, risk = null, legacy = false;
+            if (ref.cio_raw) { cio = parseCio(ref.cio_raw).fields; econ = parseView(ref.economist_raw, 'economist'); risk = parseView(ref.risk_raw, 'risk'); }
+            else if (ref.raw) { cio = parseReply(ref.raw).fields; legacy = true; }
+            const ok = cio && cio.spy_q !== null && cio.tlt_q !== null;
+            const confRep = (cio && cio.confidence) || 'Low';
+            const conf = run.uncertainty_regime === 'elevated' ? DOWNGRADE[confRep] : confRep;
+            const pi = equilibriumPrior(S);
+            const riskS = 0.6 * S[0][0] + 0.4 * S[0][1], riskT = 0.6 * S[0][1] + 0.4 * S[1][1];
+            const qS = ok ? cio.spy_q - rf : null, qT = ok ? cio.tlt_q - rf : null;
+            const [wb, wc] = W[conf];
+            const blendS = ok ? wb * pi[0] * 100 + wc * qS : pi[0] * 100, blendT = ok ? wb * pi[1] * 100 + wc * qT : pi[1] * 100;
+            const d = allocate(S, ok ? [cio.spy_q, cio.tlt_q] : null, conf, rf, null);
+            const target = d.target_spy * 100, unc = d.unconstrained[0] * 100;
+            const rawX = ((blendS - blendT) / 100 / DELTA + S[1][1] - S[0][1]) / (S[0][0] + S[1][1] - 2 * S[0][1]) * 100;
+            const banded = rawX < MIN_SPY * 100 || rawX > MAX_SPY * 100;
+            $('runLine').innerHTML = `Data as of <b class="mono">${run.as_of}</b> · cash rate <b class="mono">${f2(rf)}%</b> · uncertainty regime <b class="${run.uncertainty_regime === 'elevated' ? 'warn' : 'teal'}">${run.uncertainty_regime}</b> · committee: <b class="mono">${ref.model || 'n/a'}</b>${legacy ? ' (older single-reply run)' : ''}`;
+            const steps = [
+            { t: 'Measure the wobble', b: `<p>From the last year of daily prices we measure how much each fund moves and how much they move together. These are measurements, not assumptions.</p>
+                <table><tr><th>Measurement</th><th class="n">Value</th><th>Meaning</th></tr>
+                <tr><td>Stocks, yearly <span class="accent">variance</span></td><td class="n">${f5(S[0][0])}</td><td>${f1(Math.sqrt(S[0][0]) * 100)}% volatility, squared</td></tr>
+                <tr><td>Bonds, yearly variance</td><td class="n">${f5(S[1][1])}</td><td>${f1(Math.sqrt(S[1][1]) * 100)}% volatility, squared</td></tr>
+                <tr><td><span class="accent">Co-movement</span> (covariance)</td><td class="n">${f5(S[0][1])}</td><td>${S[0][1] > 0 ? 'they tend to move the same way' : 'they tend to move opposite ways'}</td></tr></table>` },
+            { t: 'The rule the optimizer follows', b: `<p>The optimizer holds more of an asset only if the asset pays for the risk it adds. For each asset: <span class="accent">expected return over cash</span> = δ × (risk the asset adds to the portfolio). δ is the price of risk, currently <b class="mono">${DELTA}</b>.</p>` },
+            { t: 'Work the rule backwards to get the baseline', b: `<p>We decide the answer is 60/40 and ask what returns would make the optimizer agree. That gives the <span class="accent">baseline</span> (the "prior"): what the market must be expecting if 60/40 is sensible. It is not a forecast and not a profit target; with no committee, the optimizer returns exactly 60/40 from it.</p>
+                <div class="calc">Stocks: ${DELTA} × (0.6 × ${f5(S[0][0])} + 0.4 × ${f5(S[0][1])}) = ${DELTA} × ${f5(riskS)} = <b>${f2(pi[0] * 100)}% over cash</b><br>Bonds: &nbsp;${DELTA} × (0.6 × ${f5(S[0][1])} + 0.4 × ${f5(S[1][1])}) = ${DELTA} × ${f5(riskT)} = <b>${f2(pi[1] * 100)}% over cash</b></div>` },
+            { t: 'Ask the committee, convert to over cash', b: `<p>Economist and risk manager give independent views (neither sees the other); the CIO reads both and sets the final numbers plus a one-word confidence. The CIO's numbers are total returns, so the cash rate of <b class="mono">${f2(rf)}%</b> is subtracted. The committee speaks <i>relative to the baseline</i>: above it means "more attractive than the market assumes", below means "less".</p>
+                ${ok ? `<table><tr><th>Who</th><th class="n">Stocks</th><th class="n">Bonds</th><th>Reading</th></tr>
+                ${econ ? `<tr><td>Economist (own view)</td><td class="n">${econ.spy ?? '–'}%</td><td class="n">${econ.tlt ?? '–'}%</td><td class="muted">input to the CIO only</td></tr>` : ''}
+                ${risk ? `<tr><td>Risk manager (own view)</td><td class="n">${risk.spy ?? '–'}%</td><td class="n">${risk.tlt ?? '–'}%</td><td class="muted">input to the CIO only</td></tr>` : ''}
+                <tr><td><b>CIO, total return</b></td><td class="n">${cio.spy_q}%</td><td class="n">${cio.tlt_q}%</td><td>the numbers that count</td></tr>
+                <tr><td>minus cash ${f2(rf)}%</td><td class="n">${sg(f2(qS))}</td><td class="n">${sg(f2(qT))}</td><td>${qT < 0 ? 'bonds below cash: a bearish bond call' : 'both above cash'}</td></tr>
+                <tr><td>versus baseline</td><td class="n">${sg(f2(qS - pi[0] * 100))}</td><td class="n">${sg(f2(qT - pi[1] * 100))}</td><td>${qS - pi[0] * 100 > 0 ? 'stocks more attractive than assumed' : 'stocks less attractive than assumed'}; ${qT - pi[1] * 100 > 0 ? 'bonds more' : 'bonds less'}</td></tr></table>`
+                : `<div class="callout">The CIO's reply could not be parsed into numbers, so the committee was rejected and the baseline is used alone for this run.</div>`}` },
+            { t: 'Decide how much to trust the committee', b: `<p>Only the CIO states a <span class="accent">confidence</span>: how far the evidence justifies moving away from neutral, not how strongly anyone argued. First the <span class="accent">regime gate</span>: if policy or geopolitical uncertainty is elevated, the word moves down one step and never up.</p>
+                <table><tr><th>CIO says</th><th class="n">Committee gets</th><th class="n">Baseline gets</th></tr>
+                ${['High', 'Medium', 'Low'].map(k => `<tr${k === conf ? ' style="background:var(--accent-soft)"' : ''}><td>${k}${k === conf ? ' &larr; used' : ''}</td><td class="n">${W[k][1] === 2 / 3 ? '2/3' : W[k][1] === 1 / 2 ? '1/2' : '1/3'}</td><td class="n">${W[k][0] === 2 / 3 ? '2/3' : W[k][0] === 1 / 2 ? '1/2' : '1/3'}</td></tr>`).join('')}</table>
+                <p class="mt-2">This run: CIO said <b>${confRep}</b>, regime <b class="${run.uncertainty_regime === 'elevated' ? 'warn' : 'teal'}">${run.uncertainty_regime}</b>${conf !== confRep ? `, so <b>${conf}</b> is used` : ', so it stands'}.</p>` },
+            { t: 'Blend', b: `<p>A weighted average of baseline and committee, per asset. If the committee agreed with the baseline, the blend would equal the baseline and nothing would move. The committee only moves the portfolio by disagreeing.</p>
+                ${ok ? `<div class="calc">Stocks: ${f2(wb)} × ${f2(pi[0] * 100)} + ${f2(wc)} × ${sg(f2(qS))} = <b>${f2(blendS)}</b><br>Bonds: &nbsp;${f2(wb)} × ${f2(pi[1] * 100)} + ${f2(wc)} × ${sg(f2(qT))} = <b>${f2(blendT)}</b></div>
+                <p class="mt-2">Stock-over-bond edge: baseline ${f2((pi[0] - pi[1]) * 100)} → blend <b>${f2(blendS - blendT)}</b> points.</p>` : `<div class="calc">No usable committee: blend = baseline = ${f2(pi[0] * 100)} / ${f2(pi[1] * 100)}</div>`}` },
+            { t: 'Turn the blend into a split', b: `<p>The optimizer tilts away from 60/40 in proportion to the stock-over-bond edge, braked by δ, then the result is checked against the hard <span class="accent">band</span> of ${MIN_SPY * 100}–${MAX_SPY * 100}% stocks.</p>
+                <div class="calc">Unbraked optimum: <b>${f1(rawX)}%</b> stocks${banded ? ` → outside the band → <b>${f1(target)}%</b>` : ` → inside the band → <b>${f1(target)}%</b>`}<br>Final split: <b class="pos">${f1(target)}% stocks</b> / <b class="neg">${f1(100 - target)}% bonds</b> (prototype mode applies the target directly)</div>
+                ${banded ? `<div class="callout mt-2">The band, not the mathematics, chose this answer. With δ = ${DELTA} a one-point change in the committee's stock-minus-bond view moves the split by about ${f1(100 / (DELTA * (S[0][0] + S[1][1] - 2 * S[0][1])) / 100 * wc)} weight points at this confidence, so the optimizer reaches the edges often. Deriving δ from a 3–4% expected premium for 60/40 and this year's volatility would give about ${f1(0.035 / (0.36 * S[0][0] + 0.16 * S[1][1] + 0.48 * S[0][1]))}, and roughly halve that sensitivity.</div>` : `<p class="muted text-xs mt-2">Sensitivity: with δ = ${DELTA}, one point of change in the committee's stock-minus-bond view moves the split by about ${f1(100 / (DELTA * (S[0][0] + S[1][1] - 2 * S[0][1])) / 100 * wc)} weight points at this confidence.</p>`}` },
+            { t: 'Show and record', b: `<p>The dashboard shows every number above, the flow diagram lights each step, and the run is stored with its prompts and raw replies so it can be replayed and audited.</p>` },
+            ];
+            $('steps').innerHTML = steps.map((s, i) => `<div class="card p-6"><div class="step"><div class="num">${i + 1}</div><div><h3>${s.t}</h3>${s.b}</div></div></div>`).join('');
+        }
+
+        const runs = await listRuns();
+        for (const r of runs) { const o = document.createElement('option'); o.value = r.id; o.textContent = `${r.as_of} · built ${r.generated_at.slice(0, 16).replace('T', ' ')} · ${r.model}`; $('runSel').appendChild(o); }
+        const want = q.get('run') || 'latest'; if ([...$('runSel').options].some(o => o.value === want)) $('runSel').value = want;
+        async function show() { explain(await loadRun($('runSel').value)); }
+        $('runSel').addEventListener('change', show);
+        await show();
+    </script>
+</body>
+</html>

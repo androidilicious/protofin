@@ -38,6 +38,8 @@ The two persona calls are concurrent when made against an API. On a single local
 
 ## Why the mathematics is shaped this way
 
+A worked, plain-language walk through one run, with the arithmetic, is in [HOW_IT_WORKS.md](HOW_IT_WORKS.md); the site's `how.html` fills the same steps from any saved run.
+
 - **Views as excess returns.** The Black-Litterman prior is an implied excess return (δ Σ w), so the committee's total-return views are reduced by the cash rate before blending. Mixing the two scales was an early bug.
 - **Confidence scales Ω.** High halves the view uncertainty, Low doubles it. Because P is the identity here, τ cancels and the posterior is a weighted average of prior and view; changing τ alone can't stabilise anything.
 - **Regime gate only lowers trust.** A stressed news environment makes every forecast less reliable; it never makes a view more credible.
