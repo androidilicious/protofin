@@ -33,7 +33,8 @@
         .brand{font-weight:800;letter-spacing:.04em;font-size:20px} .brand span{color:var(--accent)}
         .progress { height:8px; border-radius:999px; background:var(--surface-3); overflow:hidden; } .progress > div { height:100%; background:linear-gradient(90deg, var(--accent), var(--teal)); transition:width .3s; }
         .lane { border-left:3px solid var(--border-strong); }
-        .lane.on { animation: pulse 1.2s ease-in-out infinite; } @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,.0)} 50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)} }
+        .lane.on { animation: pulse 1.2s ease-in-out infinite; }
+        .stale { opacity: .45; transition: opacity .3s; } @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,.0)} 50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)} }
         .ticker { max-height:220px; overflow-y:auto; font-family:var(--mono); font-size:11px; }
         .ticker div { padding:4px 0; border-bottom:1px dashed var(--border); }
     </style>
@@ -96,7 +97,7 @@
     </main>
 
     <script type="module">
-        import { LiveBacktest, loadMonths } from './js/livebacktest.js?v=202609221937';
+        import { LiveBacktest, loadMonths } from './js/livebacktest.js?v=202609222012';
         const $ = id => document.getElementById(id);
         const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
         let bt = null, navChart = null, wChart = null;
@@ -154,12 +155,12 @@
             }
         }
         function onEvent(name, p) {
-            if (name === 'stage1-start') { ['econT', 'riskT', 'cioT', 'cioN'].forEach(id => $(id).innerText = ''); $('laneE').classList.add('on'); $('laneR').classList.add('on'); $('tE').innerText = ''; $('tR').innerText = ''; $('tC').innerText = ''; }
+            if (name === 'stage1-start') { ['econT', 'riskT', 'cioT', 'cioN'].forEach(id => $(id).classList.add('stale')); $('laneE').classList.add('on'); $('laneR').classList.add('on'); $('tE').innerText = 'thinking…'; $('tR').innerText = 'thinking…'; $('tC').innerText = ''; }
             const flag = p => (p.retried ? ' · retried' : '') + (p.ok === false ? ' · unusable' : '');
-            if (name === 'economist') { $('econT').innerText = p.view.text; $('tE').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneE').classList.remove('on'); }
-            if (name === 'risk') { $('riskT').innerText = p.view.text; $('tR').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneR').classList.remove('on'); }
-            if (name === 'cio-start') $('laneC').classList.add('on');
-            if (name === 'cio') { $('cioT').innerText = p.fields.cio || (p.problems && p.problems.length ? 'CIO reply unusable (' + p.problems.join('; ') + ') → prior only' : p.raw); $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s' + (p.retried ? ' · retried' : ''); $('laneC').classList.remove('on'); }
+            if (name === 'economist') { $('econT').classList.remove('stale'); $('econT').innerText = p.view.text; $('tE').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneE').classList.remove('on'); }
+            if (name === 'risk') { $('riskT').classList.remove('stale'); $('riskT').innerText = p.view.text; $('tR').innerText = (p.ms / 1000).toFixed(1) + ' s' + flag(p); $('laneR').classList.remove('on'); }
+            if (name === 'cio-start') { $('laneC').classList.add('on'); $('tC').innerText = 'synthesising…'; }
+            if (name === 'cio') { $('cioT').classList.remove('stale'); $('cioN').classList.remove('stale'); $('cioT').innerText = p.fields.cio || (p.problems && p.problems.length ? 'CIO reply unusable (' + p.problems.join('; ') + ') → prior only' : p.raw); $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s' + (p.retried ? ' · retried' : ''); $('laneC').classList.remove('on'); }
         }
         function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
         function modeLabel() { const v = $('mode').value; return v === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : v === 'site' ? `live gpt-4o committee via site · 3 calls per month · ${LIMITS ? LIMITS.per_ip_per_day + ' months/day per visitor' : 'rate-limited'}` : 'replaying saved gpt-4o masked views · no model call'; }
@@ -182,6 +183,7 @@
                     showMonth(m, rec); pushLast(bt.hist); tiles(bt.summary());
                     $('prog').style.width = `${((bt.i - bt.opts.start) / total * 100).toFixed(1)}%`;
                     $('status').innerText = `${bt.i - bt.opts.start} / ${total} months` + (rec.remaining ? ` · quota left today ${rec.remaining.today}` : '');
+                    if (bt.opts.mode !== 'saved') await new Promise(r => setTimeout(r, Math.max(1500, bt.opts.delayMs * 12)));
                 }
                 if (bt.i >= months.length) { running = false; $('runBtn').innerText = '▶ Run again'; $('status').innerText = `done · ${total} months`; }
             } catch (e) { running = false; $('runBtn').innerText = e.status === 429 ? '▶ Resume later' : '▶ Resume'; $('status').innerText = (e.status === 429 ? 'rate limit: ' : 'error: ') + e.message + (e.remaining ? ` (remaining today ${e.remaining.today}, this minute ${e.remaining.this_minute})` : ''); }
