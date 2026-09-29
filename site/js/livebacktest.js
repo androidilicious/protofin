@@ -51,6 +51,7 @@ export class LiveBacktest {
     this.reset();
   }
   reset() {
+    this.runId = (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : 'r' + Date.now() + Math.random().toString(36).slice(2)).replace(/[^A-Za-z0-9_-]/g, '');
     this.i = this.opts.start || 0; this.running = false;
     this.nav = { live: 1, fixed: 1, prior: 1 }; this.w = { live: EQUILIBRIUM_SPY, fixed: EQUILIBRIUM_SPY, prior: EQUILIBRIUM_SPY };
     this.hist = { dates: [], live: [], fixed: [], prior: [], wlive: [], wprior: [], rlive: [], rfixed: [], rprior: [], rf: [] };
@@ -68,7 +69,7 @@ export class LiveBacktest {
     } else if (this.opts.mode === 'jev') {
       // Jev (typesafe/jev) via the Workers AI binding: typed answers with probabilities, no API key anywhere
       onEvent && onEvent('stage1-start', { parallel: true });
-      const r = await fetch(this.opts.apiBase + '/api/jev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i }) });
+      const r = await fetch(this.opts.apiBase + '/api/jev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i, run: this.runId }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) { const err = new Error(j.error || `jev endpoint ${r.status}`); err.status = r.status; throw err; }
       const jv = readJev(j.raw);
