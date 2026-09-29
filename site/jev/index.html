@@ -34,7 +34,18 @@
         .progress { height:8px; border-radius:999px; background:var(--surface-3); overflow:hidden; } .progress > div { height:100%; background:linear-gradient(90deg, var(--accent), var(--teal)); transition:width .3s; }
         .lane { border-left:3px solid var(--border-strong); }
         .lane.on { animation: pulse 1.2s ease-in-out infinite; }
-        .stale { opacity: .45; transition: opacity .3s; } @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,.0)} 50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)} }
+        .stale { opacity: .45; transition: opacity .3s; }
+        .bstep { opacity: .25; transition: opacity .45s, transform .45s; transform: translateY(4px); }
+        .bstep.on { opacity: 1; transform: none; }
+        .bstep .n { width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; font-weight: 600; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); flex: none; }
+        .pbar { height: 10px; border-radius: 999px; background: var(--surface-3); overflow: hidden; } .pbar > div { height: 100%; width: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); }
+        .calc { font-family: var(--mono); font-size: 12.5px; background: var(--surface-3); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; line-height: 1.75; color: var(--text); }
+        .calc b { color: var(--accent); }
+        .track { position: relative; height: 34px; border-radius: 10px; background: linear-gradient(90deg, var(--surface-3) 0%, var(--surface-3) 100%); border: 1px solid var(--border); }
+        .track .band { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); border-left: 1px dashed var(--accent); border-right: 1px dashed var(--accent); }
+        .track .tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--muted); }
+        .track .knob { position: absolute; top: 4px; width: 26px; height: 26px; margin-left: -13px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); transition: left 1.1s cubic-bezier(.2,.8,.2,1); }
+        .track .ghost { position: absolute; top: 9px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; border: 2px dashed var(--warn); transition: left 1.1s cubic-bezier(.2,.8,.2,1); opacity: 0; } @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,.0)} 50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)} }
         .ticker { max-height:220px; overflow-y:auto; font-family:var(--mono); font-size:11px; }
         .ticker div { padding:4px 0; border-bottom:1px dashed var(--border); }
     </style>
@@ -63,7 +74,7 @@
                 <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="250">calm</option><option value="120" selected>normal</option><option value="30">fast</option></select></label>
                 <span class="flex-1"></span><span id="status" class="muted"></span>
             </div>
-            <div class="mt-3 inner p-3 text-xs" style="border-left:3px solid var(--warn)"><b class="warn">Demonstration only.</b> Evaluated on 261 months against what actually happened over the next 12 months, Jev showed no forecasting skill: ranking ability 0.52 (0.50 = coin flip), direction right 56% of the time versus 69% for simply always favouring stocks, and its confidence ran backwards (high-confidence calls right 47%, low-confidence 70%). It still tracked 60/40 in the backtest because its low confidence kept the tilt small. Limit: 50 runs per visitor per day.</div>
+            <div class="mt-3 inner p-3 text-xs" style="border-left:3px solid var(--warn)"><b class="warn">Demonstration only.</b> Evaluated on 261 months against what actually happened over the next 12 months, Jev showed no forecasting skill: ranking ability 0.52 (0.50 = coin flip), direction right 56% of the time versus 69% for simply always favouring stocks, and its confidence ran backwards (high-confidence calls right 47%, low-confidence 70%). It still tracked 60/40 in the backtest because its low confidence kept the tilt small. Limit: 20 runs per visitor per day.</div>
             <p class="mt-2 muted">Each month Jev reads the same disguised numbers the committee sees and answers two typed questions: the probability that stocks beat bonds over the next 12 months, and a five-way tilt (strong/lean equities, neutral, lean/strong bonds) with a confidence. The tilt adds up to ±3 points to the 60/40 baseline's stock-over-bond edge, weighted by Jev's confidence (confidence 0 → stay at 60/40), then the same optimizer and 40–80% band apply. Jev runs through Cloudflare's own AI binding: there is no API key anywhere.</p>
         </section>
 
@@ -95,6 +106,57 @@
                 <div id="ticker" class="ticker"></div>
             </section>
         </div>
+        <section id="blendCard" class="card p-6">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+                <div><div class="eyebrow purple">How Jev's answer becomes a split · <span id="bMonth" class="mono t1">run to start</span></div>
+                <div class="faint text-xs mt-1">Each month plays through these six steps with that month's real numbers.</div></div>
+                <span id="bStatus" class="chip"></span>
+            </div>
+            <div class="space-y-4">
+                <div class="bstep flex gap-3" id="bs1"><span class="n">1</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">Jev answers two typed questions</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                        <div><div class="eyebrow mb-1">P(stocks beat bonds, 12 months)</div><div class="flex items-center gap-3"><div class="pbar flex-1"><div id="bP" style="background:var(--accent)"></div></div><span id="bPv" class="mono t1 w-12 text-right">–</span></div></div>
+                        <div><div class="eyebrow mb-1">Confidence in its tilt</div><div class="flex items-center gap-3"><div class="pbar flex-1"><div id="bC" style="background:var(--purple)"></div></div><span id="bCv" class="mono t1 w-12 text-right">–</span></div></div>
+                    </div>
+                    <div class="eyebrow mt-3 mb-1">Tilt: probability of each option</div>
+                    <div id="bProbs" class="space-y-1"></div>
+                </div></div>
+
+                <div class="bstep flex gap-3" id="bs2"><span class="n">2</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">Turn the tilt into points of edge <span class="faint font-normal">(each option's probability × its points, summed)</span></div>
+                    <div id="bOffset" class="calc mt-2">–</div>
+                </div></div>
+
+                <div class="bstep flex gap-3" id="bs3"><span class="n">3</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">Scale by confidence <span class="faint font-normal">(confidence is the trust weight: 0% = ignore Jev, 100% = full tilt)</span></div>
+                    <div id="bWeighted" class="calc mt-2">–</div>
+                </div></div>
+
+                <div class="bstep flex gap-3" id="bs4"><span class="n">4</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">The 60/40 baseline for this month <span class="faint font-normal">(returns over cash that make 60/40 the best mix: δ × risk each asset adds)</span></div>
+                    <div id="bBase" class="calc mt-2">–</div>
+                </div></div>
+
+                <div class="bstep flex gap-3" id="bs5"><span class="n">5</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">Blend: baseline edge + Jev's weighted tilt</div>
+                    <div id="bEdge" class="calc mt-2">–</div>
+                </div></div>
+
+                <div class="bstep flex gap-3" id="bs6"><span class="n">6</span><div class="flex-1">
+                    <div class="t1 font-semibold text-sm">Optimize, then apply the 40–80% band</div>
+                    <div id="bSplit" class="calc mt-2">–</div>
+                    <div class="track mt-3" id="bTrack">
+                        <div class="band" id="bBand"></div>
+                        <div class="tick" style="left:60%"></div>
+                        <div class="ghost" id="bGhost" style="left:60%"></div>
+                        <div class="knob" id="bKnob" style="left:60%"></div>
+                    </div>
+                    <div class="flex justify-between mono text-[10px] faint mt-1"><span>0% stocks</span><span>60/40 anchor</span><span>100% stocks</span></div>
+                    <div id="bFinal" class="mt-2 text-sm t1"></div>
+                </div></div>
+            </div>
+        </section>
     </main>
 
     <script type="module">
@@ -155,6 +217,59 @@
                 tk.prepend(d); while (tk.children.length > 60) tk.lastChild.remove();
             }
         }
+        // ---------- animated blend walkthrough ----------
+        const sleepB = ms => new Promise(r => setTimeout(r, ms));
+        const f2 = x => (Math.round(x * 100) / 100).toFixed(2), f1 = x => (Math.round(x * 10) / 10).toFixed(1), f5 = x => (+x).toFixed(5), sg = x => (x >= 0 ? '+' : '') + f2(x);
+        function countTo(el, to, fmt, ms = 600) {
+            const from = parseFloat(el.dataset.v || '0'); const t0 = performance.now();
+            return new Promise(res => { const tick = t => { const k = Math.min(1, (t - t0) / ms); const v = from + (to - from) * (1 - Math.pow(1 - k, 3)); el.innerText = fmt(v); if (k < 1) requestAnimationFrame(tick); else { el.dataset.v = to; res(); } }; requestAnimationFrame(tick); });
+        }
+        const LABELS = { strong_equities: 'strong equities', lean_equities: 'lean equities', neutral: 'neutral', lean_bonds: 'lean bonds', strong_bonds: 'strong bonds' };
+        const ORDER = ['strong_equities', 'lean_equities', 'neutral', 'lean_bonds', 'strong_bonds'];
+        async function playBlend(m, rec) {
+            const c = rec.calc, jv = rec.jev; if (!c || !jv) return;
+            const pace = Math.max(0.35, Math.min(2, (bt?.opts?.delayMs ?? 120) / 120));   // speed setting scales the animation
+            const wait = ms => sleepB(ms * pace);
+            $('bMonth').innerText = m.as_of; $('bStatus').innerText = 'computing…'; $('bStatus').className = 'chip accent';
+            for (let k = 1; k <= 6; k++) $('bs' + k).classList.remove('on');
+            // 1
+            $('bs1').classList.add('on');
+            $('bP').style.width = `${jv.p * 100}%`; $('bC').style.width = `${jv.confidence * 100}%`;
+            countTo($('bPv'), jv.p * 100, v => `${v.toFixed(0)}%`); countTo($('bCv'), jv.confidence * 100, v => `${v.toFixed(0)}%`);
+            $('bProbs').innerHTML = ORDER.map(k => `<div class="flex items-center gap-3 text-xs"><span class="w-28 ${k === jv.choice ? 't1 font-semibold' : 't2'}">${LABELS[k]}${k === jv.choice ? ' ←' : ''}</span><div class="pbar flex-1"><div data-w="${((jv.probs[k] || 0) * 100).toFixed(1)}" style="background:${k.includes('equities') ? 'var(--pos)' : k.includes('bonds') ? 'var(--neg)' : 'var(--muted)'}"></div></div><span class="mono w-10 text-right">${((jv.probs[k] || 0) * 100).toFixed(0)}%</span><span class="mono faint w-20 text-right whitespace-nowrap">${sg(c.offsets[k])} pts</span></div>`).join('');
+            requestAnimationFrame(() => document.querySelectorAll('#bProbs .pbar > div').forEach(d => d.style.width = d.dataset.w + '%'));
+            await wait(1100);
+            // 2
+            $('bs2').classList.add('on');
+            const terms = ORDER.filter(k => (jv.probs[k] || 0) > 0).map(k => `${f2(jv.probs[k])} × ${sg(c.offsets[k])}`);
+            $('bOffset').innerHTML = `${terms.join(' + ') || '(no probabilities: use the chosen option)'} = <b id="bOffV">0.00</b> points toward ${jv.offset >= 0 ? 'stocks' : 'bonds'}`;
+            await countTo($('bOffV'), jv.offset, sg, 700); await wait(500);
+            // 3
+            $('bs3').classList.add('on');
+            $('bWeighted').innerHTML = `${sg(jv.offset)} × confidence ${f2(jv.confidence)} = <b id="bWV">0.00</b> points actually applied`;
+            await countTo($('bWV'), c.weightedOffset, sg, 700); await wait(500);
+            // 4
+            $('bs4').classList.add('on');
+            const S = c.S;
+            $('bBase').innerHTML = `stocks: ${c.delta} × (0.6 × ${f5(S[0][0])} + 0.4 × ${f5(S[0][1])}) = <b>${f2(c.pi[0])}%</b> over cash<br>bonds: &nbsp;${c.delta} × (0.6 × ${f5(S[0][1])} + 0.4 × ${f5(S[1][1])}) = <b>${f2(c.pi[1])}%</b> over cash<br>baseline edge (stocks − bonds) = <b id="bBEV">0.00</b> points`;
+            await countTo($('bBEV'), c.baseEdge, f2, 600); await wait(500);
+            // 5
+            $('bs5').classList.add('on');
+            $('bEdge').innerHTML = `${f2(c.baseEdge)} ${c.weightedOffset >= 0 ? '+' : '−'} ${f2(Math.abs(c.weightedOffset))} = <b id="bEV">${f2(c.baseEdge)}</b> points: stocks are expected to beat bonds by this much over cash`;
+            await countTo($('bEV'), c.edge, f2, 700); await wait(500);
+            // 6
+            $('bs6').classList.add('on');
+            const num = c.edge / 100 / c.delta + S[1][1] - S[0][1], den = S[0][0] + S[1][1] - 2 * S[0][1];
+            const clamped = c.xRaw < c.lo || c.xRaw > c.hi;
+            $('bSplit').innerHTML = `share = (edge ÷ δ + bond var − co-move) ÷ (stock var + bond var − 2·co-move)<br>= (${f2(c.edge)}% ÷ ${c.delta} + ${f5(S[1][1])} − ${f5(S[0][1])}) ÷ (${f5(S[0][0])} + ${f5(S[1][1])} − 2 × ${f5(S[0][1])})<br>= ${f5(num)} ÷ ${f5(den)} = <b>${f1(c.xRaw)}%</b> stocks${clamped ? ` → outside ${c.lo}–${c.hi}% → <b>${f1(c.w)}%</b>` : ' → inside the band'}`;
+            $('bBand').style.left = c.lo + '%'; $('bBand').style.width = (c.hi - c.lo) + '%';
+            const g = $('bGhost'); g.style.opacity = clamped ? 1 : 0; g.style.left = Math.max(0, Math.min(100, c.xRaw)) + '%';
+            $('bKnob').style.left = '60%'; await wait(80); $('bKnob').style.left = c.w + '%';
+            const ret = (c.w / 100 * m.r_spy + (1 - c.w / 100) * m.r_tlt) * 100;
+            $('bFinal').innerHTML = `Hold <b class="pos">${f1(c.w)}% stocks</b> / <b class="neg">${f1(100 - c.w)}% bonds</b> for the month. What happened next: stocks ${sg(m.r_spy * 100)}%, bonds ${sg(m.r_tlt * 100)}% → portfolio <b class="${ret >= 0 ? 'pos' : 'neg'}">${sg(ret)}%</b>.`;
+            $('bStatus').innerText = 'done'; $('bStatus').className = 'chip teal';
+            await wait(1200);
+        }
         function onEvent(name, p) {
             if (name === 'stage1-start') { ['econT', 'riskT', 'cioT', 'cioN'].forEach(id => $(id).classList.add('stale')); $('laneE').classList.add('on'); $('laneR').classList.add('on'); $('tE').innerText = 'thinking…'; $('tR').innerText = 'thinking…'; $('tC').innerText = ''; }
             const flag = p => (p.retried ? ' · retried' : '') + (p.ok === false ? ' · unusable' : '');
@@ -181,6 +296,7 @@
                 while (running && bt.i < months.length) {
                     const m = months[bt.i]; showMonth(m, null);
                     const rec = await bt.step(onEvent);
+                    if (bt.opts.mode === 'jev' && rec && rec.calc) await playBlend(m, rec);
                     showMonth(m, rec); pushLast(bt.hist); tiles(bt.summary());
                     $('prog').style.width = `${((bt.i - bt.opts.start) / total * 100).toFixed(1)}%`;
                     $('status').innerText = `${bt.i - bt.opts.start} / ${total} months` + (rec.remaining ? ` · quota left today ${rec.remaining.today}` : '');

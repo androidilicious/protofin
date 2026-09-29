@@ -64,7 +64,7 @@ export async function onRequestPost({ request, env }) {
     const mark = `jevrun:${ip}:${day}:${run}`;
     if (!(await env.RATE.get(mark))) {
       const k = `jevruns:${ip}:${day}`, n = parseInt((await env.RATE.get(k)) || '0', 10) + 1;
-      const lim = +env.LIMIT_JEV_RUNS_PER_IP_PER_DAY || 50;
+      const lim = +env.LIMIT_JEV_RUNS_PER_IP_PER_DAY || 20;
       if (n > lim) return json({ error: `daily limit reached for your address (${lim} runs/day); use Compare or come back tomorrow` }, 429);
       await Promise.all([env.RATE.put(k, String(n), { expirationTtl: 90000 }), env.RATE.put(mark, '1', { expirationTtl: 90000 })]);
     }

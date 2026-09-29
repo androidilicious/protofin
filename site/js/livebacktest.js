@@ -2,8 +2,8 @@
 // either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202609290007';
-import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609290007';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202609290011';
+import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609290011';
 
 // Jev answers are read defensively: find each question's block wherever the response nests it.
 const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };   // points added to the stock-minus-bond edge
@@ -83,7 +83,8 @@ export class LiveBacktest {
       onEvent && onEvent('cio-start', {});
       onEvent && onEvent('cio', { raw: '', fields: { cio: `Jev tilt ${jv.offset >= 0 ? '+' : ''}${jv.offset.toFixed(2)} pts × confidence ${(jv.confidence * 100).toFixed(0)}% → edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)} → SPY ${(w * 100).toFixed(1)}%` }, problems: [], ms: 0 });
       return { w, conf: `${(jv.confidence * 100).toFixed(0)}%`, confRep: `${(jv.confidence * 100).toFixed(0)}%`, views: [+(jv.p * 100).toFixed(0), +jv.offset.toFixed(2)],
-               detail: { source: 'typesafe/jev', econ: { text: `P(stocks beat bonds) ${(jv.p * 100).toFixed(0)}%` }, risk: { text: `tilt ${jv.choice}` }, cio: `edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)}`, jev: jv } };
+               detail: { source: 'typesafe/jev', econ: { text: `P(stocks beat bonds) ${(jv.p * 100).toFixed(0)}%` }, risk: { text: `tilt ${jv.choice}` }, cio: `edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)}`, jev: jv,
+                 calc: { S, delta: DELTA, pi: [pi[0] * 100, pi[1] * 100], baseEdge, weightedOffset: jv.confidence * jv.offset, edge, xRaw: x * 100, w: w * 100, lo: MIN_SPY * 100, hi: MAX_SPY * 100, offsets: TILT_OFFSET } } };
     } else if (this.opts.mode === 'site') {
       // gpt-4o via the site's rate-limited endpoint; prompts are built server-side from the month index
       onEvent && onEvent('stage1-start', { parallel: true });
