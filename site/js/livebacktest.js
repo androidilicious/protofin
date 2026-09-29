@@ -16,7 +16,7 @@ function findKey(o, key, depth = 0) {
 export function readJev(raw) {
   const q1 = findKey(raw, 'stocks_beat_bonds') ?? {}, q2 = findKey(raw, 'tilt') ?? {};
   const num = v => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && !isNaN(+v) ? +v : null);
-  let p = num(q1.probability) ?? num(q1.p) ?? num(findKey(q1, 'true')) ?? (typeof q1.answer === 'boolean' ? (q1.answer ? 1 : 0) : null);
+  let p = num(q1.noul) ?? num(q1.probability) ?? num(q1.p) ?? num(findKey(q1, 'true')) ?? (typeof q1.answer === 'boolean' ? (q1.answer ? 1 : 0) : null);
   if (p != null && p > 1) p /= 100;
   const probs = findKey(q2, 'probabilities') || {};
   const choice = q2.answer ?? q2.value ?? q2.choice ?? Object.entries(probs).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'neutral';

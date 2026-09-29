@@ -33,6 +33,15 @@ export const QUESTIONS = {
 
 export async function onRequestGet({ request, env }) {
   const out = { configured: Boolean(env.AI), model: 'typesafe/jev', questions: QUESTIONS };
+  const tp = new URL(request.url).searchParams.get('tp');   // third-party probe through the gateway, e.g. ?tp=openai/gpt-4o-mini
+  if (tp && env.AI) {
+    for (const opt of [env.JEV_GATEWAY ? { gateway: { id: env.JEV_GATEWAY } } : undefined, undefined]) {
+      try { const r = await env.AI.run(tp, { messages: [{ role: 'user', content: 'Reply with the word ok.' }], max_tokens: 5 }, opt); (out.tp ||= []).push({ gateway: !!opt, ok: true, r }); }
+      catch (e) { (out.tp ||= []).push({ gateway: !!opt, error: String(e.message || e) }); }
+    }
+    try { const r = await env.AI.run('typesafe/jev', { state: 'The sky is blue.', questions: { q: { type: 'noul', instructions: 'Is the sky described as blue?', criteria: { true: 'yes', false: 'no' } } } }); (out.jev_nogw = r); }
+    catch (e) { out.jev_nogw_error = String(e.message || e); }
+  }
   if (new URL(request.url).searchParams.get('probe') === '1' && env.AI) {   // is the binding itself healthy? (native model)
     try { const r = await env.AI.run('@cf/meta/llama-guard-3-8b', { messages: [{ role: 'user', content: 'Reply with the word ok.' }], max_tokens: 5 }); out.native_probe = r; }
     catch (e) { out.native_probe_error = String(e.message || e); }
@@ -48,9 +57,9 @@ export async function onRequestPost({ request, env }) {
   if (i < 0 || i >= months.length) return json({ error: 'bad month index' }, 400);
   if (env.RATE) {   // light per-IP limit; reuses the KV namespace
     const ip = request.headers.get('cf-connecting-ip') || 'x', day = new Date().toISOString().slice(0, 10);
-    const k = `jev:${ip}:${day}`, n = parseInt((await env.RATE.get(k)) || '0', 10) + 1;
-    if (n > 400) return json({ error: 'daily Jev limit reached for your address (400 months/day)' }, 429);
-    if (n % 5 === 1) await env.RATE.put(k, String(n + 4), { expirationTtl: 90000 });   // write every 5th call to spare KV quota
+    const k = `jev2:${ip}:${day}`, n = parseInt((await env.RATE.get(k)) || '0', 10) + 1;
+    if (n > 600) return json({ error: 'daily Jev limit reached for your address (600 months/day)' }, 429);
+    await env.RATE.put(k, String(n), { expirationTtl: 90000 });
   }
   const t = Date.now();
   try {
