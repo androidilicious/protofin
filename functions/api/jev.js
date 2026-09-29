@@ -58,7 +58,8 @@ export async function onRequestPost({ request, env }) {
   if (env.RATE) {   // light per-IP limit; reuses the KV namespace
     const ip = request.headers.get('cf-connecting-ip') || 'x', day = new Date().toISOString().slice(0, 10);
     const k = `jev2:${ip}:${day}`, n = parseInt((await env.RATE.get(k)) || '0', 10) + 1;
-    if (n > 600) return json({ error: 'daily Jev limit reached for your address (600 months/day)' }, 429);
+    const lim = +env.LIMIT_JEV_PER_IP_PER_DAY || 50;
+    if (n > lim) return json({ error: `daily Jev limit reached for your address (${lim} months/day); use Compare or come back tomorrow` }, 429);
     await env.RATE.put(k, String(n), { expirationTtl: 90000 });
   }
   const t = Date.now();
