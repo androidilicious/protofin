@@ -2,11 +2,32 @@
 // either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY } from './allocation.js?v=202609222113';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202609222113';
 import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609222113';
 
+// Jev answers are read defensively: find each question's block wherever the response nests it.
+const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };   // points added to the stock-minus-bond edge
+function findKey(o, key, depth = 0) {
+  if (!o || typeof o !== 'object' || depth > 6) return undefined;
+  if (key in o) return o[key];
+  for (const v of Object.values(o)) { const r = findKey(v, key, depth + 1); if (r !== undefined) return r; }
+  return undefined;
+}
+export function readJev(raw) {
+  const q1 = findKey(raw, 'stocks_beat_bonds') ?? {}, q2 = findKey(raw, 'tilt') ?? {};
+  const num = v => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && !isNaN(+v) ? +v : null);
+  let p = num(q1.probability) ?? num(q1.p) ?? num(findKey(q1, 'true')) ?? (typeof q1.answer === 'boolean' ? (q1.answer ? 1 : 0) : null);
+  if (p != null && p > 1) p /= 100;
+  const probs = findKey(q2, 'probabilities') || {};
+  const choice = q2.answer ?? q2.value ?? q2.choice ?? Object.entries(probs).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'neutral';
+  let conf = num(q2.confidence) ?? num(q1.confidence) ?? (p != null ? Math.abs(2 * p - 1) : 0);
+  if (conf > 1) conf /= 100;
+  const offset = Object.keys(probs).length ? Object.entries(probs).reduce((acc, [k, v]) => acc + (TILT_OFFSET[k] ?? 0) * (num(v) ?? 0), 0) : (TILT_OFFSET[choice] ?? 0);
+  return { p: p ?? 0.5, choice, probs, confidence: Math.max(0, Math.min(1, conf)), offset };
+}
+
 export async function loadMonths() {
-  const r = await fetch('./data/backtest_months.json', { cache: 'no-store' });
+  const r = await fetch(new URL('../data/backtest_months.json', import.meta.url), { cache: 'no-store' });
   if (!r.ok) throw new Error('backtest_months.json not found');
   return (await r.json()).months;
 }
@@ -26,7 +47,7 @@ function stats(navs, rets, rfMonthly) {
 
 export class LiveBacktest {
   constructor(months, opts) {
-    this.months = months; this.opts = { costBps: 5, mode: 'saved', browserModel: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', gate: true, ...opts };
+    this.months = months; this.opts = { costBps: 5, mode: 'saved', apiBase: '.', browserModel: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', gate: true, ...opts };
     this.reset();
   }
   reset() {
@@ -44,6 +65,24 @@ export class LiveBacktest {
       if (m.saved) { views = [m.saved.spy_q, m.saved.tlt_q]; confRep = m.saved.confidence; detail = { source: 'saved gpt-4o masked view', econ: null, risk: null, cio: `SPY ${m.saved.spy_q}% · TLT ${m.saved.tlt_q}% · ${confRep}` }; }
       else { detail = { source: 'no saved view', cio: 'prior only' }; }
       await new Promise(r => setTimeout(r, this.opts.delayMs ?? 120));
+    } else if (this.opts.mode === 'jev') {
+      // Jev (typesafe/jev) via the Workers AI binding: typed answers with probabilities, no API key anywhere
+      onEvent && onEvent('stage1-start', { parallel: true });
+      const r = await fetch(this.opts.apiBase + '/api/jev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { const err = new Error(j.error || `jev endpoint ${r.status}`); err.status = r.status; throw err; }
+      const jv = readJev(j.raw);
+      const pi = allocate(m.sigma, null, 'Medium', m.rf_pct, null).pi;
+      const baseEdge = (pi[0] - pi[1]) * 100;
+      const edge = baseEdge + jv.confidence * jv.offset;            // blend: confidence is the weight on Jev's tilt
+      const S = m.sigma, x = ((edge / 100) / DELTA + S[1][1] - S[0][1]) / (S[0][0] + S[1][1] - 2 * S[0][1]);
+      const w = Math.min(MAX_SPY, Math.max(MIN_SPY, x));
+      onEvent && onEvent('economist', { raw: JSON.stringify(j.raw), view: { text: `P(stocks beat bonds, 12m) = ${(jv.p * 100).toFixed(0)}%` }, ms: j.ms, ok: jv.p != null });
+      onEvent && onEvent('risk', { raw: JSON.stringify(j.raw), view: { text: `tilt: ${jv.choice} · ` + Object.entries(jv.probs).map(([k, v]) => `${k.replace('_', ' ')} ${(v * 100).toFixed(0)}%`).join(' · ') }, ms: j.ms, ok: true });
+      onEvent && onEvent('cio-start', {});
+      onEvent && onEvent('cio', { raw: '', fields: { cio: `Jev tilt ${jv.offset >= 0 ? '+' : ''}${jv.offset.toFixed(2)} pts × confidence ${(jv.confidence * 100).toFixed(0)}% → edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)} → SPY ${(w * 100).toFixed(1)}%` }, problems: [], ms: 0 });
+      return { w, conf: `${(jv.confidence * 100).toFixed(0)}%`, confRep: `${(jv.confidence * 100).toFixed(0)}%`, views: [+(jv.p * 100).toFixed(0), +jv.offset.toFixed(2)],
+               detail: { source: 'typesafe/jev', econ: { text: `P(stocks beat bonds) ${(jv.p * 100).toFixed(0)}%` }, risk: { text: `tilt ${jv.choice}` }, cio: `edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)}`, jev: jv } };
     } else if (this.opts.mode === 'site') {
       // gpt-4o via the site's rate-limited endpoint; prompts are built server-side from the month index
       onEvent && onEvent('stage1-start', { parallel: true });
