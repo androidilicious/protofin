@@ -53,6 +53,10 @@ Node.js 18+ is only needed to rebuild the flow diagram (`docs/build_flow_diagram
 
 Other switches in `.env`: `LLM_MODEL` (default `gpt-4o`), `HEADLINES_MODE` (`off` | `display` | `decide`), `FOMC_MODEL`.
 
+**Stochastic views** (experimental, off by default, `STOCHASTIC_VIEWS=1` or `?stochastic=1`): the committee runs `VIEW_N_RUNS` times (default 5) on the same frozen input at `VIEW_TEMPERATURE` (default 0.2). The mean view becomes Q, and the run-to-run variance s² is added to the view uncertainty: Ω = c·τΣ + diag(s²). `CONFIDENCE_MODE` selects `reported` (the CIO's High/Medium/Low only), `empirical` (dispersion only, neutral c) or `combined`. The dashboard shows each asset's mean, std, range and dispersion ratio next to the agent-reported confidence. Formula, rationale and audit record: [docs/EMPIRICAL_UNCERTAINTY.md](docs/EMPIRICAL_UNCERTAINTY.md).
+
+Tests: `python -m pytest tests`.
+
 ---
 
 ## The public site
@@ -129,6 +133,8 @@ Findings from the September 2026 run, 273 months: the mask held except for the 2
 | `signals.py` | Data collection and prompt building shared by the server and the site builder |
 | `committee.py` | Persona prompts, tolerant parsers, parallel orchestration |
 | `allocation.py` | Black-Litterman, constrained optimizer, trade policy (shared with the backtester) |
+| `stochastic_views.py` | Repeated committee runs on one frozen input, view dispersion, empirical Ω term, audit record |
+| `tests/` | pytest suite for the allocation math, the stochastic views and the parsers |
 | `macro_indexes.py` | EPU and GPR download, percentile ranks, uncertainty regime |
 | `news_pipeline.py` | FOMC statement archive and hawkishness index; headlines for display |
 | `scripts/build_signals.py` | Builds `site/data/signals.json` and the saved-runs archive |
@@ -148,7 +154,7 @@ Git-ignored: `.env`, root `state/` and `runs/`, downloaded data under `data/` (e
 ## Known limitations
 
 - The rate shock is a yield deviation, not an identified monetary surprise; it needs an expectations baseline (for example fed funds futures) to become one.
-- Confidence is self-reported by the model and not yet calibrated against realised forecast errors.
+- Confidence is self-reported by the model and not yet calibrated against realised forecast errors. Run-to-run dispersion (stochastic mode) is measured, but it too is a stability measure, not an accuracy measure.
 - The covariance matrix is a trailing 1-year sample estimate without shrinkage.
 - EPU and GPR are published as revised histories, so backtests on them are point-in-time in construction but not in data vintage.
 - Google News has no archive; FOMC statements are the only text input with full history. GDELT is wired in as an archive source but its public endpoint throttles.

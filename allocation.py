@@ -22,12 +22,35 @@ def equilibrium_prior(sigma, w_eq=None):
     return DELTA * sigma @ w_eq
 
 
-def bl_posterior(pi, sigma, q_excess, confidence="Medium", tau=TAU):
+def view_omega(sigma, confidence="Medium", tau=TAU, empirical_var=None):
+    """View uncertainty Omega for P = identity.
+
+        Omega = c(confidence) * tau * Sigma                  (empirical_var is None: original rule)
+        Omega = c(confidence) * tau * Sigma + diag(s^2)      (empirical_var = s^2 per asset)
+
+    c is OMEGA_SCALE (High 0.5, Medium 1, Low 2). s^2 is the run-to-run sample variance of the
+    agent's view for each asset, in decimal^2 of annual return, the same units as tau * Sigma.
+    The two terms are treated as independent error sources, so their variances add; this is an
+    experimental calibration choice, not an established constant (see docs/EMPIRICAL_UNCERTAINTY.md).
+    No numerical floor is needed: the first term is positive definite, so s^2 = 0 (identical
+    runs) leaves Omega at the reported-confidence value rather than making it singular.
+    """
+    omega = OMEGA_SCALE[confidence] * tau * sigma
+    if empirical_var is not None:
+        ev = np.asarray(empirical_var, dtype=float)
+        if ev.shape != (sigma.shape[0],) or not np.all(np.isfinite(ev)) or np.any(ev < 0):
+            raise ValueError(f"empirical_var must be {sigma.shape[0]} finite non-negative variances, got {empirical_var}")
+        omega = omega + np.diag(ev)
+    return omega
+
+
+def bl_posterior(pi, sigma, q_excess, confidence="Medium", tau=TAU, empirical_var=None):
     """Black-Litterman posterior with P = identity (one absolute view per asset).
 
     q_excess: view vector of EXCESS returns (decimal). Returns posterior excess returns.
+    empirical_var: optional run-to-run view variances (decimal^2); see view_omega.
     """
-    omega = OMEGA_SCALE[confidence] * tau * sigma
+    omega = view_omega(sigma, confidence, tau, empirical_var)
     tau_sigma_inv = np.linalg.inv(tau * sigma)
     omega_inv = np.linalg.inv(omega)
     return np.linalg.solve(tau_sigma_inv + omega_inv, tau_sigma_inv @ pi + omega_inv @ q_excess)
@@ -58,18 +81,21 @@ def apply_trade_policy(target_spy, previous_spy, band=NO_TRADE_BAND, max_move=MA
     return previous_spy + move, status
 
 
-def allocate(sigma, views_total_pct, confidence, rf_pct, previous_spy):
+def allocate(sigma, views_total_pct, confidence, rf_pct, previous_spy, empirical_var=None):
     """Full decision: views (total %, may be None) -> posterior -> constrained target -> policy.
 
-    Returns a dict with every intermediate quantity.
+    empirical_var: optional run-to-run view variances (decimal^2) added to Omega; None keeps
+    the original confidence-only Omega. Returns a dict with every intermediate quantity.
     """
     pi = equilibrium_prior(sigma)
+    omega = None
     if views_total_pct is not None:
         q_excess = (np.asarray(views_total_pct, dtype=float) - rf_pct) / 100.0
-        er = bl_posterior(pi, sigma, q_excess, confidence)
+        omega = view_omega(sigma, confidence, TAU, empirical_var)
+        er = bl_posterior(pi, sigma, q_excess, confidence, empirical_var=empirical_var)
     else:
         er = pi.copy()
     target = constrained_spy_weight(er, sigma)
     final, status = apply_trade_policy(target, previous_spy)
     return {"pi": pi, "er": er, "unconstrained": unconstrained_weights(er, sigma),
-            "target_spy": target, "final_spy": final, "status": status}
+            "target_spy": target, "final_spy": final, "status": status, "omega": omega}

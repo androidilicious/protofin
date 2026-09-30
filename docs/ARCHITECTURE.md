@@ -42,6 +42,7 @@ A worked, plain-language walk through one run, with the arithmetic, is in [HOW_I
 
 - **Views as excess returns.** The Black-Litterman prior is an implied excess return (δ Σ w), so the committee's total-return views are reduced by the cash rate before blending. Mixing the two scales was an early bug.
 - **Confidence scales Ω.** High halves the view uncertainty, Low doubles it. Because P is the identity here, τ cancels and the posterior is a weighted average of prior and view; changing τ alone can't stabilise anything.
+- **Empirical dispersion adds to Ω (experimental, off by default).** In stochastic mode the committee runs N times on the same input. The mean view is Q, and the run-to-run variance is added as Ω = c·τΣ + diag(s²), with reported, empirical and combined modes. Once this term is present, τ no longer cancels. See [EMPIRICAL_UNCERTAINTY.md](EMPIRICAL_UNCERTAINTY.md).
 - **Regime gate only lowers trust.** A stressed news environment makes every forecast less reliable; it never makes a view more credible.
 - **Closed-form constrained optimum.** With two assets the long-only, fully invested optimum inside the tilt band is exact. The earlier clip-then-renormalise step could flip 100/0 to 0/100 on a 0.02-point change in a view.
 - **Trade policy (off in prototype mode).** A 2pp no-trade band and a 10pp move cap against the previous holding, plus an evidence fingerprint so a repeated refresh cannot consume another adjustment.
