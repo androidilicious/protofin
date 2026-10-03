@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive demonstration of the deterministic macro-surprise quantitative baseline." />
+  <title>Macro Surprise Quant MVP</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="Macro Surprise MVP home">
+      <span class="brand-mark">M</span>
+      <span>Macro Surprise <b>Quant MVP</b></span>
+    </a>
+    <nav aria-label="Page sections">
+      <a href="#architecture">Architecture</a>
+      <a href="#calculator">Surprise demo</a>
+      <a href="#signals">Signals</a>
+      <a href="#results">Decision replay</a>
+      <a href="#results">Results</a>
+    </nav>
+    <button id="presentButton" class="present-button" type="button" aria-pressed="false">Presentation mode</button>
+  </header>
+
+  <main>
+    <section id="overview" class="overview section-shell">
+      <div class="overview-copy">
+        <div class="eyebrow"><span></span> Deterministic baseline · no RAG · no agents</div>
+        <h1>From an economic release<br />to a portfolio weight.</h1>
+        <p class="lede">A point-in-time quantitative baseline that converts macro surprises into Growth and Inflation states, forecasts next-month asset returns, and produces constrained allocations.</p>
+        <div class="latest-context">
+          <span>Selected decision</span>
+          <strong id="latestDate">September 30, 2026</strong>
+          <span id="releaseStatus" class="data-status">8 / 8 releases observed</span>
+        </div>
+      </div>
+      <div class="signal-summary" aria-label="Latest macro states">
+        <div class="state-card growth">
+          <span class="state-label">Growth surprise</span>
+          <strong id="heroGrowth">−0.13σ</strong>
+          <span id="heroGrowthText">Modestly below consensus</span>
+        </div>
+        <div class="state-card inflation">
+          <span class="state-label">Inflation surprise</span>
+          <strong id="heroInflation">+0.17σ</strong>
+          <span id="heroInflationText">Modestly above consensus</span>
+        </div>
+        <div class="mini-allocation">
+          <div><span>Equity</span><b id="heroEquity">47%</b></div>
+          <div><span>Treasury</span><b id="heroTreasury">31%</b></div>
+          <div><span>IG Credit</span><b id="heroCredit">22%</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="architecture section-shell section-block">
+      <div class="section-heading">
+        <div><span class="kicker">System architecture</span><h2>One traceable path from data to decision</h2></div>
+        <p>Every box produces a structured output that can be audited before it moves downstream.</p>
+      </div>
+      <div class="pipeline" role="img" aria-label="Pipeline from macro releases through surprise calculation, macro states, ridge forecasts, Black-Litterman, and portfolio weights">
+        <article class="pipeline-step" data-step="01">
+          <span class="step-type">Input</span><h3>Macro releases</h3><p>First-release actuals and pre-release consensus for eight indicators.</p><div class="step-foot">744 observations</div>
+        </article>
+        <div class="connector"><span></span></div>
+        <article class="pipeline-step active" data-step="02">
+          <span class="step-type">Transform</span><h3>Surprise engine</h3><p>Actual − consensus, scaled only by prior forecast-error history.</p><div class="step-foot">Look-ahead safe</div>
+        </article>
+        <div class="connector"><span></span></div>
+        <article class="pipeline-step" data-step="03">
+          <span class="step-type">State</span><h3>Macro factors</h3><p>Growth, Inflation, Policy, ANFCI, GPR, and prespecified interactions.</p><div class="step-foot">Monthly panel</div>
+        </article>
+        <div class="connector"><span></span></div>
+        <article class="pipeline-step" data-step="04">
+          <span class="step-type">Forecast</span><h3>Ridge models</h3><p>Separate expanding-window next-month forecasts for each asset.</p><div class="step-foot">Past-only tuning</div>
+        </article>
+        <div class="connector"><span></span></div>
+        <article class="pipeline-step" data-step="05">
+          <span class="step-type">Allocate</span><h3>Black–Litterman</h3><p>Blends model views with a market-implied prior and forecast uncertainty.</p><div class="step-foot">Long only</div>
+        </article>
+        <div class="connector"><span></span></div>
+        <article class="pipeline-step result" data-step="06">
+          <span class="step-type">Output</span><h3>Portfolio weights</h3><p>Bounded, turnover-aware allocations with modeled transaction costs.</p><div class="step-foot">Month-specific weights</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="calculator" class="calculator section-shell section-block">
+      <div class="section-heading">
+        <div><span class="kicker">Interactive demo</span><h2>See exactly how a surprise becomes a signal</h2></div>
+        <p>Select a release from the active decision month or edit the inputs. The formula recalculates immediately.</p>
+      </div>
+      <div class="calculator-grid">
+        <div class="calculator-controls">
+          <label>Release
+            <select id="releaseSelect" aria-label="Select economic release"></select>
+          </label>
+          <div class="input-pair">
+            <label>Actual
+              <input id="actualInput" type="number" step="any" inputmode="decimal" />
+            </label>
+            <label>Consensus
+              <input id="consensusInput" type="number" step="any" inputmode="decimal" />
+            </label>
+          </div>
+          <label>Prior surprise volatility (σ)
+            <input id="sigmaInput" type="number" step="any" min="0.0001" inputmode="decimal" />
+          </label>
+          <p class="control-note">The scale uses only earlier releases. This prevents the current observation from changing its own z-score.</p>
+        </div>
+        <div class="formula-board" aria-live="polite">
+          <div class="formula-line"><span>Raw surprise</span><strong><i id="actualFormula">162</i> − <i id="consensusFormula">55</i> = <b id="rawResult">107</b></strong></div>
+          <div class="formula-divider"></div>
+          <div class="formula-line main"><span>Standardized surprise</span><strong><i id="rawFormula">107</i> ÷ <i id="sigmaFormula">1075.7</i> = <b id="zResult">+0.10σ</b></strong></div>
+          <div class="signal-scale" aria-hidden="true">
+            <span class="scale-label negative">Below consensus</span>
+            <div class="scale-track"><div class="scale-zero"></div><div id="scaleMarker" class="scale-marker"></div></div>
+            <span class="scale-label positive">Above consensus</span>
+          </div>
+          <div id="signalInterpretation" class="interpretation">A small positive Growth surprise.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="signals" class="signals section-shell section-block">
+      <div class="section-heading">
+        <div><span id="signalMonthLabel" class="kicker">September 2026</span><h2>What entered the model</h2></div>
+        <p>Component z-scores roll into separate Growth and Inflation composites.</p>
+      </div>
+      <div class="signal-board">
+        <div id="componentBars" class="component-bars"></div>
+        <div class="composite-panel">
+          <h3>Composite states</h3>
+          <div class="composite-item growth"><span>Growth</span><strong id="compositeGrowth">−0.13σ</strong><div><i id="growthFill"></i></div></div>
+          <div class="composite-item inflation"><span>Inflation</span><strong id="compositeInflation">+0.17σ</strong><div><i id="inflationFill"></i></div></div>
+          <div class="explanation-card">
+            <span>Reading the state</span>
+            <p id="stateExplanation">Industrial Production and ISM outweighed positive Payrolls and Retail Sales. Core CPI created the only material positive Inflation surprise.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div><h3>Macro surprise states over time</h3><p>Monthly equal-weight composites, standardized using prior data only</p></div><div class="legend"><span class="growth-dot">Growth</span><span class="inflation-dot">Inflation</span></div></div>
+        <svg id="signalChart" class="line-chart" viewBox="0 0 1000 300" role="img" aria-label="Monthly Growth and Inflation surprise states"></svg>
+      </div>
+    </section>
+
+    <section id="results" class="results section-shell section-block">
+      <div class="section-heading">
+        <div><span class="kicker">Model output</span><h2>Forecast, allocation, and evidence</h2></div>
+        <p>The baseline is useful, but the current test does not yet establish superior risk-adjusted performance.</p>
+      </div>
+      <div class="replay-toolbar">
+        <div><span class="kicker">Historical decision replay</span><strong>Recreate what the model knew at each month-end</strong><small id="historyCoverage">Every value below updates together. Later outcomes are shown separately and were never inputs to that decision.</small></div>
+        <label>Decision month
+          <select id="decisionMonthSelect" aria-label="Select historical decision month"></select>
+        </label>
+      </div>
+      <div class="ridge-stage">
+        <article class="forecast-panel panel">
+          <div class="panel-title"><span>1 · Ridge forecasts</span><b id="forecastDecisionLabel">Sep 30 decision</b></div>
+          <div id="forecastRows" class="forecast-rows"></div>
+          <p id="ridgePenaltyNote">Expanding-window Ridge uses only data available through this decision month.</p>
+        </article>
+        <div class="ridge-to-bl" aria-hidden="true"><span></span><b>forecasts become views</b></div>
+      </div>
+
+      <section id="black-litterman" class="black-litterman embedded-bl" aria-labelledby="blTitle">
+        <div class="subsection-heading">
+          <div><span class="kicker">2 · Portfolio bridge</span><h3 id="blTitle">Black–Litterman moderates the Ridge views</h3></div>
+          <p>It combines the benchmark-implied starting point with Ridge forecasts, while discounting views that have been unreliable.</p>
+        </div>
+        <div class="bl-flow" role="img" aria-label="Black-Litterman combines benchmark prior, Ridge views, covariance, and forecast uncertainty into posterior returns and portfolio weights">
+          <article>
+            <span class="bl-number">01</span><span class="step-type">Neutral anchor</span>
+            <h3>Benchmark prior</h3>
+            <p>The 45 / 35 / 20 benchmark and trailing covariance imply a risk-aware starting return.</p>
+            <div class="weight-pills"><b>45% Equity</b><b>35% Treasury</b><b>20% Credit</b></div>
+          </article>
+          <div class="bl-plus">+</div>
+          <article>
+            <span class="bl-number">02</span><span class="step-type">Model evidence</span>
+            <h3>Ridge views</h3>
+            <p>The selected month’s next-month forecasts become Black–Litterman’s absolute views.</p>
+            <div id="blRidgeMini" class="bl-mini-values"></div>
+          </article>
+          <div class="bl-plus">+</div>
+          <article>
+            <span class="bl-number">03</span><span class="step-type">Risk context</span>
+            <h3>Risk covariance (Σ) and view uncertainty (Ω)</h3>
+            <p><strong>Σ (capital sigma)</strong> is the trailing 36-month covariance matrix of asset returns. <strong>Ω (capital omega)</strong> is a diagonal matrix of each Ridge view’s prior forecast-error variance.</p>
+            <div class="formula-chip">Σ = asset co-movement · Ω = forecast uncertainty</div>
+          </article>
+          <div class="bl-equals">=</div>
+          <article class="bl-output">
+            <span class="bl-number">04</span><span class="step-type">Blended result</span>
+            <h3>Posterior returns</h3>
+            <p>The moderated return estimates feed the long-only, turnover-aware optimizer.</p>
+            <div id="blPosteriorMini" class="bl-mini-values"></div>
+          </article>
+        </div>
+        <div class="notation-note"><b>RMSE</b> means root mean squared error, the typical size of earlier forecast misses. Larger errors create a larger Ω and therefore less trust in the Ridge view.</div>
+        <div class="bl-demo">
+          <div class="bl-demo-copy">
+            <span id="blDecisionLabel" class="kicker">Selected decision</span>
+            <h3>Compare raw and moderated return views</h3>
+            <p id="blExplanation">Raw Ridge views are the model’s standalone forecasts. Select the Black–Litterman result to see how the prior and forecast uncertainty moderate them.</p>
+            <div class="view-toggle" role="group" aria-label="Return view comparison">
+              <button id="ridgeViewButton" class="active" type="button">Raw Ridge views</button>
+              <button id="posteriorViewButton" type="button">BL-adjusted views</button>
+            </div>
+          </div>
+          <div id="blComparison" class="bl-comparison" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <div class="result-grid decision-results">
+        <article class="allocation-panel panel">
+          <div class="panel-title"><span>3 · Recommended allocation</span><b>Long only</b></div>
+          <div class="donut-wrap">
+            <svg id="allocationDonut" viewBox="0 0 220 220" role="img" aria-label="Portfolio allocation donut chart"></svg>
+            <div class="donut-center"><b>100%</b><span>allocated</span></div>
+          </div>
+          <div id="allocationLegend" class="allocation-legend"></div>
+        </article>
+        <article class="evidence-panel panel">
+          <div class="panel-title"><span>Full backtest evidence</span><b>Context—not an input</b></div>
+          <div id="metricRows" class="metric-rows"></div>
+        </article>
+        <article class="outcome-panel panel">
+          <div class="panel-title"><span>4 · Subsequent outcome</span><b id="outcomePeriodLabel">Next month</b></div>
+          <div id="outcomeContent" class="outcome-content" aria-live="polite"></div>
+          <p class="outcome-warning">Outcome data is evaluation evidence—not an input available at the selected decision date.</p>
+        </article>
+      </div>
+      <div class="chart-card performance-card">
+        <div class="chart-header"><div><h3>Out-of-sample portfolio growth</h3><p>After modeled transaction costs, against fixed 45 / 35 / 20 benchmark</p></div><div class="legend"><span class="portfolio-dot">MVP</span><span class="benchmark-dot">Benchmark</span></div></div>
+        <svg id="performanceChart" class="line-chart" viewBox="0 0 1000 300" role="img" aria-label="Cumulative MVP and benchmark portfolio performance"></svg>
+        <div class="performance-stats">
+          <div><span>Annual return</span><strong id="annualReturn">10.03%</strong><small id="benchmarkReturn">Benchmark 9.46%</small></div>
+          <div><span>Sharpe ratio</span><strong id="sharpe">1.33</strong><small id="benchmarkSharpe">Benchmark 1.34</small></div>
+          <div><span>Max drawdown</span><strong id="drawdown">−3.65%</strong><small id="benchmarkDrawdown">Benchmark −3.56%</small></div>
+          <div><span>Average turnover</span><strong id="turnover">5.35%</strong><small>Monthly one-way</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="walkthrough section-shell section-block">
+      <div class="section-heading">
+        <div><span class="kicker">Latest-month walkthrough</span><h2>What happened in September 2026?</h2></div>
+      </div>
+      <div class="story-grid">
+        <article><span>01</span><h3>Releases arrived</h3><p>Eight scheduled macro releases were observed by the September month-end decision date.</p></article>
+        <article><span>02</span><h3>Surprises offset</h3><p>Soft Industrial Production and ISM pushed Growth slightly negative. Core CPI pushed Inflation slightly positive.</p></article>
+        <article><span>03</span><h3>Forecasts stayed restrained</h3><p>Ridge forecast positive Equity returns and approximately flat-to-negative fixed-income returns, with strong shrinkage.</p></article>
+        <article><span>04</span><h3>Allocation tilted modestly</h3><p>Black–Litterman moved the benchmark to 47% Equity, 31% Treasury, and 22% IG Credit.</p></article>
+      </div>
+    </section>
+
+    <section class="method section-shell section-block">
+      <div class="method-grid">
+        <div><span class="kicker">Guardrails</span><h2>What this MVP proves—and what it does not</h2></div>
+        <div class="guardrails">
+          <details open><summary>Point-in-time controls</summary><p>Macro z-scores use prior observations only. GPR is delayed to the following decision month. ANFCI uses an assumed five-day publication lag.</p></details>
+          <details><summary>Current evidence</summary><p>The MVP beat the benchmark by 0.57 percentage points annualized, but delivered slightly worse Sharpe and drawdown over only 33 realized months.</p></details>
+          <details><summary>Remaining limitation</summary><p>ANFCI and GPR use latest revised histories. A formal locked test should reconstruct real-time vintages before making a performance claim.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section-shell">
+    <span>Macro Surprise Quant MVP</span>
+    <span>Deterministic baseline · October 2026</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
