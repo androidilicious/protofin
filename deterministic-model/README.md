@@ -9,7 +9,6 @@ The model is intentionally deterministic: it does not use RAG or autonomous agen
 - `deterministic_mvp/` — Python model, tests, data preparation, generated outputs, and the interactive local demonstration site.
 - `deterministic_data1.xlsx` — source economic-release dataset.
 - `determinisitic_data1_status_description.docx` — source-data description.
-- `*_proposal*.docx` — project proposal and summary documents.
 
 ## Run the model
 
