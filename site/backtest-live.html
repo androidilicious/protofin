@@ -63,7 +63,7 @@
                 <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="250">calm</option><option value="120" selected>normal</option><option value="30">fast</option></select></label>
                 <span class="flex-1"></span><span id="status" class="muted"></span>
             </div>
-            <p class="mt-2 muted">Every month the committee sees only relative numbers: returns, volatility, correlation, percentile ranks of rates and of the uncertainty indexes, and basis-point changes. No dates, levels or headlines. The decision is then scored on the month that followed. Saved replay uses gpt-4o views recorded once for the research; the in-browser option runs three persona calls per month on your GPU (roughly 10–60 s a month depending on the model), so start a few years back rather than in 2004. The live gpt-4o option uses the site's own key through a server-side endpoint that only accepts a month index, with a per-visitor limit of a few dozen months a day and a site-wide daily cap.</p>
+            <p class="mt-2 muted">Every month the committee sees only relative numbers: returns, volatility, correlation, percentile ranks of rates and of the uncertainty indexes, and basis-point changes. No dates, levels or headlines. The decision is then scored on the month that followed. Saved replay uses gpt-4o views recorded once for the research; the in-browser option runs three persona calls per month on your GPU (roughly 10–60 s a month depending on the model), so start a few years back rather than in 2004. The live gpt-4o option uses the site's own key through a server-side endpoint that only accepts a month index, with a limit of 10 runs per visitor per day and a site-wide daily cap.</p>
         </section>
 
         <div class="grid grid-cols-2 lg:grid-cols-6 gap-3" id="tiles"></div>
@@ -97,7 +97,7 @@
     </main>
 
     <script type="module">
-        import { LiveBacktest, loadMonths } from './js/livebacktest.js?v=202609290011';
+        import { LiveBacktest, loadMonths } from './js/livebacktest.js?v=202610040144';
         const $ = id => document.getElementById(id);
         const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
         let bt = null, navChart = null, wChart = null;
@@ -163,7 +163,7 @@
             if (name === 'cio') { $('cioT').classList.remove('stale'); $('cioN').classList.remove('stale'); $('cioT').innerText = p.fields.cio || (p.problems && p.problems.length ? 'CIO reply unusable (' + p.problems.join('; ') + ') → prior only' : p.raw); $('tC').innerText = (p.ms / 1000).toFixed(1) + ' s' + (p.retried ? ' · retried' : ''); $('laneC').classList.remove('on'); }
         }
         function opts() { return { mode: $('mode').value, browserModel: $('browserModel').value, start: parseInt(startSel.value, 10), costBps: parseFloat($('cost').value) || 0, gate: $('gate').checked, delayMs: parseInt($('speed').value, 10), onProgress: t => { $('status').innerText = t.slice(0, 70); } }; }
-        function modeLabel() { const v = $('mode').value; return v === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : v === 'site' ? `live gpt-4o committee via site · 3 calls per month · ${LIMITS ? LIMITS.per_ip_per_day + ' months/day per visitor' : 'rate-limited'}` : 'replaying saved gpt-4o masked views · no model call'; }
+        function modeLabel() { const v = $('mode').value; return v === 'browser' ? `in-browser committee · ${$('browserModel').value.split('-')[0]} ${$('browserModel').value.split('-')[1]} · 3 calls per month` : v === 'site' ? `live gpt-4o committee via site · 3 calls per month · ${LIMITS ? LIMITS.runs_per_ip_per_day + ' runs/day per visitor' : 'rate-limited'}` : 'replaying saved gpt-4o masked views · no model call'; }
         let LIMITS = null;
         fetch('./api/committee', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.configured) { LIMITS = j.limits; $('modeChip').innerText = modeLabel(); } else { [...$('mode').options].find(o => o.value === 'site').disabled = true; if ($('mode').value === 'site') $('mode').value = 'saved'; } }).catch(() => {});
         function setup() { bt = new LiveBacktest(months, opts()); mkCharts(); $('tiles').innerHTML = ''; $('ticker').innerHTML = ''; $('prog').style.width = '0%'; showMonth(months[bt.i], null); $('modeChip').innerText = modeLabel(); $('modeChip').className = 'chip ' + ($('mode').value === 'browser' ? 'warn' : 'accent'); $('status').innerText = ''; }
@@ -182,11 +182,11 @@
                     const rec = await bt.step(onEvent);
                     showMonth(m, rec); pushLast(bt.hist); tiles(bt.summary());
                     $('prog').style.width = `${((bt.i - bt.opts.start) / total * 100).toFixed(1)}%`;
-                    $('status').innerText = `${bt.i - bt.opts.start} / ${total} months` + (rec.remaining ? ` · quota left today ${rec.remaining.today}` : '');
+                    $('status').innerText = `${bt.i - bt.opts.start} / ${total} months` + (rec.remaining ? ` · runs left today ${rec.remaining.runs_today}` : '');
                     if (bt.opts.mode !== 'saved') await new Promise(r => setTimeout(r, Math.max(1500, bt.opts.delayMs * 12)));
                 }
                 if (bt.i >= months.length) { running = false; $('runBtn').innerText = '▶ Run again'; $('status').innerText = `done · ${total} months`; }
-            } catch (e) { running = false; $('runBtn').innerText = e.status === 429 ? '▶ Resume later' : '▶ Resume'; $('status').innerText = (e.status === 429 ? 'rate limit: ' : 'error: ') + e.message + (e.remaining ? ` (remaining today ${e.remaining.today}, this minute ${e.remaining.this_minute})` : ''); }
+            } catch (e) { running = false; $('runBtn').innerText = e.status === 429 ? '▶ Resume later' : '▶ Resume'; $('status').innerText = (e.status === 429 ? 'rate limit: ' : 'error: ') + e.message + (e.remaining ? ` (runs left today ${e.remaining.runs_today ?? 0})` : ''); }
         });
         if (q.get('autorun') === '1') $('runBtn').click();
     </script>

@@ -2,8 +2,8 @@
 // either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202609290011';
-import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609290011';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202610040144';
+import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202610040144';
 
 // Jev answers are read defensively: find each question's block wherever the response nests it.
 const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };   // points added to the stock-minus-bond edge
@@ -88,7 +88,7 @@ export class LiveBacktest {
     } else if (this.opts.mode === 'site') {
       // gpt-4o via the site's rate-limited endpoint; prompts are built server-side from the month index
       onEvent && onEvent('stage1-start', { parallel: true });
-      const r = await fetch('./api/committee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i }) });
+      const r = await fetch('./api/committee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i, run: this.runId }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) { const err = new Error(j.error || `committee endpoint ${r.status}`); err.status = r.status; err.remaining = j.remaining; throw err; }
       const ev = parseView(j.economist_raw, 'economist'), rv = parseView(j.risk_raw, 'risk');

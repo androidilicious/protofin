@@ -11,13 +11,17 @@ id = "76eeaee6ce004c4faaa316525293eae0"
 #   npx wrangler pages secret put OPENAI_API_KEY --project-name protofin
 [vars]
 LLM_MODEL = "gpt-4o"
-LIMIT_JEV_RUNS_PER_IP_PER_DAY = "20"   # full Jev backtest runs per visitor per day
+LIMIT_RUNS_PER_IP_PER_DAY = "10"   # backtest runs per visitor per day (Jev and live gpt-4o, counted separately)
 JEV_GATEWAY = "default"   # AI Gateway id used for the Jev calls (caching, logs, billing)
-LIMIT_MONTHS_PER_IP_PER_DAY = "60"
-LIMIT_MONTHS_PER_IP_PER_MINUTE = "12"
-LIMIT_MONTHS_GLOBAL_PER_DAY = "300"   # 3 KV writes per month-step; free KV tier allows 1,000 writes/day
+LIMIT_MONTHS_GLOBAL_PER_DAY = "300"   # live gpt-4o months site-wide per day; bounds spend (1 KV write each)
 
 # Workers AI binding: lets functions call Jev (typesafe/jev) through the Cloudflare account itself.
 # No API key anywhere.
 [ai]
 binding = "AI"
+
+# D1: strongly consistent per-visitor run counters (KV was eventually consistent and let bursts through)
+[[d1_databases]]
+binding = "LIMITS_DB"
+database_name = "protofin-limits"
+database_id = "6d2db299-8dcb-4bec-b525-f35f1b7f187c"

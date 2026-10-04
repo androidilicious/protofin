@@ -1,3 +1,4 @@
+import { checkRunLimit } from '../_lib/runlimit.js';
 // Cloudflare Pages Function: POST /api/committee  { "i": <month index> }
 // Runs one month of the three-persona committee with the site's own key, rate-limited per visitor.
 //   - prompts are built server-side from the committed site/data/backtest_months.json, so a
@@ -38,7 +39,7 @@ const json = (obj, status = 200, extra = {}) => new Response(JSON.stringify(obj)
 
 export async function onRequestGet({ env }) {
   return json({ configured: Boolean(env.OPENAI_API_KEY), model: env.LLM_MODEL || 'gpt-4o',
-    limits: { per_ip_per_day: +env.LIMIT_MONTHS_PER_IP_PER_DAY || 60, per_ip_per_minute: +env.LIMIT_MONTHS_PER_IP_PER_MINUTE || 12, global_per_day: +env.LIMIT_MONTHS_GLOBAL_PER_DAY || 1500 } });
+    limits: { runs_per_ip_per_day: +env.LIMIT_RUNS_PER_IP_PER_DAY || 10, global_months_per_day: +env.LIMIT_MONTHS_GLOBAL_PER_DAY || 300 } });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -49,15 +50,12 @@ export async function onRequestPost({ request, env }) {
   const months = await loadMonths(env, request);
   if (i < 0 || i >= months.length) return json({ error: 'bad month index' }, 400);
 
-  // ---- rate limits
-  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const day = new Date().toISOString().slice(0, 10), minute = Math.floor(Date.now() / 60000);
-  const perDay = +env.LIMIT_MONTHS_PER_IP_PER_DAY || 60, perMin = +env.LIMIT_MONTHS_PER_IP_PER_MINUTE || 12, globalDay = +env.LIMIT_MONTHS_GLOBAL_PER_DAY || 1500;
-  const [d, m, g] = await Promise.all([bump(env, `ip:${ip}:${day}`, 90000), bump(env, `ip:${ip}:m:${minute}`, 120), bump(env, `global:${day}`, 90000)]);
-  const remaining = { today: Math.max(0, perDay - d), this_minute: Math.max(0, perMin - m) };
-  if (g > globalDay) return json({ error: 'the site-wide daily budget for live gpt-4o backtests is used up; try tomorrow or replay the saved views', remaining }, 429, { 'Retry-After': '3600' });
-  if (d > perDay) return json({ error: `daily limit reached for your address (${perDay} months/day); replay the saved views or continue tomorrow`, remaining }, 429, { 'Retry-After': '3600' });
-  if (m > perMin) return json({ error: `slow down: ${perMin} months per minute per address`, remaining }, 429, { 'Retry-After': '30' });
+  // ---- rate limits: runs per visitor per day, plus a site-wide month cap that bounds gpt-4o spend
+  const rl = await checkRunLimit(env, request, body?.run, 'committee', +env.LIMIT_RUNS_PER_IP_PER_DAY || 10);
+  if (!rl.ok) return json({ error: rl.error, remaining: { runs_today: rl.remaining ?? 0 } }, rl.status, rl.status === 429 ? { 'Retry-After': '3600' } : {});
+  const day = new Date().toISOString().slice(0, 10), globalDay = +env.LIMIT_MONTHS_GLOBAL_PER_DAY || 300;
+  if ((await bump(env, `global:${day}`, 90000)) > globalDay) return json({ error: 'the site-wide daily budget for live gpt-4o backtests is used up; try tomorrow or replay the saved views', remaining: { runs_today: rl.remaining } }, 429, { 'Retry-After': '3600' });
+  const remaining = { runs_today: rl.remaining };
 
   // ---- committee: economist || risk -> CIO, prompts from the committed month data only
   const p = months[i].prompts;

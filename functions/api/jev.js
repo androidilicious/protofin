@@ -1,3 +1,4 @@
+import { checkRunLimit } from '../_lib/runlimit.js';
 // Cloudflare Pages Function: POST /api/jev  { "i": <month index> }
 // Asks Jev (typesafe/jev on Workers AI) typed questions about one masked backtest month.
 // Auth is the Workers AI binding (env.AI): no API key exists in code, config, browser or GitHub.
@@ -55,20 +56,8 @@ export async function onRequestPost({ request, env }) {
   const months = await loadMonths(env, request);
   const i = Number.isInteger(body?.i) ? body.i : -1;
   if (i < 0 || i >= months.length) return json({ error: 'bad month index' }, 400);
-  // limit: runs (not months) per visitor per day. The page sends a run id with every month of a run;
-  // a new run id costs one run. Two KV writes per run, none per month.
-  const run = typeof body?.run === 'string' && /^[A-Za-z0-9_-]{8,64}$/.test(body.run) ? body.run : null;
-  if (!run) return json({ error: 'missing run id' }, 400);
-  if (env.RATE) {
-    const ip = request.headers.get('cf-connecting-ip') || 'x', day = new Date().toISOString().slice(0, 10);
-    const mark = `jevrun:${ip}:${day}:${run}`;
-    if (!(await env.RATE.get(mark))) {
-      const k = `jevruns:${ip}:${day}`, n = parseInt((await env.RATE.get(k)) || '0', 10) + 1;
-      const lim = +env.LIMIT_JEV_RUNS_PER_IP_PER_DAY || 20;
-      if (n > lim) return json({ error: `daily limit reached for your address (${lim} runs/day); use Compare or come back tomorrow` }, 429);
-      await Promise.all([env.RATE.put(k, String(n), { expirationTtl: 90000 }), env.RATE.put(mark, '1', { expirationTtl: 90000 })]);
-    }
-  }
+  const rl = await checkRunLimit(env, request, body?.run, 'jev', +env.LIMIT_RUNS_PER_IP_PER_DAY || 10);
+  if (!rl.ok) return json({ error: rl.error }, rl.status);
   const t = Date.now();
   try {
     const raw = await env.AI.run('typesafe/jev', { state: months[i].payload, questions: QUESTIONS }, env.JEV_GATEWAY ? { gateway: { id: env.JEV_GATEWAY } } : undefined);
