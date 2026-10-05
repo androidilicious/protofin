@@ -19,8 +19,19 @@ export function equilibriumPrior(sigma, wEq = [EQUILIBRIUM_SPY, 1 - EQUILIBRIUM_
   return mulv(scale(sigma, DELTA), wEq);
 }
 
-export function blPosterior(pi, sigma, qExcess, confidence = 'Medium', tau = TAU) {
-  const omegaInv = inv2(scale(sigma, OMEGA_SCALE[confidence] * tau));
+// View uncertainty: Omega = c(confidence)·tau·Sigma (+ diag(s²) when run-to-run variances are given).
+// Mirrors allocation.view_omega; empiricalVar is [s²_spy, s²_tlt] in decimal² of annual return.
+export function viewOmega(sigma, confidence = 'Medium', tau = TAU, empiricalVar = null) {
+  const om = scale(sigma, OMEGA_SCALE[confidence] * tau);
+  if (empiricalVar) {
+    if (empiricalVar.length !== 2 || empiricalVar.some(v => !Number.isFinite(v) || v < 0)) throw new Error('empiricalVar must be 2 finite non-negative variances');
+    om[0][0] += empiricalVar[0]; om[1][1] += empiricalVar[1];
+  }
+  return om;
+}
+
+export function blPosterior(pi, sigma, qExcess, confidence = 'Medium', tau = TAU, empiricalVar = null) {
+  const omegaInv = inv2(viewOmega(sigma, confidence, tau, empiricalVar));
   const tauSigmaInv = inv2(scale(sigma, tau));
   const lhs = inv2(add(tauSigmaInv, omegaInv));
   const rhs = [mulv(tauSigmaInv, pi)[0] + mulv(omegaInv, qExcess)[0], mulv(tauSigmaInv, pi)[1] + mulv(omegaInv, qExcess)[1]];
@@ -48,14 +59,15 @@ export function applyTradePolicy(targetSpy, previousSpy, band = NO_TRADE_BAND, m
 }
 
 // views: [spyTotalPct, tltTotalPct] or null; returns every intermediate quantity like allocation.allocate
-export function allocate(sigma, viewsTotalPct, confidence, rfPct, previousSpy = null) {
+export function allocate(sigma, viewsTotalPct, confidence, rfPct, previousSpy = null, empiricalVar = null) {
   const pi = equilibriumPrior(sigma);
-  let er;
+  let er, omega = null;
   if (viewsTotalPct) {
     const q = viewsTotalPct.map(v => (v - rfPct) / 100);
-    er = blPosterior(pi, sigma, q, confidence);
+    omega = viewOmega(sigma, confidence, TAU, empiricalVar);
+    er = blPosterior(pi, sigma, q, confidence, TAU, empiricalVar);
   } else er = [...pi];
   const target = constrainedSpyWeight(er, sigma);
   const [final, status] = applyTradePolicy(target, previousSpy);
-  return { pi, er, unconstrained: unconstrainedWeights(er, sigma), target_spy: target, final_spy: final, status };
+  return { pi, er, unconstrained: unconstrainedWeights(er, sigma), target_spy: target, final_spy: final, status, omega };
 }
