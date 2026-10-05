@@ -23,6 +23,7 @@ import macro_indexes
 import news_pipeline
 import signals
 import committee
+import stochastic_views
 
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +42,10 @@ HEADLINES_MODE = os.getenv("HEADLINES_MODE", "display")
 # Prototype mode (default on): no evidence cache, no state file, no hold band / move cap.
 # The optimizer target is applied directly. Set PROTOTYPE_MODE=0 to restore the stability controls.
 PROTOTYPE_MODE = os.getenv("PROTOTYPE_MODE", "1") == "1"
+# Stochastic view evaluation (default off): N committee runs at temperature > 0 on the same frozen
+# prompts; Q = mean view, run-to-run variance enters Omega. See stochastic_views.py.
+# Per request: ?stochastic=1&n_runs=5&temperature=0.2&confidence_mode=combined
+STOCHASTIC = stochastic_views.config_from_env()
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 
@@ -133,6 +138,7 @@ def rebuild_diagram_async():
 def run_pipeline():
     force = request.args.get("force") == "1"
     try:
+        stoch = stochastic_views.with_overrides(STOCHASTIC, request.args)
         # 1-3. Market data, signals, policy text and the prompt: shared with the static site
         sig = signals.collect(headlines=HEADLINES_MODE != "off", headlines_in_decision=HEADLINES_MODE == "decide",
                               model_name=LLM_MODEL, log=app.logger.warning)
@@ -145,7 +151,8 @@ def run_pipeline():
 
         # Prototype mode: every click is a fresh run. No cache, no stored holding, no trade policy.
         previous = None if PROTOTYPE_MODE else load_state()
-        if previous and previous.get("fingerprint") == fingerprint and not force:
+        if (previous and previous.get("fingerprint") == fingerprint and not force
+                and bool(previous["response"].get("stochastic")) == stoch.enabled):
             cached = dict(previous["response"])
             cached["cached"] = True
             cached["trade_status"] = "unchanged evidence: returning stored decision"
@@ -162,11 +169,20 @@ def run_pipeline():
                 news["extraction"] = news_pipeline.extract_shocks(news["headlines"], client, model=LLM_MODEL)
             except Exception as exc:  # noqa: BLE001
                 news["extraction"], news["extraction_error"] = None, str(exc)[:120]
-        def _call(prompt_text):
+        def _call(prompt_text, temperature=0.0, seed=42):
+            extra = {} if seed is None else {"seed": seed}
             r = client.chat.completions.create(model=LLM_MODEL, messages=[{"role": "user", "content": prompt_text}],
-                                               temperature=0.0, seed=42, max_tokens=400)
+                                               temperature=temperature, max_tokens=400, **extra)
             return r.choices[0].message.content or ""
-        com = committee.run_committee(sig["prompts"], _call, parallel=True)
+        stochastic, stochastic_raw = None, None
+        if stoch.enabled:
+            # Same frozen prompts N times; only the sampling varies. The first valid run is displayed.
+            runs = stochastic_views.run_stochastic_committee(sig["prompts"], _call, stoch, parallel=True)
+            run_views = [stochastic_views.run_view(r) for r in runs]
+            com = next((r for r in runs if not r["problems"]), runs[0])
+            stochastic_raw = [{k: r[k] for k in ("run", "seed", "economist_raw", "risk_raw", "cio_raw")} for r in runs]
+        else:
+            com = committee.run_committee(sig["prompts"], _call, parallel=True)
         llm_output = com["cio_raw"]
         fields = {"economist": com["economist"]["text"], "risk": com["risk"]["text"],
                   "cio": com["cio"]["cio"], "grounding": com["cio"]["grounding"],
@@ -176,15 +192,31 @@ def run_pipeline():
 
         # 4-5. Black-Litterman posterior (views as EXCESS returns over cash), constrained
         # optimum and trade policy: shared code path in allocation.py
-        confidence_reported = fields["confidence"] or "Low"
-        confidence = macro_indexes.downgrade_confidence(confidence_reported, regime)
-        if llm_parse_ok:
-            views = [fields["spy_q"], fields["tlt_q"]]
-            view_note = f"views applied as excess return over cash ({rf_pct:.2f}%)"
+        if stoch.enabled:
+            out = stochastic_views.decide_from_runs(sigma, run_views, rf_pct, stoch.confidence_mode, regime, previous_spy)
+            agg = out["aggregate"]
+            llm_parse_ok = agg["n_valid"] > 0
+            problems = [] if llm_parse_ok else sorted({p for r in run_views for p in r["problems"]})
+            fields["spy_q"], fields["tlt_q"] = [None if agg["assets"][a]["mean"] is None else round(agg["assets"][a]["mean"], 2)
+                                                for a in stochastic_views.ASSETS]
+            confidence_reported = agg["confidence_reported"] or "Low"
+            confidence = out["confidence_used"] or macro_indexes.downgrade_confidence(confidence_reported, regime)
+            view_note = (f"mean of {agg['n_valid']}/{agg['n_runs']} runs at temperature {stoch.temperature} applied as excess "
+                         f"return over cash ({rf_pct:.2f}%); {out['note']}" if llm_parse_ok
+                         else "all stochastic runs rejected (" + "; ".join(problems) + "); using equilibrium prior only")
+            decision = out["decision"]
+            stochastic = stochastic_views.evaluation_record(stoch, LLM_MODEL, stochastic_views.snapshot_id(sig["prompts"]),
+                                                            run_views, out, fingerprint=fingerprint)
         else:
-            views = None   # invalid views are rejected, not replaced with defaults
-            view_note = "LLM views rejected (" + "; ".join(problems) + "); using equilibrium prior only"
-        decision = allocate(sigma, views, confidence, rf_pct, previous_spy)
+            confidence_reported = fields["confidence"] or "Low"
+            confidence = macro_indexes.downgrade_confidence(confidence_reported, regime)
+            if llm_parse_ok:
+                views = [fields["spy_q"], fields["tlt_q"]]
+                view_note = f"views applied as excess return over cash ({rf_pct:.2f}%)"
+            else:
+                views = None   # invalid views are rejected, not replaced with defaults
+                view_note = "LLM views rejected (" + "; ".join(problems) + "); using equilibrium prior only"
+            decision = allocate(sigma, views, confidence, rf_pct, previous_spy)
         pi, er_bl, w_unconstrained = decision["pi"], decision["er"], decision["unconstrained"]
         target_spy, final_spy, trade_status = decision["target_spy"], decision["final_spy"], decision["status"]
         if PROTOTYPE_MODE:
@@ -243,12 +275,17 @@ def run_pipeline():
             "risk_q": [com["risk"]["spy"], com["risk"]["tlt"]],
             "committee_timing": com["timings"],
             "model_used": LLM_MODEL,
-            "model_source": "OpenAI API via local server, temperature 0, seed 42",
+            "model_source": (f"OpenAI API via local server, {stoch.n_runs} runs at temperature {stoch.temperature}"
+                             + (f", seeds {stoch.seed}+r" if stoch.seed is not None else ", no seed")
+                             + f", confidence mode {stoch.confidence_mode}") if stoch.enabled
+                            else "OpenAI API via local server, temperature 0, seed 42",
+            "stochastic": stochastic,
             "policy": {"tilt_band_spy": [MIN_SPY * 100, MAX_SPY * 100],
                        "no_trade_band_pp": NO_TRADE_BAND * 100, "max_move_pp": MAX_MOVE * 100},
         }
 
-        append_log({**result, "sigma": sigma.tolist(), "llm_raw": llm_output, "prompt": prompt})
+        append_log({**result, "sigma": sigma.tolist(), "llm_raw": llm_output, "prompt": prompt,
+                    **({"stochastic_raw": stochastic_raw} if stochastic_raw else {})})
         save_state({"fingerprint": fingerprint, "response": result})
         rebuild_diagram_async()
         return jsonify(result)

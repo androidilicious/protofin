@@ -279,6 +279,15 @@
                         <span id="cioConf" class="chip teal" style="font-size:13px"></span>
                         <div class="tooltip">High halves the view uncertainty, Low doubles it. An elevated EPU/GPR regime downgrades the reported confidence one notch before use.</div>
                     </div>
+                    <div id="stochBlock" class="relative group inner p-4 hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="eyebrow">Run-to-run stability <span class="info-icon">i</span></span>
+                            <span id="stochMeta" class="chip"></span>
+                        </div>
+                        <div id="stochAssets" class="grid grid-cols-2 gap-3 mono text-[11px]"></div>
+                        <div id="stochConf" class="mono text-[11px] muted mt-2"></div>
+                        <div class="tooltip">The same frozen input was sent to the same committee N times with sampling on. The view used is the mean; its run-to-run variance s&sup2; is added to the view uncertainty: &Omega; = c&middot;&tau;&Sigma; + diag(s&sup2;). Dispersion ratio = s &divide; &radic;(&tau;&Sigma;&#7522;&#7522;); 0 means every run agreed. Agent-reported confidence and empirical stability are separate signals.</div>
+                    </div>
                     <p id="viewNote" class="note"></p>
                     <div class="inner p-4">
                         <div class="eyebrow mb-1">Grounding</div>
@@ -723,6 +732,7 @@
                 document.getElementById('cioConf').innerText = data.confidence_reported && data.confidence_reported !== data.confidence
                     ? `${data.confidence_reported} → ${data.confidence}` : data.confidence;
                 document.getElementById('groundingText').innerText = data.grounding;
+                fillStochastic(data.stochastic);
                 const vn = document.getElementById('viewNote');
                 vn.innerText = data.view_note; vn.className = 'note ' + (data.llm_parse_ok ? 'ok' : 'warn');
                 await new Promise(r => setTimeout(r, 600));
@@ -755,6 +765,27 @@
             }
             btn.disabled = false; btn.innerText = 'Run pipeline'; btn.classList.remove('animate-pulse');
         });
+
+        // Stochastic view evaluation: "what does the agent believe" vs "how stable was it across runs"
+        function fillStochastic(st) {
+            const box = document.getElementById('stochBlock');
+            if (!st) { box.classList.add('hidden'); return; }
+            box.classList.remove('hidden');
+            const agg = st.aggregate, pct = v => v == null ? 'n/a' : `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+            document.getElementById('stochMeta').innerText = `${agg.n_valid}/${agg.n_runs} valid · T=${st.config.temperature} · ${st.effective_mode}`;
+            document.getElementById('stochAssets').innerHTML = ['SPY', 'TLT'].map(a => {
+                const x = agg.assets[a], m = st.stability ? st.stability[a] : null;
+                return `<div class="inner p-2"><div class="t1 font-semibold">${a} view</div>`
+                    + `<div>Mean view: ${pct(x.mean)}</div>`
+                    + `<div>Run-to-run std: ${x.std == null ? 'n/a' : x.std.toFixed(2) + '%'}</div>`
+                    + `<div>Range: ${pct(x.min)} to ${pct(x.max)}</div>`
+                    + `<div>Dispersion ratio: ${m && m.dispersion_ratio != null ? m.dispersion_ratio.toFixed(3) : 'n/a'}</div>`
+                    + `<div class="faint">runs: ${x.values.map(v => v.toFixed(1)).join(', ')}</div></div>`;
+            }).join('');
+            const counts = agg.confidence_counts ? Object.entries(agg.confidence_counts).filter(([, n]) => n).map(([k, n]) => `${k}×${n}`).join(' ') : 'n/a';
+            document.getElementById('stochConf').innerText = `Agent-reported confidence: ${agg.confidence_reported || 'n/a'} (${counts}) · used in Ω: ${st.confidence_used || 'n/a'}`
+                + (st.target_spy_distribution ? ` · single-run SPY targets ${(st.target_spy_distribution.min * 100).toFixed(1)}–${(st.target_spy_distribution.max * 100).toFixed(1)}%` : '');
+        }
     </script>
 </body>
 </html>
