@@ -60,7 +60,7 @@ def _clean(text):
 def _number_for(text, label_stem, asset):
     """First matching number for e.g. Economist_SPY_Return_Percent / 'SPY ... return ... 6%'."""
     num = r"([-+]?\d+(?:\.\d+)?)"
-    for pat, flags in ((label_stem + asset + r"[_ ]?Return[_ ]?Percent\s*[:=]?\s*" + num, re.I),
+    for pat, flags in ((label_stem + asset + r"[_ ]?(?:Expected[_ ]?)?Return[_ ]?Percent\s*[:=]?\s*" + num, re.I),
                        (r"^[^\n]*" + asset + r"[^\n]*?(?:return|expect)[^\n]*?" + num + r"\s*%", re.I | re.M),
                        (r"^[^\n]*" + asset + r"[^\n]*?(?:return|expect)[^\n]*?[:=]\s*" + num, re.I | re.M),
                        (r"^[^\n]*" + asset + r"\s*[:=]\s*" + num + r"\s*%", re.I | re.M)):

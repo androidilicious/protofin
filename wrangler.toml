@@ -2,26 +2,5 @@ name = "protofin"
 compatibility_date = "2026-09-01"
 pages_build_output_dir = "site"
 
-# KV counters for the rate-limited backtest endpoint (functions/api/committee.js)
-[[kv_namespaces]]
-binding = "RATE"
-id = "76eeaee6ce004c4faaa316525293eae0"
-
-# Non-secret knobs for that endpoint. OPENAI_API_KEY is a Pages secret, set with
-#   npx wrangler pages secret put OPENAI_API_KEY --project-name protofin
-[vars]
-LLM_MODEL = "gpt-4o"
-LIMIT_RUNS_PER_IP_PER_DAY = "10"   # backtest runs per visitor per day (Jev and live gpt-4o, counted separately)
-JEV_GATEWAY = "default"   # AI Gateway id used for the Jev calls (caching, logs, billing)
-LIMIT_MONTHS_GLOBAL_PER_DAY = "300"   # live gpt-4o months site-wide per day; bounds spend (1 KV write each)
-
-# Workers AI binding: lets functions call Jev (typesafe/jev) through the Cloudflare account itself.
-# No API key anywhere.
-[ai]
-binding = "AI"
-
-# D1: strongly consistent per-visitor run counters (KV was eventually consistent and let bursts through)
-[[d1_databases]]
-binding = "LIMITS_DB"
-database_name = "protofin-limits"
-database_id = "6d2db299-8dcb-4bec-b525-f35f1b7f187c"
+# Static site only: no functions, no bindings, no secrets. Every model answer shown on the site was
+# recorded once locally and is served as a JSON file under site/data/.

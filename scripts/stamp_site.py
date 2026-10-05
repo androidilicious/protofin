@@ -11,7 +11,7 @@ import time
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(BASE, "site")
 V = time.strftime("%Y%m%d%H%M")
-PAT = re.compile(r"(from\s+['\"])(\./(?:js/)?[A-Za-z0-9_-]+\.js)(?:\?v=\d+)?(['\"])")
+PAT = re.compile(r"(from\s+['\"])(\.{1,2}/(?:js/)?[A-Za-z0-9_-]+\.js)(?:\?v=\d+)?(['\"])")
 
 
 def stamp(path):
@@ -24,7 +24,7 @@ def stamp(path):
 
 def main():
     total = 0
-    for name in ("index.html", "backtest-live.html"):
+    for name in ("index.html", "backtest-live.html", "how.html", os.path.join("jev", "index.html"), os.path.join("uncertainty", "index.html")):
         total += stamp(os.path.join(SITE, name))
     for name in os.listdir(os.path.join(SITE, "js")):
         if name.endswith(".js"):

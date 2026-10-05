@@ -1,9 +1,9 @@
-// Live backtest engine: steps month by month through site/data/backtest_months.json, decides with
-// either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
+// Backtest replay engine: steps month by month through site/data/backtest_months.json, decides with
+// the saved answers (gpt-4o committee or Jev; recorded once, no model is called from the site), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202610042202';
-import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202610042202';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202610042259';
+import { DOWNGRADE } from './pipeline.js?v=202610042259';
 
 // Jev answers are read defensively: find each question's block wherever the response nests it.
 const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };   // points added to the stock-minus-bond edge
@@ -26,10 +26,28 @@ export function readJev(raw) {
   return { p: p ?? 0.5, choice, probs, confidence: Math.max(0, Math.min(1, conf)), offset };
 }
 
+// Months plus every saved answer. Nothing on the site calls a model: the committee replies were
+// recorded once locally (research/run_saved_committee.py) and Jev's once (scripts/build_jev_runs.py).
+const getJson = async name => { const r = await fetch(new URL('../data/' + name, import.meta.url), { cache: 'no-store' }); return r.ok ? r.json() : null; };
 export async function loadMonths() {
-  const r = await fetch(new URL('../data/backtest_months.json', import.meta.url), { cache: 'no-store' });
-  if (!r.ok) throw new Error('backtest_months.json not found');
-  return (await r.json()).months;
+  const [base, com, jev, sto] = await Promise.all([getJson('backtest_months.json'), getJson('committee_runs.json'), getJson('jev_runs.json'), getJson('stochastic_runs.json')]);
+  if (!base) throw new Error('backtest_months.json not found');
+  for (const m of base.months) { m.committee = com?.months?.[m.as_of] || null; m.jev = jev?.months?.[m.as_of] || null; m.runs = sto?.months?.[m.as_of] || null; }
+  return base.months;
+}
+
+// Net-of-cost path for a given list of monthly SPY weights (same accounting as LiveBacktest.step).
+export function simulate(months, weights, costBps = 5) {
+  const cost = costBps / 1e4; let nav = 1, w = EQUILIBRIUM_SPY, turnover = 0;
+  const navs = [1], rets = [], rf = [];
+  months.forEach((m, i) => {
+    const t = weights[i], turn = Math.abs(t - w);
+    if (turn > 1e-9) { turnover += turn; nav *= 1 - turn * cost; }
+    const ret = t * m.r_spy + (1 - t) * m.r_tlt;
+    nav *= 1 + ret; navs.push(nav); rets.push(ret); rf.push(Math.pow(1 + m.rf_pct / 100, 1 / 12) - 1);
+    w = (t * (1 + m.r_spy)) / (1 + ret);
+  });
+  return { navs, ...stats(navs, rets, rf), turnover };
 }
 
 function stats(navs, rets, rfMonthly) {
@@ -47,11 +65,10 @@ function stats(navs, rets, rfMonthly) {
 
 export class LiveBacktest {
   constructor(months, opts) {
-    this.months = months; this.opts = { costBps: 5, mode: 'saved', apiBase: '.', browserModel: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', gate: true, ...opts };
+    this.months = months; this.opts = { costBps: 5, mode: 'saved', gate: true, ...opts };
     this.reset();
   }
   reset() {
-    this.runId = (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : 'r' + Date.now() + Math.random().toString(36).slice(2)).replace(/[^A-Za-z0-9_-]/g, '');
     this.i = this.opts.start || 0; this.running = false;
     this.nav = { live: 1, fixed: 1, prior: 1 }; this.w = { live: EQUILIBRIUM_SPY, fixed: EQUILIBRIUM_SPY, prior: EQUILIBRIUM_SPY };
     this.hist = { dates: [], live: [], fixed: [], prior: [], wlive: [], wprior: [], rlive: [], rfixed: [], rprior: [], rf: [] };
@@ -62,56 +79,28 @@ export class LiveBacktest {
   async decide(m, onEvent) {
     const cost = this.opts.costBps / 1e4;
     let views = null, conf = 'Medium', confRep = 'Medium', detail = {};
-    if (this.opts.mode === 'saved') {
-      if (m.saved) { views = [m.saved.spy_q, m.saved.tlt_q]; confRep = m.saved.confidence; detail = { source: 'saved gpt-4o masked view', econ: null, risk: null, cio: `SPY ${m.saved.spy_q}% · TLT ${m.saved.tlt_q}% · ${confRep}` }; }
-      else { detail = { source: 'no saved view', cio: 'prior only' }; }
-      await new Promise(r => setTimeout(r, this.opts.delayMs ?? 120));
-    } else if (this.opts.mode === 'jev') {
-      // Jev (typesafe/jev) via the Workers AI binding: typed answers with probabilities, no API key anywhere
-      onEvent && onEvent('stage1-start', { parallel: true });
-      const r = await fetch(this.opts.apiBase + '/api/jev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i, run: this.runId }) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) { const err = new Error(j.error || `jev endpoint ${r.status}`); err.status = r.status; throw err; }
-      const jv = readJev(j.raw);
+    await new Promise(r => setTimeout(r, this.opts.delayMs ?? 120));
+    if (this.opts.mode === 'jev') {
+      // Jev (typesafe/jev) answers recorded once; replayed here. Typed probabilities, no text.
+      const jv = m.jev;
+      if (!jv) { const d0 = allocate(m.sigma, null, 'Medium', m.rf_pct, null); return { w: d0.target_spy, conf: 'n/a', confRep: 'n/a', views: null, detail: { source: 'no saved Jev answer', cio: 'prior only' } }; }
       const pi = allocate(m.sigma, null, 'Medium', m.rf_pct, null).pi;
       const baseEdge = (pi[0] - pi[1]) * 100;
       const edge = baseEdge + jv.confidence * jv.offset;            // blend: confidence is the weight on Jev's tilt
       const S = m.sigma, x = ((edge / 100) / DELTA + S[1][1] - S[0][1]) / (S[0][0] + S[1][1] - 2 * S[0][1]);
       const w = Math.min(MAX_SPY, Math.max(MIN_SPY, x));
-      onEvent && onEvent('economist', { raw: JSON.stringify(j.raw), view: { text: `P(stocks beat bonds, 12m) = ${(jv.p * 100).toFixed(0)}%` }, ms: j.ms, ok: jv.p != null });
-      onEvent && onEvent('risk', { raw: JSON.stringify(j.raw), view: { text: `tilt: ${jv.choice} · ` + Object.entries(jv.probs).map(([k, v]) => `${k.replace('_', ' ')} ${(v * 100).toFixed(0)}%`).join(' · ') }, ms: j.ms, ok: true });
-      onEvent && onEvent('cio-start', {});
-      onEvent && onEvent('cio', { raw: '', fields: { cio: `Jev tilt ${jv.offset >= 0 ? '+' : ''}${jv.offset.toFixed(2)} pts × confidence ${(jv.confidence * 100).toFixed(0)}% → edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)} → SPY ${(w * 100).toFixed(1)}%` }, problems: [], ms: 0 });
       return { w, conf: `${(jv.confidence * 100).toFixed(0)}%`, confRep: `${(jv.confidence * 100).toFixed(0)}%`, views: [+(jv.p * 100).toFixed(0), +jv.offset.toFixed(2)],
-               detail: { source: 'typesafe/jev', econ: { text: `P(stocks beat bonds) ${(jv.p * 100).toFixed(0)}%` }, risk: { text: `tilt ${jv.choice}` }, cio: `edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)}`, jev: jv,
+               detail: { source: 'saved typesafe/jev answer', econ: { text: `P(stocks beat bonds, 12m) = ${(jv.p * 100).toFixed(0)}%` },
+                 risk: { text: `tilt: ${jv.choice} · ` + Object.entries(jv.probs).map(([k, v]) => `${k.replace('_', ' ')} ${(v * 100).toFixed(0)}%`).join(' · ') },
+                 cio: `Jev tilt ${jv.offset >= 0 ? '+' : ''}${jv.offset.toFixed(2)} pts × confidence ${(jv.confidence * 100).toFixed(0)}% → edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)} → SPY ${(w * 100).toFixed(1)}%`, jev: jv,
                  calc: { S, delta: DELTA, pi: [pi[0] * 100, pi[1] * 100], baseEdge, weightedOffset: jv.confidence * jv.offset, edge, xRaw: x * 100, w: w * 100, lo: MIN_SPY * 100, hi: MAX_SPY * 100, offsets: TILT_OFFSET } } };
-    } else if (this.opts.mode === 'site') {
-      // gpt-4o via the site's rate-limited endpoint; prompts are built server-side from the month index
-      onEvent && onEvent('stage1-start', { parallel: true });
-      const r = await fetch('./api/committee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ i: m.i, run: this.runId }) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) { const err = new Error(j.error || `committee endpoint ${r.status}`); err.status = r.status; err.remaining = j.remaining; throw err; }
-      const ev = parseView(j.economist_raw, 'economist'), rv = parseView(j.risk_raw, 'risk');
-      onEvent && onEvent('economist', { raw: j.economist_raw, view: ev, ms: j.timings.economist_ms, ok: true });
-      onEvent && onEvent('risk', { raw: j.risk_raw, view: rv, ms: j.timings.risk_ms, ok: true });
-      onEvent && onEvent('cio-start', {});
-      const { fields, problems } = parseCio(j.cio_raw);
-      onEvent && onEvent('cio', { raw: j.cio_raw, fields, problems, ms: j.timings.cio_ms });
-      if (problems.length === 0) { views = [fields.spy_q, fields.tlt_q]; confRep = fields.confidence; } else this.rejected++;
-      detail = { source: `${j.model} via site endpoint (economist ∥ risk concurrent, then CIO)`, econ: ev, risk: rv, cio: fields.cio, problems, remaining: j.remaining, timings: j.timings };
-    } else {
-      await ensureEngine(this.opts.browserModel, this.opts.onProgress);
-      onEvent && onEvent('stage1-start', {});
-      const call = async role => { const t = performance.now(); const rr = await browserRoleCall(role, m.prompts[role], this.opts); const out = rr.raw; const v = parseView(out, role); onEvent && onEvent(role, { raw: out, view: v, ms: Math.round(performance.now() - t), retried: rr.retried, ok: rr.ok }); return { out, v }; };
-      const [e, r] = await Promise.all([call('economist'), call('risk')]);
-      const cioPrompt = m.prompts.cio.replace('{ECONOMIST_VIEW}', e.out.trim()).replace('{RISK_VIEW}', r.out.trim());
-      onEvent && onEvent('cio-start', {});
-      const t = performance.now(); const rc = await browserRoleCall('cio', cioPrompt, this.opts); const cioRaw = rc.raw;
-      const { fields, problems } = parseCio(cioRaw);
-      onEvent && onEvent('cio', { raw: cioRaw, fields, problems, ms: Math.round(performance.now() - t), retried: rc.retried });
-      if (problems.length === 0) { views = [fields.spy_q, fields.tlt_q]; confRep = fields.confidence; } else this.rejected++;
-      detail = { source: this.opts.browserModel, econ: e.v, risk: r.v, cio: fields.cio, problems, cioNums: problems.length ? null : [fields.spy_q, fields.tlt_q, fields.confidence] };
     }
+    // saved three-persona committee (economist ∥ risk -> CIO, temperature 0), one run per month
+    const c = m.committee;
+    if (c && !c.problems.length) { views = [c.cio.spy_q, c.cio.tlt_q]; confRep = c.cio.confidence; detail = { source: 'saved gpt-4o committee', econ: c.economist, risk: c.risk, cio: c.cio.cio }; }
+    else if (c) { this.rejected++; detail = { source: 'saved gpt-4o committee', econ: c.economist, risk: c.risk, cio: `CIO reply unusable (${c.problems.join('; ')}) → prior only`, problems: c.problems }; }
+    else if (m.saved) { views = [m.saved.spy_q, m.saved.tlt_q]; confRep = m.saved.confidence; detail = { source: 'saved gpt-4o masked view (single call)', econ: null, risk: null, cio: `SPY ${m.saved.spy_q}% · TLT ${m.saved.tlt_q}% · ${confRep}` }; }
+    else detail = { source: 'no saved view', cio: 'prior only' };
     conf = (this.opts.gate && m.regime === 'elevated') ? DOWNGRADE[confRep] : confRep;
     const d = allocate(m.sigma, views, conf, m.rf_pct, null);
     return { w: d.target_spy, conf, confRep, views, detail };

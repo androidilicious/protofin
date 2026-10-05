@@ -6,6 +6,7 @@
     <title>Protofin · Measured uncertainty</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg:#0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(183,156,255,.10), transparent 55%);
             --surface:#111a2e; --surface-2:#0d1526; --surface-3:#18233a; --border:#263250; --border-strong:#33415f; --text:#e8ecf5; --text-2:#b4bdd1; --muted:#7b869f; --faint:#566178;
@@ -24,7 +25,7 @@
         .btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text-2)} .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
         select{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px}
         .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--border)} .brand{font-weight:800;letter-spacing:.04em;font-size:20px} .brand span{color:var(--accent)}
-        .runcard{opacity:0;transform:translateY(8px);transition:opacity .4s, transform .4s} .runcard.on{opacity:1;transform:none} .runcard.wait{opacity:.5;animation:pulse 1.2s ease-in-out infinite}
+        .runcard{opacity:1}
         @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,0)}50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)}}
         .bstep{opacity:.25;transition:opacity .45s, transform .45s;transform:translateY(4px)} .bstep.on{opacity:1;transform:none}
         .bstep .n{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);flex:none}
@@ -40,29 +41,40 @@
 </head>
 <body class="min-h-screen overflow-x-hidden">
     <div class="topbar"><div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-4">
-        <div><div class="brand"><span>Protofin</span> Measured uncertainty</div><div class="eyebrow">ask the committee several times · use its disagreement as uncertainty</div></div>
+        <div><div class="brand"><span>Protofin</span> Measured uncertainty</div><div class="eyebrow">the committee was asked five times a month · its disagreement is used as uncertainty</div></div>
         <div class="flex-1"></div>
         <a href="../index.html" class="btn btn-ghost">Dashboard</a>
+        <a href="../backtest-live.html" class="btn btn-ghost">Backtest</a>
         <a href="../jev/" class="btn btn-ghost">Jev</a>
         <button id="themeBtn" class="btn btn-ghost">Light mode</button>
-        <button id="runBtn" class="btn btn-primary">&#9654; Run</button>
+        <button id="runBtn" class="btn btn-primary">&#9654; Play from <span id="firstYear">2004</span></button>
     </div></div>
 
     <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
         <section class="card p-4 text-xs">
             <div class="flex flex-wrap items-end gap-4">
-                <label class="flex flex-col gap-1"><span class="eyebrow">Times to ask</span><select id="nRuns"><option>3</option><option selected>5</option><option>8</option></select></label>
-                <label class="flex flex-col gap-1" title="How much randomness the model is allowed. 0 would give the same answer every time."><span class="eyebrow">Randomness (temperature)</span><select id="temp"><option value="0.2" selected>0.2 · low</option><option value="0.5">0.5 · medium</option><option value="0.8">0.8 · high</option></select></label>
                 <label class="flex flex-col gap-1"><span class="eyebrow">Uncertainty used</span><select id="mode"><option value="combined" selected>Combined · stated confidence + measured disagreement</option><option value="empirical">Measured only · ignore stated confidence</option><option value="reported">Stated only · today's method</option></select></label>
-                <span class="flex-1"></span><span id="status" class="muted"></span>
+                <label class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><select id="speed"><option value="700">calm</option><option value="250" selected>normal</option><option value="60">fast</option></select></label>
+                <label class="flex flex-col gap-1 flex-1" style="min-width:260px"><span class="eyebrow">Month · <span id="monLabel" class="mono t1"></span></span><input id="mon" type="range" min="0" max="0" value="0" style="width:100%"></label>
+                <span id="status" class="muted"></span>
             </div>
-            <p class="mt-2 muted">The dashboard asks the committee once and trusts the confidence word it reports. Here the same committee is asked several times on <b class="t2">identical data</b> with a little randomness. If its answers scatter, that scatter is added to its uncertainty, so a committee that contradicts itself gets less say. Method by Farnoosh Memari (<span class="mono">docs/EMPIRICAL_UNCERTAINTY.md</span>): <span class="mono t2">Ω = c · τΣ + s²</span>. Each run uses live gpt-4o calls: 3 per ask. Limit: 10 runs per visitor per day.</p>
-            <p id="sigLine" class="mt-1 faint"></p>
+            <p class="mt-2 muted">The dashboard asks the committee once and trusts the confidence word it reports. Here the same committee was asked <b class="t2">five times on identical data</b> with a little randomness (temperature 0.2), for every month since January 2004. If its answers scatter, that scatter is added to its uncertainty, so a committee that contradicts itself gets less say. Method by Farnoosh Memari (<span class="mono">docs/EMPIRICAL_UNCERTAINTY.md</span>): <span class="mono t2">Ω = c · τΣ + s²</span>. All answers were recorded once on a laptop and saved; this page only replays them, so no model is called and there is no API behind it.</p>
         </section>
 
         <section class="card p-5">
-            <div class="flex items-center justify-between mb-3"><div class="eyebrow purple">1 · The same question, asked <span id="nLabel">5</span> times</div><span id="runsChip" class="chip"></span></div>
-            <div id="runs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"><div class="faint text-sm italic">Press Run.</div></div>
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2"><div class="eyebrow">Backtest · growth of 100, net of 5 bps trading cost</div>
+                <div class="flex gap-2 flex-wrap"><span class="chip accent">stated only</span><span class="chip" style="border-color:var(--purple);color:var(--purple)">measured only</span><span class="chip teal">combined</span><span class="chip">fixed 60/40</span></div></div>
+            <table id="btTable"></table>
+            <div style="height:300px" class="mt-4"><canvas id="navChart"></canvas></div>
+            <div class="eyebrow mt-4 mb-1">How much the committee disagreed with itself each month (dispersion ratio; above 0.3 starts to matter)</div>
+            <div style="height:130px"><canvas id="dispChart"></canvas></div>
+            <p id="btNote" class="t1 text-sm mt-3"></p>
+        </section>
+
+        <section class="card p-5">
+            <div class="flex items-center justify-between mb-3"><div class="eyebrow purple">1 · The same question, asked <span id="nLabel">5</span> times · <span id="curMonth" class="mono t1"></span></div><span id="runsChip" class="chip"></span></div>
+            <div id="runs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+            <p id="payloadP" class="faint text-[10px] mono mt-3 leading-snug"></p>
         </section>
 
         <section class="card p-5">
@@ -86,112 +98,125 @@
                         <div class="knob" id="kRep" style="left:60%;background:var(--accent)">S</div><div class="knob" id="kEmp" style="left:60%;background:var(--purple)">M</div><div class="knob" id="kCom" style="left:60%;background:var(--teal)">C</div></div>
                     <div class="flex justify-between mono text-[10px] faint mt-1"><span>0% stocks</span><span>60/40 anchor · shaded = 40–80% band</span><span>100% stocks</span></div>
                     <div class="flex flex-wrap gap-3 mono text-[11px] mt-2"><span class="accent">S = stated only</span><span class="purple">M = measured only</span><span class="teal">C = combined</span><span class="muted">grey dots = what each single ask would have given</span></div>
-                    <table class="mt-3" id="modeTable"><tr><th>Method</th><th>Confidence used</th><th>Ω stocks</th><th>Committee's weight</th><th>Stocks</th></tr></table>
+                    <table class="mt-3" id="modeTable"><tr><th>Method</th><th>Confidence used</th><th>Ω stocks</th><th>Pull toward committee</th><th>Stocks</th></tr></table>
                     <p id="verdict" class="t1 text-sm mt-3"></p></div></div>
             </div>
         </section>
     </main>
 
     <script type="module">
-        import { allocate, equilibriumPrior, viewOmega, TAU, OMEGA_SCALE } from '../js/allocation.js';
-        import { parseCio, parseView } from '../js/pipeline.js';
-        import { decide, gate } from '../js/stochastic.js';
+        import { allocate, equilibriumPrior, TAU, OMEGA_SCALE, EQUILIBRIUM_SPY } from '../js/allocation.js?v=202610042259';
+        import { loadMonths, simulate } from '../js/livebacktest.js?v=202610042259';
+        import { decide, gate } from '../js/stochastic.js?v=202610042259';
         const $ = id => document.getElementById(id);
-        function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} }
+        const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+        let navChart = null, dispChart = null;
+        function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} if (navChart) drawCharts(); }
         const q = new URLSearchParams(location.search);
         applyTheme(q.get('theme') || (() => { try { return localStorage.getItem('protofin.theme'); } catch (e) { return null; } })() || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
         $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
-
-        const sig = await (await fetch('../data/signals.json', { cache: 'no-store' })).json();
-        const S = sig.sigma, rf = sig.risk_free, regime = sig.uncertainty_regime;
-        $('sigLine').innerText = `Data as of ${sig.as_of} · cash ${rf}% · uncertainty regime ${regime} · the dashboard's single deterministic answer is in the saved run.`;
         const f2 = x => (Math.round(x * 100) / 100).toFixed(2), f1 = x => (Math.round(x * 10) / 10).toFixed(1), e2 = x => x.toExponential(2), sg = x => (x >= 0 ? '+' : '') + f2(x);
         const sleep = ms => new Promise(r => setTimeout(r, ms));
-        let runs = [];
+        const esc = t => String(t || '').replace(/</g, '&lt;');
 
-        function runCard(r) { return `<div class="inner p-3 runcard wait" id="rc${r}"><div class="flex justify-between items-center"><span class="eyebrow">Ask ${r + 1}</span><span id="rt${r}" class="faint text-[10px] mono">asking…</span></div><div id="rb${r}" class="mt-2 text-xs muted">economist ∥ risk manager → CIO</div></div>`; }
-        function fillCard(r, v) {
-            const el = $('rc' + r); el.classList.remove('wait'); el.classList.add('on');
-            $('rt' + r).innerText = v.ms ? (v.ms / 1000).toFixed(1) + ' s' : '';
-            $('rb' + r).innerHTML = v.valid
-                ? `<div class="flex items-baseline gap-3"><span class="kpi pos">${v.spy_q}%</span><span class="muted text-xs">stocks</span><span class="kpi neg">${v.tlt_q}%</span><span class="muted text-xs">bonds</span></div><div class="mt-1"><span class="chip">${v.confidence}</span> <span class="faint mono text-[10px]">alone → ${f1(v.alone)}% stocks</span></div><p class="t2 text-[11px] leading-snug mt-2">${(v.cio || '').replace(/</g, '&lt;').slice(0, 170)}</p>`
-                : `<div class="warn">rejected: ${(v.problems || []).join('; ') || v.error}</div>`;
+        // every month that has saved repeated asks; all three methods are computed up front (pure arithmetic)
+        const months = (await loadMonths()).filter(m => m.runs && m.runs.length >= 2);
+        const MODES = ['reported', 'empirical', 'combined'], NAMES = { reported: 'Stated only (today)', empirical: 'Measured only', combined: 'Combined' };
+        const COL = { reported: '--accent', empirical: '--purple', combined: '--teal' };
+        const D = Object.fromEntries(MODES.map(k => [k, months.map(m => decide(m.sigma, m.runs, m.rf_pct, k, m.regime))]));
+        const W = Object.fromEntries(MODES.map(k => [k, D[k].map(d => d.decision.target_spy)]));
+        const SIM = Object.fromEntries(MODES.map(k => [k, simulate(months, W[k], 5)]));
+        SIM.fixed = simulate(months, months.map(() => EQUILIBRIUM_SPY), 5);
+        const haveSingle = months.every(m => m.committee);
+        if (haveSingle) SIM.single = simulate(months, months.map(m => { const c = m.committee; return allocate(m.sigma, c.problems.length ? null : [c.cio.spy_q, c.cio.tlt_q], gate(c.cio.confidence || 'Medium', m.regime), m.rf_pct, null).target_spy; }), 5);
+        const DISP = D.combined.map(d => (d.dispersion ? Math.max(...d.dispersion) : 0));
+        let cur = months.length - 1, shown = months.length, gen = 0, playing = false;
+        $('mon').max = months.length - 1; $('mon').value = cur; $('firstYear').innerText = months[0].as_of.slice(0, 4);
+
+        function btTable() {
+            const pct = v => (v * 100).toFixed(1) + '%';
+            const rows = [...MODES.map(k => [NAMES[k], SIM[k], k]), ...(haveSingle ? [['One ask only (the backtest page)', SIM.single, null]] : []), ['Fixed 60/40', SIM.fixed, null]];
+            $('btTable').innerHTML = '<tr><th>Method</th><th>Growth per year</th><th>Sharpe</th><th>Worst drop</th><th>Trading (turnover)</th></tr>' + rows.map(([n, r, k]) => `<tr${k === $('mode').value ? ' style="background:var(--accent-soft)"' : ''}><td style="font-family:var(--font)">${n}</td><td>${pct(r.cagr)}</td><td>${r.sharpe.toFixed(2)}</td><td>${pct(r.maxdd)}</td><td>${r.turnover.toFixed(1)}×</td></tr>`).join('');
+            const big = DISP.filter(x => x >= 0.3).length, moved = months.map((m, i) => Math.abs(W.combined[i] - W.reported[i]) * 100), avg = moved.reduce((a, b) => a + b, 0) / moved.length;
+            $('btNote').innerHTML = `${months[0].as_of.slice(0, 7)} to ${months.at(-1).as_of.slice(0, 7)}, ${months.length} months. The committee noticeably contradicted itself (ratio ≥ 0.3) in <b>${big}</b> months (${(big / months.length * 100).toFixed(0)}%). Counting that disagreement moved the stock weight by <b>${f1(avg)}</b> points on average and <b>${f1(Math.max(...moved))}</b> at most.`;
         }
-        async function ask(runId, r, temperature) {
-            const res = await fetch('../api/stochastic', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ run: runId, r, temperature }) });
-            const j = await res.json().catch(() => ({}));
-            if (!res.ok) return { run: r, valid: false, error: j.error || `error ${res.status}`, status: res.status, problems: [] };
-            const { fields, problems } = parseCio(j.cio_raw);
-            const v = { run: r, valid: problems.length === 0, problems, spy_q: fields.spy_q, tlt_q: fields.tlt_q, confidence: fields.confidence, cio: fields.cio, ms: j.ms, econ: parseView(j.economist_raw, 'economist'), risk: parseView(j.risk_raw, 'risk') };
-            if (v.valid) v.alone = allocate(S, [v.spy_q, v.tlt_q], gate(v.confidence, regime), rf, null).target_spy * 100;
-            return v;
+        function drawCharts() {
+            const grid = cssVar('--border'), tick = cssVar('--muted'), n = shown;
+            const base = { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false } },
+                scales: { x: { grid: { color: grid }, ticks: { color: tick, maxTicksLimit: 12, font: { family: 'JetBrains Mono', size: 10 } } }, y: { grid: { color: grid }, ticks: { color: tick, font: { family: 'JetBrains Mono', size: 10 } } } } };
+            const labels = months.map(m => m.next);
+            const line = (label, sim, color, extra = {}) => ({ label, data: sim.navs.slice(1, n + 1).map(v => v * 100), borderColor: color, borderWidth: 1.8, pointRadius: 0, tension: .2, ...extra });
+            if (navChart) navChart.destroy(); if (dispChart) dispChart.destroy();
+            navChart = new Chart($('navChart'), { type: 'line', data: { labels, datasets: [...MODES.map(k => line(NAMES[k], SIM[k], cssVar(COL[k]), k === $('mode').value ? { borderWidth: 3 } : {})), line('Fixed 60/40', SIM.fixed, cssVar('--muted'), { borderDash: [4, 3], borderWidth: 1.3 })] },
+                options: { ...base, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}` } } } } });
+            dispChart = new Chart($('dispChart'), { type: 'bar', data: { labels, datasets: [{ label: 'dispersion ratio', data: DISP.slice(0, n), backgroundColor: DISP.map((x, i) => i === cur ? cssVar('--warn') : x >= 0.3 ? cssVar('--purple') : cssVar('--border-strong')) }] },
+                options: { ...base, onClick: (e, els) => { if (els.length && !playing) select(els[0].index, true); } } });
         }
 
-        async function explain() {
-            const mode = $('mode').value;
-            const D = { reported: decide(S, runs, rf, 'reported', regime), empirical: decide(S, runs, rf, 'empirical', regime), combined: decide(S, runs, rf, 'combined', regime) };
-            const d = D[mode], a = d.agg;
-            for (let k = 1; k <= 6; k++) $('s' + k).classList.remove('on');
-            if (!a.n_valid) { $('tiles').innerHTML = '<div class="warn text-sm">No usable answers; the 60/40 baseline is used alone.</div>'; return; }
-            const disp = d.dispersion || [0, 0];
-            const targets = d.perRun.map(x => x * 100);
+        function cards(m) {
+            $('curMonth').innerText = m.as_of; $('monLabel').innerText = `${m.as_of} · regime ${m.regime}`; $('nLabel').innerText = m.runs.length;
+            $('payloadP').innerText = m.payload.replace(/\n/g, ' · ');
+            const ok = m.runs.filter(r => r.valid).length; $('runsChip').innerText = `${ok} / ${m.runs.length} usable`; $('runsChip').className = 'chip ' + (ok === m.runs.length ? 'teal' : 'warn');
+            $('runs').innerHTML = m.runs.map((v, r) => `<div class="inner p-3 runcard"><div class="eyebrow">Ask ${r + 1}</div><div class="mt-2 text-xs">` + (v.valid
+                ? `<div class="flex items-baseline gap-2"><span class="kpi pos">${v.spy_q}%</span><span class="muted text-xs">stocks</span></div><div class="flex items-baseline gap-2"><span class="kpi neg">${v.tlt_q}%</span><span class="muted text-xs">bonds</span></div><div class="mt-1"><span class="chip">${v.confidence}</span> <span class="faint mono text-[10px]">alone → ${f1(allocate(m.sigma, [v.spy_q, v.tlt_q], gate(v.confidence, m.regime), m.rf_pct, null).target_spy * 100)}% stocks</span></div><p class="t2 text-[11px] leading-snug mt-2">${esc(v.cio).slice(0, 150)}</p>`
+                : `<div class="warn">reply could not be read; left out</div>`) + '</div></div>').join('');
+        }
+
+        async function explain(i, animate) {
+            const my = ++gen, m = months[i], mode = $('mode').value, S = m.sigma, rf = m.rf_pct, regime = m.regime, runs = m.runs;
+            const pause = async ms => { if (animate) await sleep(ms); return my === gen; };
+            const d = D[mode][i], a = d.agg, on = k => $('s' + k).classList.add('on');
+            if (animate) for (let k = 1; k <= 6; k++) $('s' + k).classList.remove('on');
+            if (!a.n_valid) { $('tiles').innerHTML = '<div class="warn text-sm">No usable answers this month; the 60/40 baseline is used alone.</div>'; return; }
+            const disp = d.dispersion || [0, 0], targets = d.perRun.map(x => x * 100);
             $('tiles').innerHTML = [['Usable answers', `${a.n_valid} / ${a.n_runs}`, 't1'], ['Stocks view spread', a.spy.std === null ? 'n/a' : f2(a.spy.std) + ' pts', 'purple'], ['Bonds view spread', a.tlt.std === null ? 'n/a' : f2(a.tlt.std) + ' pts', 'purple'], ['Stock weight range', targets.length ? `${f1(Math.min(...targets))}–${f1(Math.max(...targets))}%` : 'n/a', 'accent']]
                 .map(([k, v, c]) => `<div class="inner p-3"><div class="eyebrow">${k}</div><div class="kpi ${c}">${v}</div></div>`).join('');
-            const row = (name, s, dr) => `<tr><td style="font-family:var(--font)">${name}</td><td>${f2(s.mean)}%</td><td>${f2(s.min)}%</td><td>${f2(s.max)}%</td><td>${s.std === null ? 'n/a' : f2(s.std) + ' pts'}</td><td>${dr === undefined ? 'n/a' : f2(dr)}</td></tr>`;
+            const row = (name, st, dr) => `<tr><td style="font-family:var(--font)">${name}</td><td>${f2(st.mean)}%</td><td>${f2(st.min)}%</td><td>${f2(st.max)}%</td><td>${st.std === null ? 'n/a' : f2(st.std) + ' pts'}</td><td>${dr === undefined ? 'n/a' : f2(dr)}</td></tr>`;
             $('aggTable').innerHTML = '<tr><th>View (12-month total return)</th><th>Average</th><th>Lowest</th><th>Highest</th><th>Spread (s)</th><th>Dispersion ratio</th></tr>' + row('Stocks (SPY)', a.spy, disp[0]) + row('Bonds (TLT)', a.tlt, disp[1]);
             const ok = runs.filter(r => r.valid);
-            // 1
-            $('s1').classList.add('on');
-            $('c1').innerHTML = `stocks: (${ok.map(r => r.spy_q).join(' + ')}) ÷ ${ok.length} = <b>${f2(a.spy.mean)}%</b><br>bonds: &nbsp;(${ok.map(r => r.tlt_q).join(' + ')}) ÷ ${ok.length} = <b>${f2(a.tlt.mean)}%</b>`; await sleep(700);
-            // 2
-            $('s2').classList.add('on');
-            $('c2').innerHTML = a.empirical_var ? `stocks: distances from ${f2(a.spy.mean)} → ${ok.map(r => sg(r.spy_q - a.spy.mean)).join(', ')}; squared, summed, ÷ ${ok.length - 1} = ${f2(a.spy.var)} %² → spread <b>${f2(a.spy.std)} pts</b><br>bonds: &nbsp;squared distances ÷ ${ok.length - 1} = ${f2(a.tlt.var)} %² → spread <b>${f2(a.tlt.std)} pts</b><br>as decimals for the model: s² = <b>${e2(a.empirical_var[0])}</b> (stocks), <b>${e2(a.empirical_var[1])}</b> (bonds)` : 'fewer than 2 usable answers: scatter cannot be measured, so only the stated confidence is used'; await sleep(900);
-            // 3
-            $('s3').classList.add('on');
-            $('c3').innerHTML = `said: ${Object.entries(a.counts).filter(([, n]) => n).map(([k, n]) => `${k} × ${n}`).join(', ')} → most common <b>${a.label}</b>${mode === 'empirical' ? ' → ignored in this mode: neutral <b>Medium</b> is used' : ''} → regime ${regime}${d.used !== d.label ? ` → lowered to <b>${d.used}</b>` : ` → stays <b>${d.used}</b>`}  (c = ${OMEGA_SCALE[d.used]})`; await sleep(700);
-            // 4
-            $('s4').classList.add('on');
+            on(1);
+            $('c1').innerHTML = `stocks: (${ok.map(r => r.spy_q).join(' + ')}) ÷ ${ok.length} = <b>${f2(a.spy.mean)}%</b><br>bonds: &nbsp;(${ok.map(r => r.tlt_q).join(' + ')}) ÷ ${ok.length} = <b>${f2(a.tlt.mean)}%</b>`; if (!await pause(600)) return;
+            on(2);
+            $('c2').innerHTML = a.empirical_var ? `stocks: distances from ${f2(a.spy.mean)} → ${ok.map(r => sg(r.spy_q - a.spy.mean)).join(', ')}; squared, summed, ÷ ${ok.length - 1} = ${f2(a.spy.var)} %² → spread <b>${f2(a.spy.std)} pts</b><br>bonds: &nbsp;squared distances ÷ ${ok.length - 1} = ${f2(a.tlt.var)} %² → spread <b>${f2(a.tlt.std)} pts</b><br>as decimals for the model: s² = <b>${e2(a.empirical_var[0])}</b> (stocks), <b>${e2(a.empirical_var[1])}</b> (bonds)` : 'fewer than 2 usable answers: scatter cannot be measured, so only the stated confidence is used'; if (!await pause(800)) return;
+            on(3);
+            $('c3').innerHTML = `said: ${Object.entries(a.counts).filter(([, n]) => n).map(([k, n]) => `${k} × ${n}`).join(', ')} → most common <b>${a.label}</b>${mode === 'empirical' && d.ev ? ' → ignored in this mode: neutral <b>Medium</b> is used' : ''} → regime ${regime}${d.used !== d.label ? ` → lowered to <b>${d.used}</b>` : ` → stays <b>${d.used}</b>`}  (c = ${OMEGA_SCALE[d.used]})`; if (!await pause(600)) return;
+            on(4);
             const rep = OMEGA_SCALE[d.used] * TAU * S[0][0], emp = d.ev ? d.ev[0] : 0, tot = rep + emp;
             $('c4').innerHTML = `stated part: c × τ × Σ = ${OMEGA_SCALE[d.used]} × ${TAU} × ${S[0][0].toFixed(5)} = <b>${e2(rep)}</b><br>measured part: s² = <b>${e2(emp)}</b>${d.ev ? '' : ' (not used in this mode)'}<br>Ω stocks = ${e2(rep)} + ${e2(emp)} = <b>${e2(tot)}</b> &nbsp;(${f1(emp / tot * 100)}% of it is measured disagreement)`;
-            $('barRep').style.width = (rep / tot * 100) + '%'; $('barEmp').style.width = (emp / tot * 100) + '%'; await sleep(900);
-            // 5
-            $('s5').classList.add('on');
+            $('barRep').style.width = (rep / tot * 100) + '%'; $('barEmp').style.width = (emp / tot * 100) + '%'; if (!await pause(800)) return;
+            on(5);
             const pi = equilibriumPrior(S).map(x => x * 100), er = d.decision.er.map(x => x * 100), qx = [a.spy.mean - rf, a.tlt.mean - rf];
-            const wS = Math.abs(qx[0] - pi[0]) > 1e-9 ? (er[0] - pi[0]) / (qx[0] - pi[0]) : 0;
-            $('c5').innerHTML = `baseline (60/40) over cash: stocks ${f2(pi[0])}, bonds ${f2(pi[1])}<br>committee over cash: stocks ${sg(qx[0])}, bonds ${sg(qx[1])}  (average minus cash ${rf}%)<br>blend: stocks <b>${f2(er[0])}</b>, bonds <b>${f2(er[1])}</b> → the committee's stock view got about <b>${f1(wS * 100)}%</b> of the weight`; await sleep(900);
-            // 6
-            $('s6').classList.add('on');
-            $('dots').innerHTML = targets.map(() => `<div class="dot" style="left:60%"></div>`).join('');
-            await sleep(60); [...$('dots').children].forEach((el, i) => el.style.left = targets[i] + '%');
-            const T = k => D[k].decision.target_spy * 100;
+            const share = (e) => Math.abs(qx[0] - pi[0]) > 1e-9 ? (e - pi[0]) / (qx[0] - pi[0]) * 100 : 0;
+            $('c5').innerHTML = `baseline (60/40) over cash: stocks ${f2(pi[0])}, bonds ${f2(pi[1])}<br>committee over cash: stocks ${sg(qx[0])}, bonds ${sg(qx[1])}  (average minus cash ${f2(rf)}%)<br>blend: stocks <b>${f2(er[0])}</b>, bonds <b>${f2(er[1])}</b> → the blend moved about <b>${f1(share(er[0]))}%</b> of the way from the baseline to the committee's stock view`; if (!await pause(800)) return;
+            on(6);
+            $('dots').innerHTML = targets.map(t => `<div class="dot" style="left:${animate ? 60 : t}%"></div>`).join('');
+            if (animate) { await sleep(60); if (my !== gen) return; [...$('dots').children].forEach((el, k) => el.style.left = targets[k] + '%'); }
+            const T = k => W[k][i] * 100;
             $('kRep').style.left = T('reported') + '%'; $('kEmp').style.left = T('empirical') + '%'; $('kCom').style.left = T('combined') + '%';
-            const om = k => { const dd = D[k]; return OMEGA_SCALE[dd.used] * TAU * S[0][0] + (dd.ev ? dd.ev[0] : 0); };
-            const wt = k => { const dd = D[k], e = dd.decision.er[0] * 100; return Math.abs(qx[0] - pi[0]) > 1e-9 ? (e - pi[0]) / (qx[0] - pi[0]) * 100 : 0; };
-            const names = { reported: 'Stated only (today)', empirical: 'Measured only', combined: 'Combined' };
-            $('modeTable').innerHTML = '<tr><th>Method</th><th>Confidence used</th><th>Ω stocks</th><th>Committee\'s weight</th><th>Stocks</th></tr>' + ['reported', 'empirical', 'combined'].map(k => `<tr${k === mode ? ' style="background:var(--accent-soft)"' : ''}><td style="font-family:var(--font)">${names[k]}${k === mode ? ' ← selected' : ''}</td><td>${D[k].used}</td><td>${e2(om(k))}</td><td>${f1(wt(k))}%</td><td><b>${f1(T(k))}%</b></td></tr>`).join('');
+            const om = k => OMEGA_SCALE[D[k][i].used] * TAU * S[0][0] + (D[k][i].ev ? D[k][i].ev[0] : 0);
+            $('modeTable').innerHTML = '<tr><th>Method</th><th>Confidence used</th><th>Ω stocks</th><th>Pull toward committee</th><th>Stocks</th></tr>' + MODES.map(k => `<tr${k === mode ? ' style="background:var(--accent-soft)"' : ''}><td style="font-family:var(--font)">${NAMES[k]}${k === mode ? ' ← selected' : ''}</td><td>${D[k][i].used}</td><td>${e2(om(k))}</td><td>${f1(share(D[k][i].decision.er[0] * 100))}%</td><td><b>${f1(T(k))}%</b></td></tr>`).join('');
             const gap = Math.abs(T('combined') - T('reported')), maxDr = Math.max(...disp);
-            $('verdict').innerHTML = maxDr < 0.3
-                ? `The committee was <b class="pos">consistent</b> (dispersion ratio ${f2(maxDr)}): measuring its disagreement moves the split by only <b>${f1(gap)}</b> points. Consistent is not the same as correct.`
-                : `The committee <b class="warn">contradicted itself</b> (dispersion ratio ${f2(maxDr)}): adding that scatter moves the split by <b>${f1(gap)}</b> points (the scattered view counts for less), and a single ask could have landed anywhere from ${f1(Math.min(...targets))}% to ${f1(Math.max(...targets))}% stocks.`;
+            const real = (W[mode][i] * m.r_spy + (1 - W[mode][i]) * m.r_tlt) * 100;
+            $('verdict').innerHTML = (maxDr < 0.3
+                ? `The committee was <b class="pos">consistent</b> this month (dispersion ratio ${f2(maxDr)}): measuring its disagreement moves the split by only <b>${f1(gap)}</b> points. Consistent is not the same as correct.`
+                : `The committee <b class="warn">contradicted itself</b> this month (dispersion ratio ${f2(maxDr)}): adding that scatter moves the split by <b>${f1(gap)}</b> points (the scattered view counts for less), and a single ask could have landed anywhere from ${f1(Math.min(...targets))}% to ${f1(Math.max(...targets))}% stocks.`)
+                + ` The following month the selected split returned <b class="${real >= 0 ? 'pos' : 'neg'}">${sg(real)}%</b>.`;
         }
 
-        $('mode').addEventListener('change', () => { if (runs.length) explain(); });
-        $('nRuns').addEventListener('change', () => $('nLabel').innerText = $('nRuns').value);
+        function select(i, animate) { cur = i; $('mon').value = i; cards(months[i]); explain(i, animate); if (!playing) drawCharts(); }
+        $('mon').addEventListener('input', () => { if (!playing) select(parseInt($('mon').value, 10), false); });
+        $('mode').addEventListener('change', () => { btTable(); drawCharts(); explain(cur, false); });
         $('runBtn').addEventListener('click', async () => {
-            const n = parseInt($('nRuns').value, 10), temperature = parseFloat($('temp').value);
-            const runId = (crypto.randomUUID ? crypto.randomUUID() : 'r' + Date.now()).replace(/[^A-Za-z0-9_-]/g, '');
-            $('runBtn').disabled = true; $('runBtn').innerText = 'Asking…'; runs = []; $('status').innerText = '';
-            $('runs').innerHTML = Array.from({ length: n }, (_, r) => runCard(r)).join(''); $('runsChip').innerText = `0 / ${n}`; $('runsChip').className = 'chip accent';
-            let done = 0, blocked = null;
-            const first = await ask(runId, 0, temperature);   // first ask registers the run before the rest go out together
-            runs[0] = first; fillCard(0, first); done++; $('runsChip').innerText = `${done} / ${n}`;
-            if (first.status === 429 || first.status === 501) blocked = first.error;
-            if (!blocked) await Promise.all(Array.from({ length: n - 1 }, (_, k) => k + 1).map(async r => { await sleep(150 * r); const v = await ask(runId, r, temperature); runs[r] = v; fillCard(r, v); done++; $('runsChip').innerText = `${done} / ${n}`; }));
-            $('runBtn').disabled = false; $('runBtn').innerText = '▶ Run again';
-            if (blocked) { $('status').innerText = blocked; return; }
-            runs = runs.filter(Boolean); $('runsChip').className = 'chip teal';
-            await explain();
+            if (playing) { playing = false; return; }
+            playing = true; $('runBtn').innerHTML = '❚❚ Pause';
+            for (let i = (cur >= months.length - 1 ? 0 : cur); i < months.length && playing; i++) {
+                cur = i; shown = i + 1; $('mon').value = i; cards(months[i]); explain(i, false); drawCharts();
+                $('status').innerText = `${i + 1} / ${months.length} months`;
+                await sleep(parseInt($('speed').value, 10));
+            }
+            playing = false; shown = months.length; drawCharts(); $('runBtn').innerHTML = '▶ Play from ' + months[0].as_of.slice(0, 4); $('status').innerText = '';
         });
+        btTable(); drawCharts(); select(cur, true);
         if (q.get('autorun') === '1') $('runBtn').click();
     </script>
 </body>

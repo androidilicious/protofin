@@ -3,7 +3,7 @@
 // local GPU they execute back to back but still never see each other), then a CIO synthesis.
 // Providers: 'saved' replays the stored replies (no key, no network); 'browser' runs a small open
 // model locally with WebLLM (WebGPU). No API keys anywhere.
-import { allocate } from './allocation.js?v=202610042202';
+import { allocate } from './allocation.js?v=202610042259';
 
 export const DOWNGRADE = { High: 'Medium', Medium: 'Low', Low: 'Low' };
 
@@ -96,7 +96,7 @@ const clean = t => (t || '').replace(/\*\*|__|`/g, '');
 const NUM = '([-+]?\\d+(?:\\.\\d+)?)';
 function numberFor(text, stem, asset) {
   const pats = [
-    new RegExp(stem + asset + '[_ ]?Return[_ ]?Percent\\s*[:=]?\\s*' + NUM, 'i'),
+    new RegExp(stem + asset + '[_ ]?(?:Expected[_ ]?)?Return[_ ]?Percent\\s*[:=]?\\s*' + NUM, 'i'),
     new RegExp('^[^\\n]*' + asset + '[^\\n]*?(?:return|expect)[^\\n]*?' + NUM + '\\s*%', 'im'),
     new RegExp('^[^\\n]*' + asset + '[^\\n]*?(?:return|expect)[^\\n]*?[:=]\\s*' + NUM, 'im'),
     new RegExp('^[^\\n]*' + asset + '\\s*[:=]\\s*' + NUM + '\\s*%', 'im'),

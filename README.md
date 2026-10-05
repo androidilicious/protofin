@@ -61,11 +61,18 @@ Tests: `python -m pytest tests`.
 
 ## The public site
 
-`site/` is a static build of the same dashboard with the whole decision running in the browser. It is deployed as an independent Cloudflare Pages app.
+`site/` is a static build of the same dashboard with the whole decision running in the browser. It is deployed as an independent Cloudflare Pages app. **The site never calls a model and has no API behind it**: every model answer it shows was recorded once on a laptop and is served as a JSON file under `site/data/`. All historical pages start in January 2004, the first full calendar year after the bond fund TLT began trading (July 2002) that the one-year lookbacks allow.
+
+| Page | What it replays | Saved file | Recorded by |
+| --- | --- | --- | --- |
+| `/` dashboard | Today's committee run | `site/data/signals.json`, `site/data/runs/` | `deploy.cmd` (`scripts/build_signals.py --reference`) |
+| `/backtest-live.html` | One gpt-4o committee run per month, 2004 onward (economist ∥ risk → CIO, temperature 0) | `site/data/committee_runs.json` | `research/run_saved_committee.py` |
+| `/uncertainty/` | Five repeated committee runs per month (temperature 0.2); their disagreement feeds Ω | `site/data/stochastic_runs.json` | `research/run_saved_committee.py` |
+| `/jev/` | Jev's typed answers per month | `site/data/jev_runs.json` | recorded once, kept in `research/out/jev_backtest.json` |
 
 - **Signals** come from `site/data/signals.json`, built by `scripts/build_signals.py`: market data, shock, regime, FOMC stance, the three committee prompts, and the stored committee replies with their timings. The GitHub Action in `.github/workflows/build-signals.yml` refreshes this file in the repo on weekday evenings; it needs no secrets.
 - **Saved runs** live in `site/data/runs/<id>.json` with `index.json` as the list. Each `deploy.cmd` adds one; the page lets visitors pick any of them. `signals.json` is always the latest.
-- **Committee providers**: *Saved run* replays the stored gpt-4o replies with their real relative timing; *In-browser model* runs Qwen 2.5 or Llama 3.2 locally through WebLLM (needs WebGPU, about 0.4–1 GB downloaded once, nothing leaves the visitor's machine).
+- **Committee providers** (dashboard only): *Saved run* replays the stored gpt-4o replies with their real relative timing; *In-browser model* runs Qwen 2.5 or Llama 3.2 locally through WebLLM (needs WebGPU, about 0.4–1 GB downloaded once, nothing leaves the visitor's machine).
 - **Math**: `site/js/allocation.js` is a line-for-line port of `allocation.py`, checked against Python to 1e-16. `site/js/pipeline.js` orchestrates the committee and parses replies with the same rules as `committee.py`.
 - **Themes**: light and dark, toggle in the header, `?theme=light`, remembered per device.
 - **URL options**: `?provider=browser`, `?run=<id>`, `?theme=light`, `?autorun=1`, `?show=prompt`.
@@ -84,9 +91,9 @@ deploy.cmd              # rebuilds signals + a fresh committee run from the loca
 | Secret | Where | Who can read it |
 | --- | --- | --- |
 | Your OpenAI key, used for local runs and to record the saved committee replies | `.env` on your machine, git-ignored | Only the local scripts |
-| The same key, for the live-backtest endpoint only | Cloudflare Pages secret `OPENAI_API_KEY`, set with `npx wrangler pages secret put` | Only `functions/api/committee.js`. It accepts a month index, builds the prompts itself from the committed month data, runs the three persona calls, and returns replies and timings. Rate-limited per visitor address (60 months/day, 12/minute) and site-wide (300 months/day, sized to the free KV write quota) with KV counters; limits are `[vars]` in `wrangler.toml` |
+| Cloudflare | Nothing | The site is static: no functions, no bindings, no secrets |
 | GitHub | Nothing | The workflow references no secrets |
-| Visitors | Nothing | Saved runs need no key; the live endpoint spends the site's budget within the limits above |
+| Visitors | Nothing | Every page replays saved files |
 
 ---
 
@@ -113,9 +120,14 @@ A current model has read the history it would be forecasting. The masked replay 
 
 Findings from the September 2026 run, 273 months: the mask held except for the 2008 crisis; the model showed a persistent bullish tilt (flipped data only half-flipped its view) and no forecast skill (correlation −0.05 with the realised 12-month spread). In the backtest the AI views returned 8.08% a year against 8.30% for fixed 60/40 with four times the turnover; the EPU/GPR gate recovered most of the gap; the trade policy alone matched 60/40 with a quarter of the trades.
 
-### Live backtest (browser, monthly resolution)
+### Backtest replay (browser, monthly resolution)
 
-`scripts/build_backtest_months.py` writes `site/data/backtest_months.json`: per month since 2004, the masked payload, the three persona prompts, sigma, cash rate, regime, the realised next-month returns, and the saved gpt-4o view. `site/js/livebacktest.js` steps through the months and decides with one of three committees: the saved gpt-4o views (instant replay), a **live gpt-4o committee through the site's rate-limited endpoint** (economist and risk manager concurrently, then the CIO, about 5 s a month), or the in-browser model (needs WebGPU; small models are often unusable and are retried once with a compact prompt). Each decision is scored on the following month and the page animates growth-of-100 against fixed 60/40 and prior-only with a weights track, a per-month committee panel and a decision log.
+`scripts/build_backtest_months.py` writes `site/data/backtest_months.json`: per month since 2004, the masked payload, the three persona prompts, sigma, cash rate, regime and the realised next-month returns. `research/run_saved_committee.py` then runs the committee once per month locally (plus five repeated runs at temperature 0.2 for the uncertainty page), caches every raw reply in `research/out/committee_cache.jsonl`, and writes the two site files. `site/js/livebacktest.js` steps through the months with the saved answers, scores each decision on the following month, and the page animates growth-of-100 against fixed 60/40 and prior-only with a weights track, a per-month committee panel and a decision log.
+
+```
+python research/run_saved_committee.py              # resumes from the cache; about 4,900 gpt-4o calls in full
+python research/run_saved_committee.py --export     # rebuild the site files from the cache, no calls
+```
 
 ### Other checks
 
