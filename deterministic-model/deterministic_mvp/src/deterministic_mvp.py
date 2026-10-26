@@ -11,9 +11,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import datetime
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -34,7 +37,7 @@ class ReleaseSpec:
 
 
 RELEASE_SPECS = (
-    ReleaseSpec("nfp", "growth", "NFP TCH Index", "nfp_release_cleaned", "nfp_reference_raw"),
+    ReleaseSpec("nfp", "growth", "NFP TCH Index", "nfp_release_raw", "nfp_reference_raw"),
     ReleaseSpec("retail_sales", "growth", "RSTAMOM Index", "retail_sales_release_raw", "retail_sales_reference_raw"),
     ReleaseSpec("industrial_production", "growth", "IP CHNG Index", "industrial_production_release_r", "industrial_production_reference"),
     ReleaseSpec("ism_manufacturing", "growth", "NAPMPMI Index", "ism_manufacturing_release", "ism_manufacturing_reference"),
@@ -68,9 +71,25 @@ def _month_end(values: pd.Series) -> pd.Series:
     return pd.to_datetime(values).dt.to_period("M").dt.to_timestamp("M")
 
 
+def _excel_dates(values: pd.Series) -> pd.Series:
+    """Read mixed Excel date cells and unformatted serial dates, never Unix nanos."""
+    from openpyxl.utils.datetime import from_excel
+
+    def convert(value):
+        if isinstance(value, (int, float, np.integer, np.floating)):
+            return from_excel(float(value)) if 20000 < value < 60000 else pd.NaT
+        return pd.to_datetime(value, errors="coerce")
+
+    return pd.to_datetime(values.map(convert))
+
+
 def _parse_yyyymmdd(values: pd.Series) -> pd.Series:
     cleaned = pd.to_numeric(values, errors="coerce").round().astype("Int64").astype("string")
     return pd.to_datetime(cleaned, format="%Y%m%d", errors="coerce")
+
+
+def _completed_month_cutoff(as_of: str | datetime.date) -> pd.Timestamp:
+    return pd.Timestamp(as_of).to_period("M").start_time - pd.Timedelta(days=1)
 
 
 def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12) -> pd.DataFrame:
@@ -88,7 +107,10 @@ def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12)
             "Std. dev": "survey_std",
         }
     )
-    release["release_date"] = pd.to_datetime(release["release_date"], errors="coerce")
+    release["release_date"] = _excel_dates(release["release_date"])
+    release = release.dropna(subset=["release_date"]).sort_values("release_date").reset_index(drop=True)
+    if release.empty:
+        raise ValueError(f"{spec.name}: no downloaded releases in {spec.release_sheet}; refresh Bloomberg first")
     numeric = ["actual_first", "survey_median", "survey_average", "survey_high", "survey_low", "survey_std"]
     for column in numeric:
         release[column] = pd.to_numeric(release[column], errors="coerce")
@@ -100,7 +122,7 @@ def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12)
             "Contributors": "survey_n",
         }
     )
-    reference["reference_period"] = pd.to_datetime(reference["reference_period"], errors="coerce")
+    reference["reference_period"] = _excel_dates(reference["reference_period"])
     reference["release_date"] = _parse_yyyymmdd(reference["eco_release_date"])
     reference = reference.sort_values(["release_date", "reference_period"])
 
@@ -159,6 +181,7 @@ def build_monthly_features(workbook: Path, releases: pd.DataFrame) -> pd.DataFra
     group_map = {spec.name: spec.group for spec in RELEASE_SPECS}
     growth_cols = [name for name, group in group_map.items() if group == "growth"]
     inflation_cols = [name for name, group in group_map.items() if group == "inflation"]
+    monthly_indicator = monthly_indicator.reindex(columns=list(group_map))
     monthly_indicator["growth_surprise"] = monthly_indicator[growth_cols].mean(axis=1, skipna=True)
     monthly_indicator["inflation_surprise"] = monthly_indicator[inflation_cols].mean(axis=1, skipna=True)
     monthly_indicator["growth_indicator_count"] = monthly_indicator[growth_cols].notna().sum(axis=1)
@@ -170,6 +193,10 @@ def build_monthly_features(workbook: Path, releases: pd.DataFrame) -> pd.DataFra
     policy_6m = pd.read_excel(workbook, sheet_name="policy_6m").rename(
         columns={"Date": "policy_6m_date", "implied_policy_rate_6m_pct": "policy_6m_level"}
     )
+    policy_3m["policy_3m_date"] = _excel_dates(policy_3m["policy_3m_date"])
+    policy_6m["policy_6m_date"] = _excel_dates(policy_6m["policy_6m_date"])
+    policy_3m = policy_3m.dropna(subset=["policy_3m_date"])
+    policy_6m = policy_6m.dropna(subset=["policy_6m_date"])
     policy_3m["date"] = _month_end(policy_3m["policy_3m_date"])
     policy_6m["date"] = _month_end(policy_6m["policy_6m_date"])
     policy = policy_3m[["date", "policy_3m_date", "policy_3m_level"]].merge(
@@ -223,6 +250,11 @@ def build_quality_report(releases: pd.DataFrame, features: pd.DataFrame) -> pd.D
                 "detail": "release rows with missing or multi-period reference metadata",
             }
         )
+        missing = data[["actual_first", "survey_median"]].isna().any(axis=1)
+        rows.append({"check": f"{spec.name}_missing_actual_or_consensus",
+                     "status": "REVIEW" if missing.any() else "PASS",
+                     "value": int(missing.sum()),
+                     "detail": "missing surprises remain unavailable; never filled with zero"})
     rows.extend(
         [
             {
@@ -325,7 +357,7 @@ def walk_forward_ridge(model: pd.DataFrame, min_train: int = 36) -> tuple[pd.Dat
                 }
             )
             latest_alphas[asset] = alpha
-    return pd.DataFrame(predictions), latest_alphas
+    return pd.DataFrame(predictions, columns=["date", "asset", "forecast_next_month", "realized_next_month", "alpha", "training_rows"]), latest_alphas
 
 
 def forecast_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
@@ -379,7 +411,7 @@ def optimize_weights_grid(
             if not bounds[2][0] - 1e-9 <= credit <= bounds[2][1] + 1e-9:
                 continue
             weights = np.array([equity, treasury, credit])
-            turnover = np.abs(weights - previous).sum()
+            turnover = 0.5 * np.abs(weights - previous).sum()
             score = expected @ weights - 0.5 * risk_aversion * (weights @ covariance @ weights) - turnover_penalty * turnover
             if score > best_score:
                 best_score = float(score)
@@ -389,17 +421,35 @@ def optimize_weights_grid(
     return result
 
 
-def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _trade_period(target: np.ndarray, holdings: np.ndarray, realized: np.ndarray, cost_bps: float):
+    turnover = float(0.5 * np.abs(target - holdings).sum())
+    cost = turnover * cost_bps / 10000.0
+    gross = float(target @ realized)
+    net = (1 - cost) * (1 + gross) - 1
+    drifted = target * (1 + realized) / (1 + gross)
+    return turnover, cost, gross, net, drifted
+
+
+def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame, cost_bps: float = 5.0) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if not np.isfinite(cost_bps) or cost_bps < 0:
+        raise ValueError("cost_bps must be finite and nonnegative")
     if predictions.empty:
         return pd.DataFrame(), pd.DataFrame()
     wide = predictions.pivot(index="date", columns="asset", values="forecast_next_month").dropna()
     benchmark = np.array([0.45, 0.35, 0.20])
     previous = benchmark.copy()
+    benchmark_previous = benchmark.copy()
+    prior_previous = benchmark.copy()
+    equal_previous = np.full(3, 1 / 3)
+    buy_hold = benchmark.copy()
+    previous_date = None
     rows = []
     evaluated_errors = predictions.dropna(subset=["realized_next_month"]).copy()
     evaluated_errors["error"] = evaluated_errors["forecast_next_month"] - evaluated_errors["realized_next_month"]
 
     for date, forecasts in wide.iterrows():
+        if previous_date is not None and date.to_period("M") != previous_date.to_period("M") + 1:
+            raise ValueError("Portfolio decisions have a gap; specify a missing-month holding policy before evaluation")
         history = model[(model["date"] <= date) & model[RETURN_COLUMNS].notna().all(axis=1)]
         if len(history) < 24:
             continue
@@ -415,33 +465,59 @@ def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[
         if current.empty:
             continue
         realized = current[[f"next_{c}" for c in RETURN_COLUMNS]].iloc[0].to_numpy(float)
-        turnover = float(np.abs(weights - previous).sum())
-        gross = float(weights @ realized) if np.isfinite(realized).all() else np.nan
-        benchmark_return = float(benchmark @ realized) if np.isfinite(realized).all() else np.nan
-        cost = turnover * 5.0 / 10000.0
+        has_outcome = np.isfinite(realized).all()
+        if not has_outcome and date != wide.index[-1]:
+            raise ValueError(f"Missing realized returns after {date}; cannot silently skip a holding period")
+        turnover = float(0.5 * np.abs(weights - previous).sum())
+        cost = turnover * cost_bps / 10000.0
+        gross = net = benchmark_return = benchmark_gross = np.nan
+        benchmark_turnover = benchmark_cost = np.nan
+        prior_net = equal_net = buy_hold_return = np.nan
+        prior_weights = optimize_weights_grid(2.5 * covariance @ benchmark, covariance, prior_previous)
+        if has_outcome:
+            turnover, cost, gross, net, drifted = _trade_period(weights, previous, realized, cost_bps)
+            benchmark_turnover, benchmark_cost, benchmark_gross, benchmark_return, benchmark_previous = _trade_period(benchmark, benchmark_previous, realized, cost_bps)
+            _, _, _, prior_net, prior_previous = _trade_period(prior_weights, prior_previous, realized, cost_bps)
+            _, _, _, equal_net, equal_previous = _trade_period(np.full(3, 1 / 3), equal_previous, realized, cost_bps)
+            buy_hold_return = float(buy_hold @ realized)
+            buy_hold = buy_hold * (1 + realized) / (1 + buy_hold_return)
         rows.append(
             {
                 "date": date,
+                "outcome_month": date + pd.offsets.MonthEnd(1),
+                "evaluated": has_outcome,
+                **{f"{asset}_pretrade_weight": previous[i] for i, asset in enumerate(ASSETS)},
+                **{f"{asset}_realized_return": realized[i] for i, asset in enumerate(ASSETS)},
                 **{f"{asset}_weight": weights[i] for i, asset in enumerate(ASSETS)},
                 **{f"{asset}_bl_return": posterior[i] for i, asset in enumerate(ASSETS)},
                 "turnover": turnover,
                 "gross_return": gross,
                 "transaction_cost": cost,
-                "net_return": gross - cost if np.isfinite(gross) else np.nan,
+                "net_return": net,
                 "benchmark_return": benchmark_return,
+                "benchmark_gross_return": benchmark_gross,
+                "benchmark_turnover": benchmark_turnover,
+                "benchmark_transaction_cost": benchmark_cost,
+                "prior_only_return": prior_net,
+                "equal_weight_return": equal_net,
+                "buy_hold_return": buy_hold_return,
             }
         )
-        previous = weights
+        if has_outcome:
+            previous = drifted
+        previous_date = date
 
     backtest = pd.DataFrame(rows)
     if backtest.empty:
         return backtest, pd.DataFrame()
     returns = backtest["net_return"].dropna()
+    if returns.empty:
+        return backtest, pd.DataFrame()
     benchmark_returns = backtest.loc[returns.index, "benchmark_return"]
 
     def summarize(series: pd.Series) -> dict[str, float]:
         wealth = (1 + series).cumprod()
-        drawdown = wealth / wealth.cummax() - 1
+        drawdown = wealth / wealth.cummax().clip(lower=1.0) - 1
         annual_return = (wealth.iloc[-1] ** (12 / len(series)) - 1) if len(series) else np.nan
         annual_vol = series.std(ddof=1) * math.sqrt(12)
         return {
@@ -458,10 +534,12 @@ def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[
             {
                 "observations": len(returns),
                 **strategy_stats,
-                "average_turnover": backtest["turnover"].mean(),
+                "average_turnover": backtest.loc[returns.index, "turnover"].mean(),
                 "certainty_equivalent_return": strategy_stats["annualized_return"]
                 - 0.5 * 2.5 * strategy_stats["annualized_volatility"] ** 2,
                 **{f"benchmark_{key}": value for key, value in benchmark_stats.items()},
+                **{f"{name}_{key}": value for name in ["prior_only", "equal_weight", "buy_hold"]
+                   for key, value in summarize(backtest.loc[returns.index, f"{name}_return"]).items()},
                 "annualized_excess_return": strategy_stats["annualized_return"]
                 - benchmark_stats["annualized_return"],
             }
@@ -471,7 +549,9 @@ def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[
 
 
 def _json_value(value: object) -> object:
-    if isinstance(value, (pd.Timestamp, np.datetime64)):
+    if pd.isna(value):
+        return None
+    if isinstance(value, (pd.Timestamp, np.datetime64, datetime.datetime, datetime.date)):
         return pd.Timestamp(value).strftime("%Y-%m-%d")
     if isinstance(value, (np.integer,)):
         return int(value)
@@ -482,10 +562,15 @@ def _json_value(value: object) -> object:
     return value
 
 
-def run(workbook: Path, output_dir: Path, supplemental_path: Path | None = None) -> dict[str, object]:
+def run(workbook: Path, output_dir: Path, supplemental_path: Path | None = None,
+        as_of: str | None = None, cost_bps: float = 5.0) -> dict[str, object]:
+    as_of_date = pd.Timestamp(as_of or datetime.datetime.now(ZoneInfo("America/New_York")).date()).normalize()
+    cutoff = _completed_month_cutoff(as_of_date)
     output_dir.mkdir(parents=True, exist_ok=True)
     releases = build_clean_releases(workbook)
+    releases = releases[releases["release_date"] <= cutoff].copy()
     features = build_monthly_features(workbook, releases)
+    features = features[features["date"] <= cutoff].copy()
     quality = build_quality_report(releases, features)
 
     releases.to_csv(output_dir / "clean_releases.csv", index=False)
@@ -513,6 +598,12 @@ def run(workbook: Path, output_dir: Path, supplemental_path: Path | None = None)
 
     summary: dict[str, object] = {
         "status": "signal_only",
+        "as_of": str(as_of_date.date()),
+        "last_completed_month": str(cutoff.date()),
+        "workbook_sha256": hashlib.sha256(workbook.read_bytes()).hexdigest(),
+        "model_code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "cost_bps_per_one_way_turnover": cost_bps,
+        "execution_assumption": "idealized month-end close; inputs and close known simultaneously; executable delay sensitivity required",
         "workbook": str(workbook.resolve()),
         "release_rows": len(releases),
         "feature_months": len(features),
@@ -523,6 +614,8 @@ def run(workbook: Path, output_dir: Path, supplemental_path: Path | None = None)
 
     if supplemental_path is not None:
         supplemental = load_supplemental(supplemental_path)
+        supplemental = supplemental[supplemental["date"] <= cutoff].copy()
+        summary["supplemental_sha256"] = hashlib.sha256(supplemental_path.read_bytes()).hexdigest()
         required_row = quality["check"].eq("required_model_inputs")
         supplemental_complete = supplemental[SUPPLEMENTAL_COLUMNS].notna().all().all()
         quality.loc[required_row, "status"] = "PASS" if supplemental_complete else "REVIEW"
@@ -538,9 +631,20 @@ def run(workbook: Path, output_dir: Path, supplemental_path: Path | None = None)
         predictions.to_csv(output_dir / "ridge_predictions.csv", index=False)
         fmetrics = forecast_metrics(predictions)
         fmetrics.to_csv(output_dir / "forecast_metrics.csv", index=False)
-        backtest, pmetrics = portfolio_backtest(model, predictions)
+        backtest, pmetrics = portfolio_backtest(model, predictions, cost_bps=cost_bps)
         backtest.to_csv(output_dir / "portfolio_backtest.csv", index=False)
         pmetrics.to_csv(output_dir / "portfolio_metrics.csv", index=False)
+        if not pmetrics.empty:
+            stats = pmetrics.iloc[0]
+            stat_names = ["annualized_return", "annualized_volatility", "sharpe_zero_rf", "maximum_drawdown"]
+            comparisons = []
+            for label, prefix in [("model", ""), ("45_35_20_rebalanced", "benchmark_"),
+                                  ("prior_only", "prior_only_"), ("equal_weight", "equal_weight_"),
+                                  ("45_35_20_buy_hold", "buy_hold_")]:
+                comparisons.append({"strategy": label, "observations": int(stats["observations"]),
+                                    **{key: stats[f"{prefix}{key}"] for key in stat_names}})
+            pd.DataFrame(comparisons).to_csv(output_dir / "benchmark_comparison.csv", index=False)
+        summary["evaluated_portfolio_months"] = int(backtest["net_return"].notna().sum()) if not backtest.empty else 0
         if not predictions.empty:
             latest_prediction_date = predictions["date"].max()
             latest_forecast = predictions[predictions["date"] == latest_prediction_date]
@@ -594,10 +698,12 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional monthly CSV containing date, anfci, gpr, and three asset return columns",
     )
+    parser.add_argument("--as-of", help="Only months before this date's calendar month are used (default: today in New York)")
+    parser.add_argument("--cost-bps", type=float, default=5.0, help="Cost per unit of one-way turnover; initial holdings are endowed")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     arguments = parse_args()
-    result = run(arguments.workbook, arguments.output_dir, arguments.supplemental)
+    result = run(arguments.workbook, arguments.output_dir, arguments.supplemental, arguments.as_of, arguments.cost_bps)
     print(json.dumps(result, indent=2))

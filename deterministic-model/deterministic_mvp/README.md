@@ -76,6 +76,57 @@ Run tests:
 python3 -m unittest discover -s tests -v
 ```
 
+## Reproducible backtest runs
+
+From the repository root, use the project virtual environment and a separate run directory:
+
+```bash
+.venv/bin/python deterministic-model/deterministic_mvp/src/deterministic_mvp.py \
+  --workbook "/path/to/updated.xlsx" \
+  --supplemental deterministic-model/deterministic_mvp/supplemental_monthly.csv \
+  --as-of 2026-10-26 \
+  --cost-bps 5 \
+  --output-dir runs/deterministic-oct26/updated
+```
+
+`--as-of` defaults to today's date in New York. Only calendar months strictly before
+that date's month enter signals, training, and evaluation. For example, October 26
+uses data through September 30; November 1 admits October. This prevents partial
+current-month releases or market returns from being presented as a completed month.
+It does not reconstruct the historical vintages of a revised source.
+
+The importer uses raw payroll releases rather than the manually copied cleaned tab,
+recognizes both formatted Excel dates and numeric serial dates in the Bloomberg
+exports, and sorts releases before historical standardization. Missing actuals or
+consensus estimates remain unavailable and are counted in `data_quality.csv`.
+Growth and Inflation still average available components, so the component counts
+must be inspected when comparing periods with different coverage.
+
+The simulator starts with endowed holdings (no initial purchase fee). Before each
+rebalance, previous holdings drift according to realized asset returns. One-way
+turnover is `0.5 * sum(abs(target - drifted_holdings))`. Costs are deducted from
+wealth before applying the holding-period return: `(1 - cost) * (1 + gross) - 1`.
+The same cost rate and timing apply to each rebalanced comparison. Buy-and-hold
+starts at 45/35/20 and drifts without subsequent trades. Prior-only uses the same
+covariance, bounds, grid and turnover penalty with equilibrium returns and no
+Ridge views. Equal weight rebalances monthly. All comparisons share scored dates.
+Missing intermediate outcomes or gaps after allocation begins raise an error
+instead of silently omitting a holding period.
+
+`portfolio_backtest.csv` records decision and outcome months, pretrade and target
+weights, asset returns, turnover, costs, and comparison returns. The final decision
+may have no outcome; `evaluated=false` distinguishes it and metrics exclude it.
+`benchmark_comparison.csv` reports the five portfolios on identical dates.
+`run_summary.json` records the cutoff, cost rate, and SHA-256 hashes of the workbook,
+supplemental CSV and model code. Keep copies of those inputs alongside each run.
+
+This is an **idealized month-end-close baseline**: the model consumes month-end
+data and assumes execution at that close. It does not yet implement a tradable
+delay or slippage model. Daily execution data are needed for that sensitivity.
+ANFCI/GPR still use revised histories. The reported `sharpe_zero_rf` is the existing
+annualized geometric return / annualized volatility ratio, not a cash-adjusted
+Sharpe estimate. These limitations must accompany any performance comparison.
+
 ## MVP assumptions to lock before formal evaluation
 
 - Decision date: calendar month-end; only releases observed by that date enter the signal.

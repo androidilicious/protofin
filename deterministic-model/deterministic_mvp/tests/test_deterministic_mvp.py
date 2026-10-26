@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import numpy as np
@@ -18,11 +19,77 @@ from deterministic_mvp import (  # noqa: E402
     portfolio_backtest,
     optimize_weights_grid,
     walk_forward_ridge,
+    _excel_dates,
+    _trade_period,
+    _json_value,
+    load_release_table,
+    _completed_month_cutoff,
 )
 from prepare_online_data import prepare_anfci, prepare_gpr  # noqa: E402
 
 
 class DeterministicMvpTests(unittest.TestCase):
+    def test_only_completed_months_are_used(self):
+        self.assertEqual(_completed_month_cutoff("2026-10-26"), pd.Timestamp("2026-09-30"))
+        self.assertEqual(_completed_month_cutoff("2026-10-31"), pd.Timestamp("2026-09-30"))
+        self.assertEqual(_completed_month_cutoff("2026-11-01"), pd.Timestamp("2026-10-31"))
+
+    def test_model_and_benchmark_pay_same_cost_for_same_trades(self):
+        rng = np.random.default_rng(9)
+        dates = pd.date_range("2020-01-31", periods=40, freq="ME")
+        model = pd.DataFrame({"date": dates})
+        rows = []
+        for asset, column in zip(["equity", "treasury", "ig_credit"],
+                                 ["equity_return", "treasury_return", "ig_credit_return"]):
+            model[column] = rng.normal(.003, .02, len(dates))
+            model[f"next_{column}"] = model[column].shift(-1)
+            rows.extend({"date": date, "asset": asset, "forecast_next_month": .005,
+                         "realized_next_month": model.at[i, f"next_{column}"]}
+                        for i, date in enumerate(dates))
+        benchmark = np.array([.45, .35, .20])
+        with patch("deterministic_mvp.optimize_weights_grid", return_value=benchmark):
+            backtest, metrics = portfolio_backtest(model, pd.DataFrame(rows))
+        scored = backtest.dropna(subset=["net_return"])
+        self.assertTrue(np.allclose(scored.net_return, scored.benchmark_return))
+        self.assertTrue(np.allclose(scored.transaction_cost, scored.benchmark_transaction_cost))
+        self.assertGreater(scored.benchmark_transaction_cost.sum(), 0.)
+        self.assertEqual(int(metrics.iloc[0].observations), len(scored))
+        self.assertFalse(bool(backtest.iloc[-1].evaluated))
+
+    def test_excel_serial_dates_match_formatted_dates(self):
+        values = pd.Series([pd.Timestamp("2026-10-14"), 46309, "#N/A Requesting Data...", None])
+        parsed = _excel_dates(values)
+        self.assertEqual(parsed.iloc[0], parsed.iloc[1])
+        self.assertTrue(parsed.iloc[2:].isna().all())
+
+    def test_drift_requires_trades_even_when_target_does_not_change(self):
+        target = np.array([0.45, 0.35, 0.20])
+        _, _, _, _, drifted = _trade_period(target, target, np.array([0.10, 0., 0.]), 5.)
+        turnover, cost, gross, net, after = _trade_period(target, drifted, np.zeros(3), 5.)
+        expected_turnover = abs(target[0] - (0.45 * 1.10 / 1.045))
+        self.assertAlmostEqual(turnover, expected_turnover)
+        self.assertAlmostEqual(cost, expected_turnover * 0.0005)
+        self.assertAlmostEqual(net, -cost)
+        self.assertTrue(np.allclose(after, target))
+
+    def test_cost_is_deducted_before_holding_return(self):
+        target = np.array([0.6, 0.2, 0.2])
+        turnover, cost, gross, net, _ = _trade_period(target, np.array([0.4, 0.4, 0.2]), np.full(3, .10), 100.)
+        self.assertAlmostEqual(turnover, .2)
+        self.assertAlmostEqual(net, (1 - .002) * 1.1 - 1)
+
+    def test_empty_download_fails_with_actionable_message(self):
+        release = pd.DataFrame({"Release Date": ["#N/A Requesting Data..."],
+                                **{name: [None] for name in ["Actual", "Median", "Average", "High", "Low", "Std. dev"]}})
+        with patch("deterministic_mvp.pd.read_excel", side_effect=[release, pd.DataFrame()]):
+            with self.assertRaisesRegex(ValueError, "refresh Bloomberg"):
+                load_release_table(self.workbook, RELEASE_SPECS[0])
+
+    def test_json_supports_native_dates_and_nat(self):
+        import datetime
+        self.assertEqual(_json_value(datetime.datetime(2026, 9, 30)), "2026-09-30")
+        self.assertIsNone(_json_value(pd.NaT))
+
     @classmethod
     def setUpClass(cls):
         cls.workbook = ROOT.parent / "deterministic_data1.xlsx"
@@ -91,6 +158,18 @@ class DeterministicMvpTests(unittest.TestCase):
         self.assertEqual(len(metrics), 1)
         weight_sum = backtest[["equity_weight", "treasury_weight", "ig_credit_weight"]].sum(axis=1)
         self.assertTrue(np.allclose(weight_sum, 1.0))
+        # Future outcomes and features must not alter earlier decisions.
+        altered = frame.copy()
+        altered.loc[75:, FULL_FEATURES] = 1000.
+        altered.loc[75:, ["equity_return", "treasury_return", "ig_credit_return"]] = .9
+        for column in ["equity_return", "treasury_return", "ig_credit_return"]:
+            altered[f"next_{column}"] = altered[column].shift(-1)
+        changed_predictions, _ = walk_forward_ridge(altered)
+        changed_backtest, _ = portfolio_backtest(altered, changed_predictions)
+        cutoff = frame.at[73, "date"]
+        pd.testing.assert_frame_equal(
+            backtest.loc[backtest.date <= cutoff].reset_index(drop=True),
+            changed_backtest.loc[changed_backtest.date <= cutoff].reset_index(drop=True))
 
     def test_gpr_is_available_in_following_decision_month(self):
         data = prepare_gpr(ROOT / "data" / "raw" / "gpr_caldara_iacoviello.dta")
