@@ -27,6 +27,20 @@ The baseline and targets stay the same. Only the added signals change between sy
 
 The source workbook these panels were built from (raw Bloomberg release and consensus data) is **not** included in this repository. Its hash is recorded in `../reproducibility/`, and `../notebooks/build_model_ready_panels.ipynb` shows how the panels were built.
 
+## External / Withheld Dependencies
+
+These source files are **not committed**:
+
+| File | Why not committed | Needed by |
+|---|---|---|
+| `deterministic_data2 - Oct26.xlsx` | Bloomberg data (restricted) | `policy_rate_validation.ipynb` |
+| `deterministic_data2_policy_extended_COPY.xlsx` | Bloomberg data (restricted) | `build_model_ready_panels.ipynb` |
+| `deterministic_data2_model_panels_COPY.xlsx` | Bloomberg data (restricted) | None (workbook copy of the model panels) |
+| `fed_funds_futures_history_2000_2023Aug.csv` | External public archive, not part of this snapshot | `policy_rate_validation.ipynb` |
+
+- **Reviewing:** the committed model-ready CSVs are enough to review the Stage-2 experiment and the current backtest results.
+- **Full reproduction:** rebuilding the data pipeline from scratch requires the withheld source files above.
+
 ## Rules
 
 - **Missing values stay missing.** Do not fill, zero out, or drop months silently. A missing macro release means "not released yet" and must stay that way.
