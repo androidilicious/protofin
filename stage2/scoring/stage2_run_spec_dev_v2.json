@@ -1,0 +1,107 @@
+{
+  "_comment": "Stage-2 development run spec. Run from the repository root after: python stage2/scoring/fetch_pinned_inputs.py --manifest stage2/reproducibility/stage2_data_snapshot_manifest_v2_2026-10-27.json",
+  "frozen_config": {
+    "path": "stage2/config/stage2_frozen_config_v2.json",
+    "expected_sha256": "340531bffeeb762bd9046a5bbbe9234e50b4cf9288ae93d7a7900e7928af2c70"
+  },
+  "macro_panel": {
+    "path": "stage2/data/model_scoring_panel_E4_meanrule.csv",
+    "month_column": "month",
+    "expected_sha256": "459bef989561aa66f32eccc6d0758ff15b8d50fbd3cdea51b5eced8f0fa456b1"
+  },
+  "prices": {
+    "SPY": {
+      "segments": [
+        {
+          "path": "stage2/data/_pinned/market_price_SPY_pre2018.csv",
+          "end_exclusive": "2018-01-02",
+          "scale": 0.9837908780846654,
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "cee2cfc1959e64976266f5d14b03ae602a64f28659b50dace54941fdb98dcd0b"
+        },
+        {
+          "path": "stage2/data/_pinned/market_price_SPY_2018plus.tsv",
+          "start_inclusive": "2018-01-02",
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "c3e8f068c5b2e28e1010317e2c6eaae7e658ffb73c592949420a3610da70618d"
+        }
+      ]
+    },
+    "IEF": {
+      "segments": [
+        {
+          "path": "stage2/data/_pinned/market_price_IEF_pre2018.csv",
+          "end_exclusive": "2018-01-02",
+          "scale": 0.8567598076451666,
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "d8f79ffc9af3aeefdceb3a5fe1c0165ec3cb5a613dd336a7b65b1217b69d4d13"
+        },
+        {
+          "path": "stage2/data/_pinned/market_price_IEF_2018plus.tsv",
+          "start_inclusive": "2018-01-02",
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "78dc66055d35e01cf24cb0b01327690dc5c64176cea128d049609a6446d6221d"
+        }
+      ]
+    },
+    "LQD": {
+      "segments": [
+        {
+          "path": "stage2/data/_pinned/market_price_LQD_pre2018.csv",
+          "end_exclusive": "2018-01-02",
+          "scale": 0.8061661485414546,
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "568944ce726672aa4d0590a89c4f660ffa602414f23ff567bf142882815f9691"
+        },
+        {
+          "path": "stage2/data/_pinned/market_price_LQD_2018plus.tsv",
+          "start_inclusive": "2018-01-02",
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "'Close' in this file is the distribution-adjusted series: Open/High/Low are raw, Close is adjusted (e.g. SPY 2018-01-02 Open 267.84 vs Close 235.37); returns agree with the other source on 2018-2019 ex-dividend dates.",
+          "expected_sha256": "21d2db302e2424ff445974cef42798676661ace43719972570c46ffff43fe37c"
+        }
+      ]
+    }
+  },
+  "baa10y": {
+    "path": "stage2/data/_pinned/signal_credit_spread.csv",
+    "expected_sha256": "64fb420ac4fc8189d3c7f2271e618f0e280dc8939a6a81f1783a2faffc7da24e"
+  },
+  "t10y3m": {
+    "path": "stage2/data/_pinned/signal_yield_curve.csv",
+    "expected_sha256": "ea6d51b4116e6c5b463bab7fab6eba0ded988921ff126594b492c0dc6690cac6"
+  },
+  "vix": {
+    "_comment": "Boundary at 2018-12-03 because VIXCLS starts there; the two files are identical on all overlapping days 2018-12-03..2022-12-30, so the boundary does not change any value.",
+    "segments": [
+      {
+        "path": "stage2/data/_pinned/signal_vix_pre2018.csv",
+        "end_exclusive": "2018-12-03",
+        "expected_sha256": "b00425a2282e185fe6429e0db3620d6f66d00e4aa703842a6b783b70cd274cc1"
+      },
+      {
+        "path": "stage2/data/_pinned/signal_vix_2018plus.csv",
+        "start_inclusive": "2018-12-03",
+        "expected_sha256": "cd584d562e318348bfb495284206a3d9fbf06a28cd8edadd62af3ca166727a0a"
+      }
+    ]
+  },
+  "dtb4wk": {
+    "path": "stage2/data/_pinned/risk_free.csv",
+    "expected_sha256": "379e39900aa048d17df36f384b6bb87bfb74498b2c673f797f3db4a876f65410"
+  },
+  "expected_development_summary": {
+    "path": "stage2/results/stage2_dev_result_summary.json",
+    "expected_sha256": "710e1ae649d0ca6b2eac72fae98e6276d4554477703d08d4242efa8405cfb890"
+  },
+  "historical_gate": {
+    "path": "stage2/results/stage2_historical_test_gate_2026-10-27.json",
+    "expected_sha256": "611f47383f064082187f1acc8e9ea4e2887c3b252f64090598db03432b712087"
+  },
+  "development_reproduction_atol": 1e-08
+}

@@ -52,3 +52,12 @@ The correction follows from the frozen text and the official release calendars a
 2. All seven systems (A, B1–B5, B-All) are rerun on development decisions 2019-03 to 2022-12 with the canonical scorer, the corrected panel and data snapshot v2.
 3. The historical test (2023-01 to 2026-08) stays sealed.
 4. No tuning, signal change or parameter change follows from the rerun.
+
+## Addendum after the development rerun (2026-10-27, 21:10 UTC)
+
+The rerun used the canonical scorer (`stage2/scoring/stage2_backtest.py`) on the corrected panel; see `results/dev_rerun_v2_2026-10-27/DEV_RERUN_REPORT.md`.
+
+- Every 2019-03 forecast trains on exactly 48 labels (2015-02 to 2019-01), with 2019-01 retained and retail sales missing.
+- A diagnostic run of the same scorer on the old panel shows the fix changes 292 of 966 forecasts, mostly by less than 1e-6, starting with decision 2019-09.
+- The corrected-panel run reproduces the saved development summary for A, B1, B3 and B5 within about 0.00003, while the old-panel run does not. The saved development run therefore appears to have used the mean for the 2019-04 cell already; this bug most likely affected the panel file, not the saved results.
+- Remaining differences from the saved summary are confined to B2, B4 and B-All and are not caused by this bug.
