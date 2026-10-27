@@ -1,0 +1,25 @@
+{
+  "status": "DEVELOPMENT_SCORED",
+  "development_window": ["2019-03", "2022-12"],
+  "n_months": 46,
+  "historical_test_opened": false,
+  "rf_rule": "DTB4WK bank-discount quote at period start; convert quoted 28-day bill to effective return and accrue over exact calendar holding days. Momentum cash leg rolls the same rule month-end to month-end.",
+  "primary_contrast_BAll_vs_A": {
+    "normalized_pooled_se_improvement": -0.04199520752282883,
+    "ci90": [-0.12291584541274526, 0.008641080605456226],
+    "ci95": [-0.1386452356067715, 0.012141725330307787],
+    "bootstrap_prob_le_zero": 0.7314
+  },
+  "component_contrasts": {
+    "B1_credit_level": {"normalized_pooled_se_improvement": 0.0037630939936746963, "ci90": [-0.0006854516016654796,0.01068402262102073]},
+    "B2_credit_change_3m": {"normalized_pooled_se_improvement": -0.02964582810332001, "ci90": [-0.08602545585987027,0.004791401614363589]},
+    "B3_curve_10y_3m": {"normalized_pooled_se_improvement": 0.003221182520670185, "ci90": [-0.0009346914473624637,0.009743761819317851]},
+    "B4_vrp": {"normalized_pooled_se_improvement": -0.3702280568976367, "ci90": [-1.0570272454353158,0.0018185553639035905]},
+    "B5_momentum": {"normalized_pooled_se_improvement": -0.017978446630558823, "ci90": [-0.05343386242243938,0.00435618758563718]}
+  },
+  "per_asset_oos_r2": {
+    "A": {"SPY": 0.0, "IEF": -0.005127204940825525, "LQD": 0.00033591413252975766},
+    "BAll": {"SPY": -0.0015955620048919705, "IEF": 0.000053122629927959686, "LQD": -0.05320054641249028}
+  },
+  "implementation_bug_note": "A negative-month arithmetic bug in a helper initially rendered January minus two months incorrectly. It was detected by the 48-label assertion before any performance metrics were exposed, fixed, and all systems were rerun from scratch. Methodology unchanged."
+}

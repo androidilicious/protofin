@@ -1,0 +1,43 @@
+{
+  "created_at_utc": "2026-10-27T16:38:53.598148+00:00",
+  "stage": "Stage 2 historical-test gate",
+  "development_status": "COMPLETED",
+  "development_window": [
+    "2019-03",
+    "2022-12"
+  ],
+  "development_forecast_months": 46,
+  "historical_test_status": "SEALED_NOT_SCORED",
+  "historical_test_window": [
+    "2023-01",
+    "2026-08"
+  ],
+  "historical_test_forecast_months": 44,
+  "blocker": {
+    "type": "frozen_macro_input_gap",
+    "missing_decision_month_rows": [
+      "2025-10",
+      "2025-11",
+      "2025-12"
+    ],
+    "reason": "The accessible extended balanced macro panel omits these calendar months. Frozen Stage-2 rules require no-release indicators to remain missing within an otherwise retained monthly row; dropping the months or setting all eight macro features to zero would alter the frozen information set/scoring dates.",
+    "required_source": "deterministic_data2 - Oct26.xlsx or equivalent frozen first-print/Bloomberg-consensus macro source containing the exact 2025-10, 2025-11, and 2025-12 feature rows.",
+    "required_source_sha256_from_freeze": "fc0d9996c7a5752810f65fa1f6bdc49a80eacc45557711278c4405cdada6e220"
+  },
+  "risk_free_operationalization": {
+    "series": "FRED DTB4WK \u2014 4-Week Treasury Bill Secondary Market Rate, Discount Basis",
+    "development_mirror_repo": "serorjb/fx_case",
+    "development_mirror_commit": "ced06c250ba97144e74285f89549d271c69874a0",
+    "development_mirror_blob": "c223da6f349ee8664bba64e5c1ee65ecd8f74e4a",
+    "development_mirror_sha256": "379e39900aa048d17df36f384b6bb87bfb74498b2c673f797f3db4a876f65410",
+    "conversion": "At period start, convert the DTB4WK bank-discount quote to the implied 28-day bill effective return; accrue that rate over the exact calendar holding days. For 12M momentum, roll the same rule across month-end subperiods.",
+    "fixed_before_successful_development_score": true
+  },
+  "implementation_bug_note": "A negative-month arithmetic bug in the month helper initially rendered January minus two months incorrectly. The 48-label assertion caught it before performance metrics were exposed. The helper was corrected and all seven systems were rerun from scratch; no frozen parameter changed.",
+  "hashes": {
+    "stage2_dev_result_summary.json": "710e1ae649d0ca6b2eac72fae98e6276d4554477703d08d4242efa8405cfb890",
+    "stage2_frozen_config_v2(1).json": "340531bffeeb762bd9046a5bbbe9234e50b4cf9288ae93d7a7900e7928af2c70",
+    "Stage2_Backtest_Freeze_v2(1).md": "6a2bffd19e081486c60f39f6b5dddfac46d18aab596712f512870ded8d8acfbf",
+    "stage2_signal_manifest_v2(1).csv": "2d33529689dcb2710131678fee08fe10e39e84a2a32a42769d963cb0dbfa3894"
+  }
+}

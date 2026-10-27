@@ -1,0 +1,295 @@
+{
+  "project": "Duke MIDS / BNY Macro-Financial Capstone",
+  "stage": "Stage 2 - frozen signal comparison",
+  "freeze_version": "2.0",
+  "freeze_date": "2026-10-27",
+  "status": "METHODOLOGY_FROZEN_DATA_SNAPSHOT_PENDING",
+  "purpose": "Hold the full forecasting/backtest/allocation/evaluation engine fixed while changing only the signal feature set.",
+  "amendment_policy": {
+    "rule": "After any scored Stage-2 test result is viewed, no frozen parameter may change without incrementing the config version and rerunning every system on the same dates.",
+    "bug_fix_exception": "A true implementation bug may be fixed only if documented before rerun; all systems must be rerun and prior affected outputs invalidated."
+  },
+  "universe": {
+    "assets": [
+      "SPY",
+      "IEF",
+      "LQD"
+    ],
+    "asset_roles": {
+      "SPY": "US equity",
+      "IEF": "7-10Y US Treasury",
+      "LQD": "US investment-grade credit"
+    },
+    "primary_market_data": "Daily ex-dividend-adjusted total-return series, preferably Bloomberg total-return index; exact extracted files are hashed before first scored run.",
+    "risk_free": "1-month US Treasury-bill cash return accrued over the exact holding period; exact source snapshot is hashed before first scored run."
+  },
+  "decision_and_execution": {
+    "decision_time": "20:00 America/New_York on the last trading day of each calendar month",
+    "information_cutoff": "available_at <= decision_time",
+    "execution": "Official close of the first trading day after the decision date",
+    "holding_period": "From that execution close to the official close of the first trading day after the next month-end decision",
+    "target": "Asset total return over the holding period minus risk-free return accrued over the identical dates",
+    "training_label_rule": "At decision month t, completed labels only through decision month t-2 may be used.",
+    "same_close_trading": false
+  },
+  "sample": {
+    "balanced_macro_start": "2015-02",
+    "burn_in_training_labels": "Decision months 2015-02 through 2019-01 (48 completed labels available by the first scored forecast)",
+    "development_decisions": [
+      "2019-03",
+      "2022-12"
+    ],
+    "historical_test_decisions": [
+      "2023-01",
+      "2026-08"
+    ],
+    "historical_test_label": "historical pseudo-OOS; not prospective",
+    "prospective_start_rule": "First month-end after the complete A/B/C/D signal-generation artifacts and this backtest config are frozen before the decision timestamp."
+  },
+  "system_A": {
+    "description": "Balanced macro-surprise baseline",
+    "features": [
+      "NFP surprise z-score",
+      "Retail Sales surprise z-score",
+      "Industrial Production surprise z-score",
+      "ISM Manufacturing surprise z-score",
+      "CPI surprise z-score",
+      "Core CPI surprise z-score",
+      "PPI Final Demand surprise z-score",
+      "AHE Total Private surprise z-score"
+    ],
+    "policy_3m_6m_in_primary_A": false,
+    "anfci_in_primary_A": false,
+    "gpr_in_primary_A": false,
+    "reason": "Keep the baseline definition-consistent, point-in-time auditable, and aligned with the Stage-1 architecture selection."
+  },
+  "macro_feature_construction": {
+    "surprise": "First-print actual minus Bloomberg median consensus",
+    "zscore_window": "Prior 12 releases only; current release excluded",
+    "zscore_std": "Sample standard deviation, ddof=1",
+    "monthly_aggregation": "Mean if multiple releases of the same indicator occur in one calendar month",
+    "no_release": "Missing before model scaling; after training-only scaling, missing standardized value is set to 0",
+    "winsorization_primary": "None",
+    "winsorization_robustness": "Clip macro surprise z-scores to [-3, +3]"
+  },
+  "system_B_primary_signals": {
+    "credit_level": {
+      "definition": "Month-end Baa corporate-minus-10Y Treasury credit spread level",
+      "preferred_public_series": "FRED BAA10Y",
+      "timing": "Latest observation with documented availability by decision_time"
+    },
+    "credit_change_3m": {
+      "definition": "Current credit spread level minus its level three calendar months earlier"
+    },
+    "curve_10y_3m": {
+      "definition": "10Y Treasury constant-maturity yield minus 3M Treasury constant-maturity yield",
+      "preferred_public_series": "FRED T10Y3M",
+      "timing": "Latest observation available by decision_time"
+    },
+    "vrp_proxy": {
+      "definition": "VIX^2 / 12 minus trailing 22-trading-day realized variance",
+      "units": "percent-squared per month",
+      "realized_variance": "sum((daily SPY log return in decimal)^2) * 10000 over the last 22 trading days ending on the decision date",
+      "timing": "Use end-of-day VIX and SPY observations available by the 20:00 ET decision snapshot"
+    },
+    "own_asset_momentum_12m": {
+      "definition": "Each asset's own trailing 12-month excess total return ending at the decision snapshot",
+      "asset_specific": true
+    }
+  },
+  "system_B_runs": {
+    "component_runs": [
+      "A + credit_level",
+      "A + credit_change_3m",
+      "A + curve_10y_3m",
+      "A + vrp_proxy",
+      "A + own_asset_momentum_12m"
+    ],
+    "combined_confirmatory_run": "A + all five B signals",
+    "selection_rule": "Do not choose the best component after test results and relabel it as the primary System B. B-All is the predeclared confirmatory conventional-signal system; component runs are attribution diagnostics."
+  },
+  "systems_C_D_shared_backtest_interface": {
+    "C": "A + timestamped standard-RAG agent features",
+    "D": "A + matched Causal-RAG agent features",
+    "same_between_C_and_D": [
+      "LLM family/version",
+      "prompt template except retrieval-structure instructions required by the treatment",
+      "output schema",
+      "document corpus",
+      "document first-publication cutoff",
+      "embedding model",
+      "retrieved document count",
+      "token budget",
+      "random seeds/run count",
+      "backtest engine"
+    ],
+    "categorical_encoding": "Insufficient is the reference state; Supported and Contradicted are explicit indicators. Do not map categories to arbitrary +1/-1 scores.",
+    "contamination_rule": "Historical C/D periods before a defensible model-knowledge cutoff boundary are diagnostic, not clean evidence. Prospective post-freeze evidence is the cleanest C/D evidence.",
+    "controls": {
+      "C_permuted": "Recommended placebo; permute frozen C labels across months and rerun Ridge without new LLM calls.",
+      "D_random_graph": "Recommended causal-graph placebo if implementation bandwidth permits.",
+      "C_no_retrieval": "Diagnostic only.",
+      "A_mechanical_labels": "Optional robustness, not required for the main four-system table."
+    }
+  },
+  "forecast_model": {
+    "model": "Separate Ridge regression for each asset",
+    "intercept": "Unpenalized",
+    "outer_training": "Expanding window",
+    "minimum_completed_training_labels": 48,
+    "refit_frequency": "Monthly",
+    "feature_scaling": "Mean/std fit only on finite observed feature values inside the current training fold",
+    "missing_after_scaling": 0.0,
+    "inner_cv": {
+      "scheme": "Expanding one-step-ahead CV inside the outer training sample",
+      "minimum_inner_training_labels": 36,
+      "purge_months": 1,
+      "validation_stride_months": 1,
+      "loss": "MSE",
+      "scaler_refit_inside_each_fold": true
+    },
+    "ridge_alpha_candidates": [
+      0.0001,
+      0.01,
+      1.0,
+      100.0,
+      10000.0,
+      1000000.0,
+      100000000.0,
+      10000000000.0,
+      "INTERCEPT_ONLY"
+    ],
+    "alpha_tie_rule": "Choose the more strongly regularized candidate"
+  },
+  "allocation": {
+    "role": "Secondary evidence; forecast performance is primary",
+    "method": "Black-Litterman retained from the MVP",
+    "P": "Identity matrix",
+    "Q": "System-specific Ridge excess-return forecasts",
+    "tau": 0.05,
+    "risk_aversion_delta": 2.5,
+    "prior_weights": {
+      "SPY": 0.45,
+      "IEF": 0.35,
+      "LQD": 0.2
+    },
+    "covariance": {
+      "estimator": "Ledoit-Wolf shrinkage covariance",
+      "window_months": 36,
+      "inputs": "Trailing realized asset excess returns available by decision time"
+    },
+    "omega": {
+      "primary_test_rule": "Diagonal forecast-error variance estimated from System A development-period OOS errors only, then frozen and shared by A/B/C/D during the historical test",
+      "reason": "Keep forecast-to-weight mapping comparable so System B/C/D do not receive a different uncertainty calibration merely because they are different systems."
+    },
+    "constraints": {
+      "fully_invested": true,
+      "long_only": true,
+      "SPY": [
+        0.2,
+        0.7
+      ],
+      "IEF": [
+        0.15,
+        0.6
+      ],
+      "LQD": [
+        0.1,
+        0.4
+      ]
+    },
+    "optimizer": "Same bounded optimizer for every system"
+  },
+  "costs_and_turnover": {
+    "transaction_cost_per_dollar_traded": 0.0005,
+    "definition": "5 bps charged to each dollar of traded notional",
+    "traded_notional": "sum(abs(target_weight_i - pretrade_drifted_weight_i))",
+    "reported_one_way_turnover": "0.5 * sum(abs(target_weight_i - pretrade_drifted_weight_i))",
+    "drift_aware": true,
+    "apply_to_dynamic_benchmarks": true
+  },
+  "benchmarks": {
+    "forecast": "Expanding historical mean excess-return forecast using only completed labels through t-2",
+    "portfolio_1": "Historical-mean forecasts passed through the identical allocator and costs",
+    "portfolio_2": "45/35/20 monthly-rebalanced static allocation with the identical transaction-cost accounting"
+  },
+  "evaluation": {
+    "primary_level": "Forecast accuracy",
+    "primary_conventional_contrast": "B-All vs A",
+    "primary_agent_contrasts": [
+      "C vs A",
+      "D vs C"
+    ],
+    "component_B_contrasts": [
+      "A+credit_level vs A",
+      "A+credit_change_3m vs A",
+      "A+curve_10y_3m vs A",
+      "A+vrp_proxy vs A",
+      "A+momentum_12m vs A"
+    ],
+    "forecast_metrics": [
+      "Normalized pooled squared-error differential",
+      "Relative MSPE",
+      "OOS R2",
+      "RMSE",
+      "MAE",
+      "Directional accuracy (descriptive)"
+    ],
+    "loss_normalization": "For each asset/month, divide squared forecast error by the expanding realized-return variance estimated using information available through t-2; average equally across SPY/IEF/LQD.",
+    "uncertainty": {
+      "method": "Paired circular moving-block bootstrap over months, resampling the three assets jointly",
+      "block_months": 6,
+      "replications": 5000,
+      "seed": 20261027,
+      "intervals": [
+        "90%",
+        "95%"
+      ]
+    },
+    "multiple_testing": {
+      "main_family": "Holm correction at 5% across B-All vs A, C vs A, and D vs C",
+      "B_component_family": "Report component comparisons as attribution diagnostics; if p-values are emphasized, Holm-correct within the five-component family."
+    },
+    "secondary_portfolio_metrics": [
+      "Net annualized excess return",
+      "Annualized volatility",
+      "Net Sharpe ratio",
+      "Maximum drawdown",
+      "Certainty-equivalent return using delta=2.5",
+      "Turnover",
+      "Break-even transaction cost"
+    ],
+    "event_regime_analysis": "Predeclared diagnostic only, never used to select or tune a signal after test results are viewed."
+  },
+  "robustness_only_not_primary": [
+    "Macro z-score winsorization at +/-3",
+    "Alternative macro standardization using 24 prior releases",
+    "MAD/robust scaling",
+    "36- or 60-label minimum training alternatives",
+    "Rolling 60-month estimation",
+    "10Y-2Y curve instead of 10Y-3M",
+    "IG OAS instead of BAA10Y",
+    "Alternative expected-variance VRP measure",
+    "Transaction costs 0/2/10/25 bps",
+    "Alternative execution day",
+    "Alternative bootstrap block length"
+  ],
+  "data_integrity_gates": [
+    "Every raw input file is SHA-256 hashed before the first scored Stage-2 run.",
+    "Every feature row has an available_at timestamp/date and must satisfy available_at <= decision_time.",
+    "Macro actuals are first prints; consensus is the pre-release Bloomberg median.",
+    "No latest-vintage ANFCI or GPR enters the primary A/B model.",
+    "ETF returns must be total returns with distributions aligned to ex-dates; adjusted-close reconstruction is unit-tested against a trusted total-return source.",
+    "All systems are scored on identical common dates.",
+    "No scored test output is generated until config and data hashes are written to the run log."
+  ],
+  "source_artifact_hashes_at_freeze": {
+    "deterministic_data2 - Oct26.xlsx": "fc0d9996c7a5752810f65fa1f6bdc49a80eacc45557711278c4405cdada6e220",
+    "deterministic_data2_model_panels_COPY.xlsx": "38c84b8055271c5ae24e3ae663b01dbb58c1499285ac9bdcc47d62af8fc411a1",
+    "build_model_ready_panels.ipynb": "c8149f5f12fb1b1013de1fefd87004fbcf41daddbdfdddbe5b417bbcc3acf315",
+    "stage1_backtest_config.json": "5151ff0c87dfc907dcf323fa3e61704e994871a1255cafa7946fab330499d8fb",
+    "BACKTEST_DESIGN.md": "b31b9e9e163b5cb6839304360e104ac2fc09467a5638908776ebdb9d3bf797d8",
+    "Stage2_Methodological_Review.pdf": "93490c0c17a2474bce836fa796dde60cd5a36978881625b11c076172d75a9807",
+    "Pasted markdown(10).md": "6e65a0963475c8204a27f6da7a71288026d9a541f96cc239659d7fd7dde26f9f"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "created_at_utc": "2026-10-27T16:13:01.057112+00:00",
+  "decision_cutoff": "20:00 America/New_York",
+  "historical_test_last_decision": "2026-08",
+  "integrity_policy": "Every scored A/B run must verify these source hashes before feature construction. A hash mismatch is a hard stop.",
+  "latest_required_exit": "2026-10-01",
+  "manifest_sha256_without_self_field": "88f828c558093a79254d6b3dcf1c0f671f774d2788b3bd17bdb18bc6ecd4f03d",
+  "methodology_files_unchanged": true,
+  "raw_copy_policy": "Immutable commit/blob + SHA-256 pins are the authoritative raw snapshot. Raw copyrighted/restricted series are not republished in the generated artifact.",
+  "signal_construction": {
+    "credit_change_3m": "credit_level(t) - credit_level(t-3 calendar months).",
+    "credit_level": "Latest BAA10Y whose conservative available_at <= decision time.",
+    "curve_10y_3m": "Latest T10Y3M available by decision time.",
+    "own_asset_momentum_12m": "Each asset's own trailing 12-month excess total return ending at decision snapshot.",
+    "vrp_proxy": "VIX^2/12 - sum(last 22 SPY daily log returns^2)*10000."
+  },
+  "snapshot_id": "stage2_data_snapshot_v1_2026-10-27",
+  "sources": [
+    {
+      "commit": "bdb8ef9c136fd7e9bd4b15d56e72d7bc296a645a",
+      "coverage_note": "Used only before 2018-01-02; adjusted-price return history.",
+      "git_blob_sha": "06aa2d9780c193f9bbb0dc6d9f3edf2b1a04d998",
+      "path": "REpo/data2/SPY.csv",
+      "repo": "jeremy111004/Adaptive-Risk-Reduction-with-Regime-Aware-Models",
+      "role": "market_price_SPY_pre2018",
+      "series": "SPY",
+      "sha256": "cee2cfc1959e64976266f5d14b03ae602a64f28659b50dace54941fdb98dcd0b"
+    },
+    {
+      "commit": "bdb8ef9c136fd7e9bd4b15d56e72d7bc296a645a",
+      "coverage_note": "Used only before 2018-01-02; adjusted-price return history.",
+      "git_blob_sha": "834baa4cba146355918b4c80dd572c4d5bf38ddc",
+      "path": "REpo/data2/IEF.csv",
+      "repo": "jeremy111004/Adaptive-Risk-Reduction-with-Regime-Aware-Models",
+      "role": "market_price_IEF_pre2018",
+      "series": "IEF",
+      "sha256": "d8f79ffc9af3aeefdceb3a5fe1c0165ec3cb5a613dd336a7b65b1217b69d4d13"
+    },
+    {
+      "commit": "bdb8ef9c136fd7e9bd4b15d56e72d7bc296a645a",
+      "coverage_note": "Used only before 2018-01-02; adjusted-price return history.",
+      "git_blob_sha": "264ea3fb72f4fa6c805487e8e4be63c577e89402",
+      "path": "REpo/data2/LQD.csv",
+      "repo": "jeremy111004/Adaptive-Risk-Reduction-with-Regime-Aware-Models",
+      "role": "market_price_LQD_pre2018",
+      "series": "LQD",
+      "sha256": "568944ce726672aa4d0590a89c4f660ffa602414f23ff567bf142882815f9691"
+    },
+    {
+      "commit": "a86b1e6ffc822d07d5ee1b0d448fe47523f753bb",
+      "git_blob_sha": "e99065d7e6a484ee624a5bbe779dcbf42718e70f",
+      "last_observation": "2026-10-21",
+      "path": "market_data/tickers/SPY/prices.tsv",
+      "repo": "jake-g/market-pipeline",
+      "role": "market_price_SPY_2018plus",
+      "series": "SPY",
+      "sha256": "c3e8f068c5b2e28e1010317e2c6eaae7e658ffb73c592949420a3610da70618d"
+    },
+    {
+      "commit": "a86b1e6ffc822d07d5ee1b0d448fe47523f753bb",
+      "git_blob_sha": "b934ba842db743d3c42c284c6d03a7fcd8edd2bf",
+      "last_observation": "2026-10-21",
+      "path": "market_data/tickers/IEF/prices.tsv",
+      "repo": "jake-g/market-pipeline",
+      "role": "market_price_IEF_2018plus",
+      "series": "IEF",
+      "sha256": "78dc66055d35e01cf24cb0b01327690dc5c64176cea128d049609a6446d6221d"
+    },
+    {
+      "commit": "a86b1e6ffc822d07d5ee1b0d448fe47523f753bb",
+      "git_blob_sha": "c4433765400150e3dff4b926602b7e08dd2e71b2",
+      "last_observation": "2026-10-21",
+      "path": "market_data/tickers/LQD/prices.tsv",
+      "repo": "jake-g/market-pipeline",
+      "role": "market_price_LQD_2018plus",
+      "series": "LQD",
+      "sha256": "21d2db302e2424ff445974cef42798676661ace43719972570c46ffff43fe37c"
+    },
+    {
+      "availability_rule": "Conservative available_at = observation_date + 5 calendar days; month-end merge_asof backward.",
+      "commit": "1aa4a88b85dd864cd71318b758392b9d24593b9b",
+      "git_blob_sha": "a829efa9d71bb5b572fe0e1d0540598daa5f0259",
+      "last_observation": "2026-10-22",
+      "path": "public/data/fred/BAA10Y.csv",
+      "repo": "theodorewright11/macro_eco_dashboard",
+      "role": "signal_credit_spread",
+      "series": "BAA10Y",
+      "sha256": "64fb420ac4fc8189d3c7f2271e618f0e280dc8939a6a81f1783a2faffc7da24e"
+    },
+    {
+      "availability_rule": "Same observation date is eligible at the frozen 20:00 ET decision cutoff; H.15 posts at 16:15 ET.",
+      "commit": "b264008a32dd32e8c05dba81c257fbd2cd620c04",
+      "git_blob_sha": "cfa55c0ab628f14eca1bb4e80dd4d8fc2f75359e",
+      "last_observation": "2026-10-02",
+      "path": "examples/data/T10Y3M_daily.csv",
+      "repo": "joshuaccchan/statespace-toolkit",
+      "role": "signal_yield_curve",
+      "series": "T10Y3M",
+      "sha256": "ea6d51b4116e6c5b463bab7fab6eba0ded988921ff126594b492c0dc6690cac6"
+    },
+    {
+      "commit": "54c00e7aed7e970605054d3a25fb8a2fcfb11fa0",
+      "git_blob_sha": "03141a0d51349e99505138115b66aa657e0cbc42",
+      "path": "dat/oct2025/^VIX_2015-2025.csv",
+      "repo": "rtrimble13/tb-notebooks",
+      "role": "signal_vix_pre2018",
+      "series": "VIX",
+      "sha256": "b00425a2282e185fe6429e0db3620d6f66d00e4aa703842a6b783b70cd274cc1"
+    },
+    {
+      "availability_rule": "Same trading-day close eligible by frozen 20:00 ET cutoff.",
+      "commit": "fa582a10492c7d4623b7b8b2cb5a57c8e1a65c49",
+      "git_blob_sha": "3f74ccf1861ba706e6a6d9c3f4e73dbc32621418",
+      "last_observation": "2026-10-15",
+      "path": "data/raw/fred/2026-10-18/VIXCLS.csv",
+      "repo": "thanhnha39/Crypto-Tail-Risk-Volatility-Forecasting-Engine",
+      "role": "signal_vix_2018plus",
+      "series": "VIXCLS",
+      "sha256": "cd584d562e318348bfb495284206a3d9fbf06a28cd8edadd62af3ca166727a0a"
+    },
+    {
+      "availability_rule": "H.15 daily 1-month Treasury constant-maturity yield; available by 20:00 ET.",
+      "commit": "1d31aecf6bee0cdece680557109b59f544527303",
+      "git_blob_sha": "9dbc4466aae449c53994a58692a427d3c9e78cd8",
+      "last_observation": "2026-10-15",
+      "path": "code data/DGS1MO.csv",
+      "repo": "Baumender2026/Matterhorn-Capital-Management",
+      "role": "risk_free",
+      "series": "DGS1MO",
+      "sha256": "165954db2e54f1a932fcdd096b19d680aa6ced6793f5ed1d23c20b155a15a47a"
+    },
+    {
+      "canonical_extracted_sha256": "a2495fdc3303718f355081fe76b06d3c7c8856d146c10a9d5c2e2f345de22a7d",
+      "name": "model_balanced_panel.csv",
+      "note": "Hash is of canonical extracted CSV text because raw-byte Project materialization is unavailable. Upstream workbook itself is already frozen separately by its raw SHA-256.",
+      "project_file_id": "file_000000009d8881f5b107cdf6f26f2e03",
+      "role": "baseline_macro_panel",
+      "series": "8 frozen macro surprise z-scores"
+    }
+  ],
+  "splice_validation": {
+    "IEF": {
+      "max_overlap_abs_return_difference": 0.0004457975120577551,
+      "mean_overlap_abs_return_difference": 8.397980828273958e-05,
+      "scale_factor": 0.8567598076451666
+    },
+    "LQD": {
+      "max_overlap_abs_return_difference": 0.0005567000815103196,
+      "mean_overlap_abs_return_difference": 0.00012353554414030928,
+      "scale_factor": 0.8061661485414546
+    },
+    "SPY": {
+      "max_overlap_abs_return_difference": 0.00012722031121381594,
+      "mean_overlap_abs_return_difference": 4.8513070759731436e-05,
+      "scale_factor": 0.9837908780846654
+    },
+    "anchor_date": "2018-01-02",
+    "method": "Use pre-2018 adjusted-return history, rescaled to the 2018+ adjusted-close level at the anchor. Rescaling affects levels only, not returns."
+  },
+  "status": "CONTENT_ADDRESSED_INPUTS_FROZEN"
+}
