@@ -1,0 +1,1023 @@
+{
+ "_comment": "Bloomberg data request for the AP3 mediator FF_FUTURES_6M (fed funds path, six months ahead). Licensed data: the export is stored under native_backtest/data/_licensed/bloomberg/ (git-ignored); only hashes and summary checks are committed. Request document: native_backtest/docs/BLOOMBERG_FED_FUNDS_FUTURES_REQUEST_2026-10-28.md",
+ "version": "v1",
+ "created": "2026-10-28",
+ "mediator": {
+  "name": "FF_FUTURES_6M",
+  "definition": "For each day d: implied average effective fed funds rate for calendar month month(d)+6 = 100 - daily settlement price of the CME 30-Day Federal Funds futures contract for that month. One-day changes are taken on the same contract.",
+  "availability_rule": "same day, 17:00 ET (after the CME daily settlement)"
+ },
+ "date_range": [
+  "2011-12-01",
+  "2026-09-30"
+ ],
+ "frequency": "daily, trading days only (non-trading days omitted, no fill)",
+ "history_request": {
+  "function": "BDH",
+  "fields": [
+   "PX_SETTLE",
+   "PX_LAST",
+   "VOLUME",
+   "OPEN_INT"
+  ],
+  "required_fields": [
+   "PX_SETTLE"
+  ],
+  "options": {
+   "Days": "Trading days only (non-trading days omitted)",
+   "Fill": "None (blank)",
+   "Currency": "none (contract native)",
+   "Adjustment": "none"
+  },
+  "securities": "every contract in contracts[] (expired form first; live form if the expired form does not resolve) plus reference_series[]"
+ },
+ "static_request": {
+  "function": "BDP",
+  "fields": [
+   "SECURITY_DES",
+   "NAME",
+   "FUT_DLV_DT_FIRST",
+   "FUT_DLV_DT_LAST",
+   "LAST_TRADEABLE_DT",
+   "FUT_FIRST_TRADE_DT"
+  ],
+  "required_fields": [
+   "FUT_DLV_DT_FIRST",
+   "FUT_DLV_DT_LAST",
+   "LAST_TRADEABLE_DT"
+  ]
+ },
+ "reference_series": [
+  {
+   "ticker": "FEDL01 Index",
+   "field": "PX_LAST",
+   "use": "effective fed funds rate; checks each expired contract's final settlement (100 - monthly average)"
+  }
+ ],
+ "fallback_generic": {
+  "tickers": [
+   "FF1 Comdty",
+   "FF2 Comdty",
+   "FF3 Comdty",
+   "FF4 Comdty",
+   "FF5 Comdty",
+   "FF6 Comdty",
+   "FF7 Comdty",
+   "FF8 Comdty",
+   "FF9 Comdty"
+  ],
+  "fields": [
+   "PX_SETTLE"
+  ],
+  "note": "Only if individual contracts are unavailable. Generic tickers roll at expiry, so the importer then needs the roll calendar (LAST_TRADEABLE_DT of each underlying) to avoid roll jumps."
+ },
+ "export_format": {
+  "history_file": "ff_futures_history.csv",
+  "history_columns": [
+   "date",
+   "ticker",
+   "field",
+   "value"
+  ],
+  "static_file": "ff_futures_static.csv",
+  "static_columns": [
+   "ticker",
+   "field",
+   "value"
+  ],
+  "encoding": "UTF-8, comma-separated, header row, ISO dates (YYYY-MM-DD), values with full precision, one row per date/ticker/field, missing values omitted",
+  "alternative": "A wide Excel BDH sheet saved as CSV (first column Date, then one column per '<ticker>|<field>') is also accepted by the importer."
+ },
+ "contracts": [
+  {
+   "contract_month": "2012-01",
+   "ticker_expired_form": "FFF12 Comdty",
+   "ticker_live_form": "FFF2 Comdty"
+  },
+  {
+   "contract_month": "2012-02",
+   "ticker_expired_form": "FFG12 Comdty",
+   "ticker_live_form": "FFG2 Comdty"
+  },
+  {
+   "contract_month": "2012-03",
+   "ticker_expired_form": "FFH12 Comdty",
+   "ticker_live_form": "FFH2 Comdty"
+  },
+  {
+   "contract_month": "2012-04",
+   "ticker_expired_form": "FFJ12 Comdty",
+   "ticker_live_form": "FFJ2 Comdty"
+  },
+  {
+   "contract_month": "2012-05",
+   "ticker_expired_form": "FFK12 Comdty",
+   "ticker_live_form": "FFK2 Comdty"
+  },
+  {
+   "contract_month": "2012-06",
+   "ticker_expired_form": "FFM12 Comdty",
+   "ticker_live_form": "FFM2 Comdty"
+  },
+  {
+   "contract_month": "2012-07",
+   "ticker_expired_form": "FFN12 Comdty",
+   "ticker_live_form": "FFN2 Comdty"
+  },
+  {
+   "contract_month": "2012-08",
+   "ticker_expired_form": "FFQ12 Comdty",
+   "ticker_live_form": "FFQ2 Comdty"
+  },
+  {
+   "contract_month": "2012-09",
+   "ticker_expired_form": "FFU12 Comdty",
+   "ticker_live_form": "FFU2 Comdty"
+  },
+  {
+   "contract_month": "2012-10",
+   "ticker_expired_form": "FFV12 Comdty",
+   "ticker_live_form": "FFV2 Comdty"
+  },
+  {
+   "contract_month": "2012-11",
+   "ticker_expired_form": "FFX12 Comdty",
+   "ticker_live_form": "FFX2 Comdty"
+  },
+  {
+   "contract_month": "2012-12",
+   "ticker_expired_form": "FFZ12 Comdty",
+   "ticker_live_form": "FFZ2 Comdty"
+  },
+  {
+   "contract_month": "2013-01",
+   "ticker_expired_form": "FFF13 Comdty",
+   "ticker_live_form": "FFF3 Comdty"
+  },
+  {
+   "contract_month": "2013-02",
+   "ticker_expired_form": "FFG13 Comdty",
+   "ticker_live_form": "FFG3 Comdty"
+  },
+  {
+   "contract_month": "2013-03",
+   "ticker_expired_form": "FFH13 Comdty",
+   "ticker_live_form": "FFH3 Comdty"
+  },
+  {
+   "contract_month": "2013-04",
+   "ticker_expired_form": "FFJ13 Comdty",
+   "ticker_live_form": "FFJ3 Comdty"
+  },
+  {
+   "contract_month": "2013-05",
+   "ticker_expired_form": "FFK13 Comdty",
+   "ticker_live_form": "FFK3 Comdty"
+  },
+  {
+   "contract_month": "2013-06",
+   "ticker_expired_form": "FFM13 Comdty",
+   "ticker_live_form": "FFM3 Comdty"
+  },
+  {
+   "contract_month": "2013-07",
+   "ticker_expired_form": "FFN13 Comdty",
+   "ticker_live_form": "FFN3 Comdty"
+  },
+  {
+   "contract_month": "2013-08",
+   "ticker_expired_form": "FFQ13 Comdty",
+   "ticker_live_form": "FFQ3 Comdty"
+  },
+  {
+   "contract_month": "2013-09",
+   "ticker_expired_form": "FFU13 Comdty",
+   "ticker_live_form": "FFU3 Comdty"
+  },
+  {
+   "contract_month": "2013-10",
+   "ticker_expired_form": "FFV13 Comdty",
+   "ticker_live_form": "FFV3 Comdty"
+  },
+  {
+   "contract_month": "2013-11",
+   "ticker_expired_form": "FFX13 Comdty",
+   "ticker_live_form": "FFX3 Comdty"
+  },
+  {
+   "contract_month": "2013-12",
+   "ticker_expired_form": "FFZ13 Comdty",
+   "ticker_live_form": "FFZ3 Comdty"
+  },
+  {
+   "contract_month": "2014-01",
+   "ticker_expired_form": "FFF14 Comdty",
+   "ticker_live_form": "FFF4 Comdty"
+  },
+  {
+   "contract_month": "2014-02",
+   "ticker_expired_form": "FFG14 Comdty",
+   "ticker_live_form": "FFG4 Comdty"
+  },
+  {
+   "contract_month": "2014-03",
+   "ticker_expired_form": "FFH14 Comdty",
+   "ticker_live_form": "FFH4 Comdty"
+  },
+  {
+   "contract_month": "2014-04",
+   "ticker_expired_form": "FFJ14 Comdty",
+   "ticker_live_form": "FFJ4 Comdty"
+  },
+  {
+   "contract_month": "2014-05",
+   "ticker_expired_form": "FFK14 Comdty",
+   "ticker_live_form": "FFK4 Comdty"
+  },
+  {
+   "contract_month": "2014-06",
+   "ticker_expired_form": "FFM14 Comdty",
+   "ticker_live_form": "FFM4 Comdty"
+  },
+  {
+   "contract_month": "2014-07",
+   "ticker_expired_form": "FFN14 Comdty",
+   "ticker_live_form": "FFN4 Comdty"
+  },
+  {
+   "contract_month": "2014-08",
+   "ticker_expired_form": "FFQ14 Comdty",
+   "ticker_live_form": "FFQ4 Comdty"
+  },
+  {
+   "contract_month": "2014-09",
+   "ticker_expired_form": "FFU14 Comdty",
+   "ticker_live_form": "FFU4 Comdty"
+  },
+  {
+   "contract_month": "2014-10",
+   "ticker_expired_form": "FFV14 Comdty",
+   "ticker_live_form": "FFV4 Comdty"
+  },
+  {
+   "contract_month": "2014-11",
+   "ticker_expired_form": "FFX14 Comdty",
+   "ticker_live_form": "FFX4 Comdty"
+  },
+  {
+   "contract_month": "2014-12",
+   "ticker_expired_form": "FFZ14 Comdty",
+   "ticker_live_form": "FFZ4 Comdty"
+  },
+  {
+   "contract_month": "2015-01",
+   "ticker_expired_form": "FFF15 Comdty",
+   "ticker_live_form": "FFF5 Comdty"
+  },
+  {
+   "contract_month": "2015-02",
+   "ticker_expired_form": "FFG15 Comdty",
+   "ticker_live_form": "FFG5 Comdty"
+  },
+  {
+   "contract_month": "2015-03",
+   "ticker_expired_form": "FFH15 Comdty",
+   "ticker_live_form": "FFH5 Comdty"
+  },
+  {
+   "contract_month": "2015-04",
+   "ticker_expired_form": "FFJ15 Comdty",
+   "ticker_live_form": "FFJ5 Comdty"
+  },
+  {
+   "contract_month": "2015-05",
+   "ticker_expired_form": "FFK15 Comdty",
+   "ticker_live_form": "FFK5 Comdty"
+  },
+  {
+   "contract_month": "2015-06",
+   "ticker_expired_form": "FFM15 Comdty",
+   "ticker_live_form": "FFM5 Comdty"
+  },
+  {
+   "contract_month": "2015-07",
+   "ticker_expired_form": "FFN15 Comdty",
+   "ticker_live_form": "FFN5 Comdty"
+  },
+  {
+   "contract_month": "2015-08",
+   "ticker_expired_form": "FFQ15 Comdty",
+   "ticker_live_form": "FFQ5 Comdty"
+  },
+  {
+   "contract_month": "2015-09",
+   "ticker_expired_form": "FFU15 Comdty",
+   "ticker_live_form": "FFU5 Comdty"
+  },
+  {
+   "contract_month": "2015-10",
+   "ticker_expired_form": "FFV15 Comdty",
+   "ticker_live_form": "FFV5 Comdty"
+  },
+  {
+   "contract_month": "2015-11",
+   "ticker_expired_form": "FFX15 Comdty",
+   "ticker_live_form": "FFX5 Comdty"
+  },
+  {
+   "contract_month": "2015-12",
+   "ticker_expired_form": "FFZ15 Comdty",
+   "ticker_live_form": "FFZ5 Comdty"
+  },
+  {
+   "contract_month": "2016-01",
+   "ticker_expired_form": "FFF16 Comdty",
+   "ticker_live_form": "FFF6 Comdty"
+  },
+  {
+   "contract_month": "2016-02",
+   "ticker_expired_form": "FFG16 Comdty",
+   "ticker_live_form": "FFG6 Comdty"
+  },
+  {
+   "contract_month": "2016-03",
+   "ticker_expired_form": "FFH16 Comdty",
+   "ticker_live_form": "FFH6 Comdty"
+  },
+  {
+   "contract_month": "2016-04",
+   "ticker_expired_form": "FFJ16 Comdty",
+   "ticker_live_form": "FFJ6 Comdty"
+  },
+  {
+   "contract_month": "2016-05",
+   "ticker_expired_form": "FFK16 Comdty",
+   "ticker_live_form": "FFK6 Comdty"
+  },
+  {
+   "contract_month": "2016-06",
+   "ticker_expired_form": "FFM16 Comdty",
+   "ticker_live_form": "FFM6 Comdty"
+  },
+  {
+   "contract_month": "2016-07",
+   "ticker_expired_form": "FFN16 Comdty",
+   "ticker_live_form": "FFN6 Comdty"
+  },
+  {
+   "contract_month": "2016-08",
+   "ticker_expired_form": "FFQ16 Comdty",
+   "ticker_live_form": "FFQ6 Comdty"
+  },
+  {
+   "contract_month": "2016-09",
+   "ticker_expired_form": "FFU16 Comdty",
+   "ticker_live_form": "FFU6 Comdty"
+  },
+  {
+   "contract_month": "2016-10",
+   "ticker_expired_form": "FFV16 Comdty",
+   "ticker_live_form": "FFV6 Comdty"
+  },
+  {
+   "contract_month": "2016-11",
+   "ticker_expired_form": "FFX16 Comdty",
+   "ticker_live_form": "FFX6 Comdty"
+  },
+  {
+   "contract_month": "2016-12",
+   "ticker_expired_form": "FFZ16 Comdty",
+   "ticker_live_form": "FFZ6 Comdty"
+  },
+  {
+   "contract_month": "2017-01",
+   "ticker_expired_form": "FFF17 Comdty",
+   "ticker_live_form": "FFF7 Comdty"
+  },
+  {
+   "contract_month": "2017-02",
+   "ticker_expired_form": "FFG17 Comdty",
+   "ticker_live_form": "FFG7 Comdty"
+  },
+  {
+   "contract_month": "2017-03",
+   "ticker_expired_form": "FFH17 Comdty",
+   "ticker_live_form": "FFH7 Comdty"
+  },
+  {
+   "contract_month": "2017-04",
+   "ticker_expired_form": "FFJ17 Comdty",
+   "ticker_live_form": "FFJ7 Comdty"
+  },
+  {
+   "contract_month": "2017-05",
+   "ticker_expired_form": "FFK17 Comdty",
+   "ticker_live_form": "FFK7 Comdty"
+  },
+  {
+   "contract_month": "2017-06",
+   "ticker_expired_form": "FFM17 Comdty",
+   "ticker_live_form": "FFM7 Comdty"
+  },
+  {
+   "contract_month": "2017-07",
+   "ticker_expired_form": "FFN17 Comdty",
+   "ticker_live_form": "FFN7 Comdty"
+  },
+  {
+   "contract_month": "2017-08",
+   "ticker_expired_form": "FFQ17 Comdty",
+   "ticker_live_form": "FFQ7 Comdty"
+  },
+  {
+   "contract_month": "2017-09",
+   "ticker_expired_form": "FFU17 Comdty",
+   "ticker_live_form": "FFU7 Comdty"
+  },
+  {
+   "contract_month": "2017-10",
+   "ticker_expired_form": "FFV17 Comdty",
+   "ticker_live_form": "FFV7 Comdty"
+  },
+  {
+   "contract_month": "2017-11",
+   "ticker_expired_form": "FFX17 Comdty",
+   "ticker_live_form": "FFX7 Comdty"
+  },
+  {
+   "contract_month": "2017-12",
+   "ticker_expired_form": "FFZ17 Comdty",
+   "ticker_live_form": "FFZ7 Comdty"
+  },
+  {
+   "contract_month": "2018-01",
+   "ticker_expired_form": "FFF18 Comdty",
+   "ticker_live_form": "FFF8 Comdty"
+  },
+  {
+   "contract_month": "2018-02",
+   "ticker_expired_form": "FFG18 Comdty",
+   "ticker_live_form": "FFG8 Comdty"
+  },
+  {
+   "contract_month": "2018-03",
+   "ticker_expired_form": "FFH18 Comdty",
+   "ticker_live_form": "FFH8 Comdty"
+  },
+  {
+   "contract_month": "2018-04",
+   "ticker_expired_form": "FFJ18 Comdty",
+   "ticker_live_form": "FFJ8 Comdty"
+  },
+  {
+   "contract_month": "2018-05",
+   "ticker_expired_form": "FFK18 Comdty",
+   "ticker_live_form": "FFK8 Comdty"
+  },
+  {
+   "contract_month": "2018-06",
+   "ticker_expired_form": "FFM18 Comdty",
+   "ticker_live_form": "FFM8 Comdty"
+  },
+  {
+   "contract_month": "2018-07",
+   "ticker_expired_form": "FFN18 Comdty",
+   "ticker_live_form": "FFN8 Comdty"
+  },
+  {
+   "contract_month": "2018-08",
+   "ticker_expired_form": "FFQ18 Comdty",
+   "ticker_live_form": "FFQ8 Comdty"
+  },
+  {
+   "contract_month": "2018-09",
+   "ticker_expired_form": "FFU18 Comdty",
+   "ticker_live_form": "FFU8 Comdty"
+  },
+  {
+   "contract_month": "2018-10",
+   "ticker_expired_form": "FFV18 Comdty",
+   "ticker_live_form": "FFV8 Comdty"
+  },
+  {
+   "contract_month": "2018-11",
+   "ticker_expired_form": "FFX18 Comdty",
+   "ticker_live_form": "FFX8 Comdty"
+  },
+  {
+   "contract_month": "2018-12",
+   "ticker_expired_form": "FFZ18 Comdty",
+   "ticker_live_form": "FFZ8 Comdty"
+  },
+  {
+   "contract_month": "2019-01",
+   "ticker_expired_form": "FFF19 Comdty",
+   "ticker_live_form": "FFF9 Comdty"
+  },
+  {
+   "contract_month": "2019-02",
+   "ticker_expired_form": "FFG19 Comdty",
+   "ticker_live_form": "FFG9 Comdty"
+  },
+  {
+   "contract_month": "2019-03",
+   "ticker_expired_form": "FFH19 Comdty",
+   "ticker_live_form": "FFH9 Comdty"
+  },
+  {
+   "contract_month": "2019-04",
+   "ticker_expired_form": "FFJ19 Comdty",
+   "ticker_live_form": "FFJ9 Comdty"
+  },
+  {
+   "contract_month": "2019-05",
+   "ticker_expired_form": "FFK19 Comdty",
+   "ticker_live_form": "FFK9 Comdty"
+  },
+  {
+   "contract_month": "2019-06",
+   "ticker_expired_form": "FFM19 Comdty",
+   "ticker_live_form": "FFM9 Comdty"
+  },
+  {
+   "contract_month": "2019-07",
+   "ticker_expired_form": "FFN19 Comdty",
+   "ticker_live_form": "FFN9 Comdty"
+  },
+  {
+   "contract_month": "2019-08",
+   "ticker_expired_form": "FFQ19 Comdty",
+   "ticker_live_form": "FFQ9 Comdty"
+  },
+  {
+   "contract_month": "2019-09",
+   "ticker_expired_form": "FFU19 Comdty",
+   "ticker_live_form": "FFU9 Comdty"
+  },
+  {
+   "contract_month": "2019-10",
+   "ticker_expired_form": "FFV19 Comdty",
+   "ticker_live_form": "FFV9 Comdty"
+  },
+  {
+   "contract_month": "2019-11",
+   "ticker_expired_form": "FFX19 Comdty",
+   "ticker_live_form": "FFX9 Comdty"
+  },
+  {
+   "contract_month": "2019-12",
+   "ticker_expired_form": "FFZ19 Comdty",
+   "ticker_live_form": "FFZ9 Comdty"
+  },
+  {
+   "contract_month": "2020-01",
+   "ticker_expired_form": "FFF20 Comdty",
+   "ticker_live_form": "FFF0 Comdty"
+  },
+  {
+   "contract_month": "2020-02",
+   "ticker_expired_form": "FFG20 Comdty",
+   "ticker_live_form": "FFG0 Comdty"
+  },
+  {
+   "contract_month": "2020-03",
+   "ticker_expired_form": "FFH20 Comdty",
+   "ticker_live_form": "FFH0 Comdty"
+  },
+  {
+   "contract_month": "2020-04",
+   "ticker_expired_form": "FFJ20 Comdty",
+   "ticker_live_form": "FFJ0 Comdty"
+  },
+  {
+   "contract_month": "2020-05",
+   "ticker_expired_form": "FFK20 Comdty",
+   "ticker_live_form": "FFK0 Comdty"
+  },
+  {
+   "contract_month": "2020-06",
+   "ticker_expired_form": "FFM20 Comdty",
+   "ticker_live_form": "FFM0 Comdty"
+  },
+  {
+   "contract_month": "2020-07",
+   "ticker_expired_form": "FFN20 Comdty",
+   "ticker_live_form": "FFN0 Comdty"
+  },
+  {
+   "contract_month": "2020-08",
+   "ticker_expired_form": "FFQ20 Comdty",
+   "ticker_live_form": "FFQ0 Comdty"
+  },
+  {
+   "contract_month": "2020-09",
+   "ticker_expired_form": "FFU20 Comdty",
+   "ticker_live_form": "FFU0 Comdty"
+  },
+  {
+   "contract_month": "2020-10",
+   "ticker_expired_form": "FFV20 Comdty",
+   "ticker_live_form": "FFV0 Comdty"
+  },
+  {
+   "contract_month": "2020-11",
+   "ticker_expired_form": "FFX20 Comdty",
+   "ticker_live_form": "FFX0 Comdty"
+  },
+  {
+   "contract_month": "2020-12",
+   "ticker_expired_form": "FFZ20 Comdty",
+   "ticker_live_form": "FFZ0 Comdty"
+  },
+  {
+   "contract_month": "2021-01",
+   "ticker_expired_form": "FFF21 Comdty",
+   "ticker_live_form": "FFF1 Comdty"
+  },
+  {
+   "contract_month": "2021-02",
+   "ticker_expired_form": "FFG21 Comdty",
+   "ticker_live_form": "FFG1 Comdty"
+  },
+  {
+   "contract_month": "2021-03",
+   "ticker_expired_form": "FFH21 Comdty",
+   "ticker_live_form": "FFH1 Comdty"
+  },
+  {
+   "contract_month": "2021-04",
+   "ticker_expired_form": "FFJ21 Comdty",
+   "ticker_live_form": "FFJ1 Comdty"
+  },
+  {
+   "contract_month": "2021-05",
+   "ticker_expired_form": "FFK21 Comdty",
+   "ticker_live_form": "FFK1 Comdty"
+  },
+  {
+   "contract_month": "2021-06",
+   "ticker_expired_form": "FFM21 Comdty",
+   "ticker_live_form": "FFM1 Comdty"
+  },
+  {
+   "contract_month": "2021-07",
+   "ticker_expired_form": "FFN21 Comdty",
+   "ticker_live_form": "FFN1 Comdty"
+  },
+  {
+   "contract_month": "2021-08",
+   "ticker_expired_form": "FFQ21 Comdty",
+   "ticker_live_form": "FFQ1 Comdty"
+  },
+  {
+   "contract_month": "2021-09",
+   "ticker_expired_form": "FFU21 Comdty",
+   "ticker_live_form": "FFU1 Comdty"
+  },
+  {
+   "contract_month": "2021-10",
+   "ticker_expired_form": "FFV21 Comdty",
+   "ticker_live_form": "FFV1 Comdty"
+  },
+  {
+   "contract_month": "2021-11",
+   "ticker_expired_form": "FFX21 Comdty",
+   "ticker_live_form": "FFX1 Comdty"
+  },
+  {
+   "contract_month": "2021-12",
+   "ticker_expired_form": "FFZ21 Comdty",
+   "ticker_live_form": "FFZ1 Comdty"
+  },
+  {
+   "contract_month": "2022-01",
+   "ticker_expired_form": "FFF22 Comdty",
+   "ticker_live_form": "FFF2 Comdty"
+  },
+  {
+   "contract_month": "2022-02",
+   "ticker_expired_form": "FFG22 Comdty",
+   "ticker_live_form": "FFG2 Comdty"
+  },
+  {
+   "contract_month": "2022-03",
+   "ticker_expired_form": "FFH22 Comdty",
+   "ticker_live_form": "FFH2 Comdty"
+  },
+  {
+   "contract_month": "2022-04",
+   "ticker_expired_form": "FFJ22 Comdty",
+   "ticker_live_form": "FFJ2 Comdty"
+  },
+  {
+   "contract_month": "2022-05",
+   "ticker_expired_form": "FFK22 Comdty",
+   "ticker_live_form": "FFK2 Comdty"
+  },
+  {
+   "contract_month": "2022-06",
+   "ticker_expired_form": "FFM22 Comdty",
+   "ticker_live_form": "FFM2 Comdty"
+  },
+  {
+   "contract_month": "2022-07",
+   "ticker_expired_form": "FFN22 Comdty",
+   "ticker_live_form": "FFN2 Comdty"
+  },
+  {
+   "contract_month": "2022-08",
+   "ticker_expired_form": "FFQ22 Comdty",
+   "ticker_live_form": "FFQ2 Comdty"
+  },
+  {
+   "contract_month": "2022-09",
+   "ticker_expired_form": "FFU22 Comdty",
+   "ticker_live_form": "FFU2 Comdty"
+  },
+  {
+   "contract_month": "2022-10",
+   "ticker_expired_form": "FFV22 Comdty",
+   "ticker_live_form": "FFV2 Comdty"
+  },
+  {
+   "contract_month": "2022-11",
+   "ticker_expired_form": "FFX22 Comdty",
+   "ticker_live_form": "FFX2 Comdty"
+  },
+  {
+   "contract_month": "2022-12",
+   "ticker_expired_form": "FFZ22 Comdty",
+   "ticker_live_form": "FFZ2 Comdty"
+  },
+  {
+   "contract_month": "2023-01",
+   "ticker_expired_form": "FFF23 Comdty",
+   "ticker_live_form": "FFF3 Comdty"
+  },
+  {
+   "contract_month": "2023-02",
+   "ticker_expired_form": "FFG23 Comdty",
+   "ticker_live_form": "FFG3 Comdty"
+  },
+  {
+   "contract_month": "2023-03",
+   "ticker_expired_form": "FFH23 Comdty",
+   "ticker_live_form": "FFH3 Comdty"
+  },
+  {
+   "contract_month": "2023-04",
+   "ticker_expired_form": "FFJ23 Comdty",
+   "ticker_live_form": "FFJ3 Comdty"
+  },
+  {
+   "contract_month": "2023-05",
+   "ticker_expired_form": "FFK23 Comdty",
+   "ticker_live_form": "FFK3 Comdty"
+  },
+  {
+   "contract_month": "2023-06",
+   "ticker_expired_form": "FFM23 Comdty",
+   "ticker_live_form": "FFM3 Comdty"
+  },
+  {
+   "contract_month": "2023-07",
+   "ticker_expired_form": "FFN23 Comdty",
+   "ticker_live_form": "FFN3 Comdty"
+  },
+  {
+   "contract_month": "2023-08",
+   "ticker_expired_form": "FFQ23 Comdty",
+   "ticker_live_form": "FFQ3 Comdty"
+  },
+  {
+   "contract_month": "2023-09",
+   "ticker_expired_form": "FFU23 Comdty",
+   "ticker_live_form": "FFU3 Comdty"
+  },
+  {
+   "contract_month": "2023-10",
+   "ticker_expired_form": "FFV23 Comdty",
+   "ticker_live_form": "FFV3 Comdty"
+  },
+  {
+   "contract_month": "2023-11",
+   "ticker_expired_form": "FFX23 Comdty",
+   "ticker_live_form": "FFX3 Comdty"
+  },
+  {
+   "contract_month": "2023-12",
+   "ticker_expired_form": "FFZ23 Comdty",
+   "ticker_live_form": "FFZ3 Comdty"
+  },
+  {
+   "contract_month": "2024-01",
+   "ticker_expired_form": "FFF24 Comdty",
+   "ticker_live_form": "FFF4 Comdty"
+  },
+  {
+   "contract_month": "2024-02",
+   "ticker_expired_form": "FFG24 Comdty",
+   "ticker_live_form": "FFG4 Comdty"
+  },
+  {
+   "contract_month": "2024-03",
+   "ticker_expired_form": "FFH24 Comdty",
+   "ticker_live_form": "FFH4 Comdty"
+  },
+  {
+   "contract_month": "2024-04",
+   "ticker_expired_form": "FFJ24 Comdty",
+   "ticker_live_form": "FFJ4 Comdty"
+  },
+  {
+   "contract_month": "2024-05",
+   "ticker_expired_form": "FFK24 Comdty",
+   "ticker_live_form": "FFK4 Comdty"
+  },
+  {
+   "contract_month": "2024-06",
+   "ticker_expired_form": "FFM24 Comdty",
+   "ticker_live_form": "FFM4 Comdty"
+  },
+  {
+   "contract_month": "2024-07",
+   "ticker_expired_form": "FFN24 Comdty",
+   "ticker_live_form": "FFN4 Comdty"
+  },
+  {
+   "contract_month": "2024-08",
+   "ticker_expired_form": "FFQ24 Comdty",
+   "ticker_live_form": "FFQ4 Comdty"
+  },
+  {
+   "contract_month": "2024-09",
+   "ticker_expired_form": "FFU24 Comdty",
+   "ticker_live_form": "FFU4 Comdty"
+  },
+  {
+   "contract_month": "2024-10",
+   "ticker_expired_form": "FFV24 Comdty",
+   "ticker_live_form": "FFV4 Comdty"
+  },
+  {
+   "contract_month": "2024-11",
+   "ticker_expired_form": "FFX24 Comdty",
+   "ticker_live_form": "FFX4 Comdty"
+  },
+  {
+   "contract_month": "2024-12",
+   "ticker_expired_form": "FFZ24 Comdty",
+   "ticker_live_form": "FFZ4 Comdty"
+  },
+  {
+   "contract_month": "2025-01",
+   "ticker_expired_form": "FFF25 Comdty",
+   "ticker_live_form": "FFF5 Comdty"
+  },
+  {
+   "contract_month": "2025-02",
+   "ticker_expired_form": "FFG25 Comdty",
+   "ticker_live_form": "FFG5 Comdty"
+  },
+  {
+   "contract_month": "2025-03",
+   "ticker_expired_form": "FFH25 Comdty",
+   "ticker_live_form": "FFH5 Comdty"
+  },
+  {
+   "contract_month": "2025-04",
+   "ticker_expired_form": "FFJ25 Comdty",
+   "ticker_live_form": "FFJ5 Comdty"
+  },
+  {
+   "contract_month": "2025-05",
+   "ticker_expired_form": "FFK25 Comdty",
+   "ticker_live_form": "FFK5 Comdty"
+  },
+  {
+   "contract_month": "2025-06",
+   "ticker_expired_form": "FFM25 Comdty",
+   "ticker_live_form": "FFM5 Comdty"
+  },
+  {
+   "contract_month": "2025-07",
+   "ticker_expired_form": "FFN25 Comdty",
+   "ticker_live_form": "FFN5 Comdty"
+  },
+  {
+   "contract_month": "2025-08",
+   "ticker_expired_form": "FFQ25 Comdty",
+   "ticker_live_form": "FFQ5 Comdty"
+  },
+  {
+   "contract_month": "2025-09",
+   "ticker_expired_form": "FFU25 Comdty",
+   "ticker_live_form": "FFU5 Comdty"
+  },
+  {
+   "contract_month": "2025-10",
+   "ticker_expired_form": "FFV25 Comdty",
+   "ticker_live_form": "FFV5 Comdty"
+  },
+  {
+   "contract_month": "2025-11",
+   "ticker_expired_form": "FFX25 Comdty",
+   "ticker_live_form": "FFX5 Comdty"
+  },
+  {
+   "contract_month": "2025-12",
+   "ticker_expired_form": "FFZ25 Comdty",
+   "ticker_live_form": "FFZ5 Comdty"
+  },
+  {
+   "contract_month": "2026-01",
+   "ticker_expired_form": "FFF26 Comdty",
+   "ticker_live_form": "FFF6 Comdty"
+  },
+  {
+   "contract_month": "2026-02",
+   "ticker_expired_form": "FFG26 Comdty",
+   "ticker_live_form": "FFG6 Comdty"
+  },
+  {
+   "contract_month": "2026-03",
+   "ticker_expired_form": "FFH26 Comdty",
+   "ticker_live_form": "FFH6 Comdty"
+  },
+  {
+   "contract_month": "2026-04",
+   "ticker_expired_form": "FFJ26 Comdty",
+   "ticker_live_form": "FFJ6 Comdty"
+  },
+  {
+   "contract_month": "2026-05",
+   "ticker_expired_form": "FFK26 Comdty",
+   "ticker_live_form": "FFK6 Comdty"
+  },
+  {
+   "contract_month": "2026-06",
+   "ticker_expired_form": "FFM26 Comdty",
+   "ticker_live_form": "FFM6 Comdty"
+  },
+  {
+   "contract_month": "2026-07",
+   "ticker_expired_form": "FFN26 Comdty",
+   "ticker_live_form": "FFN6 Comdty"
+  },
+  {
+   "contract_month": "2026-08",
+   "ticker_expired_form": "FFQ26 Comdty",
+   "ticker_live_form": "FFQ6 Comdty"
+  },
+  {
+   "contract_month": "2026-09",
+   "ticker_expired_form": "FFU26 Comdty",
+   "ticker_live_form": "FFU6 Comdty"
+  },
+  {
+   "contract_month": "2026-10",
+   "ticker_expired_form": "FFV26 Comdty",
+   "ticker_live_form": "FFV6 Comdty"
+  },
+  {
+   "contract_month": "2026-11",
+   "ticker_expired_form": "FFX26 Comdty",
+   "ticker_live_form": "FFX6 Comdty"
+  },
+  {
+   "contract_month": "2026-12",
+   "ticker_expired_form": "FFZ26 Comdty",
+   "ticker_live_form": "FFZ6 Comdty"
+  },
+  {
+   "contract_month": "2027-01",
+   "ticker_expired_form": "FFF27 Comdty",
+   "ticker_live_form": "FFF7 Comdty"
+  },
+  {
+   "contract_month": "2027-02",
+   "ticker_expired_form": "FFG27 Comdty",
+   "ticker_live_form": "FFG7 Comdty"
+  },
+  {
+   "contract_month": "2027-03",
+   "ticker_expired_form": "FFH27 Comdty",
+   "ticker_live_form": "FFH7 Comdty"
+  },
+  {
+   "contract_month": "2027-04",
+   "ticker_expired_form": "FFJ27 Comdty",
+   "ticker_live_form": "FFJ7 Comdty"
+  },
+  {
+   "contract_month": "2027-05",
+   "ticker_expired_form": "FFK27 Comdty",
+   "ticker_live_form": "FFK7 Comdty"
+  },
+  {
+   "contract_month": "2027-06",
+   "ticker_expired_form": "FFM27 Comdty",
+   "ticker_live_form": "FFM7 Comdty"
+  }
+ ]
+}

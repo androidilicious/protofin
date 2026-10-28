@@ -300,3 +300,50 @@ def test_inventory_v2_labels_ig_proxy_and_keeps_v1():
     assert store.labels["IG_SPREAD"] == lab["IG_SPREAD"] and "BEI5Y" in store.series
     ev = md.stress_events(store, pd.Timestamp("2020-03-01"), pd.Timestamp("2020-03-31 20:00", tz="America/New_York"), 2.0)
     assert all(e["series_label"] == lab[e["series"]] for e in ev)
+
+
+# ------------------------------------------------------------------ fed funds futures importer (synthetic test data only)
+def _synthetic_ff_export(tmp, drop_day=None, wide=False):
+    """SYNTHETIC test data, never a result: a flat 2% effective rate and contracts priced at 98.00."""
+    days = [d for d in pd.bdate_range("2019-12-02", "2020-03-31")]
+    rows, static = [], []
+    for m in pd.period_range("2019-12", "2020-10", freq="M"):
+        t = f"FF{'FGHJKMNQUVXZ'[m.month - 1]}{str(m.year)[2:]} Comdty"
+        static += [(t, "FUT_DLV_DT_FIRST", m.start_time.date().isoformat()), (t, "FUT_DLV_DT_LAST", m.end_time.date().isoformat()),
+                   (t, "LAST_TRADEABLE_DT", (m.end_time - pd.offsets.BDay(0)).date().isoformat())]
+        for d in days:
+            if d.strftime("%Y-%m-%d") != drop_day and d <= m.end_time:
+                rows.append((d.date().isoformat(), t, "PX_SETTLE", 98.0))
+    for d in days:
+        rows.append((d.date().isoformat(), "FEDL01 Index", "PX_LAST", 2.0))
+    h = pd.DataFrame(rows, columns=["date", "ticker", "field", "value"])
+    if wide:
+        h = h.assign(key=h.ticker + "|" + h.field).pivot(index="date", columns="key", values="value").reset_index().rename(columns={"date": "Date"})
+    h.to_csv(tmp / "ff_futures_history.csv", index=False)
+    pd.DataFrame(static, columns=["ticker", "field", "value"]).to_csv(tmp / "ff_futures_static.csv", index=False)
+
+
+def test_ff_futures_importer_builds_six_month_series_and_checks(tmp_path):
+    from native_backtest.scripts import import_ff_futures as ff
+    _synthetic_ff_export(tmp_path)
+    hist, static = ff.read_history(tmp_path / "ff_futures_history.csv"), ff.read_static(tmp_path / "ff_futures_static.csv")
+    s, checks = ff.build(hist, static, "2019-12-02", "2020-03-31")
+    assert s["contract_month"].iloc[0] == "2020-06" and s["contract_month"].iloc[-1] == "2020-09"   # month + 6
+    assert np.allclose(s["implied_rate"], 2.0) and np.allclose(s["change_same_contract"].dropna(), 0.0)
+    assert checks["contract_identification"]["pass"] and checks["coverage"]["pass"] and checks["duplicate_rows"]["pass"]
+    assert checks["final_settlement_vs_effr"]["pass"] is True                       # Dec 2019 .. Mar 2020 contracts expired
+    wide = tmp_path / "w"; wide.mkdir()
+    _synthetic_ff_export(wide, wide=True)
+    s2, _ = ff.build(ff.read_history(wide / "ff_futures_history.csv"), ff.read_static(wide / "ff_futures_static.csv"), "2019-12-02", "2020-03-31")
+    assert s2.equals(s)
+
+
+def test_ff_futures_importer_flags_gaps_and_unidentified_contracts(tmp_path):
+    from native_backtest.scripts import import_ff_futures as ff
+    _synthetic_ff_export(tmp_path, drop_day="2020-02-03")
+    hist, static = ff.read_history(tmp_path / "ff_futures_history.csv"), ff.read_static(tmp_path / "ff_futures_static.csv")
+    _, checks = ff.build(hist, static, "2019-12-02", "2020-03-31")
+    assert checks["coverage"]["missing"] == 1 and "2020-02-03" in checks["coverage"]["first_missing"]
+    static.pop("FFM20 Comdty")
+    _, checks = ff.build(hist, static, "2019-12-02", "2020-03-31")
+    assert checks["contract_identification"]["pass"] is False
