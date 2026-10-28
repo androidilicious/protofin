@@ -1,5 +1,11 @@
 # Stage 2 — Signal Evaluation
 
+> **Status update, 2026-10-27**
+> - **A v3 redesign is proposed and not yet frozen.** Stage 2 now compares view-generation approaches: 1 (deterministic Ridge), 2A (Agent Committee), 2B (JEV) and 3 (CauseTrace / Causal RAG). See [methodology/Stage2_Backtest_Design_v3_PROPOSED.md](methodology/Stage2_Backtest_Design_v3_PROPOSED.md).
+> - **The conventional-signal experiments (B1–B5, B-All) are paused** and archived unchanged ([pause record](methodology/Stage2_Conventional_Signals_PAUSE_2026-10-27.md)).
+> - The v2 freeze below remains the last frozen design until v3 is approved.
+> - The historical test stays sealed (gate v5).
+
 ## Goal
 
 We are building a controlled experiment to compare three approaches for generating financial signals:

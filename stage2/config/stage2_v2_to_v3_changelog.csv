@@ -1,0 +1,33 @@
+id,area,v3_decision,v2,v3,justification,blocker
+C01,Freeze principle,MODIFY,Only treatment = signal feature set,View-generation approach is the treatment; within Ridge-compatible systems only the feature set differs,"Research question changed to compare approaches, two of which are not Ridge models",
+C02,System labels,MODIFY,"A, B1-B5, B-All, C, D","AP1, AP2A, AP2A-1M, AP2B, AP3, AP3-STD, AP3-PERM (+AP3-RG, AP3-NR, AP3-INT); B paused; C/D retired",v2 README and config defined C differently (JEV vs standard RAG); reusing labels would mislead,
+C03,System A,RETAIN,8 macro surprises -> Ridge -> BL,AP1 identical to v2 A,Baseline unchanged by instruction; canonical scorer and development rerun remain valid,
+C04,Universe,RETAIN,SPY/IEF/LQD,Unchanged in Track V; native SPY/TLT allowed in Track N,Track V needs a common interface; Track N preserves architectures,B5
+C05,Timing and target,RETAIN,20:00 ET decision; next-close execution; 1M holding; TR minus DTB4WK,Unchanged; applied to native systems by re-scoring,Removes same-close trading present in native replays,
+C06,Sample windows,RETAIN,Dev 2019-03..2022-12; historical 2023-01..2026-08,Unchanged dates,No reason to move windows; moving after inspection would be a researcher degree of freedom,
+C07,Evidence tiers,MODIFY,Historical C/D before model cutoff diagnostic; prospective cleanest,"P / R-post / R-pre tiers, never pooled; confirmatory language for P (and R-post only if approved)",Makes the v2 contamination rule operational per model,B3
+C08,Prospective start rule,MODIFY,After A/B/C/D generators and config frozen,"After v3 config and all v3 generators (AP3 family, AP2A-1M if approved, JEV recorder) frozen",System set changed,
+C09,Macro construction,RETAIN,First print minus median; prior-12 z (ddof 1); same-month mean; missing->0 after scaling,Unchanged,Baseline unchanged,
+C10,Ridge procedure,RETAIN,Full v2 forecast_model,Identical for AP1 and AP3 family,"Instruction: identical algorithm, scaling, tuning, window, purge, minimum",
+C11,Agent feature interface,MODIFY,C/D = A + agent features; schema open,AP3 = 8 + 2*N_ch columns; 3-state labels; majority of R=5; monthly unit; no interactions in primary,Column count must be fixed before any run; MVP schema is per-event and equity-only,B4
+C12,Standard-RAG system,MODIFY,C: a primary system,AP3-STD: matched control for H2,"Standard RAG is the control for causal structure, not a separate approach",
+C13,Placebo controls,MODIFY,C-permuted recommended; D0 optional; C0 diagnostic,AP3-PERM (200 permutations) gates H1; AP3-RG optional; AP3-NR diagnostic,Separates information from added capacity,
+C14,Allocator (Track V),RETAIN,"BL P=I, tau 0.05, delta 2.5, prior 45/35/20, LW 36M, bounds",Unchanged for all Track V systems,Isolates view quality,
+C15,Omega (Track V),RETAIN,"From System A development errors, shared",Same frozen file for every Track V system; agent confidence only in a secondary run,Prevents uncertainty calibration becoming a second treatment,
+C16,Native allocation,MODIFY,Not in scope,"Track N preserves AP2A BL (60/40 prior, confidence Omega, 40-80%) and AP2B confidence-weighted tilt",Instruction to preserve native architectures,B1
+C17,Agent Committee in Track V,UNRESOLVED,n/a,"AP2A-1M: same agents, output re-specified to 1M SPY/IEF/LQD excess returns",Existing 12M SPY/TLT views cannot be converted without invention,B2
+C18,JEV in Track V,MODIFY,n/a (README listed JEV as C),Excluded from Track V; scored natively (Brier/log/calibration of p) and in Track N,No probability-to-return conversion exists or is invented,
+C19,Costs and turnover,RETAIN,5 bp per dollar; drift-aware,Unchanged for all systems and benchmarks,Shared execution protocol,
+C20,Benchmarks,RETAIN,Hist-mean forecast; hist-mean through BL; 45/35/20,Unchanged for Track V; Track N adds each universe's neutral portfolio for active CER,Native universes differ,
+C21,Primary family,MODIFY,B-All vs A; C vs A; D vs C (Holm 5%),"H1 AP3 vs AP1 (placebo-gated), H2 AP3 vs AP3-STD, H3 AP2A-1M vs AP1 if approved (Holm 5%)",B paused; C redefined as control; adds committee only on a common interface,B2
+C22,Forecast metrics,RETAIN,"Normalised pooled sq.-error primary; RelMSPE, OOS R2, RMSE, MAE; directional descriptive",Unchanged; cross-asset ranking accuracy descriptive,Same loss across Track V,
+C23,Native scores,MODIFY,n/a,AP2B probability scores; AP2A 12M view MSE; never pooled with Track V,Incompatible outputs kept on their own metrics,
+C24,Bootstrap,RETAIN,"6M blocks, 5000, seed 20261027",Unchanged; 12M blocks for overlapping 12M native outcomes,Overlap requires longer blocks,
+C25,Secondary portfolio metrics,RETAIN,"Net excess return, vol, Sharpe, MDD, CER, turnover, break-even cost",Unchanged; Track N primary statistic = active CER vs own-universe neutral,Universes differ in Track N,B5
+C26,Leakage protocol,MODIFY,Contamination rule for C/D only,"Point-in-time corpus and graph, masked replay with probes, per-call model logging, Testing Agent limits",Required for all LLM approaches,
+C27,Data-integrity gates,RETAIN,"7 gates (hashes, available_at, first prints, total returns, common dates, run log)",Unchanged; gate 3 (BAA10Y/curve/VIX) paused with B; TLT gate added for Track N,,
+C28,Robustness list,RETAIN,v2 list,"Unchanged except B-specific items paused (10Y-2Y, IG OAS, alternative VRP)",,
+C29,Conventional signals,PAUSE,"B1-B5, B-All frozen and partly run in development","Paused; code, data, manifests, results preserved as archived supplementary research",Instruction; not the focus of the revised experiment,
+C30,Historical test status,MODIFY,Gate v4: ready for team GO (v2 design),Sealed; v4 readiness superseded; single opening after v3 freeze,Primary contrasts and systems changed,B6
+C31,JEV provenance,UNRESOLVED,n/a,"272 saved answers lack prompt, recorder, model version: R-pre diagnostic only; recorder needed for prospective",Cannot reproduce or log,B7
+C32,LLM model choice,UNRESOLVED,Same LLM for C and D,Same model across AP3 family; model pinned with documented cutoff; choice determines R-post months,Evidence standard depends on cutoff,B3

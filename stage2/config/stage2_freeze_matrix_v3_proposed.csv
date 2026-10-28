@@ -1,0 +1,35 @@
+item,scope,applies_to,v2_value,v3_value,change_type
+Decision timestamp,ALL,"AP1,AP2A,AP2A-1M,AP2B,AP3,AP3-STD,AP3-PERM",20:00 ET last trading day of month,Unchanged,RETAIN
+Information cutoff available_at <= decision_time,ALL,all systems,Required,Unchanged; enforced in data-access layer for LLM inputs,RETAIN
+Execution price,ALL,all systems,Official close of first trading day after decision,Unchanged; native AP2A/AP2B replays (same-close) re-scored at next close,RETAIN
+Holding period / rebalancing,ALL,all systems,One month; monthly,Unchanged,RETAIN
+Scoring target,ALL,all systems,Total return minus 1M T-bill accrued (DTB4WK),Unchanged; native systems scored over DTB4WK whatever cash rate they use internally,RETAIN
+Price data,ALL,all systems,Pinned adjusted total-return files SPY/IEF/LQD; gate-5 PASS,Unchanged; TLT to be pinned and gate-5 checked for Track N,RETAIN+EXTEND
+Risk-free data,ALL,all systems,DTB4WK combined 2001-07-31..2026-10-01 (FRED-verified),Unchanged,RETAIN
+Sample windows,ALL,all systems,Dev 2019-03..2022-12; historical 2023-01..2026-08; prospective after freeze,Dates unchanged; evidence tiers P / R-post / R-pre added for LLM systems,MODIFY
+Common scoring dates,ALL,all systems,Identical dates for all systems,Unchanged (within each track and tier),RETAIN
+Transaction costs,ALL,all systems,5 bp per dollar traded; drift-aware turnover,"Unchanged, including native allocators",RETAIN
+Bootstrap,ALL,all systems,"Paired circular block, 6-month blocks, 5000 reps, seed 20261027",Unchanged; 12-month blocks only for overlapping 12-month native scores,RETAIN+EXTEND
+"Data snapshots, hashes, run logs",ALL,all systems,SHA-256 of every input; config hash in run log,"Unchanged; plus per-call LLM logs (model ID, snapshot, cutoff, params, prompt/response hashes)",RETAIN+EXTEND
+Amendment / bug-note policy,ALL,all systems,Version increment + rerun all; written bug notes,Unchanged,RETAIN
+Asset universe,TRACK_V,"AP1,AP2A-1M,AP3,AP3-STD,AP3-PERM","SPY, IEF, LQD",Unchanged in Track V; native AP2A/AP2B keep SPY/TLT in Track N (B5),RETAIN
+View interface,TRACK_V,"AP1,AP2A-1M,AP3,AP3-STD,AP3-PERM",Implicit: Ridge excess-return forecasts,"Explicit: monthly Q = 1M expected excess returns for SPY/IEF/LQD, decimal, info at 20:00 ET",MODIFY
+BL allocator,TRACK_V,"AP1,AP2A-1M,AP3,AP3-STD,AP3-PERM","P=I, tau 0.05, delta 2.5, prior 45/35/20, 36M Ledoit-Wolf, bounds SPY 20-70 IEF 15-60 LQD 10-40",Unchanged,RETAIN
+Omega,TRACK_V,"AP1,AP2A-1M,AP3,AP3-STD,AP3-PERM","Diagonal, from System A development OOS errors; shared",Unchanged (frozen file f7e3b9ef...); agent confidence not used in primary,RETAIN
+Portfolio benchmarks,TRACK_V,Track V,Hist-mean through same BL; 45/35/20 static,Unchanged,RETAIN
+Forecast benchmark,TRACK_V,Track V,Expanding hist mean through t-2,Unchanged,RETAIN
+Forecast metrics and loss normalisation,TRACK_V,Track V,"Normalised pooled sq.-error differential primary; RelMSPE, OOS R2, RMSE, MAE; directional descriptive",Unchanged; cross-asset ranking accuracy added as descriptive,RETAIN
+Primary contrast family,TRACK_V,Track V,B-All vs A; C vs A; D vs C (Holm),H1 AP3 vs AP1 (placebo-gated); H2 AP3 vs AP3-STD; H3 AP2A-1M vs AP1 if approved (Holm),MODIFY
+Ridge procedure,RIDGE,"AP1,AP3,AP3-STD,AP3-PERM,AP3-RG,AP3-NR","Per-asset Ridge, unpenalised intercept, expanding, 48-label min, monthly refit, train-fold scaling ddof 0, missing->0, inner CV 36 min / 1M purge / stride 1 / MSE, alpha grid, ties to stronger shrinkage, t-2 labels",Identical; coefficients and selected alphas may differ,RETAIN
+Feature columns,RIDGE,AP1 / AP3 family,A: 8; C/D: A + agent features (schema open),AP1: 8; AP3 and controls: 8 + 2*N_ch (16 if N_ch=4),MODIFY
+Agent feature encoding,RIDGE,"AP3,AP3-STD,AP3-PERM,AP3-RG,AP3-NR",Insufficient reference; Supported/Contradicted indicators; no +1/-1,"Unchanged rule; majority vote of R=5 per (month, channel); no interactions in primary",RETAIN+SPECIFY
+Corpus snapshot and publication filter,LLM,"AP2A-1M,AP3,AP3-STD,AP3-RG (and AP2A/AP2B if documents used)",Same corpus/cutoff for C and D,"Frozen hashed snapshot, first-publication timestamps, per-date filter in access layer",MODIFY
+Model ID / parameters / R / seeds,LLM,"AP3,AP3-STD,AP3-RG,AP3-NR identical; others logged",Same LLM version for C and D,Identical within AP3 family; exact snapshot + documented cutoff logged for every LLM system,MODIFY
+Masked replay and probes,LLM,all LLM systems in R tiers,Not specified,Date masking; numeric context kept; year-guess and sign-flip probes on the prompts actually used,NEW
+Knowledge graph,SPECIFIC,"AP3,AP3-RG",Not specified,Point-in-time; every edge with dated source; simplest: literature before 2015-02,NEW
+Testing Agent data access,SPECIFIC,AP3,Not specified,available_at <= decision_time; labels through t-2 only; no target-return use at t; audited,NEW
+Native view generation,SPECIFIC,"AP2A,AP2B",n/a,As built (12M SPY/TLT views; JEV p + 5-way tilt),NEW
+Native allocation,SPECIFIC,"AP2A,AP2B",n/a,"As built (2-asset BL 60/40 prior, confidence-scaled Omega, 40-80% SPY; JEV confidence-weighted tilt, 40-80% SPY)",NEW
+Native forecast scoring,SPECIFIC,"AP2A,AP2B",n/a,AP2B: Brier/log/calibration/AUC of p (12M blocks); AP2A: 12M view MSE vs hist mean; never pooled with Track V,NEW
+Raw input signals,SPECIFIC,"AP2A,AP2B,AP3",n/a,May differ by approach; must be point-in-time and logged; EPU/GPR revised vintages barred from Track V,NEW
+"Conventional signals B1-B5, B-All",PAUSED,none,Frozen v2 systems,Paused and archived; not run,PAUSE

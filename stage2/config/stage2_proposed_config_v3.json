@@ -1,0 +1,523 @@
+{
+  "project": "Duke MIDS / BNY Macro-Financial Capstone",
+  "stage": "Stage 2 - comparison of view-generation approaches",
+  "config_version": "3.0-proposed",
+  "status": "PROPOSED_NOT_FROZEN",
+  "drafted": "2026-10-27",
+  "methodology": "stage2/methodology/Stage2_Backtest_Design_v3_PROPOSED.md",
+  "preserves": {
+    "note": "v2 freeze files are untouched and remain the last frozen design until v3 is approved.",
+    "stage2_frozen_config_v2.json": "340531bffeeb762bd9046a5bbbe9234e50b4cf9288ae93d7a7900e7928af2c70",
+    "Stage2_Backtest_Freeze_v2.md": "6a2bffd19e081486c60f39f6b5dddfac46d18aab596712f512870ded8d8acfbf",
+    "stage2_signal_manifest_v2.csv": "2d33529689dcb2710131678fee08fe10e39e84a2a32a42769d963cb0dbfa3894"
+  },
+  "research_question": "How do different approaches to generating investment views affect forecasting accuracy and portfolio decisions?",
+  "freeze_principle": {
+    "across_approaches": "The view-generation approach is the treatment; everything downstream of the views and all data, timing, cost and scoring protocol that can be shared is held fixed.",
+    "within_ridge_compatible_systems": "v2 principle retained exactly: only the feature set differs (AP1 vs AP3 family).",
+    "amendment_policy": {
+      "rule": "After any scored Stage-2 test result is viewed, no frozen parameter may change without incrementing the config version and rerunning every system on the same dates.",
+      "bug_fix_exception": "A true implementation bug may be fixed only if documented before rerun; all systems must be rerun and prior affected outputs invalidated."
+    }
+  },
+  "systems": {
+    "AP1": {
+      "approach": "1",
+      "definition": "8 macro surprise z-scores -> Ridge -> frozen BL",
+      "identical_to_v2": "A",
+      "tracks": [
+        "V",
+        "N"
+      ],
+      "model_columns": 8,
+      "status": "implemented"
+    },
+    "AP2A": {
+      "approach": "2A",
+      "definition": "Agent Committee as built: Economist + Risk Manager -> CIO; 12M total-return views SPY/TLT + High/Medium/Low confidence; native 2-asset BL (60/40 prior, Omega = c*tau*Sigma, c 0.5/1/2), 40-80% SPY",
+      "tracks": [
+        "N"
+      ],
+      "status": "implemented; 272 saved monthly CIO outputs (gpt-4o), R-pre"
+    },
+    "AP2A-1M": {
+      "approach": "2A",
+      "definition": "Same agents and roles; output schema re-specified to 1M expected excess returns for SPY/IEF/LQD; frozen BL with common Omega",
+      "tracks": [
+        "V"
+      ],
+      "status": "proposed; requires approval",
+      "blocker": "B2"
+    },
+    "AP2B": {
+      "approach": "2B",
+      "definition": "JEV as built: p = P(SPY beats TLT over 12M), distribution over 5 tilt options (+3, +1.5, 0, -1.5, -3 points), confidence; edge = 60/40 BL-prior edge + confidence * sum(probs*points); 2-asset closed form clipped 40-80% SPY; p unused in allocation",
+      "tracks": [
+        "N"
+      ],
+      "probability_to_return_conversion": "none; must not be invented",
+      "status": "saved answers only (272 months); no prompt, recorder or model version",
+      "blocker": "B7"
+    },
+    "AP3": {
+      "approach": "3",
+      "definition": "AP1 columns + 2*N_ch causal-channel indicators -> identical Ridge -> frozen BL",
+      "succeeds_v2": "D",
+      "tracks": [
+        "V",
+        "N"
+      ],
+      "model_columns": "8 + 2*N_ch (16 if N_ch = 4)",
+      "status": "proposed; CauseTrace MVP covers one event, retrieval and labelling only",
+      "blocker": "B4"
+    },
+    "AP3-STD": {
+      "role": "matched standard-RAG control for H2",
+      "succeeds_v2": "C",
+      "tracks": [
+        "V"
+      ],
+      "model_columns": "same as AP3"
+    },
+    "AP3-PERM": {
+      "role": "capacity placebo gating H1",
+      "succeeds_v2": "C permuted (Cpi)",
+      "permutations": 200,
+      "seed": 20261027,
+      "tracks": [
+        "V"
+      ],
+      "model_columns": "same as AP3",
+      "new_llm_calls": false,
+      "permutation_rule": "Joint permutation of the month index across all agent columns; no month may receive labels from within +/-3 months of itself"
+    },
+    "AP3-RG": {
+      "role": "rewired-graph placebo (optional)",
+      "succeeds_v2": "D0",
+      "tracks": [
+        "V"
+      ]
+    },
+    "AP3-NR": {
+      "role": "no-retrieval contamination diagnostic",
+      "succeeds_v2": "C0",
+      "tracks": [
+        "V-diagnostic"
+      ]
+    },
+    "AP3-INT": {
+      "role": "Shock x Signal interaction model; separate pre-registered experiment with its own permutation placebo",
+      "tracks": [
+        "separate"
+      ]
+    }
+  },
+  "retired_v2_labels": {
+    "B1-B5, B-All": "paused (see conventional_signals_paused)",
+    "C": "retired; standard RAG becomes AP3-STD control",
+    "D": "retired; becomes AP3 with fixed schema"
+  },
+  "conventional_signals_paused": {
+    "status": "PAUSED_ARCHIVED",
+    "record": "stage2/methodology/Stage2_Conventional_Signals_PAUSE_2026-10-27.md",
+    "systems": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5",
+      "B-All"
+    ],
+    "rule": "Do not run, optimise, select, rank or expand. Preserve code, data, manifests and results unchanged as supplementary research.",
+    "v2_definitions_preserved_in": "stage2_frozen_config_v2.json -> system_B_primary_signals, system_B_runs"
+  },
+  "tracks": {
+    "V_controlled_view_quality": {
+      "role": "PRIMARY",
+      "interface": "One vector Q_t of 1M expected excess returns (decimal) for SPY, IEF, LQD per month-end decision, generated with information available at 20:00 ET",
+      "eligible": [
+        "AP1",
+        "AP3",
+        "AP3-STD",
+        "AP3-PERM",
+        "AP3-RG (optional)",
+        "AP2A-1M (if approved)"
+      ],
+      "not_eligible": {
+        "AP2A": "12M SPY/TLT views; no conversion",
+        "AP2B": "probability output; no conversion"
+      },
+      "allocator": {
+        "unchanged_from_v2": true,
+        "v2_section": "allocation",
+        "role": "Secondary evidence; forecast performance is primary",
+        "method": "Black-Litterman retained from the MVP",
+        "P": "Identity matrix",
+        "Q": "System-specific Ridge excess-return forecasts",
+        "tau": 0.05,
+        "risk_aversion_delta": 2.5,
+        "prior_weights": {
+          "SPY": 0.45,
+          "IEF": 0.35,
+          "LQD": 0.2
+        },
+        "covariance": {
+          "estimator": "Ledoit-Wolf shrinkage covariance",
+          "window_months": 36,
+          "inputs": "Trailing realized asset excess returns available by decision time"
+        },
+        "omega": {
+          "primary_test_rule": "Diagonal forecast-error variance estimated from System A development-period OOS errors only, then frozen and shared by A/B/C/D during the historical test",
+          "reason": "Keep forecast-to-weight mapping comparable so System B/C/D do not receive a different uncertainty calibration merely because they are different systems."
+        },
+        "constraints": {
+          "fully_invested": true,
+          "long_only": true,
+          "SPY": [
+            0.2,
+            0.7
+          ],
+          "IEF": [
+            0.15,
+            0.6
+          ],
+          "LQD": [
+            0.1,
+            0.4
+          ]
+        },
+        "optimizer": "Same bounded optimizer for every system"
+      },
+      "omega_file": {
+        "path": "stage2/config/stage2_omega_from_A_development.json",
+        "sha256": "f7e3b9ef0b6cb1e718c77bb188f5150a9011f247ab274c5dfb496bdfafb3c363",
+        "note": "AP1 development errors; shared by all Track V systems; agent confidence only in a secondary run"
+      },
+      "benchmarks": {
+        "unchanged_from_v2": true,
+        "v2_section": "benchmarks",
+        "forecast": "Expanding historical mean excess-return forecast using only completed labels through t-2",
+        "portfolio_1": "Historical-mean forecasts passed through the identical allocator and costs",
+        "portfolio_2": "45/35/20 monthly-rebalanced static allocation with the identical transaction-cost accounting"
+      }
+    },
+    "N_native_systems": {
+      "role": "SUPPLEMENTARY",
+      "systems": [
+        "AP1",
+        "AP2A",
+        "AP2B",
+        "AP3"
+      ],
+      "common_protocol": [
+        "decision information at month-end 20:00 ET",
+        "execution at next official close (native same-close replays re-scored)",
+        "monthly rebalancing",
+        "5 bp per dollar, drift-aware turnover",
+        "pinned total-return data (TLT to be pinned and gate-5 checked)",
+        "excess returns scored over DTB4WK",
+        "identical evaluation months",
+        "v2 secondary metric set"
+      ],
+      "native_universes": {
+        "AP1": [
+          "SPY",
+          "IEF",
+          "LQD"
+        ],
+        "AP3": [
+          "SPY",
+          "IEF",
+          "LQD"
+        ],
+        "AP2A": [
+          "SPY",
+          "TLT"
+        ],
+        "AP2B": [
+          "SPY",
+          "TLT"
+        ]
+      },
+      "primary_statistic": "Active CER = system CER minus CER of its own-universe neutral portfolio (45/35/20 or 60/40 prior), identical costs, block-bootstrap intervals",
+      "cross_system_raw_metrics": "descriptive only (universe confound)",
+      "blocker": "B5"
+    },
+    "native_forecast_scores": {
+      "AP2B": "Brier (vs time-known base rate), log score, calibration, AUC of p against realised 12M SPY-vs-TLT event; 12M bootstrap blocks; tilt distribution RPS only with buckets frozen before scoring",
+      "AP2A": "12M SPY/TLT view MSE vs time-known historical mean",
+      "pooling_with_track_V": false
+    }
+  },
+  "shared_protocol_unchanged_from_v2": {
+    "universe": {
+      "unchanged_from_v2": true,
+      "v2_section": "universe",
+      "assets": [
+        "SPY",
+        "IEF",
+        "LQD"
+      ],
+      "asset_roles": {
+        "SPY": "US equity",
+        "IEF": "7-10Y US Treasury",
+        "LQD": "US investment-grade credit"
+      },
+      "primary_market_data": "Daily ex-dividend-adjusted total-return series, preferably Bloomberg total-return index; exact extracted files are hashed before first scored run.",
+      "risk_free": "1-month US Treasury-bill cash return accrued over the exact holding period; exact source snapshot is hashed before first scored run."
+    },
+    "decision_and_execution": {
+      "unchanged_from_v2": true,
+      "v2_section": "decision_and_execution",
+      "decision_time": "20:00 America/New_York on the last trading day of each calendar month",
+      "information_cutoff": "available_at <= decision_time",
+      "execution": "Official close of the first trading day after the decision date",
+      "holding_period": "From that execution close to the official close of the first trading day after the next month-end decision",
+      "target": "Asset total return over the holding period minus risk-free return accrued over the identical dates",
+      "training_label_rule": "At decision month t, completed labels only through decision month t-2 may be used.",
+      "same_close_trading": false
+    },
+    "sample": {
+      "unchanged_from_v2": true,
+      "v2_section": "sample",
+      "balanced_macro_start": "2015-02",
+      "burn_in_training_labels": "Decision months 2015-02 through 2019-01 (48 completed labels available by the first scored forecast)",
+      "development_decisions": [
+        "2019-03",
+        "2022-12"
+      ],
+      "historical_test_decisions": [
+        "2023-01",
+        "2026-08"
+      ],
+      "historical_test_label": "historical pseudo-OOS; not prospective",
+      "prospective_start_rule": "First month-end after the complete A/B/C/D signal-generation artifacts and this backtest config are frozen before the decision timestamp.",
+      "v3_change": "prospective_start_rule now references all v3 generators; LLM evidence tiers added"
+    },
+    "costs_and_turnover": {
+      "unchanged_from_v2": true,
+      "v2_section": "costs_and_turnover",
+      "transaction_cost_per_dollar_traded": 0.0005,
+      "definition": "5 bps charged to each dollar of traded notional",
+      "traded_notional": "sum(abs(target_weight_i - pretrade_drifted_weight_i))",
+      "reported_one_way_turnover": "0.5 * sum(abs(target_weight_i - pretrade_drifted_weight_i))",
+      "drift_aware": true,
+      "apply_to_dynamic_benchmarks": true
+    },
+    "data_integrity_gates": {
+      "unchanged_from_v2": true,
+      "value": [
+        "Every raw input file is SHA-256 hashed before the first scored Stage-2 run.",
+        "Every feature row has an available_at timestamp/date and must satisfy available_at <= decision_time.",
+        "Macro actuals are first prints; consensus is the pre-release Bloomberg median.",
+        "No latest-vintage ANFCI or GPR enters the primary A/B model.",
+        "ETF returns must be total returns with distributions aligned to ex-dates; adjusted-close reconstruction is unit-tested against a trusted total-return source.",
+        "All systems are scored on identical common dates.",
+        "No scored test output is generated until config and data hashes are written to the run log."
+      ],
+      "v3_additions": [
+        "Per-call LLM logs (provider, exact model ID/snapshot, documented cutoff, parameters, prompt/context/response hashes, timestamps)",
+        "TLT total returns pinned and distribution-checked before Track N"
+      ]
+    }
+  },
+  "ridge_family": {
+    "applies_to": [
+      "AP1",
+      "AP3",
+      "AP3-STD",
+      "AP3-PERM",
+      "AP3-RG",
+      "AP3-NR",
+      "AP3-INT"
+    ],
+    "macro_feature_construction": {
+      "unchanged_from_v2": true,
+      "v2_section": "macro_feature_construction",
+      "surprise": "First-print actual minus Bloomberg median consensus",
+      "zscore_window": "Prior 12 releases only; current release excluded",
+      "zscore_std": "Sample standard deviation, ddof=1",
+      "monthly_aggregation": "Mean if multiple releases of the same indicator occur in one calendar month",
+      "no_release": "Missing before model scaling; after training-only scaling, missing standardized value is set to 0",
+      "winsorization_primary": "None",
+      "winsorization_robustness": "Clip macro surprise z-scores to [-3, +3]"
+    },
+    "forecast_model": {
+      "unchanged_from_v2": true,
+      "v2_section": "forecast_model",
+      "model": "Separate Ridge regression for each asset",
+      "intercept": "Unpenalized",
+      "outer_training": "Expanding window",
+      "minimum_completed_training_labels": 48,
+      "refit_frequency": "Monthly",
+      "feature_scaling": "Mean/std fit only on finite observed feature values inside the current training fold",
+      "missing_after_scaling": 0.0,
+      "inner_cv": {
+        "scheme": "Expanding one-step-ahead CV inside the outer training sample",
+        "minimum_inner_training_labels": 36,
+        "purge_months": 1,
+        "validation_stride_months": 1,
+        "loss": "MSE",
+        "scaler_refit_inside_each_fold": true
+      },
+      "ridge_alpha_candidates": [
+        0.0001,
+        0.01,
+        1.0,
+        100.0,
+        10000.0,
+        1000000.0,
+        100000000.0,
+        10000000000.0,
+        "INTERCEPT_ONLY"
+      ],
+      "alpha_tie_rule": "Choose the more strongly regularized candidate"
+    },
+    "reference_implementation": {
+      "path": "stage2/scoring/stage2_backtest.py",
+      "sha256": "537c282cef5ab7a8247e2e4eb2afc194285a7e773f9529f180e783e54279f922",
+      "note": "Canonical scorer adopted 2026-10-27; unchanged by this proposal"
+    }
+  },
+  "ap3_feature_schema_proposed": {
+    "blocker": "B4",
+    "channels": [
+      "Growth",
+      "Inflation",
+      "Policy/rates",
+      "Risk/credit"
+    ],
+    "n_channels": 4,
+    "states": [
+      "Supported",
+      "Contradicted",
+      "Insufficient"
+    ],
+    "reference_state": "Insufficient",
+    "columns_per_channel": [
+      "<channel>_supported",
+      "<channel>_contradicted"
+    ],
+    "agent_columns": 8,
+    "total_model_columns": 16,
+    "unit": "one assessment per (decision month, channel) from information in (t-1 decision, t decision]",
+    "repeated_runs": 5,
+    "primary_encoding": "majority-vote indicator; ties = Insufficient",
+    "robustness_encoding": "share of runs Supported / Contradicted (same column count)",
+    "forbidden": [
+      "+1/0/-1 codes",
+      "LLM self-reported confidence",
+      "retrieval scores",
+      "Shock x Signal interactions in primary"
+    ],
+    "missing_month_rule": "agent columns missing -> 0 after training-fold scaling; >5% missing months is a stop condition",
+    "information_budget_equal_between_AP3_and_AP3-STD": [
+      "corpus snapshot and cutoff filter",
+      "4 retrieved chunks per (month, channel)",
+      "token cap per call",
+      "R = 5 calls per (month, channel)",
+      "model ID and parameters",
+      "output schema"
+    ]
+  },
+  "evaluation": {
+    "primary_level": "Forecast accuracy in Track V",
+    "primary_family": {
+      "H1": "AP3 vs AP1, gated: AP3-AP1 loss improvement must exceed the 95th percentile of 200 AP3-PERM placebo improvements",
+      "H2": "AP3 vs AP3-STD",
+      "H3": "AP2A-1M vs AP1 (only if approved and frozen before any scoring)",
+      "correction": "Holm 5% across included hypotheses",
+      "attribution_rule": "Causal-reasoning claim requires H1 (Holm) + placebo gate + H2"
+    },
+    "retired_v2_family": [
+      "B-All vs A (paused)",
+      "C vs A (C becomes a control)",
+      "D vs C (maps to H2)"
+    ],
+    "forecast_metrics": [
+      "Normalized pooled squared-error differential",
+      "Relative MSPE",
+      "OOS R2",
+      "RMSE",
+      "MAE",
+      "Directional accuracy (descriptive)",
+      "Cross-asset ranking accuracy (descriptive)"
+    ],
+    "loss_normalization": "For each asset/month, divide squared forecast error by the expanding realized-return variance estimated using information available through t-2; average equally across SPY/IEF/LQD.",
+    "uncertainty": {
+      "method": "Paired circular moving-block bootstrap over months, resampling the three assets jointly",
+      "block_months": 6,
+      "replications": 5000,
+      "seed": 20261027,
+      "intervals": [
+        "90%",
+        "95%"
+      ],
+      "overlapping_12M_native_scores": "12-month blocks"
+    },
+    "secondary": [
+      "Track V portfolio metrics (v2 list)",
+      "Track N active CER and native metrics",
+      "AP2A/AP2B native forecast scores",
+      "AP1 vs historical-mean forecast benchmark"
+    ],
+    "secondary_multiplicity": "No emphasised p-values; if emphasised, Holm within their own family",
+    "event_regime_analysis": "Predeclared diagnostic only, never used to select or tune a signal after test results are viewed."
+  },
+  "evidence_tiers": {
+    "P": "Prospective: generated before the decision timestamp by frozen artifacts and pinned model; clean evidence",
+    "R_post": "Retrospective replay for decisions after the pinned model's documented training cutoff; least-contaminated historical evidence; confirmatory language only if approved (B3)",
+    "R_pre": "Retrospective replay for decisions on/before the documented cutoff; diagnostic only",
+    "rule": "Never pooled; every LLM output tagged with exactly one tier; AP1 deterministic (historical window disclosed as partly inspected by the earlier MVP)",
+    "current_models": {
+      "gpt-4o": "documented cutoff October 2023 (confirm from provider page at pinning); R-post 2023-11..2026-08 if the snapshot can be pinned",
+      "claude-sonnet-5-5": "cutoff after the window; historical window R-pre",
+      "typesafe/jev": "version and cutoff unknown; R-pre"
+    }
+  },
+  "leakage_protocol": {
+    "point_in_time_inputs": "available_at on every row/document; enforced in data-access layer; frozen hashed corpus with first-publication timestamps; edited/live/undated sources excluded",
+    "masked_replay": "relative date markers, no calendar year; numeric context kept; unmasked subsample diagnostic; year-guess and sign-flip probes on the prompts actually used; masking is a mitigation, not a remedy",
+    "model_logging": "provider, exact model ID and snapshot, documented cutoff, temperature/top_p/max tokens/seed, prompt/context/response SHA-256, UTC timestamp, run index; append-only caches",
+    "knowledge_graph": "every edge with dated source; only edges published on/before t; simplest compliant graph uses literature before 2015-02; MVP graph not reused",
+    "testing_agent": "only data with available_at <= decision_time; return labels through t-2 only; no realised holding-period returns, scoring outputs or sealed files; audited query log",
+    "revised_vintages": "EPU/GPR revised vintages barred from Track V systems"
+  },
+  "historical_test": {
+    "status": "SEALED_NOT_SCORED",
+    "gate_record": "stage2/results/stage2_historical_test_gate_v5_2026-10-27.json",
+    "v2_readiness": "Gate v4 readiness applied to the v2 A/B design and is superseded; v2 data gates remain valid evidence",
+    "opening_conditions": [
+      "v3 approved",
+      "AP3/AP3-STD/AP3-PERM (and AP2A-1M if approved) generators built, tested, frozen and hashed",
+      "pinned models with documented cutoffs",
+      "TLT pinned and checked (Track N)",
+      "single scripted run scoring all systems"
+    ],
+    "recommendation": "Keep the whole window sealed until every v3 generator is frozen (B6)"
+  },
+  "blockers": {
+    "B1": "Two-track design: Track V primary, Track N supplementary",
+    "B2": "Agent Committee re-specified as AP2A-1M for Track V (or native-only)",
+    "B3": "Evidence standard and LLM model choice (prospective-only vs R-post primary with a pinned pre-window-cutoff model)",
+    "B4": "AP3 schema: 4 channels, 3 states, majority of 5 runs, monthly unit, no interactions (16 columns)",
+    "B5": "Track N universes: native SPY/TLT (active CER) or harmonised SPY/IEF/LQD",
+    "B6": "Keep historical window sealed until all v3 generators are frozen",
+    "B7": "JEV saved answers diagnostic only; build a logged recorder for prospective runs or drop AP2B prospectively"
+  },
+  "robustness_only_not_primary": [
+    "Macro z-score winsorization at +/-3",
+    "Alternative macro standardization using 24 prior releases",
+    "MAD/robust scaling",
+    "36- or 60-label minimum training alternatives",
+    "Rolling 60-month estimation",
+    "Transaction costs 0/2/10/25 bps",
+    "Alternative execution day",
+    "Alternative bootstrap block length"
+  ],
+  "robustness_paused_with_B": [
+    "10Y-2Y curve instead of 10Y-3M",
+    "IG OAS instead of BAA10Y",
+    "Alternative expected-variance VRP measure"
+  ]
+}

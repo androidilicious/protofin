@@ -1,0 +1,12 @@
+system,approach,track_V,track_N,llm_model,inputs,view_output,allocator,model_columns,status,v2_equivalent,evidence_tier
+AP1,Approach 1,yes,yes (same as V),none,8 macro surprise z-scores,1M excess-return forecasts SPY/IEF/LQD,Frozen v2 BL,8,implemented; canonical development rerun,v2 A,n/a (deterministic)
+AP2A,Approach 2A,no,yes,gpt-4o (alias only logged),live 7 raw series; replay 6 raw series (17 numbers),12M total-return % views SPY/TLT + H/M/L confidence,"Native 2-asset BL, 60/40 prior, confidence-scaled Omega, 40-80% SPY",n/a,implemented; 272 saved monthly outputs (R-pre),none,R-pre (saved); P after logging harness
+AP2A-1M,Approach 2A,yes (if B2 approved),no,to be pinned (B3),"as AP2A, point-in-time, masked",1M excess-return views SPY/IEF/LQD,Frozen v2 BL with common Omega,n/a,proposed,none,per B3
+AP2B,Approach 2B,no,yes,typesafe/jev (version unknown),6 raw series (17 numbers) per README,p = P(SPY>TLT 12M) + 5-way tilt distribution + confidence,"Confidence-weighted tilt on 60/40 BL edge, 40-80% SPY",n/a,saved answers 272 months; no recorder/prompt; no tests,none (README listed JEV as C),R-pre (saved); P needs recorder (B7)
+AP3,Approach 3,yes,yes (same as V),to be pinned (B3); MVP used claude-sonnet-5-5,AP1 inputs + point-in-time corpus + point-in-time graph,1M excess-return forecasts via Ridge,Frozen v2 BL,8+2*N_ch (16),proposed (MVP: 1 event retrieval/labelling only),v2 D,per B3
+AP3-STD,Approach 3 control,yes,no,same as AP3,as AP3 without graph-guided retrieval,as AP3,Frozen v2 BL,16,proposed,v2 C,per B3
+AP3-PERM,Approach 3 placebo,yes,no,none (reuses AP3 labels),AP3 labels permuted across months,as AP3,Frozen v2 BL,16,proposed,v2 C-permuted,inherits AP3
+AP3-RG,Approach 3 placebo (optional),yes,no,same as AP3,rewired graph,as AP3,Frozen v2 BL,16,proposed (optional),v2 D0,per B3
+AP3-NR,Approach 3 diagnostic,diagnostic,no,same as AP3,no retrieval,as AP3,Frozen v2 BL,16,proposed (diagnostic),v2 C0,diagnostic only
+AP3-INT,Approach 3 separate experiment,separate,no,same as AP3,AP3 + Shock x Signal interactions,as AP3,Frozen v2 BL,8+2*N_ch+8*N_ch,proposed (separate pre-registration),none,per B3
+"B1-B5, B-All",Conventional (v2),paused,paused,none,"credit level/change, 10Y-3M, VRP, momentum",Ridge forecasts,Frozen v2 BL,9 or 13,paused; archived,v2 B,n/a
