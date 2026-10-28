@@ -30,6 +30,9 @@ The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
 | `config/` | Shared evaluation settings and research design (`framework_config_v1.json`), system manifest (`system_manifest_v1.csv`), TLT and claims data manifests |
 | `ap3/` | Causal RAG: graph vintages and channel library (CauseTrace code, vendored unchanged), CauseTrace tools, Hypothesis Agent, Testing Agent (causal-rag-mvp assessor logic, model substitution documented), mediator tests, status encoder, calibration (G4c checks), allocation, LLM client (paid providers refuse without approval), engineering mock and fixtures |
 | `docs/GO_NO_GO_2026-10-28.md` | Gate status; decision NO-GO; what must happen before GO |
+| `docs/TLT_DISTRIBUTION_CHECK_2026-10-28.md`, `scripts/check_tlt_distributions.py`, `data/tlt_dividend_check/` | Freeze gate 5 extended to TLT on official iShares records (result: FAIL on C2 only; team decision needed) |
+| `docs/CONTAMINATION_REGISTER_AND_HINDSIGHT_AUDIT_v1.md` | Draft register and audit for team sign-off |
+| `ap3/fomc_calendar.py` | FOMC trigger calendar from the team's statement index (vendored, hash-pinned) |
 | `out/` | Decision records, reproduction reports, development diagnostics (primary contrasts and the within-approach contrast), AP3 library manifest, gate record |
 | `tests/` | Framework, native adapters and AP3 tests |
 
@@ -43,6 +46,7 @@ python stage2/scoring/stage2_backtest.py --spec stage2/scoring/stage2_run_spec_d
 python -m native_backtest.scripts.build_ap1_decisions
 python -m native_backtest.scripts.ap2_native_reproduction
 python -m native_backtest.scripts.development_evaluation
+python -m native_backtest.scripts.check_tlt_distributions   # gate 5 for TLT; exit 2 means the gate reports FAIL
 python stage2/scoring/fetch_pinned_inputs.py --manifest native_backtest/config/ap3_claims_manifest_v1.json --out native_backtest/data/_external   # local use only
 python -m native_backtest.scripts.build_ap3_libraries
 python -m pytest -q native_backtest/tests

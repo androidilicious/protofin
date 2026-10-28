@@ -148,3 +148,51 @@ def test_engineering_month_end_to_end(tmp_path):
     assert set(rec["status_features"]) == {"SPY", "IEF", "LQD"}
     calls = [json.loads(l) for l in (tmp_path / "calls.jsonl").read_text().splitlines()]
     assert calls and all(c["mock"] for c in calls)
+
+
+# ------------------------------------------------------------------ FOMC trigger calendar
+def test_fomc_calendar_assignment():
+    from native_backtest.ap3 import fomc_calendar as fc
+    dates = fc.load_dates()  # checks the pinned SHA-256
+    assert len(dates) == 158 and dates[0] == pd.Timestamp("2008-01-22")
+    days = {pd.Period("2019-07", "M"): pd.Timestamp("2019-07-31"), pd.Period("2020-02", "M"): pd.Timestamp("2020-02-28"),
+            pd.Period("2020-03", "M"): pd.Timestamp("2020-03-31")}
+    ev = fc.events_by_decision_month(days, dates)
+    # a scheduled 14:00 ET statement on the decision day precedes the 20:00 ET decision
+    assert [e["date"] for e in ev[pd.Period("2019-07", "M")]] == ["2019-07-31"] and ev[pd.Period("2019-07", "M")][0]["on_decision_day"]
+    # March 2020: two unscheduled communications and the 23 March statement
+    assert [e["date"] for e in ev[pd.Period("2020-03", "M")]] == ["2020-03-03", "2020-03-15", "2020-03-23"]
+    # nothing before the first month's window leaks in
+    assert all(pd.Timestamp(e["date"]) > pd.Timestamp("2019-06-28") for v in ev.values() for e in v)
+
+
+def test_fomc_event_after_last_trading_day_rolls_forward_and_unscheduled_on_decision_day_refused():
+    from native_backtest.ap3 import fomc_calendar as fc
+    days = {pd.Period("2021-01", "M"): pd.Timestamp("2021-01-29"), pd.Period("2021-02", "M"): pd.Timestamp("2021-02-26")}
+    ev = fc.events_by_decision_month(days, [pd.Timestamp("2021-01-31")])   # Sunday after the January decision
+    assert ev[pd.Period("2021-01", "M")] == [] and ev[pd.Period("2021-02", "M")][0]["date"] == "2021-01-31"
+    with pytest.raises(fc.CalendarError):
+        fc.events_by_decision_month(days, [pd.Timestamp("2021-01-29")], unscheduled=("2021-01-29",))
+
+
+def test_fomc_calendar_on_the_real_decision_calendar():
+    from native_backtest.ap3 import fomc_calendar as fc
+    from native_backtest.framework.market import load_config, load_market
+    try:
+        mk = load_market(load_config())
+    except Exception as e:  # pinned prices not fetched
+        pytest.skip(f"market data unavailable: {e}")
+    dd = {m: d for m, d in mk.decision_dates.items() if pd.Period("2015-02", "M") <= m <= pd.Period("2022-12", "M")}
+    assert fc.check_unscheduled_not_on_decision_days(dd) == []
+    ev = fc.events_by_decision_month(dd)
+    n = sum(len(v) for v in ev.values())
+    assert n == sum(1 for d in fc.load_dates() if pd.Timestamp("2015-01-30") < d <= max(dd.values()))
+
+
+# ------------------------------------------------------------------ gate 5 extended to TLT (issuer records)
+def test_tlt_issuer_captures_verify_and_agree():
+    from native_backtest.scripts import check_tlt_distributions as c
+    dist, pairs, monthly = c.build_records()   # stops if a capture's SHA-256 differs from the browser-side hash
+    assert len(dist) == len(pairs) == 109 and len(monthly) == 110
+    assert dist["ex_date"].min() >= "2014-01-01" and dist["ex_date"].max() <= "2023-02-01"   # no protected-window ex-dates
+    assert monthly["month_end"].max() <= "2023-01-31"

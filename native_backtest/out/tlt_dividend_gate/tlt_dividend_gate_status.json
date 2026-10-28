@@ -1,0 +1,67 @@
+{
+  "gate": "freeze_gate_5_distribution_adjustment, extended to TLT",
+  "design": "stage2/methodology/Stage2_Dividend_Adjustment_Gate_v1.md (criteria C1-C6 unchanged)",
+  "code": "stage2/scoring/check_dividend_adjustment.py check_ticker / monthly_official (imported unchanged)",
+  "prices": "shared evaluator TLT series (native_backtest/config/framework_config_v1.json extra_prices.TLT)",
+  "price_data_cutoff": "2023-02-01",
+  "official_records": "native_backtest/data/tlt_dividend_check/official_records_provenance_TLT.json",
+  "status": "FAIL",
+  "by_ticker": [
+    {
+      "ticker": "TLT",
+      "n_ex_dates": 109,
+      "first_ex_date": "2014-02-03",
+      "last_ex_date": "2023-02-01",
+      "C1_coverage": {
+        "pass": true,
+        "problems": []
+      },
+      "C2_ex_date_capture": {
+        "kappa": 1.2911087389614369,
+        "se": 0.13248209164046926,
+        "ci99": [
+          0.949834870895588,
+          1.6323826070272855
+        ],
+        "n": 109,
+        "mean_distribution_bp": 19.205582539791944,
+        "mean_residual_bp": 5.590912914178622,
+        "pass": false
+      },
+      "C3_monthly_capture": {
+        "kappa": 1.0009310447488575,
+        "se": 0.12288198412362397,
+        "ci99": [
+          0.6843870536464022,
+          1.317475035851313
+        ],
+        "n": 109,
+        "mean_distribution_bp": 18.972043228546596,
+        "mean_residual_bp": 0.017663821223040232,
+        "pass": true
+      },
+      "C4_cumulative_capture": {
+        "kappa": 0.9834013043459443,
+        "band": [
+          0.9,
+          1.1
+        ],
+        "pass": true
+      },
+      "C5_implied_distribution": {
+        "n_tested": 61,
+        "n_pass": 61,
+        "failures": [],
+        "pass": true
+      },
+      "C6_informative_nav": {
+        "robust_sd_bp": 19.831480457960275,
+        "n_informative": 0,
+        "n_pass": 0,
+        "failures": [],
+        "pass": true
+      },
+      "pass": false
+    }
+  ]
+}

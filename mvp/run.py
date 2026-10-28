@@ -42,6 +42,12 @@ def build(_: argparse.Namespace) -> None:
     sh(PY, "-m", "native_backtest.scripts.build_ap1_decisions")
     sh(PY, "-m", "native_backtest.scripts.ap2_native_reproduction")
     sh(PY, "-m", "native_backtest.scripts.development_evaluation")
+    # Gate 5 extended to TLT: reports PASS or FAIL in native_backtest/out/tlt_dividend_gate; a FAIL is a gate
+    # result for the team to review, not a build error.
+    print("$", PY, "-m native_backtest.scripts.check_tlt_distributions", flush=True)
+    rc = subprocess.run([PY, "-m", "native_backtest.scripts.check_tlt_distributions"], cwd=ROOT).returncode
+    if rc not in (0, 2):
+        sys.exit(f"TLT distribution check could not run (exit {rc})")
     if (EXTERNAL / "claims_part01.parquet").exists():
         sh(PY, "-m", "native_backtest.scripts.build_ap3_libraries")
         sh(PY, "mvp/build_ap3_demo.py")
