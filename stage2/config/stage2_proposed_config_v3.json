@@ -68,8 +68,13 @@
         "N"
       ],
       "model_columns": "8 + 2*N_ch (16 if N_ch = 4)",
-      "status": "proposed; CauseTrace MVP covers one event, retrieval and labelling only",
-      "blocker": "B4"
+      "status": "proposed. CauseTrace (claireoh-duke/CauseTrace) supplies a static literature claims graph (Garg & Fetzer; 347,571 claims, 410,160 concepts) and bounded path retrieval with qwen3:4b explanations. The Hypothesis Agent, Testing Agent, monthly features and Ridge integration are not built",
+      "blocker": "B4",
+      "implementation_repo": {
+        "repo": "claireoh-duke/CauseTrace",
+        "head": "82abe0a",
+        "related": "FarnooshMemari/causal-rag-mvp (event-level evidence labelling)"
+      }
     },
     "AP3-STD": {
       "role": "matched standard-RAG control for H2",
@@ -77,7 +82,8 @@
       "tracks": [
         "V"
       ],
-      "model_columns": "same as AP3"
+      "model_columns": "same as AP3",
+      "cause_trace_definition": "AP3-FLAT: channel routing by flat BGE-M3 similarity between shock and channel concepts (no path traversal), same number of routed links; Testing Agent, evidence source, thresholds, schema identical"
     },
     "AP3-PERM": {
       "role": "capacity placebo gating H1",
@@ -110,6 +116,13 @@
       "tracks": [
         "separate"
       ]
+    },
+    "AP3-MED": {
+      "role": "secondary control under B4 option M: AP1 + raw mediator changes, same column count, no routing or sign table",
+      "tracks": [
+        "V"
+      ],
+      "model_columns": "same as AP3"
     }
   },
   "retired_v2_labels": {
@@ -418,7 +431,8 @@
       "R = 5 calls per (month, channel)",
       "model ID and parameters",
       "output schema"
-    ]
+    ],
+    "applies_under": "B4 options T and M; under option S the 8 agent columns are literature-selected interactions"
   },
   "evaluation": {
     "primary_level": "Forecast accuracy in Track V",
@@ -471,8 +485,9 @@
     "rule": "Never pooled; every LLM output tagged with exactly one tier; AP1 deterministic (historical window disclosed as partly inspected by the earlier MVP)",
     "current_models": {
       "gpt-4o": "documented cutoff October 2023 (confirm from provider page at pinning); R-post 2023-11..2026-08 if the snapshot can be pinned",
-      "claude-sonnet-5-5": "cutoff after the window; historical window R-pre",
-      "typesafe/jev": "version and cutoff unknown; R-pre"
+      "claude-sonnet-5-5": "causal-rag-mvp; cutoff after the window; R-pre",
+      "typesafe/jev": "version and cutoff unknown; R-pre",
+      "qwen3:4b": "CauseTrace; released 2025; R-pre if called monthly; pinnable by Ollama digest; not called monthly under option M"
     }
   },
   "leakage_protocol": {
@@ -500,10 +515,11 @@
     "B1": "Two-track design: Track V primary, Track N supplementary",
     "B2": "Agent Committee re-specified as AP2A-1M for Track V (or native-only)",
     "B3": "Evidence standard and LLM model choice (prospective-only vs R-post primary with a pinned pre-window-cutoff model)",
-    "B4": "AP3 schema: 4 channels, 3 states, majority of 5 runs, monthly unit, no interactions (16 columns)",
+    "B4": "AP3 monthly evidence source (T text / M market mediators / S structure only) and schema; graph frozen from papers with year <= 2014; concept lists and sign table frozen before scoring",
     "B5": "Track N universes: native SPY/TLT (active CER) or harmonised SPY/IEF/LQD",
     "B6": "Keep historical window sealed until all v3 generators are frozen",
-    "B7": "JEV saved answers diagnostic only; build a logged recorder for prospective runs or drop AP2B prospectively"
+    "B7": "JEV saved answers diagnostic only; build a logged recorder for prospective runs or drop AP2B prospectively",
+    "B8": "Use of mediator series overlapping paused B signals only inside AP3 and AP3-MED, pre-registered from the graph, no selection on results"
   },
   "robustness_only_not_primary": [
     "Macro z-score winsorization at +/-3",
@@ -519,5 +535,68 @@
     "10Y-2Y curve instead of 10Y-3M",
     "IG OAS instead of BAA10Y",
     "Alternative expected-variance VRP measure"
-  ]
+  ],
+  "amendments": [
+    {
+      "id": "A",
+      "date": "2026-10-28",
+      "reason": "Reviewed Approach 3 repository claireoh-duke/CauseTrace (head 82abe0a)",
+      "sections": [
+        "2",
+        "2.1",
+        "3",
+        "7.1",
+        "7.5",
+        "8.1",
+        "8.5",
+        "12",
+        "13"
+      ]
+    }
+  ],
+  "ap3_cause_trace_integration": {
+    "static_knowledge_note": "CauseTrace output is time-invariant for fixed concepts; monthly information must come from the Testing Agent",
+    "knowledge_graph": {
+      "source": "Garg & Fetzer, Causal Claims in Economics (arXiv:2501.06873) data release, macro claims",
+      "point_in_time_primary": "claims with paper year <= 2014, frozen and hashed",
+      "point_in_time_robustness": "annual vintages, year <= decision year - 1",
+      "year_field": "annual publication-year metadata, not independently verified",
+      "licence": "none published; hash and use locally, do not commit; confirm permitted use with authors"
+    },
+    "hypothesis_agent": {
+      "runs": "once before any scoring",
+      "outputs": [
+        "frozen concept lists: 8 shock concepts, channel mediator concepts, asset target concepts (exact node strings)",
+        "routing matrix shocks x channels from bounded graph paths",
+        "sign table (graph has no signs): LLM may draft, humans review, frozen and hashed"
+      ]
+    },
+    "testing_agent_options": {
+      "T_text": {
+        "evidence": "point-in-time news/Fed documents labelled per pathway (causal-rag-mvp style)",
+        "llm_monthly": true,
+        "tier": "R-pre for current models (qwen3:4b released 2025)",
+        "needs": "dated 2015-2026 corpus (does not exist)"
+      },
+      "M_mediators": {
+        "evidence": "point-in-time mediator series named by pathways; Supported/Contradicted/Insufficient by direction vs frozen threshold",
+        "llm_monthly": false,
+        "tier": "deterministic; disclosed design hindsight only",
+        "risk": "overlap with paused B signals (B8); needs AP3-MED control"
+      },
+      "S_structure": {
+        "evidence": "none; literature-selected shock x shock interactions",
+        "llm_monthly": false,
+        "columns": "8 + 8 interactions = 16; placebo 8 random interactions"
+      },
+      "recommendation": "M primary; T prospective extension if a dated corpus is built"
+    },
+    "determinism": [
+      "replace wall-clock path limits (default 5 s) with count-based limits; keep sorted successor order; log truncation",
+      "pin BGE-M3 revision (CPU encoding), FAISS index hash, claims-table hash, qwen3:4b Ollama digest",
+      "freeze exact concept node strings (near-duplicates are not merged)",
+      "unit test: identical features on two machines"
+    ],
+    "xai_metrics": "CauseTrace citation-integrity/inspectability results are approach-specific diagnostics, never backtest metrics"
+  }
 }

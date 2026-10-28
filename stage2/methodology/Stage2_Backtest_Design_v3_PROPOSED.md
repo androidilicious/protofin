@@ -3,6 +3,7 @@
 **Project:** Duke MIDS / BNY Macro-Financial Capstone
 **Drafted:** 2026-10-27
 **Status:** `PROPOSED_NOT_FROZEN` until the team approves the blockers in §13.
+**Amendment A (2026-10-28):** revised after reviewing the Approach 3 repository [`claireoh-duke/CauseTrace`](https://github.com/claireoh-duke/CauseTrace) (head 82abe0a). Changes are in §2, §2.1, §3, §7.1, the new §7.5, §8.1, §8.5, §12 and §13 (B4 revised, B8 added).
 **Machine-readable draft:** [`../config/stage2_proposed_config_v3.json`](../config/stage2_proposed_config_v3.json)
 **Companion tables:**
 - [`stage2_freeze_matrix_v3_proposed.csv`](../config/stage2_freeze_matrix_v3_proposed.csv)
@@ -36,7 +37,8 @@ Nothing else in v2 changes unless the change log (§11) says so and gives a reas
 
 **Sources inspected:**
 - protofin branches `stage2-evaluation-mvp` (v2 freeze, canonical scorer, development results), `main`, `approach-1-committee-black-litterman`, `feature/empirical-view-uncertainty`, `approach-2`, `feature/jev`.
-- The CauseTrace repositories `FarnooshMemari/causal-rag-mvp` (head 389f826) and `causal-rag-demo` (5ec2a75).
+- **The Approach 3 repository `claireoh-duke/CauseTrace`** (head 82abe0a, 2026-10-18), added in Amendment A.
+- The related causal-RAG prototypes `FarnooshMemari/causal-rag-mvp` (head 389f826) and `causal-rag-demo` (5ec2a75). These are an event-level evidence-labelling prototype, complementary to CauseTrace (see §7.5).
 - The design note *Causal Agentic Macro Portfolio Allocation* (Google Doc, 2026-09-30).
 
 **Also inspected:** the earlier deterministic MVP on `main` (`deterministic-model/deterministic_mvp`: Growth/Inflation surprise signals → expanding Ridge → BL on SPY/IEF/LQD, 1 test file). Its committed `ridge_predictions.csv` holds forecasts *and realised returns* for decision months 2022-12 through 2026-09. This is the concrete basis for treating the 2023–2026 window as partly inspected.
@@ -54,17 +56,18 @@ Status is classified as follows:
 
 | | **Approach 1 — Deterministic baseline (AP1)** | **Approach 2A — Agent Committee (AP2A)** | **Approach 2B — JEV (AP2B)** | **Approach 3 — CauseTrace / Causal RAG (AP3)** |
 |---|---|---|---|---|
-| **Actual inputs** | 8 Bloomberg macro-surprise z-scores (first print − median; prior-12-release standardisation, ddof 1; same-month mean). Canonical panel `459bef98…` | **Live:** 7 raw series (^TNX, SPY, TLT, ^IRX, EPU, GPR, FOMC-statement RoBERTa score), about 16 numbers plus date and regime. **Historical replay:** 6 raw series as 16 relative features plus the cash-yield level. The SPY/TLT names and the cash level were re-inserted into the "masked" committee prompts (`scripts/build_backtest_months.py` L47-50) | Per README, the same masked payload as the committee: 17 numbers, including the SPY/TLT names and the cash level. The exact prompt is **not in the repo** | **MVP:** one event (July 2023 advance retail sales, released 2023-08-15). 24-document corpus; 22 fetched; 281 chunks eligible at cutoff. BM25 retrieval with a point-in-time filter. Hand-authored graph: 6 nodes, 5 edges, 2 pathways, equity-only |
-| **View-generation model** | Separate Ridge per asset: expanding window; 48-label minimum; inner CV with 1-month purge; frozen alpha grid; t−2 label rule | gpt-4o (alias logged, snapshot not logged), T = 0, seed 42. Economist ∥ Risk Manager → CIO | `typesafe/jev` on Cloudflare Workers AI, answers recorded once. **No calling code, no prompt, no model version** in the repo; the recorder script named in comments never existed | claude-sonnet-5-5 via CLI (alias only; default sampling). The LLM labels each graph edge from retrieved excerpts, then quotes are verified. **No Hypothesis Agent, no Testing Agent, no quant model in code** |
-| **View output** | 1-month **excess-return forecasts**, SPY/IEF/LQD, decimal | **12-month total-return %** views for **SPY and TLT**, plus a categorical confidence (High/Medium/Low), converted to excess over ^IRX | **p = P(SPY beats TLT over 12 months)**, plus a distribution over 5 tilt options (+3, +1.5, 0, −1.5, −3 "points", labelled "illustrative, not calibrated"), plus a confidence | Per edge: Supported / Contradicted / Insufficient, with verified quotes. Per pathway: chain status. MVP also has a {−1,0,+1} `code`. **Not per asset, not a forecast** |
-| **Allocation** | Frozen Black–Litterman: P = I, τ 0.05, δ 2.5, prior 45/35/20, 36-month Ledoit–Wolf Σ, bounds, Ω from AP1 development errors; 5 bp | Two-asset BL. 60/40 prior, δ 2.5, τ 0.05. Σ: 1-year sample (replay: from 12-month vols and correlation). Ω = c·τΣ with c = 0.5/1/2 by confidence; elevated EPU/GPR lowers confidence one notch. Closed form clipped to **40–80% SPY**; 5 bp | 60/40 BL-prior edge + confidence × Σ(probs × points). Closed-form two-asset weight clipped to **40–80% SPY**. **p is not used.** No Ω. The term "Capped Tilt" does not appear in code | **None** in code. The 2026-09-30 design note proposes passing the Ridge forecasts into "the same constrained portfolio optimizer" |
-| **Timing in existing backtests** | Decision 20:00 ET last trading day; execution at next official close | Month-end close, **same-close execution**; yfinance adjusted closes | Month-end close, **same-close execution** | n/a (one event, 10:00 EDT cutoff) |
-| **Implementation status** | Implemented; 25 tests; canonical development rerun; data gates PASS; historical window sealed | Orchestration and BL implemented. Parser bug fixed and tested only on `approach-2`. **272 saved monthly CIO outputs** (2004-01..2026-08, gpt-4o, built 2026-10-05; every confidence "Medium"); no committed metrics for the committee strategy. The Python backtest summary uses the *single-call* masked views, not the committee | 272 saved monthly answers (2004-01..2026-08). Browser replay implemented (reproduces saved weights). Evaluation script (Brier, AUC) implemented, **untested**. No tests | Feasibility MVP for retrieval and labelling: 17 unit tests, saved outputs for **1 event × 3 repeats**. Graph frozen "before returns" but authored by an agent that knew post-2023 outcomes; v2 edge E1 redefined after seeing v1 results. **Monthly feature pipeline, Ridge integration and allocation are all proposed only** |
-| **Leakage controls present** | Point-in-time panel; t−2 labels; dividend and risk-free gates | Masked single-call replay with year-guess and sign-flip probes (gpt-4o). Probe hits concentrate in 2020–2023 months, which may be recognition or a guessing bias. **The committee prompts themselves are not fully masked.** EPU/GPR are revised vintages | None specific to JEV; same payload caveats | Point-in-time document filter (0 future chunks); no date masking; contamination acknowledged in the README |
+| **Actual inputs** | 8 Bloomberg macro-surprise z-scores (first print − median; prior-12-release standardisation, ddof 1; same-month mean). Canonical panel `459bef98…` | **Live:** 7 raw series (^TNX, SPY, TLT, ^IRX, EPU, GPR, FOMC-statement RoBERTa score), about 16 numbers plus date and regime. **Historical replay:** 6 raw series as 16 relative features plus the cash-yield level. The SPY/TLT names and the cash level were re-inserted into the "masked" committee prompts (`scripts/build_backtest_months.py` L47-50) | Per README, the same masked payload as the committee: 17 numbers, including the SPY/TLT names and the cash level. The exact prompt is **not in the repo** | **CauseTrace:** a user's question plus a static literature graph built from Garg & Fetzer, *Causal Claims in Economics*. Macro claims only: 347,571 claim rows, 12,509 papers, 410,160 free-text concepts, 338,194 directed edges. Each record carries paper ID, title, `year`, method flag/label, exogenous-variation text and JEL codes. **No sign, magnitude, dates of economic events, market data or news.** The graph uses **all years**: there is no point-in-time filter (`notebooks/build_index.ipynb`). The data is not redistributed, and its licence is unresolved |
+| **View-generation model** | Separate Ridge per asset: expanding window; 48-label minimum; inner CV with 1-month purge; frozen alpha grid; t−2 label rule | gpt-4o (alias logged, snapshot not logged), T = 0, seed 42. Economist ∥ Risk Manager → CIO | `typesafe/jev` on Cloudflare Workers AI, answers recorded once. **No calling code, no prompt, no model version** in the repo; the recorder script named in comments never existed | **CauseTrace:** qwen3:4b via local Ollama (T = 0, ctx 8,192), used for question parsing and optional explanations. BGE-M3 + FAISS for concept matching. NetworkX bounded shortest-first path search (≤ 3–4 hops, ≤ 50 paths, **wall-clock time limit 5 s**). **No Hypothesis Agent, Testing Agent, quant model or allocation in code.** The related `causal-rag-mvp` labels graph edges Supported/Contradicted/Insufficient from point-in-time documents for one event (claude-sonnet-5-5) |
+| **View output** | 1-month **excess-return forecasts**, SPY/IEF/LQD, decimal | **12-month total-return %** views for **SPY and TLT**, plus a categorical confidence (High/Medium/Low), converted to excess over ^IRX | **p = P(SPY beats TLT over 12 months)**, plus a distribution over 5 tilt options (+3, +1.5, 0, −1.5, −3 "points", labelled "illustrative, not calibrated"), plus a confidence | **CauseTrace:** candidate cause→effect *paths* grouped by first intermediate concept, the claim records behind each edge, and an optional cited LLM explanation. Paths are "candidate connections, not validated causal chains". **Nothing time-varying, nothing per asset, no forecast, no channel status** |
+| **Allocation** | Frozen Black–Litterman: P = I, τ 0.05, δ 2.5, prior 45/35/20, 36-month Ledoit–Wolf Σ, bounds, Ω from AP1 development errors; 5 bp | Two-asset BL. 60/40 prior, δ 2.5, τ 0.05. Σ: 1-year sample (replay: from 12-month vols and correlation). Ω = c·τΣ with c = 0.5/1/2 by confidence; elevated EPU/GPR lowers confidence one notch. Closed form clipped to **40–80% SPY**; 5 bp | 60/40 BL-prior edge + confidence × Σ(probs × points). Closed-form two-asset weight clipped to **40–80% SPY**. **p is not used.** No Ω. The term "Capped Tilt" does not appear in code | **None** in either repository. The 2026-09-30 design note proposes passing the Ridge forecasts into "the same constrained portfolio optimizer" |
+| **Timing in existing backtests** | Decision 20:00 ET last trading day; execution at next official close | Month-end close, **same-close execution**; yfinance adjusted closes | Month-end close, **same-close execution** | n/a. CauseTrace is interactive with no decision dates; causal-rag-mvp covers one event (10:00 EDT cutoff) |
+| **Implementation status** | Implemented; 25 tests; canonical development rerun; data gates PASS; historical window sealed | Orchestration and BL implemented. Parser bug fixed and tested only on `approach-2`. **272 saved monthly CIO outputs** (2004-01..2026-08, gpt-4o, built 2026-10-05; every confidence "Medium"); no committed metrics for the committee strategy. The Python backtest summary uses the *single-call* masked views, not the committee | 272 saved monthly answers (2004-01..2026-08). Browser replay implemented (reproduces saved weights). Evaluation script (Brier, AUC) implemented, **untested**. No tests | **CauseTrace:** working local application with 53 unit tests on synthetic data. XAI evaluation on 5 hand-picked questions: citation membership 42/42; 4 of 5 searches hit the 50-path cap; no human faithfulness scores entered. **The monthly feature pipeline, Hypothesis and Testing Agents, Ridge integration and allocation are all proposed only.** causal-rag-mvp: 17 tests, 1 event × 3 repeats |
+| **Leakage controls present** | Point-in-time panel; t−2 labels; dividend and risk-free gates | Masked single-call replay with year-guess and sign-flip probes (gpt-4o). Probe hits concentrate in 2020–2023 months, which may be recognition or a guessing bias. **The committee prompts themselves are not fully masked.** EPU/GPR are revised vintages | None specific to JEV; same payload caveats | **CauseTrace:** none for time. The graph includes papers of every year, which can include papers written about the 2023–2026 test period. Search depends on wall-clock time limits, so results can differ by machine. LLM prompts treat records as untrusted data; citation IDs are checked mechanically. causal-rag-mvp: point-in-time document filter, no date masking |
 
 **Consequences for the design:**
 - Only AP1 currently produces the controlled-experiment interface: monthly one-month excess-return views for SPY/IEF/LQD.
 - AP3 is *designed* to produce it, but its monthly pipeline does not exist. "Ridge for Approach 3" is a design decision still to be implemented and verified.
+- CauseTrace provides the **knowledge graph and causal retrieval** over published research, which is static knowledge. It does not supply the **time-varying evidence** a monthly forecast needs. That evidence has to come from a Testing Agent that is not yet specified (§7.5, B4).
 - AP2A could produce it only through a re-specified output schema (§4.1, Blocker B2).
 - AP2B cannot produce it without inventing a probability-to-return conversion, which v3 forbids.
 
@@ -77,7 +80,8 @@ Status is classified as follows:
 | **AP2A-1M** | Same three agents and roles; output schema re-specified to 1-month excess-return views for SPY/IEF/LQD; into the frozen BL | New; **proposed, needs approval (B2)** |
 | **AP2B** | JEV as built (p, 5-way tilt, confidence-weighted capped tilt, SPY/TLT, 40–80% band) | New. Not v2 C |
 | **AP3** | AP1's 8 columns + 2·N_ch causal-channel indicators → same Ridge → frozen BL | Successor of v2 D ("A + matched Causal-RAG features"), now with a fixed schema |
-| **AP3-STD** | Same columns and schema; standard (non-graph) retrieval; matched budget | Successor of v2 C. **A control, not "the agent system"** |
+| **AP3-STD** (= **AP3-FLAT** under CauseTrace, §7.5) | Same columns and schema; channel routing by flat semantic retrieval instead of graph paths; matched budget and density | Successor of v2 C. **A control, not "the agent system"** |
+| AP3-MED | Option M only: AP1 + raw mediator changes, same column count, no causal routing | New; secondary control (§7.5) |
 | **AP3-PERM** | AP3 agent columns permuted across months | v2 "Cπ" (permuted labels) |
 | AP3-RG | Rewired-graph placebo | v2 "D0" |
 | AP3-NR | No-retrieval diagnostic | v2 "C0" |
@@ -197,11 +201,13 @@ Only the columns differ, and the coefficients and selected alphas may differ as 
 
 ### 7.1 Ridge-based systems (Track V): exact model columns after encoding
 
+The 16-column schema assumes the Testing Agent returns a 3-state status per channel each month, which holds for options T and M in §7.5. Under option S the column count is the same but the columns are literature-selected interactions (§7.5).
+
 | System | Role | Columns | Schema |
 |---|---|---|---|
 | **AP1** | Baseline (= v2 System A, unchanged) | **8** | 8 macro-surprise z-scores (v2 §4) |
 | **AP3** | Causal RAG (CauseTrace) | **8 + 2·N_ch = 16** with the proposed N_ch = 4 | AP1's 8 columns + for each causal channel c ∈ {Growth, Inflation, Policy/rates, Risk/credit}: `c_supported` ∈ {0,1}, `c_contradicted` ∈ {0,1}; *Insufficient* is the reference (both 0) |
-| **AP3-STD** | Matched standard-RAG control (successor of v2 C) | **16** | Same channel names, same two indicators, same LLM/corpus/cutoff/doc count/token budget/R/seeds; retrieval not guided by the graph |
+| **AP3-STD / AP3-FLAT** | Matched standard-RAG control (successor of v2 C) | **16** | Same channel names, same two indicators, same Testing Agent, evidence source, thresholds, LLM/corpus/cutoff/budget/R/seeds. Channel routing by flat BGE-M3 similarity with the same number of routed links, not by graph paths (§7.5) |
 | **AP3-PERM** | Capacity placebo | **16** | AP3's frozen 8 agent columns with the month index permuted jointly across the 8 columns (M = 200 permutations, seed 20261027). No month may receive labels from within ±3 months of itself, so the placebo can't carry adjacent-month information. No new LLM calls |
 | AP3-RG (optional) | Graph-structure placebo (v2 D0) | 16 | Same as AP3 with a rewired graph that keeps node count, edge count and degree sequence |
 | AP3-NR (diagnostic) | No retrieval | 16 | LLM labels channels from the prompt alone. This is a contamination probe, not a candidate system |
@@ -245,6 +251,8 @@ The following are frozen and equal between AP3 and AP3-STD:
 - model ID and parameters;
 - output schema.
 
+Under option M (§7.5) the matched items are instead the mediator series, the thresholds and the number of routed shock-channel links. No documents or LLM calls are involved.
+
 The MVP's ordinary arm used one broad query of 20 chunks in a single call, while its graph arm used 5 × 4 chunks across 5 calls. That gives the arms different call structures, which v3 forbids. AP3-STD must use the same number of calls and chunks per channel, with a non-graph query.
 
 ### 7.4 Agent Committee and JEV: inputs vs outputs are counted separately
@@ -274,6 +282,75 @@ The MVP's ordinary arm used one broad query of 20 chunks in a single call, while
 - view horizon (12-month vs 1-month);
 - the JEV probability-to-return question, which is out of scope unless the team defines a calibrated mapping before any test data are seen.
 
+### 7.5 What the CauseTrace repository changes for AP3 (Amendment A)
+
+**Static knowledge, not monthly evidence.** CauseTrace answers "through which channels can X affect Y, according to published research?" For a fixed set of shock and asset concepts that answer is the same every month. A feature built from CauseTrace alone is therefore either constant, which gets a Ridge coefficient of 0, or a fixed linear combination of AP1's 8 surprises, which gives a linear model no new information. AP3's monthly information has to come from the **Testing Agent**: the step that checks, at each decision date, which candidate pathway the current evidence supports.
+
+**Proposed division of labour**
+
+| Stage | Component | Runs | LLM |
+|---|---|---|---|
+| Knowledge graph | CauseTrace claims graph restricted to papers with `year ≤ 2014` | Once; frozen and hashed | No |
+| Hypothesis Agent | For each of the 8 shocks and each asset target concept, retrieve bounded CauseTrace paths, assign them to the 4 channels through a frozen concept→channel list, and record a hypothesised direction per channel in a **sign table**. The graph has no signs | Once, before any scoring; frozen and hashed | May draft; humans review; then frozen |
+| Testing Agent | Test each channel hypothesis against evidence available at 20:00 ET; output Supported / Contradicted / Insufficient | Monthly | Depends on the option below |
+| Quant model | Identical Ridge (§6) | Monthly | No |
+
+**Testing Agent evidence source (decision B4)**
+
+| Option | Monthly evidence | LLM each month | New information beyond AP1 | Main risk |
+|---|---|---|---|---|
+| **T — text** (closest to the original design) | Point-in-time news and Fed documents, labelled per pathway as causal-rag-mvp does for one event | Yes | Contemporaneous narrative | Needs a dated 2015–2026 corpus that does not exist (the MVP had 22 documents for one event). Every historical month is R-pre for current models, including qwen3:4b (released 2025) |
+| **M — market mediators** | Point-in-time mediator series named by each pathway (e.g. 2-year Treasury yield for the policy channel, breakeven inflation, IG spread). Status is Supported if the series moved in the hypothesised direction beyond a frozen threshold, Contradicted if it moved the other way, Insufficient otherwise | No: a deterministic rule | The market's reaction within the month | Some mediators overlap the paused B signals, such as credit-spread change and curve (**B8**). Needs the AP3-MED control |
+| **S — structure only** | None. Literature selects which shock × shock interactions enter Ridge | No | None; it only re-specifies the model | Can help only through specification; weakest test of the approach |
+
+**Recommendation:** use M as the primary AP3 specification, and add T as a prospective extension if a dated corpus is built.
+
+- M makes the monthly features deterministic. AP3's historical results then carry no LLM knowledge-cutoff contamination, only the same design-hindsight disclosure as AP1, provided the graph and sign table come from pre-2015 literature.
+- M uses data that exist now.
+- M follows the 2026-09-30 design note, which judges channels by "observable responses such as changes in 2-year Treasury yields or market-implied Fed expectations".
+- T keeps the v3 schema unchanged but puts every historical month in the R-pre tier.
+- Both options need approval (B4, plus B8 for M).
+
+**Controls with CauseTrace**
+
+- **AP3-FLAT** (H2, replaces the generic "standard RAG" control):
+  - Channel routing comes from flat BGE-M3 similarity between shock and channel concepts, with no path traversal and the same number of routed shock-channel links as the graph routing.
+  - The Testing Agent, evidence source, thresholds, schema and column count are identical to AP3.
+  - CauseTrace's own baseline is a no-retrieval LLM, which is not a matched control.
+- **AP3-RG:** rewire the frozen claims graph while preserving degrees, then apply the same routing procedure.
+- **AP3-PERM:** unchanged.
+- **AP3-MED** (option M only, secondary): AP1 plus the raw mediator changes, in the same number of columns, with no routing and no sign table. It separates the channel logic from the mediator data themselves.
+
+**Determinism and pinning required before freeze**
+
+- **Path search:** CauseTrace stops searching on a wall-clock time limit (default 5 s), so its results can differ by machine. Replace this with count-based limits (≤ 3 hops, a fixed path cap, the existing sorted successor order) and log any truncation. In CauseTrace's own evaluation, 4 of 5 searches hit the 50-path cap.
+- **Pinned artifacts:**
+  - the BGE-M3 revision (CPU encoding, as CauseTrace already does);
+  - the hash of the FAISS index;
+  - the hash of the claims table;
+  - the qwen3:4b Ollama digest.
+- **Frozen concept lists:**
+  - the 8 shock concepts;
+  - the channel mediator concepts;
+  - the asset target concepts (e.g. `stock prices`, Treasury-yield concepts, corporate-spread concepts).
+- **Exact node strings:** each list names the exact node strings. CauseTrace never merges near-duplicate concepts; for example "stock price" has 3 edges and "stock prices" has 182.
+
+**Point-in-time literature**
+
+- `year` is annual publication-year metadata that the dataset has not verified.
+- Primary: freeze the graph from claims with `year ≤ 2014`, so it is valid for every training and test month.
+- Robustness: annual vintages with `year ≤ decision year − 1`.
+- The full graph that CauseTrace builds today uses every year, so it can contain papers about the test period.
+
+**Data licence.** The Garg & Fetzer release has no licence. Treat the claims table like the other pinned inputs: hash it, use it locally, never commit it. Confirm permitted use with the authors.
+
+**XAI metrics stay separate.** CauseTrace's citation-integrity and inspectability results answer an explainability question. They can be reported as approach-specific diagnostics but are never backtest metrics.
+
+**Feature count**
+
+- Options T and M: the §7.1 schema stands at 8 + 2·4 = 16 columns.
+- Option S: AP3 is 8 + 8 literature-selected interactions = 16 columns. Its placebo is 8 randomly chosen interactions.
+
 ## 8. Historical LLM leakage protocol (AP2A, AP2B, AP3 and its controls)
 
 Masking reduces explicit cues but does **not** remove contamination. An LLM whose training data cover a period can recall or infer what happened from the context itself (rate levels, a pandemic, named officials) even when dates are hidden. Masking is a mitigation; it is not a remedy, and no historical LLM result is called clean because of it.
@@ -291,7 +368,8 @@ AP1 is deterministic and has no LLM tier. Its historical results carry only the 
 **What this means for the models in use today:**
 
 - **gpt-4o** (Agent Committee) has a documented cutoff of October 2023 (OpenAI model documentation, as compiled by third parties; to be confirmed and recorded from the provider page at pinning time). Treating the cutoff month as R-pre, 2023-01..2023-10 would be R-pre and 2023-11..2026-08 R-post (34 decisions). That holds only if the exact snapshot can still be pinned.
-- **claude-sonnet-5-5** (CauseTrace MVP) has a training cutoff after the window, so the whole historical window would be R-pre.
+- **qwen3:4b** (CauseTrace) was released in 2025, so every historical month is R-pre for any step that calls it monthly. It is open-weight and can be pinned exactly by its Ollama digest. Under option M (§7.5), AP3 calls no LLM monthly and this tier does not apply to its features.
+- **claude-sonnet-5-5** (causal-rag-mvp) has a training cutoff after the window, so the whole historical window would be R-pre.
 - **typesafe/jev** has no recorded model version or cutoff, so its 272 saved answers are R-pre by default.
 - The development window (2019-03..2022-12) is R-pre for all of them.
 
@@ -332,7 +410,9 @@ Today only the requested alias string is logged, for both gpt-4o and claude-sonn
 - Simplest compliant design: freeze one graph built only from literature published before the first training label (2015-02). It is then valid for every date.
 - Any edge added later carries its date and is masked out of earlier decisions.
 - The graph file is hashed. Rewired-graph placebos keep the node count, the edge count and the degree distribution.
-- The MVP graph's authorship (by an agent that knew post-2023 outcomes, with a post-hoc redefinition of edge E1) is disclosed. It is not reused as the AP3 graph.
+- **CauseTrace (Amendment A):** the graph is built from Garg & Fetzer claims with a paper `year`. The point-in-time rule is applied by filtering on that field (primary: `year ≤ 2014`, §7.5). The field is annual and unverified, so the filter is conservative by design.
+- The concept→channel list and the sign table are designed today by people who know 2015–2026 history. They are frozen and hashed before any scoring, and this hindsight is disclosed.
+- The causal-rag-mvp graph is not reused: it has 6 hand-authored nodes, was written by an agent that knew post-2023 outcomes, and had one edge redefined post hoc.
 
 ### 8.6 Testing Agent access limits (AP3)
 
@@ -381,6 +461,8 @@ v2's family {B-All vs A, C vs A, D vs C} is retired:
 | Development 2019-03..2022-12 | Development (already run; canonical) | R-pre for every model above. Build and debug only |
 | Historical 2023-01..2026-08 | Retrospective. Partly inspected by the earlier MVP (disclosed) | R-pre or R-post depending on the pinned model's documented cutoff (§8.1) |
 | Prospective (first month-end after the v3 freeze and every generator freeze) | Prospective | **P: the only clean LLM evidence** |
+
+Amendment A: if AP3 uses option M, it makes no monthly LLM call. Its historical results are then retrospective in the same sense as AP1's: disclosed design hindsight, no knowledge-cutoff tier. The LLM tiers still apply to AP2A-1M, to AP3 under option T, and to the native AP2A/AP2B replays.
 
 ### 9.4 Status of the historical test
 
@@ -431,13 +513,15 @@ Full table: `stage2_v2_to_v3_changelog.csv` (retain / modify / pause / unresolve
 
 ## 12. Work required before a v3 freeze (none of it done here)
 
-1. **AP3 monthly generator:**
-   - point-in-time corpus snapshot (2015-02 onward) with first-publication timestamps;
-   - point-in-time 4-channel graph covering SPY/IEF/LQD-relevant channels;
-   - monthly assessment, majority-vote encoding and logging;
-   - AP3-STD with a matched budget;
-   - AP3-PERM permutations;
-   - unit tests: column count, encoding, constant-column behaviour, cutoff filter.
+1. **AP3 monthly generator (on top of CauseTrace):**
+   - **Graph:** the claims graph filtered to `year ≤ 2014`, with its hash recorded.
+   - **Search:** count-based path limits instead of wall-clock limits.
+   - **Hypothesis artifacts:** frozen concept lists (shocks, channel mediators, asset targets), routing matrix and sign table.
+   - **Testing Agent:** built for the approved evidence source. Option M needs mediator series with `available_at` rules and frozen thresholds. Option T needs a dated corpus from 2015-02 with first-publication timestamps and per-call LLM logging.
+   - **Encoding:** majority-vote encoding where relevant.
+   - **Controls:** AP3-FLAT, AP3-RG, AP3-PERM (and AP3-MED under option M).
+   - **Unit tests:** column count, encoding, constant-column behaviour, year filter, determinism (same inputs give the same features on two machines).
+   - **Data handling:** the claims table is hashed and kept local because its licence is unresolved.
 2. **Scorer change (after approval):**
    - system list = AP1, AP3, AP3-STD, AP3-PERM (+ AP2A-1M);
    - a feature-file interface for agent columns, with hash checks;
@@ -460,8 +544,9 @@ Full table: `stage2_v2_to_v3_changelog.csv` (retain / modify / pause / unresolve
 |---|---|---|
 | **B1** | Adopt the two-track design: Track V (controlled, same frozen BL) as **primary**; Track N (native systems) as supplementary | Approve |
 | **B2** | Bring the Agent Committee into Track V as **AP2A-1M**: same three agents, output re-specified to one-month SPY/IEF/LQD excess-return views, frozen BL and common Ω. The alternative is native-only (no H3) | Approve AP2A-1M **and** keep native AP2A in Track N |
-| **B3** | **Evidence standard and model choice for LLM systems.** (a) Prospective-only confirmatory, historical diagnostic. (b) Pin a model whose documented cutoff precedes most of the window (e.g. a still-pinnable gpt-4o snapshot, documented cutoff Oct-2023, giving 34 R-post months), and treat R-post historical months as the pre-registered primary analysis, always labelled retrospective. (c) Accept R-pre historical results as primary. AP3 and AP3-STD must share the model in every option | (b) if a snapshot can be pinned with full logging, otherwise (a). Not (c) |
-| **B4** | **AP3 schema:** N_ch = 4 channels (Growth, Inflation, Policy/rates, Risk/credit); 3 states, Insufficient as reference; majority vote of R = 5; monthly unit; no interactions in Primary. This gives 16 columns | Approve, or supply the channel list |
+| **B3** | **Evidence standard and model choice for LLM systems.** (a) Prospective-only confirmatory, historical diagnostic. (b) Pin a model whose documented cutoff precedes most of the window (e.g. a still-pinnable gpt-4o snapshot, documented cutoff Oct-2023, giving 34 R-post months), and treat R-post historical months as the pre-registered primary analysis, always labelled retrospective. (c) Accept R-pre historical results as primary. AP3 and AP3-STD must share the model in every option. Under B4 option M, AP3 makes no monthly LLM call, so B3 then applies only to AP2A-1M | (b) if a snapshot can be pinned with full logging, otherwise (a). Not (c) |
+| **B4** (revised, Amendment A) | **AP3 monthly evidence source and schema.** CauseTrace supplies static literature paths, so the Testing Agent must supply the monthly evidence: **T** (point-in-time text, LLM monthly), **M** (point-in-time market mediators, deterministic) or **S** (literature-selected interactions, no new data). Under T and M: 4 channels (Growth, Inflation, Policy/rates, Risk/credit), 3 states with Insufficient as reference, and 16 columns. The graph is frozen from papers dated ≤ 2014. The concept lists and sign table are frozen before scoring | **M** primary, T as a prospective extension; approve the channel list and sign-table procedure |
+| **B8** (new) | Option M uses mediators, such as 2-year yield, breakevens and IG spread changes, that overlap the paused conventional signals. Approve their use **only** inside AP3 and its AP3-MED control, pre-registered from the graph, with no selection on results. The B experiments stay paused | Approve with these restrictions, or choose option T or S |
 | **B5** | Track N universes: keep native SPY/TLT for AP2A/AP2B (cross-system raw metrics descriptive; active CER primary), or require SPY/IEF/LQD natively | Keep native; report active CER |
 | **B6** | Keep the whole historical window sealed until every v3 generator is frozen (single opening), rather than opening AP1 now | Keep sealed |
 | **B7** | JEV's 272 saved answers have no prompt, recorder or model version. Accept them as R-pre diagnostics only, and approve building a logged recorder for prospective JEV runs, or drop AP2B from prospective evaluation | Accept as diagnostic; build the recorder |

@@ -26,10 +26,14 @@ Agent feature encoding,RIDGE,"AP3,AP3-STD,AP3-PERM,AP3-RG,AP3-NR",Insufficient r
 Corpus snapshot and publication filter,LLM,"AP2A-1M,AP3,AP3-STD,AP3-RG (and AP2A/AP2B if documents used)",Same corpus/cutoff for C and D,"Frozen hashed snapshot, first-publication timestamps, per-date filter in access layer",MODIFY
 Model ID / parameters / R / seeds,LLM,"AP3,AP3-STD,AP3-RG,AP3-NR identical; others logged",Same LLM version for C and D,Identical within AP3 family; exact snapshot + documented cutoff logged for every LLM system,MODIFY
 Masked replay and probes,LLM,all LLM systems in R tiers,Not specified,Date masking; numeric context kept; year-guess and sign-flip probes on the prompts actually used,NEW
-Knowledge graph,SPECIFIC,"AP3,AP3-RG",Not specified,Point-in-time; every edge with dated source; simplest: literature before 2015-02,NEW
+Knowledge graph,SPECIFIC,"AP3,AP3-RG",Not specified,"CauseTrace claims graph (Garg & Fetzer), filtered to papers with year <= 2014, frozen and hashed; annual vintages robustness only",NEW
 Testing Agent data access,SPECIFIC,AP3,Not specified,available_at <= decision_time; labels through t-2 only; no target-return use at t; audited,NEW
 Native view generation,SPECIFIC,"AP2A,AP2B",n/a,As built (12M SPY/TLT views; JEV p + 5-way tilt),NEW
 Native allocation,SPECIFIC,"AP2A,AP2B",n/a,"As built (2-asset BL 60/40 prior, confidence-scaled Omega, 40-80% SPY; JEV confidence-weighted tilt, 40-80% SPY)",NEW
 Native forecast scoring,SPECIFIC,"AP2A,AP2B",n/a,AP2B: Brier/log/calibration/AUC of p (12M blocks); AP2A: 12M view MSE vs hist mean; never pooled with Track V,NEW
 Raw input signals,SPECIFIC,"AP2A,AP2B,AP3",n/a,May differ by approach; must be point-in-time and logged; EPU/GPR revised vintages barred from Track V,NEW
 "Conventional signals B1-B5, B-All",PAUSED,none,Frozen v2 systems,Paused and archived; not run,PAUSE
+"Concept lists, routing matrix, sign table",SPECIFIC,"AP3,AP3-FLAT,AP3-RG",n/a,Frozen and hashed once before any scoring; exact node strings,NEW
+Path-search limits,SPECIFIC,"AP3,AP3-FLAT,AP3-RG",n/a,"Count-based (<=3 hops, fixed cap, sorted order); no wall-clock limits",NEW
+Testing Agent evidence source,SPECIFIC,AP3 family,n/a,B4: T text / M mediators / S structure; identical across AP3 and its controls,NEW
+Mediator series and thresholds (option M),RIDGE,"AP3,AP3-FLAT,AP3-RG,AP3-MED",n/a,Pre-registered from the graph; available_at rules; frozen thresholds; identical across AP3 controls (B8),NEW
