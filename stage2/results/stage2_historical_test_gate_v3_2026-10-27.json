@@ -1,0 +1,35 @@
+{
+  "created_at_utc": "2026-10-28T00:44:46.493145+00:00",
+  "stage": "Stage 2 historical-test gate",
+  "supersedes": {
+    "file": "stage2_historical_test_gate_v2_2026-10-27.json",
+    "sha256": "b47b92f33d1645fcc713f48cd6307a983cdf4bddb93fece216bba6e13269e806"
+  },
+  "historical_test_status": "SEALED_NOT_SCORED",
+  "decision": "NO-GO",
+  "development_status": "RERUN_COMPLETED_WITH_CANONICAL_SCORER",
+  "development_rerun": {
+    "output_dir": "stage2/results/dev_rerun_v2_2026-10-27",
+    "result_summary_sha256": "7c5b5c52dd95733694e0264c537b2ac88c6fc34752a3e7fe23512f51da644bc2",
+    "predictions_sha256": "5bf05e552c1eea15e18c84dd598461b482484a177be8f51fe8f716eb51e43ba6",
+    "reproduction_vs_saved_summary": "MISMATCH (B2, B4, B-All; A, B1, B3, B5 within ~3e-5)"
+  },
+  "resolved": [
+    "Macro panel gap: corrected calendar-complete panel (BUG-2026-10-27-01)",
+    "DTB4WK pinned and hash-verified (snapshot v2)",
+    "First development forecast uses exactly 48 labels including 2019-01",
+    "Canonical scorer committed and hashed",
+    "DTB4WK risk-free extended through 2026-10-01 and hashed (snapshot v3); development outputs unchanged"
+  ],
+  "blockers": [
+    "The frozen Black-Litterman allocator, its Omega rule (from A's development errors) and the secondary portfolio metrics are not implemented; implement them, or record a versioned decision before the test that portfolio evidence is out of scope.",
+    "Saved development summary is not reproducible by the canonical scorer; the team must formally adopt the canonical reconstruction and its development rerun as the reference (cause of the B2/B4 differences unknown because the original code was not preserved).",
+    "Freeze gate 5: ex-dividend unit test for the 2018+ IEF/LQD/SPY files against issuer distribution history.",
+    "Recommended before opening B's test: settle C's definition (README vs frozen config) and the C/D evaluation track; label the window as partly inspected by the earlier MVP."
+  ],
+  "input_readiness": {
+    "freeze_check": "stage2_data_freeze_check_v3_2026-10-27.json",
+    "historical_test_inputs_ready": true
+  },
+  "historical_test_window_inspected": false
+}

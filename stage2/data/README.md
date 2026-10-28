@@ -21,6 +21,8 @@ The baseline and targets stay the same. Only the added signals change between sy
 | File | Type | Purpose |
 |---|---|---|
 | `model_scoring_panel_E4_meanrule.csv` | **Canonical Stage-2 scoring panel** | Every calendar month 2015-02 to 2026-09 (140 rows); unreleased indicators missing; same-month releases averaged; release count per indicator. SHA-256 `459bef989561aa66f32eccc6d0758ff15b8d50fbd3cdea51b5eced8f0fa456b1`. See `../bug_notes/BUG-2026-10-27-01_same_month_aggregation.md` |
+| `risk_free/DTB4WK_combined_2001-07-31_to_2026-10-01.csv` | **Canonical Stage-2 risk-free series** | DTB4WK 2001-07-31 to 2026-10-01, built by `../scoring/build_dtb4wk_combined.py` from the pinned GitHub copy (to 2025-08-05) and the extension below. SHA-256 `ed2f0bc7e3cc337f1e1ec8f4b2b823a69fed879f2dd6c2c6eefb6e62cd22a66a` |
+| `risk_free/DTB4WK_FRED_extension_2025-08-06_to_2026-10-01.csv` | Source component | Team FRED export, 2025-08-06 to 2026-10-01. SHA-256 `101ec9985c37326330abb58b05ab7167474d80d347bce12fb7e6894d85821d83`. Retrieval timestamp not recorded |
 | `model_balanced_panel.csv` | Superseded for scoring | Monthly panel where all 8 macro surprises are available (2015 onward), plus policy-rate features. Drops 2019-01 and 2025-10..12 and keeps the last same-month release; do not use for Stage-2 scoring |
 | `model_unbalanced_panel.csv` | Model-ready | Longer panel (2001 onward); macro features enter as they become available, tracked by `era_id` |
 | `stage1_macro_panel_snapshot.csv` | Snapshot | Frozen macro surprise z-scores used in the Stage-1 backtest |
