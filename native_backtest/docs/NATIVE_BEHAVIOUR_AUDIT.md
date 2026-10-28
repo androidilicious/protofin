@@ -43,7 +43,7 @@ Nothing in this file changes any system; it records what each one does today.
 | 8 | 5 bp per dollar traded | AP2 native 2.5 bp per dollar traded | Shared evaluation setting | **Adopted for all four**; native cost convention reproduced in the fidelity check |
 | 9 | Pinned, gate-verified prices | AP2 native uses Yahoo adjusted closes | Shared data | **Adopted**; TLT must be pinned and distribution-checked (new) |
 | 10 | Sealed 2023-01..2026-08 | AP2 authors already scored that window | Disclosure | Window stays sealed in the shared framework; prior inspection disclosed |
-| 11 | Llama 3.1 70B for AP3 agents | AP3 agents do not exist; causal-rag-mvp assessor defaults to Claude Sonnet 5.5 | **Requires approval** (model choice, spending, network access) | Open: see the approval request |
+| 11 | Llama 3.1 70B for AP3 agents | AP3 agents do not exist; causal-rag-mvp assessor defaults to Claude Sonnet 5.5 | **Requires approval** (model choice, spending, network access) | Llama 3.1 70B Instruct chosen (2026-10-28); spending, credentials and network access still awaiting approval. The causal-rag-mvp assessor's logic is reused unchanged; its model is substituted, which is documented and not claimed identical |
 
 ## 3. Comparability
 

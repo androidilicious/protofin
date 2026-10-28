@@ -1,5 +1,7 @@
 # Protofin
 
+> **Branch `backtest`:** this branch adds the four-system backtest and its interactive dashboard. See [BACKTEST.md](BACKTEST.md) and run `python mvp/run.py serve`.
+
 An AI investment committee inside a rule-based allocator. Two large-language-model personas give independent views on the macro picture, a CIO persona synthesises them, and Black-Litterman plus a constrained optimizer turn that into a stock/bond split. Every step is measurable, every input has full point-in-time history, and the public demo runs entirely in the browser with no API key anywhere.
 
 - **Live demo:** https://protofin.pages.dev

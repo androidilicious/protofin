@@ -1,7 +1,8 @@
 # Native four-system backtest
 
 Shared evaluation of the four executable systems as they exist in their repositories:
-AP1 (Stage 2 System A), AP2-A Agent Committee, AP2-B JEV, and AP3 Agentic Causal RAG (being built).
+AP1 (Stage 2 System A), AP2-A Agent Committee, AP2-B JEV, and AP3 Agentic Causal RAG (built and tested without a model; awaiting approval of paid inference).
+The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
 The 2023-01..2026-08 window is sealed: the evaluator refuses to score it without a signed GO record.
 
 ## Layout
@@ -16,7 +17,10 @@ The 2023-01..2026-08 window is sealed: the evaluator refuses to score it without
 | `adapters/execution_attribution.py` | External adapter: native → common execution, one adjustment at a time |
 | `vendor/` | Byte-identical copies of native AP2 code and saved outputs, with `PROVENANCE.json` |
 | `config/` | Shared evaluation settings; TLT data manifest |
-| `out/` | Decision records, reproduction and development reports (development months only) |
+| `ap3/` | Causal RAG: graph vintages and channel library (CauseTrace code, vendored unchanged), CauseTrace tools, Hypothesis Agent, Testing Agent (causal-rag-mvp assessor logic, model substitution documented), mediator tests, status encoder, calibration (G4c checks), allocation, LLM client (paid providers refuse without approval), engineering mock and fixtures |
+| `docs/GO_NO_GO_2026-10-28.md` | Gate status; decision NO-GO; what must happen before GO |
+| `out/` | Decision records, reproduction and development reports (development months only), AP3 library manifest, gate record |
+| `tests/` | Framework, native adapters and AP3 tests |
 
 ## Reproduce (from the repository root)
 
@@ -28,7 +32,11 @@ python stage2/scoring/stage2_backtest.py --spec stage2/scoring/stage2_run_spec_d
 python -m native_backtest.scripts.build_ap1_decisions
 python -m native_backtest.scripts.ap2_native_reproduction
 python -m native_backtest.scripts.development_evaluation
+python stage2/scoring/fetch_pinned_inputs.py --manifest native_backtest/config/ap3_claims_manifest_v1.json --out native_backtest/data/_external   # local use only
+python -m native_backtest.scripts.build_ap3_libraries
 python -m pytest -q native_backtest/tests
 ```
 
 Node 22 is required for the AP2 native engine. No step calls a model or the network except the GitHub fetch of pinned inputs.
+
+The same steps run with `python mvp/run.py fetch && python mvp/run.py build && python mvp/run.py check`.
