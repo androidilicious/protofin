@@ -1131,11 +1131,15 @@ def compare_to_saved_development(
 
     for system in ["A", "BAll"]:
         got_key = "B-All" if system == "BAll" else system
+        # The 2026-10-27 saved summary labels B-All as "BAll"; this scorer's own
+        # summaries use "B-All". Accept either so canonical results can be the reference.
+        exp_r2 = expected["per_asset_oos_r2"]
+        exp_key = system if system in exp_r2 else got_key
         for asset in ASSETS:
             _compare_number(
                 f"oos_r2.{system}.{asset}",
                 got["per_asset_oos_r2"][got_key][asset],
-                expected["per_asset_oos_r2"][system][asset],
+                exp_r2[exp_key][asset],
                 atol,
                 diffs,
             )

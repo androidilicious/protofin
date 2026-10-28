@@ -81,26 +81,38 @@ The same model is used for every system:
 | Development | Mar 2019 – Dec 2022 | Diagnostics and development only, not confirmatory claims |
 | Historical pseudo-OOS test | Jan 2023 – Aug 2026 | **Not yet opened** 🔒 |
 
-## Current Development Result
+## Canonical Scorer
 
-- Credit Spread Level showed a small positive point estimate.
-- Yield Curve showed a small positive point estimate.
-- Credit Spread Change and Momentum were weaker.
-- VRP was substantially weaker.
-- B-All did not outperform A in the development period.
-- Confidence intervals generally include zero.
+The reconstructed scorer in [`scoring/`](scoring/) and its development rerun are the **canonical Stage 2 reference** from 2026-10-27 ([adoption record](methodology/Stage2_Canonical_Scorer_Adoption_2026-10-27.md)). The original development scorer was never saved and cannot be reproduced byte-for-byte; the canonical rerun supersedes the earlier results, in particular for B2, B4 and B-All.
+
+## Current Development Result (canonical)
+
+Normalised pooled squared-error improvement vs A (positive = better), 46 development months, 90% bootstrap interval:
+
+| System | Point | 90% interval |
+|---|---|---|
+| **B-All (primary)** | −0.046 | −0.125 to +0.001 |
+| B1 credit level | +0.004 | −0.001 to +0.011 |
+| B2 credit change | −0.030 | −0.090 to +0.005 |
+| B3 curve | +0.003 | −0.001 to +0.010 |
+| B4 VRP | −0.384 | −1.098 to −0.0001 |
+| B5 momentum | −0.018 | −0.054 to +0.004 |
+
+- B-All did not outperform A; nearly all of its shortfall, and of B4's, comes from decisions 2020-05 and 2020-06.
+- Portfolio layer (secondary, diagnostic in development): weights stay near 45/35/20 and no B system beats A or the static 45/35/20 portfolio on CER.
 
 > These are development results.
 > They are **not** evidence that B1 or B3 should replace B-All.
 
-Details: [`results/stage2_dev_result_summary.json`](results/stage2_dev_result_summary.json)
+Details: [`results/dev_rerun_v2_2026-10-27/DEV_RERUN_REPORT.md`](results/dev_rerun_v2_2026-10-27/DEV_RERUN_REPORT.md) and [`results/dev_rerun_v4_portfolio_2026-10-27/`](results/dev_rerun_v4_portfolio_2026-10-27/). The earlier [`results/stage2_dev_result_summary.json`](results/stage2_dev_result_summary.json) is superseded.
 
 ## Current Status
 
 - ✅ Methodology frozen
-- ✅ Data snapshot / hashes created
-- ✅ Development backtest completed
-- 🔒 Historical test still locked
+- ✅ Data snapshot / hashes created (snapshot v3)
+- ✅ Canonical scorer adopted; development rerun completed
+- ✅ Black–Litterman portfolio layer implemented ([conventions](methodology/Stage2_Portfolio_Conventions_v1.md))
+- 🔒 Historical test still locked (see the latest `results/stage2_historical_test_gate_*.json`)
 - ⬜ JEV approach not yet evaluated
 - ⬜ Causal-RAG approach not yet evaluated
 - ⬜ MVP not yet built
@@ -129,8 +141,10 @@ Primary questions:
 
 | Folder | Purpose |
 |---|---|
-| `config/` | Frozen experimental settings |
-| `methodology/` | Experiment design and methodological review |
+| `config/` | Frozen experimental settings, including the frozen Black–Litterman Ω |
+| `scoring/` | Canonical Stage 2 scorer, portfolio layer, run specs, input fetcher and tests |
+| `bug_notes/` | Implementation bug notes |
+| `methodology/` | Experiment design, methodological review, portfolio conventions, scorer adoption |
 | `data/` | Model-ready data used in the quantitative pipeline ([data README](data/README.md)) |
 | `notebooks/` | Data construction and backtesting code |
 | `signal_research/` | Research behind conventional signal selection |
@@ -139,6 +153,6 @@ Primary questions:
 
 ## Important Caveat
 
-The historical 2023–2026 evaluation should **not** be opened until the remaining macro-data availability issue is resolved (decision months 2025-10 to 2025-12 are missing from the accessible macro panel; see [`results/stage2_historical_test_gate_2026-10-27.json`](results/stage2_historical_test_gate_2026-10-27.json)).
+The historical 2023–2026 evaluation must **not** be opened until every gate in the latest `results/stage2_historical_test_gate_*.json` passes. The late-2025 macro gap is resolved: those months are kept with unreleased indicators missing ([BUG-2026-10-27-01](bug_notes/BUG-2026-10-27-01_same_month_aggregation.md)).
 
 No performance claims should be made about the historical test. It has not been run.

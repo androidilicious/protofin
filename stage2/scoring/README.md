@@ -2,13 +2,30 @@
 
 This package reconstructs the **Stage 2 A/B forecast scorer** from the frozen Stage-2 methodology, frozen config, signal manifest, saved development summary, and the existing Stage-1 implementation.
 
-## Important status
+## Status: adopted canonical reference (2026-10-27)
 
-This is the **canonical reconstructed implementation**, not a claim that we recovered the exact temporary code that produced the earlier development run. That earlier code was executed but was not saved as a standalone file.
-
-For that reason, the first job of this scorer is to rerun **development only** and compare the new output against the saved `stage2_dev_result_summary.json`. A mismatch is a **hard audit signal**. It must not be tuned away after looking at the historical test.
+This scorer and its development rerun are the **canonical Stage 2 reference implementation and results** ([adoption record](../methodology/Stage2_Canonical_Scorer_Adoption_2026-10-27.md)). It is a reconstruction: the earlier development scorer was run but never saved, so it cannot be reproduced byte-for-byte. The canonical rerun supersedes `../results/stage2_dev_result_summary.json`, in particular for B2, B4 and B-All.
 
 The historical test is locked by default.
+
+## Reproduce the canonical development run
+
+From the repository root:
+
+```bash
+python stage2/scoring/fetch_pinned_inputs.py --manifest stage2/reproducibility/stage2_data_snapshot_manifest_v3_2026-10-27.json
+python stage2/scoring/build_dtb4wk_combined.py
+python stage2/scoring/stage2_backtest.py --spec stage2/scoring/stage2_run_spec_dev_v4.json --mode development --output-dir <dir>
+(cd stage2/scoring && python -m pytest -q)
+```
+
+`development_reproduction_check.json` must report MATCH against `results/dev_rerun_v2_2026-10-27/stage2_result_summary.json`. A MISMATCH is a stop signal.
+
+## Portfolio layer
+
+`stage2_portfolio.py` implements the frozen Black–Litterman allocator, both portfolio benchmarks and all secondary metrics. Details the freeze leaves open are fixed in [`../methodology/Stage2_Portfolio_Conventions_v1.md`](../methodology/Stage2_Portfolio_Conventions_v1.md), written before any portfolio result was computed. Historical mode loads the frozen Ω from `../config/stage2_omega_from_A_development.json` via `stage2_run_spec_historical_v4.json`.
+
+The sections below are the reconstruction notes supplied with the package.
 
 ## What this implements
 
@@ -104,11 +121,11 @@ python stage2_backtest.py \
 
 With the current `SEALED_NOT_SCORED` gate, this command intentionally fails.
 
-## What is not reconstructed here
+## What is not built here
 
-The Black-Litterman portfolio layer is secondary evidence and is **not** implemented in this reconstruction. The frozen files record the high-level allocator parameters, but the available artifacts do not fully specify every computational convention from the earlier MVP. Inventing those details would reduce reproducibility rather than improve it.
+The Black-Litterman portfolio layer, originally left out of the reconstruction, has since been added in `stage2_portfolio.py` (see "Portfolio layer" above); its open conventions are documented rather than inferred from the earlier MVP.
 
-The JEV standard-RAG and Causal-RAG signal generators are also not built here. When they are ready, they should feed the same frozen downstream scoring logic.
+The JEV standard-RAG and Causal-RAG signal generators are not built here. When they are ready, they should feed the same frozen downstream scoring logic.
 
 ## Tests
 
