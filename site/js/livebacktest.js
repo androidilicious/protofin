@@ -2,13 +2,21 @@
 // either the saved gpt-4o masked views (instant replay) or the in-browser committee (WebLLM), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY } from './allocation.js?v=202609222113';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202609222113';
 import { ensureEngine, browserRoleCall, parseView, parseCio, DOWNGRADE } from './pipeline.js?v=202609222113';
 
+// Jev's tilt options as points added to the stock-minus-bond edge (illustrative, not calibrated).
+const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };
+
+// Paths resolve from this module, so pages in subfolders (site/jev/) load the same data.
 export async function loadMonths() {
-  const r = await fetch('./data/backtest_months.json', { cache: 'no-store' });
+  const r = await fetch(new URL('../data/backtest_months.json', import.meta.url), { cache: 'no-store' });
   if (!r.ok) throw new Error('backtest_months.json not found');
-  return (await r.json()).months;
+  const months = (await r.json()).months;
+  // Jev's answers were recorded once (research/out/jev_backtest.json); the site only replays them.
+  const j = await fetch(new URL('../data/jev_runs.json', import.meta.url), { cache: 'no-store' }).then(x => (x.ok ? x.json() : null)).catch(() => null);
+  for (const m of months) m.jev = j?.months?.[m.as_of] || null;
+  return months;
 }
 
 function stats(navs, rets, rfMonthly) {
@@ -40,6 +48,22 @@ export class LiveBacktest {
   async decide(m, onEvent) {
     const cost = this.opts.costBps / 1e4;
     let views = null, conf = 'Medium', confRep = 'Medium', detail = {};
+    if (this.opts.mode === 'jev') {
+      // saved typesafe/jev answer: P(stocks beat bonds) plus a five-way tilt with a confidence
+      await new Promise(r => setTimeout(r, this.opts.delayMs ?? 120));
+      const jv = m.jev;
+      if (!jv) { const d0 = allocate(m.sigma, null, 'Medium', m.rf_pct, null); return { w: d0.target_spy, conf: 'n/a', confRep: 'n/a', views: null, detail: { source: 'no saved Jev answer', cio: 'prior only' } }; }
+      const pi = allocate(m.sigma, null, 'Medium', m.rf_pct, null).pi;
+      const baseEdge = (pi[0] - pi[1]) * 100;
+      const edge = baseEdge + jv.confidence * jv.offset;            // blend: confidence is the weight on Jev's tilt
+      const S = m.sigma, x = ((edge / 100) / DELTA + S[1][1] - S[0][1]) / (S[0][0] + S[1][1] - 2 * S[0][1]);
+      const w = Math.min(MAX_SPY, Math.max(MIN_SPY, x));
+      return { w, conf: `${(jv.confidence * 100).toFixed(0)}%`, confRep: `${(jv.confidence * 100).toFixed(0)}%`, views: [+(jv.p * 100).toFixed(0), +jv.offset.toFixed(2)],
+               detail: { source: 'saved typesafe/jev answer', econ: { text: `P(stocks beat bonds, 12m) = ${(jv.p * 100).toFixed(0)}%` },
+                 risk: { text: `tilt: ${jv.choice} · ` + Object.entries(jv.probs).map(([k, v]) => `${k.replace('_', ' ')} ${(v * 100).toFixed(0)}%`).join(' · ') },
+                 cio: `Jev tilt ${jv.offset >= 0 ? '+' : ''}${jv.offset.toFixed(2)} pts × confidence ${(jv.confidence * 100).toFixed(0)}% → edge ${baseEdge.toFixed(2)} → ${edge.toFixed(2)} → SPY ${(w * 100).toFixed(1)}%`, jev: jv,
+                 calc: { S, delta: DELTA, pi: [pi[0] * 100, pi[1] * 100], baseEdge, weightedOffset: jv.confidence * jv.offset, edge, xRaw: x * 100, w: w * 100, lo: MIN_SPY * 100, hi: MAX_SPY * 100, offsets: TILT_OFFSET } } };
+    }
     if (this.opts.mode === 'saved') {
       if (m.saved) { views = [m.saved.spy_q, m.saved.tlt_q]; confRep = m.saved.confidence; detail = { source: 'saved gpt-4o masked view', econ: null, risk: null, cio: `SPY ${m.saved.spy_q}% · TLT ${m.saved.tlt_q}% · ${confRep}` }; }
       else { detail = { source: 'no saved view', cio: 'prior only' }; }

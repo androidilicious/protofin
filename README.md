@@ -154,3 +154,9 @@ Git-ignored: `.env`, root `state/` and `runs/`, downloaded data under `data/` (e
 - Google News has no archive; FOMC statements are the only text input with full history. GDELT is wired in as an archive source but its public endpoint throttles.
 - Two assets only; the optimizer uses the exact two-asset closed form.
 - The in-browser models are small and drift from the output format more often than gpt-4o; the parsers tolerate this, and rejected replies fall back to the prior and are shown verbatim.
+
+## Jev (experimental, `/jev/`)
+
+`site/jev/` replays the answers of TypeSafe's Jev model (`typesafe/jev`, a decision model on Cloudflare Workers AI) for every month since January 2004, recorded once and saved in `site/data/jev_runs.json` (source: `research/out/jev_backtest.json`). Each month Jev saw the same masked payload as the committee and answered two typed questions: the probability that stocks beat bonds over 12 months, and a five-way tilt with a confidence. The tilt adds up to ±3 points to the 60/40 baseline's stock-over-bond edge, weighted by that confidence, then the same optimizer and 40–80% band apply. The page calls no model.
+
+`python research/jev_eval.py` scores the answers against realised 12-month outcomes: no forecasting skill (AUC 0.52, direction right 56% vs 69% for always favouring stocks, and confidence inversely related to accuracy). Kept as a demonstration; the ±1.5/±3 points are illustrative, not calibrated.
