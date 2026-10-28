@@ -1,0 +1,37 @@
+{
+  "_comment": "AP3 frozen design inputs, version 1. Human design choices (subject to the independent hindsight audit, gate G3c). Concept strings are exact node names in the Garg & Fetzer claims graph (lower-cased, as CauseTrace normalises them); they are matched exactly, never by embedding similarity. Changing this file creates a new AP3 version.",
+  "version": "1.0",
+  "created": "2026-10-28",
+  "vintage_rule": "decision year Y uses claims from papers with year <= Y-1",
+  "path_limits": {"max_hops": 3, "max_paths_per_pair": 25, "time_limit_s": "none (count-limited only)"},
+  "triggers": {
+    "NFP": {"label": "Nonfarm payrolls release", "concepts": ["employment", "unemployment", "labor market conditions", "nonfarm payrolls"]},
+    "RETAIL_SALES": {"label": "Advance retail sales release", "concepts": ["retail sales", "consumption", "consumer spending"]},
+    "INDUSTRIAL_PRODUCTION": {"label": "Industrial production release", "concepts": ["industrial production", "output", "output growth"]},
+    "ISM_MANUFACTURING": {"label": "ISM manufacturing survey", "concepts": ["business cycle", "output growth", "economic growth"]},
+    "CPI": {"label": "CPI release", "concepts": ["inflation", "cpi inflation", "unexpected inflation", "inflation surprises", "inflation expectations"]},
+    "CORE_CPI": {"label": "Core CPI release", "concepts": ["core inflation", "inflation", "cpi inflation"]},
+    "PPI": {"label": "PPI release", "concepts": ["producer prices", "inflation"]},
+    "AHE": {"label": "Average hourly earnings release", "concepts": ["wages", "wage growth", "nominal wages"]},
+    "FOMC": {"label": "FOMC decision or communication", "concepts": ["monetary policy", "monetary policy shocks", "federal funds rate", "interest rates", "forward guidance", "monetary tightening"]},
+    "MARKET_STRESS": {"label": "Large market move (mediator daily |z| >= 2)", "concepts": ["uncertainty", "risk aversion", "volatility"]}
+  },
+  "assets": {
+    "SPY": {"label": "US equities", "concepts": ["stock prices", "stock returns", "equity returns", "equity prices", "stock market returns"]},
+    "IEF": {"label": "7-10y US Treasuries", "concepts": ["bond yields", "long-term interest rates", "treasury yields", "government bond yields", "term premium", "term structure of interest rates", "bond prices", "bond returns"]},
+    "LQD": {"label": "US investment-grade corporate bonds", "concepts": ["credit spreads", "corporate bond spreads", "default risk", "risk premia", "bond prices"]}
+  },
+  "channel_lexicon": {
+    "_rule": "A path's channel is set by its intermediate concepts in path order; for each intermediate the channels are tried in this priority order and the first substring match wins. A path with no intermediate is 'direct'; one whose intermediates match nothing is 'other'.",
+    "priority": ["policy_rates", "inflation", "risk_credit", "growth"],
+    "policy_rates": ["monetary", "interest rate", "federal funds", "policy rate", "central bank", "yield", "term premium", "term structure", "forward guidance", "tightening", "easing"],
+    "inflation": ["inflation", "price level", "prices", "wage", "cost"],
+    "risk_credit": ["risk", "uncertainty", "volatility", "credit", "spread", "default", "premi", "confidence", "financial condition", "liquidity"],
+    "growth": ["growth", "output", "demand", "consumption", "investment", "earnings", "profit", "employment", "unemployment", "productivity", "income", "gdp", "activity"]
+  },
+  "post_vintage_scan": {
+    "_rule": "A claim is excluded from vintage V (= Y-1) if its cause, effect or title mentions a calendar year > V, or an episode term whose first permitted vintage is > V. Excluded claims are counted per vintage.",
+    "year_regex": "\\b(19[5-9][0-9]|20[0-2][0-9])\\b",
+    "episodes": {"covid": 2020, "covid-19": 2020, "coronavirus": 2020, "sars-cov-2": 2020, "pandemic recession": 2020, "great recession": 2009, "global financial crisis": 2009, "subprime": 2007, "taper tantrum": 2013, "brexit": 2016, "trade war": 2018, "euro area sovereign debt crisis": 2010, "european sovereign debt crisis": 2010}
+  }
+}

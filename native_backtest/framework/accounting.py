@@ -32,6 +32,9 @@ def simulate_records(
     system = {r.system_id for r in records}
     if len(system) != 1:
         raise AccountingError(f"records from several systems: {sorted(system)}")
+    mock = [r.decision_month for r in records if r.generation.get("mode") == "engineering_mock"]
+    if mock:
+        raise AccountingError(f"refusing to score engineering-mock records ({len(mock)} months, first {mock[0]}): mock outputs are never backtest results")
     universe = list(records[0].universe)
     by_month = {r.decision_month: r for r in records}
     for r in records:
