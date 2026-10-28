@@ -1,0 +1,217 @@
+{
+ "basis": "prompt sizes measured by the AP3 development-readiness dry run (engineering mock), plus the assumptions listed",
+ "assumptions": {
+  "typical": {
+   "chars_per_token": 3.5,
+   "ha_turns": 6,
+   "tool_growth_chars": 2000,
+   "ha_base": "user_chars_median",
+   "ha_tool_out": 80,
+   "ha_final_out": 1500,
+   "hyps": 4,
+   "plan_extra_chars": 1700,
+   "plan_out": 600,
+   "assess_words": "170_words_per_chunk",
+   "assess_out": 1000
+  },
+  "upper": {
+   "chars_per_token": 3.0,
+   "ha_turns": 16,
+   "tool_growth_chars": 6200,
+   "ha_base": "user_chars_p90",
+   "ha_tool_out": 150,
+   "ha_final_out": 2000,
+   "hyps": 6,
+   "plan_extra_chars": 3200,
+   "plan_out": 2000,
+   "assess_words": "260_words_per_chunk",
+   "assess_out": 2000
+  }
+ },
+ "prices_usd_per_million_tokens": {
+  "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": [
+   0.72,
+   0.72
+  ],
+  "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": [
+   0.4,
+   0.4
+  ]
+ },
+ "per_month": {
+  "typical": {
+   "calls": 30,
+   "input_tokens": 96475,
+   "output_tokens": 21100,
+   "hypothesis_agent": {
+    "input": 24962,
+    "output": 1900
+   },
+   "testing_agent": {
+    "input": 71513,
+    "output": 19200
+   }
+  },
+  "upper": {
+   "calls": 52,
+   "input_tokens": 389998,
+   "output_tokens": 76250,
+   "hypothesis_agent": {
+    "input": 216970,
+    "output": 4250
+   },
+   "testing_agent": {
+    "input": 173028,
+    "output": 72000
+   }
+  }
+ },
+ "stages": {
+  "1_connectivity_and_canary": {
+   "what": "5 fixed canary prompts at temperature 0; checks credentials, model ID and JSON output",
+   "typical": {
+    "input_tokens": 10000,
+    "output_tokens": 2500,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.01,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.01
+    }
+   },
+   "upper": {
+    "input_tokens": 10000,
+    "output_tokens": 2500,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.01,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.01
+    }
+   }
+  },
+  "2_smoke_test_3_months": {
+   "what": "3 decision months (quiet 2015-03, typical 2019-06, stressed 2020-03): end-to-end parse, citations, tool use",
+   "typical": {
+    "input_tokens": 289425,
+    "output_tokens": 63300,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.25,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.14
+    }
+   },
+   "upper": {
+    "input_tokens": 1169994,
+    "output_tokens": 228750,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 1.01,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.56
+    }
+   }
+  },
+  "3_G3a_12_month_smoke_run": {
+   "what": "12 months to confirm the locked limits (turns, hypotheses, tokens) before the replay",
+   "typical": {
+    "input_tokens": 1157700,
+    "output_tokens": 253200,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 1.02,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.56
+    }
+   },
+   "upper": {
+    "input_tokens": 4679976,
+    "output_tokens": 915000,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 4.03,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 2.24
+    }
+   }
+  },
+  "4_G3b_testing_agent_fixtures": {
+   "what": "30 labelled fixtures x 3 runs (plan + assessor)",
+   "typical": {
+    "input_tokens": 536348,
+    "output_tokens": 144000,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.49,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.27
+    }
+   },
+   "upper": {
+    "input_tokens": 865140,
+    "output_tokens": 360000,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.88,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.49
+    }
+   }
+  },
+  "5_development_replay_95_months": {
+   "what": "full AP3 development replay 2015-02..2022-12 (G4a/G4b)",
+   "typical": {
+    "input_tokens": 8972175,
+    "output_tokens": 1962300,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 7.87,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 4.37
+    }
+   },
+   "upper": {
+    "input_tokens": 36269814,
+    "output_tokens": 7091250,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 31.22,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 17.34
+    }
+   }
+  },
+  "6_contingency_one_full_rerun": {
+   "what": "one allowed version change: repeat stages 3-5 once",
+   "typical": {
+    "input_tokens": 10666223,
+    "output_tokens": 2359500,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 9.38,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 5.21
+    }
+   },
+   "upper": {
+    "input_tokens": 41814930,
+    "output_tokens": 8366250,
+    "usd": {
+     "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 36.13,
+     "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 20.07
+    }
+   }
+  }
+ },
+ "total_through_development_replay_with_contingency": {
+  "typical": {
+   "input_tokens": 21631871,
+   "output_tokens": 4784800,
+   "usd": {
+    "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 19.02,
+    "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 10.57
+   }
+  },
+  "upper": {
+   "input_tokens": 84809854,
+   "output_tokens": 16963750,
+   "usd": {
+    "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 73.28,
+    "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 40.71
+   }
+  }
+ },
+ "prospective_per_month": {
+  "typical": {
+   "usd": {
+    "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.085,
+    "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.047
+   }
+  },
+  "upper": {
+   "usd": {
+    "Amazon Bedrock (meta.llama3-1-70b-instruct-v1:0)": 0.336,
+    "DeepInfra (meta-llama/Meta-Llama-3.1-70B-Instruct)": 0.186
+   }
+  }
+ }
+}

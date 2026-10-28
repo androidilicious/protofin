@@ -2,17 +2,55 @@
   "_comment": "AP3 locked limits, version 1 (proposed values; confirmed in the 12-month smoke run at G3a, then frozen; a later change uses one of the three allowed versions).",
   "version": "1.0",
   "max_hypotheses_per_month": 6,
-  "hypothesis_agent": {"runs": 1, "temperature": 0.0, "seed": 0, "max_tool_calls": 15, "max_turns": 16, "library_entries_per_trigger": 8},
-  "causal_rag": {"max_research_records_per_hypothesis": 8},
-  "testing_agent": {"runs": 3, "temperature": 0.3, "seeds": [1, 2, 3], "chunks_supporting": 4, "chunks_contradicting": 4, "chunks_neutral": 4, "max_rivals": 2, "shuffle_seed": 20261027},
+  "hypothesis_agent": {
+    "runs": 1,
+    "temperature": 0.0,
+    "seed": 0,
+    "max_tool_calls": 15,
+    "max_turns": 16,
+    "library_entries_per_trigger": 8
+  },
+  "causal_rag": {
+    "max_research_records_per_hypothesis": 8
+  },
+  "testing_agent": {
+    "runs": 3,
+    "temperature": 0.3,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "chunks_supporting": 4,
+    "chunks_contradicting": 4,
+    "chunks_neutral": 4,
+    "max_rivals": 2,
+    "shuffle_seed": 20261027
+  },
   "mediators": {
-    "series": ["UST2Y", "UST10Y", "SLOPE_10Y3M", "BEI5Y", "IG_SPREAD", "VIX", "FF_FUTURES_6M"],
-    "windows": ["release_to_decision", "month_to_date"],
+    "series": [
+      "UST2Y",
+      "UST10Y",
+      "SLOPE_10Y3M",
+      "BEI5Y",
+      "IG_SPREAD",
+      "VIX",
+      "FF_FUTURES_6M"
+    ],
+    "windows": [
+      "release_to_decision",
+      "month_to_date"
+    ],
     "z_reference_months": 36,
     "z_threshold_informative": 1.0,
-    "trigger_daily_z": 2.0
+    "trigger_daily_z": 2.0,
+    "stress_aggregation": "one MARKET_STRESS trigger per series per month: the day with the largest |z| of the one-day change, with the count of days at or above trigger_daily_z (proposed 2026-10-28; confirmed at G3a)",
+    "stress_reference_min_obs": 60
   },
-  "tokens": {"max_input_tokens_per_call": 16000, "max_output_tokens_per_call": 2000},
+  "tokens": {
+    "max_input_tokens_per_call": 16000,
+    "max_output_tokens_per_call": 2000
+  },
   "trigger_surprise_abs_z": 1.0,
   "status_tie_rule": "a three-way split across runs counts as Insufficient"
 }

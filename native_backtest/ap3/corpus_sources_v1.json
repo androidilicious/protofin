@@ -1,0 +1,129 @@
+{
+ "_comment": "AP3 evidence corpus, version 1: official Federal Reserve and statistical-agency documents only (proposal D7/B1). Each family lists where its documents are listed, how a document URL is formed, and how its first-publication time (available_at) is read from the document itself. URL patterns and index pages are verified on first acquisition: the fetcher records the HTTP status and SHA-256 of every response and stops on any family whose index does not yield the expected count.",
+ "version": "1.0",
+ "window": [
+  "2015-01-01",
+  "2026-09-30"
+ ],
+ "user_agent": "Protofin research corpus builder (public official documents; contact via the repository owner)",
+ "min_seconds_between_requests": 2.0,
+ "families": {
+  "fomc_statement": {
+   "agency": "Federal Reserve Board",
+   "date_source": "native_backtest/vendor/protofin_approach-2_ce063b8/data/news/fomc_index.csv (statement dates)",
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary{yyyymmdd}a.htm",
+   "available_at_rule": "release time printed on the page ('For release at H:MM a.m./p.m. EST/EDT') on the statement date; default 14:00 ET for scheduled statements",
+   "release_time_regex": "For release at (\\d{1,2}):(\\d{2}) ?([ap])\\.?m\\.?",
+   "role": "policy_communication",
+   "expected_per_year": [
+    7,
+    12
+   ],
+   "verified_2026-10-28": "URL pattern and printed release times confirmed (2019-07-31 2:00 p.m.; 2020-03-03 10:00 a.m.; 2020-03-15 5:00 p.m.)"
+  },
+  "fomc_minutes": {
+   "agency": "Federal Reserve Board",
+   "index": [
+    "https://www.federalreserve.gov/monetarypolicy/fomchistorical{yyyy}.htm",
+    "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+   ],
+   "link_regex": "/monetarypolicy/fomcminutes(\\d{8})\\.htm",
+   "release_date_regex": "Released ([A-Z][a-z]+ \\d{1,2}, \\d{4})",
+   "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes{yyyymmdd}.htm",
+   "available_at_rule": "minutes release date from the FOMC calendar page, 14:00 ET",
+   "default_release_time_et": "14:00",
+   "role": "policy_communication",
+   "expected_per_year": [
+    8,
+    8
+   ],
+   "release_date_search": "the 'Released <Month d, yyyy>' label next to the minutes link: after it on the current calendar page, before it ('Minutes (Released April 10, 2019): HTML') on the historical pages",
+   "verified_2026-10-28": "8 minutes links per year on each historical page 2015-2020; 46 links with release dates on the current calendar page (2021-2026)"
+  },
+  "bls_employment_situation": {
+   "agency": "Bureau of Labor Statistics",
+   "index": [
+    "https://www.bls.gov/bls/news-release/empsit.htm"
+   ],
+   "link_regex": "/news\\.release/archives/empsit_(\\d{8})\\.htm",
+   "url": "https://www.bls.gov/news.release/archives/empsit_{mmddyyyy}.htm",
+   "available_at_rule": "embargo line in the release ('embargoed until 8:30 a.m. (ET) <weekday>, <Month> <d>, <yyyy>')",
+   "embargo_regex": "embargoed until (?:USDL[- ]?\\d{2}[- ]\\d{3,4} )?(\\d{1,2}):(\\d{2}) ?([ap])\\.?m\\.? \\(?(?:ET|EDT|EST)\\)?,? ?(?:[A-Z][a-z]+day,? )?([A-Z][a-z]+ \\d{1,2}, \\d{4})",
+   "role": "data_release",
+   "expected_per_year": [
+    12,
+    13
+   ],
+   "verified_2026-10-28": "index lists 12 releases per year 2015-2024; embargo line matched on Employment Situation, CPI and PPI releases from 2015 and 2019"
+  },
+  "bls_cpi": {
+   "agency": "Bureau of Labor Statistics",
+   "index": [
+    "https://www.bls.gov/bls/news-release/cpi.htm"
+   ],
+   "link_regex": "/news\\.release/archives/cpi_(\\d{8})\\.htm",
+   "url": "https://www.bls.gov/news.release/archives/cpi_{mmddyyyy}.htm",
+   "available_at_rule": "embargo line, as for the Employment Situation",
+   "embargo_regex": "embargoed until (?:USDL[- ]?\\d{2}[- ]\\d{3,4} )?(\\d{1,2}):(\\d{2}) ?([ap])\\.?m\\.? \\(?(?:ET|EDT|EST)\\)?,? ?(?:[A-Z][a-z]+day,? )?([A-Z][a-z]+ \\d{1,2}, \\d{4})",
+   "role": "data_release",
+   "expected_per_year": [
+    12,
+    12
+   ],
+   "verified_2026-10-28": "index lists 12 releases per year 2015-2024; embargo line matched on Employment Situation, CPI and PPI releases from 2015 and 2019"
+  },
+  "bls_ppi": {
+   "agency": "Bureau of Labor Statistics",
+   "index": [
+    "https://www.bls.gov/bls/news-release/ppi.htm"
+   ],
+   "link_regex": "/news\\.release/archives/ppi_(\\d{8})\\.htm",
+   "url": "https://www.bls.gov/news.release/archives/ppi_{mmddyyyy}.htm",
+   "available_at_rule": "embargo line, as for the Employment Situation",
+   "embargo_regex": "embargoed until (?:USDL[- ]?\\d{2}[- ]\\d{3,4} )?(\\d{1,2}):(\\d{2}) ?([ap])\\.?m\\.? \\(?(?:ET|EDT|EST)\\)?,? ?(?:[A-Z][a-z]+day,? )?([A-Z][a-z]+ \\d{1,2}, \\d{4})",
+   "role": "data_release",
+   "expected_per_year": [
+    12,
+    12
+   ],
+   "verified_2026-10-28": "index lists 12 releases per year 2015-2024; embargo line matched on Employment Situation, CPI and PPI releases from 2015 and 2019"
+  },
+  "fed_g17_industrial_production": {
+   "agency": "Federal Reserve Board",
+   "index": [
+    "https://www.federalreserve.gov/releases/g17/release_dates.htm"
+   ],
+   "url": "https://www.federalreserve.gov/releases/g17/{yyyymmdd}/default.htm",
+   "available_at_rule": "release date in the URL at 09:15 ET (the G.17 release time)",
+   "default_release_time_et": "09:15",
+   "role": "data_release",
+   "expected_per_year": [
+    12,
+    12
+   ],
+   "date_regex": "(\\d{1,2})-([A-Z][a-z]+)-(\\d{4})",
+   "verified_2026-10-28": "release_dates.htm lists release dates as d-Month-yyyy (no links); /releases/g17/20190716/default.htm returns the release"
+  },
+  "census_advance_retail_sales": {
+   "agency": "U.S. Census Bureau",
+   "index": [
+    "https://www.census.gov/retail/marts/historic_releases.html"
+   ],
+   "link_regex": "https://www2\\.census\\.gov/retail/releases/historical/marts/adv(\\d{4})\\.pdf",
+   "url": "https://www2.census.gov/retail/releases/historical/marts/adv{yymm}.pdf (yymm = reference month)",
+   "available_at_rule": "release date and time printed on the first page ('... RELEASED AT 8:30 A.M. EDT, <WEEKDAY>, <MONTH> <D>, <YYYY>')",
+   "embargo_regex": "(?:RELEASED? AT|EMBARGOED UNTIL|FOR RELEASE AT) ?(\\d{1,2}):(\\d{2}) ?([AP])\\.?M\\.? ?(?:EDT|EST|ET)?,? ?(?:[A-Z]+DAY,? )?([A-Z][A-Za-z]+ \\d{1,2},? \\d{4})",
+   "format": "pdf",
+   "role": "data_release",
+   "expected_per_year": [
+    12,
+    12
+   ],
+   "verified_2026-10-28": "historical page lists 850 PDFs named adv<yymm>.pdf through adv2608; the release line on page 1 is checked at build time (a document without one is rejected for manual review)"
+  }
+ },
+ "excluded": {
+  "ISM Manufacturing Report on Business": "not an official agency document and published under ISM copyright; AP3 uses its surprise value from the macro panel only",
+  "news and commentary": "outside the frozen AP3 (proposal D7); a news layer would be a later version evaluated prospectively"
+ }
+}

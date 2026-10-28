@@ -33,6 +33,12 @@ The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
 | `docs/TLT_DISTRIBUTION_CHECK_2026-10-28.md`, `scripts/check_tlt_distributions.py`, `data/tlt_dividend_check/` | Freeze gate 5 extended to TLT on official iShares records (result: FAIL on C2 only; team decision needed) |
 | `docs/CONTAMINATION_REGISTER_AND_HINDSIGHT_AUDIT_v1.md` | Draft register and audit for team sign-off |
 | `ap3/fomc_calendar.py` | FOMC trigger calendar from the team's statement index (vendored, hash-pinned) |
+| `ap3/mediator_data.py`, `config/ap3_mediator_manifest_v1.json` | Point-in-time mediator series with availability rules; stress triggers |
+| `ap3/corpus.py`, `ap3/corpus_sources_v1.json`, `scripts/ap3_corpus_fetch.py`, `scripts/ap3_corpus_build.py` | Official-document evidence corpus: fetch, time-stamp, native chunking, canaries, audit (data not yet acquired) |
+| `scripts/ap3_dev_readiness.py`, `out/ap3/dev_readiness/` | 95-month dry run with the engineering mock; frozen packets; measured prompt sizes |
+| `scripts/ap3_inference_budget.py`, `out/ap3/inference_budget_v1.json` | Token and cost estimate by stage |
+| `scripts/diagnose_tlt_gate5.py` | TLT gate 5 diagnosis: price vs NAV vs adjustment, materiality |
+| `docs/AP3_DEV_READINESS_2026-10-28.md`, `docs/AP3_INFERENCE_BUDGET_PROPOSAL_2026-10-28.md`, `docs/SELECTION_BIAS_AGENTIC_WORKFLOW_2026-10-28.md` | Milestone documents |
 | `out/` | Decision records, reproduction reports, development diagnostics (primary contrasts and the within-approach contrast), AP3 library manifest, gate record |
 | `tests/` | Framework, native adapters and AP3 tests |
 

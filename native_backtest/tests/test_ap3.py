@@ -196,3 +196,64 @@ def test_tlt_issuer_captures_verify_and_agree():
     assert len(dist) == len(pairs) == 109 and len(monthly) == 110
     assert dist["ex_date"].min() >= "2014-01-01" and dist["ex_date"].max() <= "2023-02-01"   # no protected-window ex-dates
     assert monthly["month_end"].max() <= "2023-01-31"
+
+
+# ------------------------------------------------------------------ evidence corpus pipeline (synthetic pages in the official formats)
+_BLS_PAGE = (b"<html><body><div id='main-content'><pre>Transmission of material in this release is embargoed until USDL-19-2105 "
+             b"8:30 a.m. (EST) Friday, December 6, 2019\n\n" + b"FIXTURE TEXT. Total nonfarm payroll employment rose in November. " * 60
+             + b"</pre></div></body></html>")
+_FED_PAGE = (b"<html><body><div id='article'><p>For release at 2:00 p.m. EDT</p>"
+             + b"<p>FIXTURE TEXT. Information received since the Federal Open Market Committee met indicates that the labor market remains strong.</p>" * 20
+             + b"</div></body></html>")
+
+
+def test_corpus_documents_take_their_time_from_the_document():
+    from native_backtest.ap3 import corpus
+    d = corpus.make_document("bls_employment_situation", "https://www.bls.gov/news.release/archives/empsit_12062019.htm", _BLS_PAGE,
+                             pd.Timestamp("2019-12-06"))
+    assert d.available_at_et == "2019-12-06T08:30:00-05:00" and d.available_at_source == "printed in the document"
+    s = corpus.make_document("fomc_statement", "https://www.federalreserve.gov/newsevents/pressreleases/monetary20190731a.htm", _FED_PAGE,
+                             pd.Timestamp("2019-07-31"))
+    assert s.available_at_et == "2019-07-31T14:00:00-04:00"
+    # the printed date must agree with the URL date
+    with pytest.raises(corpus.CorpusError):
+        corpus.make_document("bls_employment_situation", "x", _BLS_PAGE, pd.Timestamp("2019-11-01"))
+    ch = corpus.chunks_for(d)
+    assert ch and all(c["chunk_id"].startswith(d.doc_id + "#c") and c["available_at_et"] == d.available_at_et for c in ch)
+
+
+def test_corpus_canaries_are_never_eligible_and_the_audit_catches_leaks():
+    from native_backtest.ap3 import corpus
+    d = corpus.make_document("bls_employment_situation", "u", _BLS_PAGE, pd.Timestamp("2019-12-06"))
+    chunks = corpus.chunks_for(d) + corpus.canaries("2026-09-30")
+    times = ["2019-11-29T20:00:00-05:00", "2019-12-31T20:00:00-05:00", "2022-12-30T20:00:00-05:00"]
+    assert corpus.eligible(chunks, times[0]) == []                       # published after the November decision
+    assert {c["role"] for c in corpus.eligible(chunks, times[1])} == {"data_release"}
+    assert corpus.audit(chunks, times)["pass"]
+    leaked = chunks + [{**corpus.canaries("2018-01-01")[0], "available_at_et": "2019-01-01T00:00:00-05:00"}]
+    assert not corpus.audit(leaked, times)["pass"]
+
+
+def test_tlt_daily_nav_captures_verify():
+    from native_backtest.scripts import diagnose_tlt_gate5 as dg
+    nav = dg.load_nav()   # stops if any part differs from its browser-side SHA-256
+    assert len(nav) == 2288 and str(nav.index[0].date()) == "2013-12-31" and str(nav.index[-1].date()) == "2023-02-01"
+
+
+# ------------------------------------------------------------------ mediators: availability rules and stress triggers
+def test_mediator_availability_rules_and_stress_aggregation():
+    from native_backtest.ap3 import mediator_data as md
+    t = md.available_at(pd.DatetimeIndex(["2019-07-03", "2019-07-05"]), "h15")   # H.15: next business day 18:00 ET (skips 4 July)
+    assert [str(x) for x in t] == ["2019-07-05 18:00:00-04:00", "2019-07-08 18:00:00-04:00"]
+    v = md.available_at(pd.DatetimeIndex(["2019-07-05"]), "close")
+    assert str(v[0]) == "2019-07-05 17:00:00-04:00"
+    try:
+        store, status = md.load_store(include_pending_substitutes=False)
+    except Exception as e:
+        pytest.skip(f"pinned mediators unavailable: {e}")
+    assert status["IG_SPREAD"].startswith("not loaded") and "BEI5Y" not in store.series
+    if "VIX" not in store.series:
+        pytest.skip("pinned VIX not fetched")
+    ev = md.stress_events(store, pd.Timestamp("2020-03-01"), pd.Timestamp("2020-03-31 20:00", tz="America/New_York"), 2.0)
+    assert len({e["series"] for e in ev}) == len(ev)          # one trigger per series
+    assert all(e["days_at_or_above_threshold"] >= 1 and abs(e["z"]) >= 2.0 for e in ev)
