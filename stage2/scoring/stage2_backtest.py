@@ -29,15 +29,15 @@ Implemented scope
 * Paired circular moving-block bootstrap over months.
 * SHA-256 run manifest and optional expected-hash enforcement.
 * Historical-test hard gate.
+* Secondary evidence: the frozen Black-Litterman portfolio layer, portfolio
+  benchmarks and secondary metrics (``stage2_portfolio.py``). Details the freeze
+  leaves open are fixed, before any portfolio result was computed, in
+  stage2/methodology/Stage2_Portfolio_Conventions_v1.md.
 
-Intentionally not implemented here
-----------------------------------
-The Black-Litterman portfolio layer is secondary evidence and is not needed to
-reproduce ``stage2_dev_result_summary.json``. The freeze records allocator
-parameters, but the exact prior/omega computational conventions from the earlier
-MVP are not fully specified in the files available to this reconstruction. This
-module therefore does not invent those conventions. Recover/audit that allocator
-separately before using secondary portfolio claims.
+Status
+------
+Adopted on 2026-10-27 as the canonical Stage-2 reference implementation; see
+stage2/methodology/Stage2_Canonical_Scorer_Adoption_2026-10-27.md.
 """
 
 from __future__ import annotations
@@ -54,6 +54,8 @@ from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional,
 
 import numpy as np
 import pandas as pd
+
+import stage2_portfolio as s2p
 
 
 # -----------------------------------------------------------------------------
@@ -1307,6 +1309,26 @@ def run(spec_path: Path, mode: str, output_dir: Path, historical_approval_token:
         )
         stable_json_dump(reproduction, output_dir / "development_reproduction_check.json")
 
+    # Secondary evidence: frozen Black-Litterman portfolio layer (Freeze v2 §8-10;
+    # open details fixed in stage2/methodology/Stage2_Portfolio_Conventions_v1.md).
+    if mode == "development":
+        a_rows = predictions[predictions["system"] == "A"].sort_values("decision_month")
+        omega = s2p.omega_from_errors({a: a_rows[a_rows["asset"] == a]["error"].to_numpy(float) for a in ASSETS})
+        s2p.write_omega(
+            output_dir / "stage2_omega_from_A_development.json",
+            omega,
+            source=f"System A development OOS errors, decisions {start}..{end}, this run",
+        )
+    else:
+        omega_cfg = spec.get("portfolio", {}).get("omega")
+        if not omega_cfg:
+            raise IntegrityError("Historical mode requires the frozen Omega file in the run spec (portfolio.omega.path)")
+        omega = s2p.read_omega(Path(os.path.expanduser(omega_cfg["path"])))
+    portfolio = s2p.run_portfolio_layer(predictions, targets, SYSTEMS, score_months, omega, MACRO_START)
+    portfolio["returns"].to_csv(output_dir / "stage2_portfolio_returns.csv", index=False)
+    portfolio["bl_diagnostics"].to_csv(output_dir / "stage2_portfolio_bl_diagnostics.csv", index=False)
+    portfolio["metrics"].to_csv(output_dir / "stage2_portfolio_metrics.csv", index=False)
+
     run_report = {
         "status": "SUCCESS" if reproduction is None or reproduction["status"] == "MATCH" else "REPRODUCTION_MISMATCH",
         "mode": mode,
@@ -1320,9 +1342,11 @@ def run(spec_path: Path, mode: str, output_dir: Path, historical_approval_token:
         "reproduction_check": reproduction,
         "warnings": [
             "MODEL_SCALER_DDOF=0 is inherited from the saved Stage-1 implementation because the Stage-2 freeze says mean/std but does not specify ddof for model scaling.",
-            "This scorer uses DTB4WK because the saved development summary explicitly records that operationalization. Reconcile the older DGS1MO snapshot manifest before any historical run.",
-            "The Black-Litterman secondary portfolio layer is intentionally not reconstructed here; do not infer portfolio claims from this forecast-only run.",
+            "The risk-free series is DTB4WK (data snapshot v3); DGS1MO is not used.",
+            "Portfolio results are secondary evidence. In development mode Omega is estimated from the same development errors, so development portfolio results are diagnostics only.",
         ],
+        "portfolio_conventions": "stage2/methodology/Stage2_Portfolio_Conventions_v1.md",
+        "portfolio_omega_diag": portfolio["omega_diag"],
     }
     stable_json_dump(run_report, output_dir / "run_report.json")
     return run_report
