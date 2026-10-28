@@ -8,9 +8,10 @@ A dashboard that compares three investment approaches, each run as its own code 
 | Agentic Workflow — JEV | JEV's saved answers → capped tilt around 60/40 (SPY/TLT) | Development diagnostics 2019-03..2022-12 |
 | Agentic Causal RAG | Knowledge graph → Hypothesis Agent → CauseTrace → Testing Agent → forecast → allocation | **Awaiting validation · results unavailable**; a labelled demo shows the workflow |
 
-The **Experiments** view holds everything outside the primary comparison:
-- **Within the Agentic Workflow:** Committee only (implemented: Economist + Risk Manager → CIO on GPT-4o, saved runs, Black–Litterman on SPY/TLT), JEV only (implemented; the primary system), and Committee + JEV (proposed). The Committee is compared only with JEV.
-- **Secondary experiments:** signal ablations, market-regime experiments, and Standard RAG vs Causal RAG (all proposed).
+The **Experiments** section holds the within-approach (secondary) experiments, grouped by approach, each with a status: Tested, Awaiting validation, Planned, Blocked or Paused.
+- **Deterministic:** the 8-surprise base model (tested); adding financial signals one at a time or all together (paused by team decision, results archived and not shown); market regimes (planned).
+- **Agentic Workflow:** JEV only (tested; the primary system), Agent Committee only (tested; compared only with JEV), Committee + JEV (planned).
+- **Causal RAG:** the full system (awaiting validation), Standard RAG vs Causal RAG, ablations and placebo checks, model and calibration variants (all planned).
 
 The 2023-01..2026-08 protected historical test is **sealed**. Nothing in this MVP scores it, and every number shown is a development diagnostic.
 
@@ -37,11 +38,10 @@ python mvp/run.py check            # project tests + Stage 2 tests + headless-br
 
 ## Using the dashboard
 
-- **Overview** — the three approaches, a one-line finding, growth of $1 (or the gap to each approach's own benchmark), a metric scoreboard with the stronger value per row marked, the primary comparisons, and allocations over time. Protected historical results are shown as sealed.
-- **Approaches** — a side-by-side summary, then one page per approach: how it works, development diagnostics against its own benchmark, its signals and forecasts, weights, the reproduction check and limitations.
-- **Experiments** — the within-approach Committee vs JEV comparison and the proposed secondary experiments, each marked Implemented or Proposed.
-- **Timeline** — from the February 2015 macro-data training period through development diagnostics, the sealed protected test and live tracking.
-- **How it's scored** — the CER definition, the primary comparison, the shared rules, and why this is not a controlled comparison.
+- **Overview** — the verdict first (no clear winner yet), the timeline at a glance, one card per approach (net CER and its range against the approach's own benchmark, or validation progress for Causal RAG), a diagram of the three primary comparisons, findings and limitations, the key metrics, and growth of $1. Nothing is marked as a winner.
+- **Approaches** — one tab per approach: an interactive flow diagram (select a step for a short explanation), results against the approach's own benchmark, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its validation progress and the research inputs it will use, plus a clearly labelled demo.
+- **Experiments** — the within-approach experiments described above, and the Committee vs JEV comparison.
+- **Methodology** — the timeline (2023 marked as overlapping the AI models' training data; open decisions listed), rules and settings tagged Frozen, Needs approval or Differs by design, the validation-status matrix, and expandable details on net CER, statistics and safeguards.
 - Every term with an **i** has a one-sentence explanation on hover, focus or tap.
 
 **Net CER** is the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance). It is not a compound annual return.
@@ -55,6 +55,7 @@ The dashboard reads one file, `mvp/data/dashboard.json`, built by `mvp/build_das
 - every metric and contrast equal to the committed development report;
 - Causal RAG awaiting validation with no results, and its demo marked `is_mock: true`;
 - CER defined as the certainty-equivalent return;
+- experiment statuses identical to `research_design` in `native_backtest/config/framework_config_v1.json`, and the validation matrix taken from `native_backtest/config/validation_status_v1.json`;
 - no internal codes and no text from the claims dataset.
 
 ## What is real and what is a demo

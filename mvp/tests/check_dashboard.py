@@ -17,19 +17,27 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 VIEWS = {
-    "overview": ["So far", "Growth of $1", "Versus own benchmark", "How they compare", "Primary comparisons", "How allocations changed",
-                 "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG", "Awaiting validation · results unavailable",
-                 "Development diagnostics", "Protected historical results", "Experiments"],
-    "approaches": ["The three approaches", "At a glance", "Within-approach variant"],
-    "experiments": ["Within the Agentic Workflow", "Committee only", "JEV only", "Committee + JEV", "Proposed · not run", "Implemented",
-                    "Committee only vs JEV only", "Secondary experiments", "Signal ablations", "Market-regime experiments", "Standard RAG vs Causal RAG"],
-    "deterministic": ["How it works", "Development diagnostics", "Monthly return forecasts", "Portfolio weights", "Reproduction check"],
-    "jev": ["How it works", "JEV's answer each month", "Can't be re-run", "represents the Agentic Workflow"],
-    "committee": ["Within-approach variant of the Agentic Workflow", "12-month views", "Reproduction check", "Sample reasoning"],
-    "causal-rag": ["Awaiting validation · results unavailable", "Research inventory", "not a result", "Demo only", "Safeguards"],
-    "timeline": ["Walk-forward validation", "Training", "Feb 2015", "Protected historical test", "Development diagnostics", "Two stages of checking"],
-    "method": ["Net CER (Certainty-Equivalent Return)", "not a compound annual return", "Primary comparison", "Same for every approach",
-               "Why this is not a controlled comparison"],
+    "overview": ["Three ways to build a portfolio", "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG",
+                 "Awaiting validation", "No clear winner yet", "not statistically clear", "What the primary backtest compares", "Findings so far",
+                 "What we know", "Not yet known", "Key metrics", "Net CER is the primary metric", "Growth of $1", "Versus own benchmark",
+                 "Development 2019–22", "Historical test", "Not run yet",
+                 "Within-approach experiments", "Methodology and validation"],
+    "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Versus its own benchmark",
+                   "Monthly return forecasts", "Holdings over time", "Reproduction check", "Historical test 2023–26: sealed"],
+    "deterministic": ["How it works", "Results", "Monthly return forecasts", "Reproduction check", "Limitations"],
+    "jev": ["How it works", "JEV decision model", "JEV's answer each month", "represents the Agentic Workflow", "Reproduction check"],
+    "committee": ["Within-approach variant of the Agentic Workflow", "Chief investment officer", "12-month views", "Sample reasoning"],
+    "causal-rag": ["Awaiting validation", "Results unavailable", "Knowledge graph", "Hypothesis Agent", "CauseTrace", "Testing Agent",
+                   "Validation progress", "Inputs: research the agents can draw on", "No results yet", "Demo: one month, step by step", "Safeguards"],
+    "experiments": ["Within-approach experiments", "None enters the primary comparison", "Tested", "Awaiting validation", "Planned", "Blocked", "Paused",
+                    "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
+                    "Committee + JEV", "Full Causal RAG", "Standard RAG vs Causal RAG", "Ablations and placebo checks", "Model and calibration variants",
+                    "Agent Committee only vs JEV only"],
+    "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "Awaiting decision", "Jan 2024 – Aug 2026",
+                    "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
+                    "How net CER is calculated", "not a compound annual return"],
+    "timeline": ["Timeline", "Feb 2015"],
+    "method": ["Rules and settings"],
 }
 # Wording the usability review flagged as jargon or as overstating the results.
 JARGON = re.compile(r"\b(best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% SPY|% TLT|% IEF|% LQD", re.I)
@@ -82,10 +90,20 @@ def main() -> int:
                         return r.width > 0 && Math.abs(r.left - (q.left + pad)) < 4 && t.closest('li').textContent.trim().length > 0; }).length""")
                     if lonely:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: {lonely} info icon(s) wrapped onto their own line")
-                    if view in ("overview", "approaches"):
-                        n_cards = page.locator("main .cards .card").count()
+                    if view == "overview":
+                        n_cards = page.locator("main .acard").count()
                         if n_cards != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: {n_cards} approach cards, expected exactly 3")
+                    if view in ("approaches", "deterministic", "jev", "causal-rag"):
+                        n_tabs = page.locator("main .atabs a").count()
+                        if n_tabs != 3:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: {n_tabs} approach tabs, expected exactly 3")
+                    # no view may declare a winner: the old 'stronger value' markers are gone
+                    if page.locator("main .lead, main .leadmark").count():
+                        problems.append(f"[{scheme}/{vp_name}] #{view}: winner markers shown")
+                    stray = page.evaluate("""() => [...document.querySelectorAll('.tip > span')].filter(s => !s.parentElement.classList.contains('show') && getComputedStyle(s).display !== 'none').length""")
+                    if stray:
+                        problems.append(f"[{scheme}/{vp_name}] #{view}: {stray} tooltip(s) visible without being opened")
                     sw = page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
                     if sw > 1:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: page scrolls sideways by {sw}px")
@@ -93,6 +111,21 @@ def main() -> int:
                     report[f"{scheme}/{vp_name}/{view}"] = {"canvases": n_canvas, "chars": len(text)}
                     if shots and (scheme == "dark" or view in ("overview", "experiments")):
                         page.screenshot(path=str(shots / f"{scheme}-{vp_name}-{view}.png"), full_page=True)
+                # flow diagram: selecting a step shows its short explanation
+                page.goto(a.url + "#causal-rag")
+                page.wait_for_selector(".fnode")
+                node = page.locator(".fnode").nth(4)
+                node.tap() if vp_name == "phone" else node.click()
+                page.wait_for_timeout(150)
+                if "Testing Agent." not in (page.text_content(".fdetail") or ""):
+                    problems.append(f"[{scheme}/{vp_name}] flow step did not show its explanation")
+                # experiment branches expand on click or tap
+                page.goto(a.url + "#experiments")
+                page.wait_for_selector(".branch > button")
+                br = page.locator(".branch > button").first
+                br.tap() if vp_name == "phone" else br.click()
+                if br.get_attribute("aria-expanded") != "true":
+                    problems.append(f"[{scheme}/{vp_name}] experiment branch did not expand")
                 # tooltip opens on hover (desktop) or tap (phone)
                 page.goto(a.url + "#overview")
                 page.wait_for_selector(".tip > button")

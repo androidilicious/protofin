@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.1",
+  "version": "1.2",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -166,41 +166,106 @@
       }
     ],
     "within_approach_experiments": {
-      "approach": "Agentic Workflow",
-      "variants": [
+      "rule": "Secondary experiments, reported per approach. None enters the primary Holm family.",
+      "status_classes": {
+        "tested": "implemented and tested",
+        "awaiting_validation": "implemented, awaiting validation",
+        "planned": "planned, not yet implemented",
+        "blocked": "blocked by an external dependency",
+        "paused": "implemented, on hold by recorded team decision; resuming needs a new decision"
+      },
+      "groups": [
         {
-          "id": "AP2A",
-          "name": "Committee only",
-          "status": "implemented (saved native runs, development diagnostics)"
+          "approach": "Deterministic Quantitative Model",
+          "base": {
+            "id": "AP1",
+            "name": "Base model: 8 macro surprises",
+            "status": "tested"
+          },
+          "variants": [
+            {
+              "id": "AP1+B1..B5",
+              "name": "Add one financial signal at a time",
+              "status": "paused",
+              "note": "Stage 2 v2 B1-B5 (Baa-10Y level, its 3-month change, 10Y-3M slope, VRP proxy, 12-month momentum). Code and development runs exist; paused and archived 2026-10-27; not run, ranked or reported."
+            },
+            {
+              "id": "AP1+B-All",
+              "name": "All five financial signals together",
+              "status": "paused",
+              "note": "Stage 2 v2 B-All, the only defined signal set (8 macro surprises + 5 financial signals). Paused with B1-B5."
+            },
+            {
+              "id": "REG",
+              "name": "Market regimes",
+              "status": "planned",
+              "note": "Regimes defined before scoring from information available at each decision; applicable to every approach's results."
+            }
+          ]
         },
         {
-          "id": "AP2B",
-          "name": "JEV only",
-          "status": "implemented (this is the primary Agentic Workflow system)"
+          "approach": "Agentic Workflow",
+          "base": {
+            "id": "AP2B",
+            "name": "JEV only (primary system)",
+            "status": "tested"
+          },
+          "variants": [
+            {
+              "id": "AP2A",
+              "name": "Agent Committee only",
+              "status": "tested",
+              "note": "272 saved native runs reproduced; development diagnostics; compared only with JEV."
+            },
+            {
+              "id": "AP2-COMBO",
+              "name": "Committee + JEV",
+              "status": "planned",
+              "note": "Combination rule to be pre-registered before any protected month is seen."
+            }
+          ]
         },
         {
-          "id": "AP2-COMBO",
-          "name": "Committee + JEV",
-          "status": "proposed; not built"
+          "approach": "Agentic Causal RAG",
+          "base": {
+            "id": "AP3",
+            "name": "Full Causal RAG",
+            "status": "awaiting_validation",
+            "blocked_by": [
+              "paid inference approval",
+              "historical evidence corpus",
+              "fed funds futures export"
+            ]
+          },
+          "variants": [
+            {
+              "id": "AP3-STD",
+              "name": "Standard RAG vs Causal RAG",
+              "status": "planned",
+              "note": "Flat similarity retrieval instead of graph routing; model, corpus, budget and runs matched. Needs Causal RAG results first."
+            },
+            {
+              "id": "AP3-NR/RG/PERM/MED",
+              "name": "Ablations and placebo controls",
+              "status": "planned",
+              "note": "No retrieval (contamination probe), rewired graph, permuted agent columns (capacity placebo), raw mediators without causal routing (v3 design proposal)."
+            },
+            {
+              "id": "AP3-VAR",
+              "name": "Model and calibration variants",
+              "status": "planned",
+              "note": "To be defined and pre-registered; keep the set small."
+            }
+          ]
         }
-      ],
-      "rule": "Reported separately from the primary comparison; never enters the primary Holm family."
+      ]
     },
-    "secondary_experiments": [
-      {
-        "name": "Signal ablations",
-        "status": "proposed"
-      },
-      {
-        "name": "Market-regime experiments",
-        "status": "proposed"
-      },
-      {
-        "name": "Standard RAG vs Causal RAG",
-        "status": "proposed; requires Causal RAG results first"
-      }
-    ],
-    "primary_metric": "Net CER (certainty-equivalent return) = 12 * (mean monthly net excess return - 0.5 * delta * variance of monthly net excess return), delta = 2.5. It is not a compound annual return."
+    "primary_metric": "Net CER (certainty-equivalent return) = 12 * (mean monthly net excess return - 0.5 * delta * variance of monthly net excess return), delta = 2.5. It is not a compound annual return.",
+    "pending_methodology_decisions": [
+      "Protected window: frozen as 2023-01..2026-08; proposal to treat 2023 as a secondary period and 2024-01..2026-08 as the primary test awaits approval.",
+      "Primary metric: net CER for the three-approach comparison vs forecast accuracy in the Stage 2 freeze.",
+      "Whether to resume the paused signal experiments as Deterministic within-approach experiments."
+    ]
   },
   "within_approach_contrasts": [
     [
@@ -208,5 +273,12 @@
       "AP2B"
     ]
   ],
-  "within_approach_contrasts_note": "Committee only vs JEV only, reported as a separate within-approach experiment; not part of the primary family."
+  "within_approach_contrasts_note": "Committee only vs JEV only, reported as a separate within-approach experiment; not part of the primary family.",
+  "change_log": [
+    {
+      "version": "1.2",
+      "date": "2026-10-28",
+      "change": "research_design only: within-approach experiments grouped by approach with status classes; secondary experiments folded into those groups; pending methodology decisions recorded. No scoring setting changed."
+    }
+  ]
 }

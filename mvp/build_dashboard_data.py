@@ -48,6 +48,7 @@ SYSTEMS = {
             "universe": ["SPY", "IEF", "LQD"], "neutral": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20},
             "horizon": "1-month forecasts", "assets_label": "US stocks, 7–10y Treasuries, corporate bonds",
             "tagline": "Turns eight economic-data surprises into return forecasts with a statistical model.",
+            "summary": "A statistical model turns 8 economic-data surprises into 1-month forecasts.",
             "steps": ["Measures how far 8 US data releases beat or missed forecasts",
                       "A shrinkage regression (Ridge) turns those surprises into 1-month return forecasts",
                       "Black–Litterman blends the forecasts with a 45/35/20 starting mix"],
@@ -58,6 +59,7 @@ SYSTEMS = {
             "universe": ["SPY", "TLT"], "neutral": {"SPY": 0.60, "TLT": 0.40},
             "horizon": "12-month question, rebalanced monthly", "assets_label": "US stocks, 20+ year Treasuries",
             "tagline": "JEV, an AI decision model, answers whether stocks will beat bonds over 12 months, and its answer tilts the portfolio.",
+            "summary": "JEV, an AI decision model, makes a 12-month stocks-versus-bonds call that tilts a 60/40 portfolio.",
             "steps": ["JEV reads a snapshot of recent market conditions",
                       "It gives the chance that stocks beat bonds over 12 months, plus a five-way tilt",
                       "The tilt, scaled by JEV's confidence, moves a 60/40 portfolio within 40–80% stocks"],
@@ -68,6 +70,7 @@ SYSTEMS = {
             "universe": ["SPY", "IEF", "LQD"], "neutral": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20},
             "horizon": "1-month forecasts", "assets_label": "US stocks, 7–10y Treasuries, corporate bonds",
             "tagline": "Agents propose cause-and-effect hypotheses from economic research and test them against dated evidence.",
+            "summary": "AI agents propose cause-and-effect hypotheses from research and test them on dated evidence.",
             "steps": ["A research knowledge graph suggests how this month's events could move markets",
                       "A Hypothesis Agent proposes testable hypotheses; a Testing Agent checks them against dated documents and market data",
                       "A calibration model turns tested hypotheses into forecasts; Black–Litterman sets the weights"],
@@ -112,6 +115,102 @@ def metric_block(sim: pd.DataFrame) -> dict:
 
 def contrast_block(c: dict) -> dict:
     return {"cer_difference": _r(c["cer_difference"]), "ci95": [_r(v) for v in c["ci95"]], "p": _r(c["p_two_sided_bootstrap"], 4)}
+
+STATUS_ORDER = ("tested", "awaiting_validation", "planned", "blocked", "paused")
+EXP_TEXT = {
+    "AP1": ("Base model: 8 economic-data surprises", "det", "The Deterministic model as it runs in the primary comparison."),
+    "AP1+B1..B5": ("Add one financial signal at a time", None,
+                   "Credit spread, its 3-month change, yield-curve slope, a volatility premium, or 12-month momentum, each added on its own. "
+                   "Built and run on development months, then put on hold by a team decision on 27 Oct 2026; its results are archived and not reported."),
+    "AP1+B-All": ("All five financial signals together", None,
+                  "The only defined signal set: the 8 surprises plus all five financial signals. On hold with the single-signal runs."),
+    "REG": ("Market regimes", None,
+            "Results split into calm and stressed periods. Regimes must be defined before scoring, using only information available at each decision."),
+    "AP2B": ("JEV only", "jev", "JEV represents the Agentic Workflow in the primary comparison."),
+    "AP2A": ("Agent Committee only", "com", "Three AI agents debate; a chief investment officer sets 12-month views. Compared only with JEV."),
+    "AP2-COMBO": ("Committee + JEV", None, "Combines the Committee's views with JEV's answer. The combination rule must be fixed before any test month is seen."),
+    "AP3": ("Full Causal RAG", "rag", "The complete system: research graph, hypothesis and testing agents, calibration."),
+    "AP3-STD": ("Standard RAG vs Causal RAG", None,
+                "Swaps graph-guided retrieval for plain similarity search, keeping the model, documents and budget the same. Needs Causal RAG results first."),
+    "AP3-NR/RG/PERM/MED": ("Ablations and placebo checks", None,
+                           "No retrieval at all (tests what the model remembers), a scrambled research graph, shuffled agent signals, and raw market data without causal routing."),
+    "AP3-VAR": ("Model and calibration variants", None, "Alternative model settings or calibration methods. To be defined and fixed in advance; kept to a few."),
+}
+GROUP_KEY = {"Deterministic Quantitative Model": "det", "Agentic Workflow": "jev", "Agentic Causal RAG": "rag"}
+
+
+def experiments_block(cfg: dict, within: list) -> dict:
+    groups = []
+    for g in cfg["research_design"]["within_approach_experiments"]["groups"]:
+        def item(x):
+            name, link, detail = EXP_TEXT[x["id"]]
+            assert x["status"] in STATUS_ORDER, x
+            return {"name": name, "status": x["status"], "detail": detail, "link": link}
+        groups.append({"approach": GROUP_KEY[g["approach"]], "base": item(g["base"]), "variants": [item(v) for v in g["variants"]],
+                       **({"blocked_by": g["base"]["blocked_by"]} if "blocked_by" in g["base"] else {})})
+    return {"groups": groups, "within_contrast": within[0] if within else None}
+
+
+def validation_block() -> dict:
+    v = json.loads((ROOT / "native_backtest" / "config" / "validation_status_v1.json").read_text())
+    return {"as_of": v["as_of"], "decision": v["decision"], "columns": v["columns"],
+            "gates": [{"name": g["name"], "cells": g["cells"]} for g in v["gates"]]}
+
+
+def methodology_block(cfg: dict) -> dict:
+    w = cfg["windows"]
+    return {
+        "phases": [
+            {"key": "train", "name": "Training", "from": w["research_timeline_start"], "to": "2019-02", "what": "Models learn; nothing scored"},
+            {"key": "dev", "name": "Development", "from": w["development"][0], "to": w["development"][1], "what": "Diagnostics shown here"},
+            {"key": "test", "name": "Historical test", "from": w["protected"][0], "to": w["protected"][1], "what": "Sealed until the freeze",
+             "overlap": {"from": "2023-01", "to": "2023-12", "label": "Overlaps the AI models' training data"}},
+            {"key": "live", "name": "Live", "from": None, "to": None, "what": "After the freeze"}],
+        "pending": [
+            "Treat 2023 as a secondary period and Jan 2024 – Aug 2026 as the primary test (proposed; the frozen window is Jan 2023 – Aug 2026).",
+            "Confirm net CER as the primary metric (the earlier frozen plan ranked forecast accuracy first).",
+            "Decide whether to resume the paused signal experiments."],
+        "settings": [
+            {"icon": "calendar", "name": "Decision time", "value": "8 p.m. New York time, last trading day of each month", "status": "frozen"},
+            {"icon": "arrow", "name": "Trading", "value": "Next trading day's close; held one month", "status": "frozen"},
+            {"icon": "cost", "name": "Trading cost", "value": "0.05% of every dollar traded", "status": "frozen"},
+            {"icon": "cash", "name": "Cash rate", "value": "4-week Treasury bill", "status": "frozen"},
+            {"icon": "window", "name": "Evaluation periods", "value": "Development Mar 2019 – Dec 2022; test Jan 2023 – Aug 2026", "status": "frozen"},
+            {"icon": "target", "name": "Primary metric", "value": "Net CER (certainty-equivalent return)", "status": "approval", "tip": "cer"},
+            {"icon": "chart", "name": "Secondary metrics", "value": "Sharpe ratio, worst fall, volatility, turnover", "status": "frozen"},
+            {"icon": "scale", "name": "Significance test", "value": "Resampled blocks of months; the three comparisons judged together", "status": "frozen", "tip": "significance"},
+            {"icon": "bench", "name": "Benchmark", "value": "Each approach's own fixed starting mix", "status": "design", "tip": "benchmark"},
+            {"icon": "clock", "name": "Point-in-time data", "value": "Only information public before each decision", "status": "design"},
+            {"icon": "refresh", "name": "Walk-forward", "value": "Refit monthly on past data (Deterministic); replay (JEV); walk-forward calibration (Causal RAG)", "status": "design", "tip": "walkforward"},
+            {"icon": "assets", "name": "Assets and horizon", "value": "Stocks, Treasuries, corporate bonds over 1 month; or stocks and long Treasuries over 12 months", "status": "design"}],
+    }
+
+
+FLOWS = {
+    "det": [
+        {"kind": "data", "label": "Economic surprises", "text": "How far 8 US releases (jobs, retail sales, industrial production, ISM, CPI, core CPI, PPI, hourly earnings) beat or missed forecasts."},
+        {"kind": "model", "label": "Ridge regression", "text": "A linear model, refit every month on past months only, turns the surprises into return forecasts. It shrinks weak signals toward zero."},
+        {"kind": "output", "label": "1-month forecasts", "text": "Expected return above cash for stocks, Treasuries and corporate bonds next month."},
+        {"kind": "alloc", "label": "Black–Litterman", "text": "Starts from 45% stocks, 35% Treasuries, 20% corporate bonds and tilts toward the forecasts, within fixed limits."}],
+    "jev": [
+        {"kind": "data", "label": "Market snapshot", "text": "Recent returns, volatility, rates, the term spread, uncertainty indexes and the cash yield, with calendar dates removed."},
+        {"kind": "agent", "label": "JEV decision model", "text": "An AI model answers one question each month: will stocks beat bonds over the next 12 months? Its saved answers are replayed exactly."},
+        {"kind": "output", "label": "Probability and tilt", "text": "The chance stocks win, a five-way tilt and a confidence level."},
+        {"kind": "alloc", "label": "Capped tilt", "text": "Moves a 60% stocks, 40% long-Treasury portfolio between 40% and 80% stocks, more when JEV is confident."}],
+    "rag": [
+        {"kind": "data", "label": "Event packet", "text": "This month's data surprises, Fed meetings and large market moves, all public before 8 p.m. on decision day."},
+        {"kind": "store", "label": "Knowledge graph", "text": "Cause-and-effect findings from economics papers. Each year sees only papers published before it."},
+        {"kind": "agent", "label": "Hypothesis Agent", "text": "Proposes up to 6 testable hypotheses a month about how the events could move markets, citing research pathways."},
+        {"kind": "tool", "label": "CauseTrace graph search", "text": "CauseTrace: the tools the agent uses to search the graph for pathways and pull the research behind each link."},
+        {"kind": "agent", "label": "Testing Agent", "text": "Tries to disprove each hypothesis three times against dated documents, market data and a rival explanation."},
+        {"kind": "model", "label": "Calibration", "text": "Learns from past months only how much Supported and Contradicted hypotheses moved returns, and turns them into forecasts."},
+        {"kind": "alloc", "label": "Black–Litterman", "text": "Same allocation as the Deterministic model: a 45/35/20 starting mix tilted toward the forecasts."}],
+    "com": [
+        {"kind": "data", "label": "Market snapshot", "text": "The same snapshot JEV reads, with calendar dates removed."},
+        {"kind": "agent", "label": "Economist + Risk Manager", "text": "Two AI agents write independent views of the outlook."},
+        {"kind": "agent", "label": "Chief investment officer", "text": "A third agent weighs both and sets 12-month return views with a confidence level."},
+        {"kind": "alloc", "label": "Black–Litterman", "text": "Tilts a 60/40 portfolio toward the views, more when confidence is high."}],
+}
 
 
 def main() -> int:
@@ -228,22 +327,8 @@ def main() -> int:
                        "sharpe": _r(r["net_sharpe"], 4), "max_drawdown": _r(r["max_drawdown"])} for i, r in enumerate(rr)]
     out["native_vs_common"] = steps
 
-    # Experiments: within the Agentic Workflow, and secondary experiments (none run yet)
-    out["experiments"] = {
-        "within": [
-            {"key": "com", "name": "Committee only", "status": "implemented",
-             "detail": "Three GPT-4o agents (Economist, Risk Manager, CIO) set 12-month views; saved native runs replayed exactly."},
-            {"key": "jev", "name": "JEV only", "status": "implemented",
-             "detail": "JEV's saved answers replayed exactly. This is the primary Agentic Workflow system."},
-            {"key": None, "name": "Committee + JEV", "status": "proposed",
-             "detail": "Combine the Committee's views with JEV's answer. The combination rule must be pre-registered; nothing is built or run."}],
-        "secondary": [
-            {"name": "Signal ablations", "status": "proposed",
-             "detail": "Remove one group of inputs at a time to see which signals matter."},
-            {"name": "Market-regime experiments", "status": "proposed",
-             "detail": "Compare behaviour in calm and stressed markets, with regimes defined before scoring."},
-            {"name": "Standard RAG vs Causal RAG", "status": "proposed",
-             "detail": "Replace graph-guided retrieval with plain similarity search. Needs genuine Causal RAG results first."}]}
+    # Within-approach experiments, grouped by approach (framework_config research_design), in plain words.
+    out["experiments"] = experiments_block(cfg, within)
 
     # Causal RAG: status, research-inventory counts, limits, engineering demo
     man = json.loads((REPORTS / "ap3" / "ap3_library_manifest_v1.json").read_text())
@@ -268,11 +353,20 @@ def main() -> int:
         headline = (f"Development diagnostics, {span}: neither the Deterministic model nor the Agentic Workflow (JEV) beat its own "
                     "benchmark or the other by a statistically significant margin. Causal RAG is awaiting validation. "
                     "Protected historical results (2023–2026) are sealed.")
+        finding = "No statistically clear difference"
     else:
         headline = (f"Development diagnostics, {span}: statistically significant for " + ", ".join(sig_vs + sig_pw)
                     + ". Causal RAG is awaiting validation. Protected historical results (2023–2026) are sealed.")
+        finding = "Significant: " + ", ".join(sig_vs + sig_pw)
     out["notes"] = {
         "headline": headline,
+        "finding": finding,
+        "know": ["Both approaches with results reproduce their authors' saved results exactly.",
+                 f"On {n_dev} development months, neither beat its own benchmark or the other by a margin chance can't explain.",
+                 "Every approach is scored on the same months, trading costs and cash rate."],
+        "not_yet": ["Which approach is better: the historical test (2023–2026) is still sealed.",
+                    "Anything about Causal RAG: its model runs await approval and validation.",
+                    "A controlled comparison: assets, horizons and information differ by design."],
         "can": ["Each approach was run with its own original code, which reproduced its authors' saved results before any comparison.",
                 f"The approaches with results are scored on the same {n_dev} development months, with the same trading costs and cash rate.",
                 "How each approach behaved: its returns, risk, worst falls and how its holdings moved."],
@@ -280,6 +374,9 @@ def main() -> int:
                    f"Small differences. With {n_dev} months, only large gaps could be told apart from chance.",
                    "A controlled comparison. The approaches hold different assets and use different horizons and information.",
                    "Anything about Causal RAG yet. Its results are unavailable until its model run is approved and validated."]}
+    out["validation"] = validation_block()
+    out["methodology"] = methodology_block(cfg)
+    out["flows"] = FLOWS
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False))
     print(f"wrote {OUT.relative_to(ROOT)} ({OUT.stat().st_size/1024:.0f} KB) sha256 {hashlib.sha256(OUT.read_bytes()).hexdigest()[:16]}")

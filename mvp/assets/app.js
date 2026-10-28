@@ -1,52 +1,104 @@
 /* Protofin Backtest dashboard. Reads data/dashboard.json (built by mvp/build_dashboard_data.py).
+   Sections: Overview (the story), Approaches (one tab per primary approach), Experiments (within-approach
+   tests, grouped by approach), Methodology (timeline, frozen settings, validation status).
    Three primary approaches: Deterministic Quantitative Model, Agentic Workflow (represented by JEV),
-   Agentic Causal RAG. The Agent Committee is a within-approach variant shown under Experiments. */
+   Agentic Causal RAG. The Agent Committee is a within-approach variant shown under Experiments.
+   Presentation only: every number comes from dashboard.json unchanged. */
 (function () {
   'use strict';
 
+  // Short, plain-English definitions shown in tooltips.
   const GLOSSARY = {
-    cer: 'Net CER = Certainty-Equivalent Return: the guaranteed yearly return above cash that a risk-averse investor would accept instead of the strategy. Computed as 12 × (average monthly net excess return − ½ × 2.5 × its variance). Higher is better. It is not a compound annual return.',
-    sharpe: 'Sharpe ratio: return earned above cash for each unit of risk taken. Higher is better.',
-    drawdown: 'Maximum drawdown (worst fall): the largest drop from a peak to a later low. Closer to zero is better.',
-    excess: 'Annual return above cash: yearly return after trading costs, minus what Treasury bills paid.',
-    volatility: 'Volatility: how much returns swing, expressed per year. Lower means a smoother ride.',
-    turnover: 'Turnover: share of the portfolio traded per year. More trading means more cost.',
+    cer: 'Net CER = Certainty-Equivalent Return: the guaranteed yearly return above cash a cautious investor would accept instead of the strategy, after costs. Higher is better. It is not a compound annual return.',
+    sharpe: 'Sharpe ratio: return above cash per unit of risk. Higher is better.',
+    drawdown: 'Worst fall (maximum drawdown): the largest drop from a peak to a later low. Closer to zero is better.',
+    excess: 'Return above cash: yearly return after trading costs, minus what Treasury bills paid.',
+    volatility: 'Volatility: how much returns swing in a year. Lower is smoother.',
+    turnover: 'Turnover: share of the portfolio traded in a year. More trading costs more.',
     growth: 'What $1 invested at the start would be worth each month, after trading costs.',
-    gap: 'How much more (or less) $1 in the approach was worth than $1 in its own benchmark, in percent. Above zero means ahead.',
-    benchmark: 'Own benchmark: the approach\'s starting mix (for example 60% stocks, 40% bonds), held fixed and rebalanced monthly. The gap shows what the approach\'s forecasts added.',
-    significance: 'Statistically significant: the gap is too large to be explained by chance alone (5% level, corrected for the three primary comparisons).',
-    ci: 'Likely range: where the true difference most likely lies (95% confidence). If it includes zero, the gap could be chance.',
-    bl: 'Black–Litterman: a standard method that starts from a neutral portfolio and tilts it toward forecasts in proportion to how confident they are.',
-    walkforward: 'Walk-forward validation: each month the model is rebuilt using only data available at that time, then judged on the following month.',
-    causalrag: 'Causal RAG: AI retrieval guided by a map of cause-and-effect findings from economics research, rather than by keyword similarity alone.',
-    kg: 'Knowledge graph: a network of cause-and-effect claims extracted from published economics papers. Each year only uses papers published before it.',
-    hypothesis: 'Hypothesis Agent: proposes how this month\'s events could move markets, citing pathways in the research graph.',
-    testing: 'Testing Agent: tries to disprove each hypothesis against dated documents, market data and a rival explanation. "Supported" means consistent with evidence, not proven.',
-    calibration: 'Calibration model: a statistical model that learns, from past months only, how much tested hypotheses moved returns.',
-    training: 'Training period: from February 2015, the macro data the models learn from. The primary research timeline starts here.',
-    development: 'Development diagnostics: months used to build and check the approaches. Useful for spotting problems, but not evidence of which approach is better.',
-    test: 'Protected historical test: months held back and scored once, after everything is frozen. Still sealed, so no protected historical results exist yet.',
-    prospective: 'Live tracking: months after the freeze. The strongest evidence, because no one could have seen them in advance.',
-    reproduction: 'Reproduction check: re-running each approach\'s own code to confirm it gives exactly the results its authors saved.',
-    common: 'Shared rules: scoring every approach with the same trade timing, trading costs and cash rate.',
-    mock: 'Demo: example output generated without an AI model to show how this screen works. It is not a result.',
+    gap: 'How far ahead (or behind) $1 in the approach is compared with $1 in its own benchmark.',
+    benchmark: "Own benchmark: the approach's fixed starting mix, rebalanced monthly. Beating it means the forecasts added value.",
+    significance: 'Statistically clear: too large to be explained by chance (5% level), after adjusting for running three comparisons.',
+    ci: 'Likely range (95%): where the true difference most likely lies. If it spans zero, the gap could be chance.',
+    bl: 'Black–Litterman: starts from a neutral mix and tilts toward the forecasts, more when they are confident.',
+    walkforward: 'Walk-forward: each month, models are rebuilt from past data only and judged on the month that follows.',
+    causalrag: 'Causal RAG: AI retrieval guided by a map of cause-and-effect findings from economics research, not just keyword similarity.',
+    training: 'Training: from February 2015 the models learn from data; nothing is scored yet.',
+    development: 'Development: months used to build and check the approaches. Good for spotting problems, not for picking a winner.',
+    test: 'Historical test: months held back and scored once, after the freeze. Still sealed, so no results exist.',
+    live: 'Live: months after the freeze. The cleanest evidence, since nobody could have seen them in advance.',
+    overlap: "2023 overlaps the AI models' training data, so those months carry a contamination caution.",
+    reproduction: "Reproduction check: re-running each approach's own code to confirm it gives exactly its authors' saved results.",
+    common: 'Shared rules: scoring every approach with the same trade timing, costs and cash rate.',
+    mock: 'Demo: canned responses that show how the screens work. Never a result.',
     ridge: 'Ridge regression: a linear model that shrinks weak signals toward zero to avoid overfitting.',
-    jev: 'JEV: an AI decision model that answers one question each month: will stocks beat bonds over the next 12 months?',
-    confidence: 'How sure the approach said it was. Higher confidence moves the portfolio further from its starting mix.',
-    regime: 'When policy or geopolitical uncertainty is very high, the Committee automatically lowers its confidence by one level.',
-    inventory: 'Research inventory: how much published research the approach can draw on. It describes inputs, not performance.',
-    signals: 'For each asset, the predicted directions (up = +1, down = −1) of the hypotheses that reached each verdict, added up. The forecast model learns how much each kind is worth.',
-    variant: 'Within-approach experiment: a different version of the same approach. It is compared with that approach\'s primary system, never with the other approaches.',
-    awaiting: 'Awaiting validation: every part is built and tested without an AI model. Results stay unavailable until the model run is approved and its validation gates pass.',
+    jev: 'JEV: an AI decision model, asked each month whether stocks will beat bonds over the next 12 months. Its saved answers are replayed exactly.',
+    confidence: 'How sure the approach said it was. More confidence moves the portfolio further from its starting mix.',
+    regime: 'In months of very high policy or geopolitical uncertainty, the Committee lowers its confidence one level.',
+    inventory: 'Research inventory: how much published research the approach can draw on. An input, not a result.',
+    signals: 'Predicted directions (+1 up, −1 down) of hypotheses with each verdict, added up per asset.',
+    variant: "Within-approach experiment: another version of the same approach, compared only with that approach's primary system.",
+    awaiting: 'Awaiting validation: built and tested without an AI model. Results stay unavailable until model runs are approved and pass their checks.',
+    frozen: 'Frozen: fixed before any protected month is scored; cannot change without a new version and a full rerun.',
+    approval: 'Needs approval: implemented and used, but awaiting final team sign-off.',
+    design: 'Differs by design: each approach keeps its own version of this.',
   };
   const ROUTES = { deterministic: 'det', jev: 'jev', 'causal-rag': 'rag', committee: 'com' };
   const SLUG = { det: 'deterministic', jev: 'jev', rag: 'causal-rag', com: 'committee' };
   const VAR = { det: '--c-det', com: '--c-com', jev: '--c-jev', rag: '--c-rag' };
-  // Assets get their own neutral palette (never an approach colour) and a line style, used in every chart.
+  const NUMBER = { det: 1, jev: 2, rag: 3 };
   const ASSET_VAR = { SPY: '--a-eq', IEF: '--a-gov', TLT: '--a-gov', LQD: '--a-credit' };
   const ASSET_DASH = { SPY: [], IEF: [6, 4], TLT: [6, 4], LQD: [2, 3] };
   const PLAIN = { SPY: 'Stocks', IEF: 'Treasuries', TLT: 'Long Treasuries', LQD: 'Corporate bonds' };
   const BENCH_DASH = [[6, 4], [2, 3]];
+
+  // Line icons (24 px grid, stroked with the current colour).
+  const P = {
+    data: '<ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+    store: '<circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="17" r="2.2"/><circle cx="19" cy="15" r="1.8"/><path d="M8 7.7l8-1.3M7.2 8.8l3.7 6.4M13.9 16.4l3.4-1"/>',
+    agent: '<rect x="4" y="7" width="16" height="12" rx="4"/><path d="M12 7V4"/><circle cx="12" cy="3.2" r="1"/><circle cx="9" cy="13" r="1.3"/><circle cx="15" cy="13" r="1.3"/>',
+    tool: '<circle cx="10.5" cy="10.5" r="5.5"/><path d="M15 15l5 5"/><path d="M8 10.5h5M10.5 8v5"/>',
+    model: '<path d="M4 19l5-6 4 3 7-9"/><path d="M4 4v15h16"/>',
+    output: '<path d="M4 12h12M12 6l6 6-6 6"/>',
+    alloc: '<circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 5"/>',
+    calendar: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    arrow: '<path d="M5 12h12M13 7l5 5-5 5"/>',
+    cost: '<ellipse cx="12" cy="7" rx="6" ry="2.5"/><path d="M6 7v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V7M6 12v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/>',
+    cash: '<rect x="3" y="6" width="18" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9v6M17.5 9v6"/>',
+    window: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M9 6v12M15 6v12"/>',
+    target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>',
+    chart: '<path d="M5 20V11M11 20V5M17 20v-7"/>',
+    scale: '<path d="M12 4v16M7 20h10M5 8h14M5 8l-2.5 6a2.8 2.8 0 0 0 5 0zM19 8l-2.5 6a2.8 2.8 0 0 0 5 0z"/>',
+    bench: '<path d="M4 17l5-5 4 3 7-7"/><path d="M4 12h16" stroke-dasharray="2 3"/>',
+    clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+    refresh: '<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v5h-5"/>',
+    assets: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    check: '<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l2.6 2.5L16 9.5"/>',
+    hourglass: '<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8s8 4 8 8"/>',
+    planned: '<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>',
+    blocked: '<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>',
+    pause: '<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+    review: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>',
+    flow: '<rect x="3" y="9" width="5" height="6" rx="1.5"/><rect x="16" y="9" width="5" height="6" rx="1.5"/><path d="M8 12h8M13 9l3 3-3 3"/>',
+    layers: '<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>',
+    method: '<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/>',
+    dash: '<path d="M7 12h10"/>',
+  };
+  const icon = (k, cls) => `<svg class="i${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${P[k] || ''}</svg>`;
+
+  const STATUS = {   // implementation status (experiments)
+    tested: ['ok', 'check', 'Tested'], awaiting_validation: ['wait', 'hourglass', 'Awaiting validation'], planned: ['plan', 'planned', 'Planned'],
+    blocked: ['block', 'blocked', 'Blocked'], paused: ['pause', 'pause', 'Paused'],
+  };
+  const GATE = {     // validation status (methodology)
+    pass: ['pass', 'check', 'Passed'], review: ['review', 'review', 'Needs a decision'], pending: ['pending', 'planned', 'Pending'],
+    blocked: ['blocked', 'blocked', 'Blocked'], na: ['na', 'dash', 'Does not apply'],
+  };
+  const ORDER = { pass: 0, review: 1, pending: 2, blocked: 3, na: 4 };
+  const SETTING = { frozen: ['frozen', 'lock', 'Frozen'], approval: ['approval', 'review', 'Needs approval'], design: ['design', 'layers', 'Differs by design'] };
 
   let D = null;
   let charts = [];
@@ -59,24 +111,34 @@
   const pct = (x, d = 1) => x == null ? '—' : sgn(x < 0 ? -1 : 0, Math.abs(x * 100).toFixed(d) + '%');
   const pts = (x, d = 1) => x == null ? '—' : sgn(+(x * 100).toFixed(d), Math.abs(x * 100).toFixed(d) + ' pts');
   const num = (x, d = 2) => x == null ? '—' : x.toFixed(d);
-  const monthLabel = m => { const [y, mo] = m.split('-'); return `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+mo - 1]} ${y}`; };
-  const tip = (key, label) => `<span class="tip"><button type="button" aria-label="${esc(label || 'What does this mean?')}">i</button><span role="tooltip">${esc(GLOSSARY[key])}</span></span>`;
-  // Keeps an info icon on the same line as the word before it.
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthLabel = m => { const [y, mo] = m.split('-'); return `${MON[+mo - 1]} ${y}`; };
+  const tipText = (text, label) => `<span class="tip"><button type="button" aria-label="${esc(label || 'What does this mean?')}">i</button><span role="tooltip">${esc(text)}</span></span>`;
+  const tip = (key, label) => tipText(GLOSSARY[key], label);
   const tipw = (word, key) => `<span class="nw">${word}&nbsp;${tip(key)}</span>`;
   const all = () => D.systems.concat(D.variants);
   const sys = key => all().find(s => s.key === key);
   const color = key => css(VAR[key]) || '#888';
   const assetColor = a => css(ASSET_VAR[a]) || '#888';
-  const swatch = key => `<span class="swatch" style="background:${color(key)}"></span>`;
-  const primaryWithResults = () => D.systems.filter(s => s.has_results && D.dev.series[s.key]);
+  const badge = key => `<span class="badge" style="background:var(${VAR[key]})">${NUMBER[key] || ''}</span>`;
   const S = key => D.dev.series[key];
   const devSpan = () => `${monthLabel(D.windows.development[0])} – ${monthLabel(D.windows.development[1])}`;
-  const testSpan = () => `${D.windows.historical_test[0].slice(0, 4)}–${D.windows.historical_test[1].slice(0, 4)}`;
+  const devYears = () => `${D.windows.development[0].slice(0, 4)}–${D.windows.development[1].slice(2, 4)}`;
+  const testYears = () => `${D.windows.historical_test[0].slice(0, 4)}–${D.windows.historical_test[1].slice(2, 4)}`;
   const killCharts = () => { charts.forEach(c => c.destroy()); charts = []; };
   const killChart = id => charts.filter(c => c.canvas.id === id).forEach(c => { c.destroy(); charts = charts.filter(x => x !== c); });
-  const statusChip = st => st === 'implemented' ? '<span class="chip-st ok">Implemented</span>'
-    : st === 'proposed' ? '<span class="chip-st prop">Proposed · not run</span>' : `<span class="chip-st wait">${esc(st)}</span>`;
-  const ragBadge = () => `<span class="pill await"><span class="dot"></span>${esc(D.ap3.status_label)} ${tip('awaiting')}</span>`;
+  const name = k => esc(sys(k).short);
+  const SHORT = { det: 'Deterministic', jev: 'JEV', rag: 'Causal RAG', com: 'Committee' };
+  const statusChip = st => { const [c, ic, l] = STATUS[st]; return `<span class="chip ${c}">${icon(ic)}${l}</span>`; };
+  const statusLegend = (map, keys) => `<div class="ilegend" aria-label="Status key">${keys.map(k => { const [c, ic, l] = map[k]; return `<span class="${c === 'pass' ? 'ok' : c === 'review' ? 'wait' : c === 'pending' ? 'plan' : c === 'blocked' ? 'block' : c}">${icon(ic)}${l}</span>`; }).join('')}</div>`;
+  const NS = '<span class="nsig">Not statistically clear</span>';
+  const dataChip = kind => ({
+    dev: `<span class="chip dev">${icon('chart')}Development ${devYears()} ${tip('development')}</span>`,
+    sealed: `<span class="chip sealed">${icon('lock')}Historical test ${testYears()} · sealed ${tip('test')}</span>`,
+    na: `<span class="chip na">${icon('dash')}Results unavailable ${tip('awaiting')}</span>`,
+    demo: `<span class="chip demo">${icon('info')}Demo · not a result ${tip('mock')}</span>`,
+    live: `<span class="chip plain">${icon('clock')}Live · after the freeze ${tip('live')}</span>`,
+  }[kind]);
 
   function chartDefaults() {
     if (!window.Chart) return;
@@ -85,50 +147,21 @@
     Chart.defaults.color = css('--muted');
     Chart.defaults.borderColor = css('--border');
     Chart.defaults.animation = false;
-    Chart.defaults.plugins.tooltip.backgroundColor = css('--surface-3');
-    Chart.defaults.plugins.tooltip.titleColor = css('--text');
-    Chart.defaults.plugins.tooltip.bodyColor = css('--text-2');
-    Chart.defaults.plugins.tooltip.borderColor = css('--border-strong');
-    Chart.defaults.plugins.tooltip.borderWidth = 1;
-    Chart.defaults.plugins.tooltip.padding = 10;
+    Object.assign(Chart.defaults.plugins.tooltip, { backgroundColor: css('--surface-3'), titleColor: css('--text'), bodyColor: css('--text-2'),
+      borderColor: css('--border-strong'), borderWidth: 1, padding: 10 });
     Chart.defaults.maintainAspectRatio = false;
   }
   function chart(canvas, cfg) {
+    if (!canvas) return null;
     if (!window.Chart) { canvas.parentElement.innerHTML = '<p class="sub">Charts could not load.</p>'; return null; }
     const c = new Chart(canvas, cfg);
     charts.push(c);
     return c;
   }
   const xTicks = (months, n) => ({ ticks: { maxTicksLimit: n || (window.innerWidth < 560 ? 4 : 8), maxRotation: 0, autoSkip: true, callback: (v, i) => monthLabel(months[i]) }, grid: { display: false } });
-  const bottomLegend = { position: 'bottom', labels: { boxWidth: 18, boxHeight: 2, usePointStyle: false } };
-
-  // ---------------------------------------------------------------- shared pieces
-  function statusPills() {
-    return `<div class="pills">
-      <span class="pill ok"><span class="dot"></span>Development diagnostics, ${devSpan()} ${tip('development')}</span>
-      <span class="pill lock"><span class="dot"></span>Protected historical results ${testSpan()}: sealed ${tip('test')}</span>
-      <span class="pill wait"><span class="dot"></span>Live tracking: not started ${tip('prospective')}</span>
-    </div>`;
-  }
-
-  function card(s, compact) {
-    const r = S(s.key);
-    const body = compact ? '<div class="foot"><span></span><span class="more">Details →</span></div>' : r ? `
-      <dl class="kv">
-        <div><dt>Net CER ${tip('cer')}</dt><dd class="num">${pct(r.metrics.cer)}</dd></div>
-        <div><dt>Sharpe ratio ${tip('sharpe')}</dt><dd class="num">${num(r.metrics.sharpe)}</dd></div>
-        <div><dt>Worst fall ${tip('drawdown')}</dt><dd class="num">${pct(r.metrics.max_drawdown)}</dd></div>
-      </dl>
-      <div class="foot"><span>vs own benchmark: <b class="num">${pts(r.vs_neutral.cer_difference)}</b>${r.vs_neutral.p >= 0.05 ? ' (could be chance)' : ''}</span><span class="more">Details →</span></div>`
-      : `<div class="pending">Built and tested without an AI model. Results stay unavailable until the model run is approved and validated.</div>
-         <div class="foot"><span>How it works, with a labelled demo</span><span class="more">Details →</span></div>`;
-    return `<article class="card">
-      <div class="name">${swatch(s.key)}<a class="stretch" href="#${SLUG[s.key]}">${esc(s.name)}</a></div>
-      ${s.key === 'rag' ? `<div>${ragBadge()}</div>` : ''}
-      <p>${esc(s.tagline)}</p>
-      ${body}
-    </article>`;
-  }
+  const bottomLegend = { position: 'bottom', labels: { boxWidth: 18, boxHeight: 2 } };
+  const FMT_WEALTH = { y: v => '$' + v.toFixed(2), tip: v => '$' + v.toFixed(3) };
+  const FMT_GAP = { y: v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%', tip: v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}% vs own benchmark` };
 
   function legendButtons(id, items) {
     return `<div class="legend" id="${id}">` + items.map((it, i) => {
@@ -142,165 +175,202 @@
       ch.setDatasetVisibility(i, !vis); ch.update(); b.setAttribute('aria-pressed', String(!vis));
     }));
   }
-
-  const FMT_WEALTH = { y: v => '$' + v.toFixed(2), tip: v => '$' + v.toFixed(3) };
-  const FMT_GAP = { y: v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%', tip: v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}% vs own benchmark` };
-
-  // Draws a line chart plus its clickable legend; replaces any previous chart and legend with the same ids.
+  // A line chart plus its clickable legend; replaces any previous chart and legend with the same ids.
   function lineChart(canvasId, legendId, months, lines, fmt) {
     killChart(canvasId);
     const lg = document.getElementById(legendId);
     if (lg) lg.outerHTML = legendButtons(legendId, lines);
     const ch = chart(document.getElementById(canvasId), {
       type: 'line',
-      data: { labels: months, datasets: lines.map(l => ({ label: l.label, data: l.data, borderColor: l.color, backgroundColor: l.color,
-        borderWidth: l.dash ? 1.5 : 2.5, borderDash: l.dash || [], pointRadius: 0, pointHoverRadius: 4, tension: 0.15 })) },
-      options: { interaction: { mode: 'index', intersect: false },
+      data: { labels: months, datasets: lines.map(l => ({ label: l.label, data: l.data, borderColor: l.color, backgroundColor: l.color, order: l.dash ? 0 : 1,
+        borderWidth: l.dash ? 2 : 2.5, borderDash: l.dash || [], pointRadius: 0, pointHoverRadius: 4, tension: 0.15 })) },
+      options: { layout: { padding: { right: 8 } }, interaction: { mode: 'index', intersect: false },
         plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => monthLabel(months[it[0].dataIndex]), label: it => ` ${it.dataset.label}: ${fmt.tip(it.parsed.y)}` } } },
         scales: { x: xTicks(months), y: { ticks: { callback: fmt.y }, grid: { color: css('--border') } } } } });
     if (ch) wireLegend(legendId, ch);
   }
-
   function weightsChart(canvas, months, weights, ticks) {
     const assets = Object.keys(weights);
     chart(canvas, { type: 'line',
       data: { labels: months, datasets: assets.map((a, i) => ({ label: PLAIN[a] || a, data: weights[a].map(v => v * 100), fill: i === 0 ? 'origin' : '-1',
-        borderColor: assetColor(a), backgroundColor: assetColor(a) + 'cc', borderWidth: 1.5, pointRadius: 0, tension: 0.1 })) },
+        borderColor: css('--surface'), backgroundColor: assetColor(a), borderWidth: 1.5, pointRadius: 0, tension: 0.1 })) },
       options: { interaction: { mode: 'index', intersect: false },
         plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, boxHeight: 12 } },
           tooltip: { callbacks: { title: it => monthLabel(months[it[0].dataIndex]), label: it => ` ${it.dataset.label}: ${(weights[assets[it.datasetIndex]][it.dataIndex] * 100).toFixed(0)}%` } } },
         scales: { x: xTicks(months, ticks), y: { stacked: true, min: 0, max: 100, ticks: { stepSize: 25, callback: v => v + '%' }, grid: { color: css('--border') } } } } });
   }
 
-  // One shared, symmetric axis for every approach and variant, so the bars can be compared across pages.
+  // One shared symmetric axis for every interval bar, so bars compare across pages.
   function ciAxis() {
-    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.map(Math.abs));
+    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.map(Math.abs)).concat((D.dev.within_contrasts || []).flatMap(c => c.ci95.map(Math.abs)))
+      .concat(D.dev.primary_contrasts.items.filter(c => c.computed).flatMap(c => c.ci95.map(Math.abs)));
     return Math.max(0.01, Math.ceil(Math.max(...vals) * 100) / 100);
   }
-  function ciBar(vs, key) {
+  function ciBar(c, key, leftLabel, rightLabel) {
     const A = ciAxis(), x = v => ((v + A) / (2 * A) * 100).toFixed(2) + '%';
-    return `<div class="ci" role="img" aria-label="Difference ${pts(vs.cer_difference)}, likely range ${pts(vs.ci95[0])} to ${pts(vs.ci95[1])}">
+    return `<div class="ci" role="img" aria-label="Difference ${pts(c.cer_difference)}, likely range ${pts(c.ci95[0])} to ${pts(c.ci95[1])}">
       <div class="cibar"><span class="zero" style="left:${x(0)}"></span>
-        <span class="range" style="left:${x(vs.ci95[0])};width:calc(${x(vs.ci95[1])} - ${x(vs.ci95[0])});background:${color(key)}"></span>
-        <span class="pt" style="left:${x(vs.cer_difference)};background:${color(key)}"></span></div>
-      <div class="cilabels num"><span>${pts(-A, 0)} behind</span><span>0 = same as benchmark</span><span>${pts(A, 0)} ahead</span></div>
-    </div>`;
+        <span class="range" style="left:${x(c.ci95[0])};width:calc(${x(c.ci95[1])} - ${x(c.ci95[0])});background:${color(key)}"></span>
+        <span class="pt" style="left:${x(c.cer_difference)};background:${color(key)}"></span></div>
+      <div class="cilabels num"><span>${leftLabel || 'behind'}</span><span>0</span><span>${rightLabel || 'ahead'}</span></div></div>`;
   }
+  const chance = c => c.ci95[0] <= 0 && c.ci95[1] >= 0;
 
-  const name = k => esc(sys(k).short);
-  function contrastSentence(c) {
-    const verdict = c.significant === true ? 'statistically significant' : c.significant === false ? 'not statistically significant' : 'undecided until all comparisons exist';
-    return `<b>${name(c.a)}</b> minus <b>${name(c.b)}</b>: <b class="num">${pts(c.cer_difference)}</b> net CER per year, likely range ${pts(c.ci95[0])} to ${tipw(pts(c.ci95[1]), 'ci')}; ${verdict}.`;
+  // ---------------------------------------------------------------- phase strip (overview and methodology)
+  function phaseStrip(big) {
+    const ph = D.methodology.phases;
+    const span = p => p.from ? (Date.UTC(+p.to.slice(0, 4), +p.to.slice(5, 7)) - Date.UTC(+p.from.slice(0, 4), +p.from.slice(5, 7) - 1)) / 2.6e9 : 14;
+    const lbl = p => p.from ? `${monthLabel(p.from)} – ${monthLabel(p.to)}` : 'Not started';
+    const icons = { train: 'refresh', dev: 'chart', test: 'lock', live: 'clock' };
+    const tipk = { train: 'training', dev: 'development', test: 'test', live: 'live' };
+    const segs = ph.map(p => {
+      const ov = p.overlap ? (() => { const w = (Date.UTC(+p.overlap.to.slice(0, 4), +p.overlap.to.slice(5, 7)) - Date.UTC(+p.overlap.from.slice(0, 4), +p.overlap.from.slice(5, 7) - 1)) / 2.6e9 / span(p) * 100;
+        return `<span class="overlap" style="width:${w.toFixed(1)}%" title="${esc(p.overlap.label)}"></span>`; })() : '';
+      const yrs = p.from ? `${p.from.slice(0, 4)}–${p.to.slice(2, 4)}` : '';
+      const shortName = { train: 'Training', dev: 'Dev.', test: 'Test', live: 'Live' }[p.key];
+      return `<div class="pseg ${p.key}" style="flex:${span(p).toFixed(1)} 1 0">${ov}<b>${icon(icons[p.key], p.key === 'test' ? 'keep' : '')}<span class="full">${esc(p.name)}</span><span class="short">${shortName}</span></b><small><span class="full">${lbl(p)}</span><span class="short">${yrs}</span></small></div>`;
+    }).join('');
+    const axis = big ? `<div class="paxis">${ph.map(p => `<span style="flex:${span(p).toFixed(1)} 1 0" title="${esc(GLOSSARY[tipk[p.key]])}">${esc(p.what)}</span>`).join('')}</div>` : '';
+    const swatch = { train: 'var(--surface-3)', dev: 'var(--accent)', test: 'var(--warn)', live: 'var(--border-strong)' };
+    const plist = big ? `<ul class="plist">${ph.map(p => `<li><i style="background:${swatch[p.key]}"></i><span><b>${esc(p.name)}</b> · ${esc(p.what)} ${tip(tipk[p.key])}</span><small>${p.from ? `${monthLabel(p.from)} – ${monthLabel(p.to)}` : ''}</small></li>`).join('')}</ul>` : '';
+    return `<div class="phases" role="img" aria-label="Timeline: ${ph.map(p => `${p.name} ${lbl(p)}`).join('; ')}"><div class="pbar">${segs}</div>${axis}${plist}</div>`;
   }
 
   // ---------------------------------------------------------------- overview
+  function miniFlow(key) {
+    const f = D.flows[key];
+    return `<div class="mini-flow" aria-label="${esc(f.map(n => n.label).join(' → '))}">${f.map((n, i) => `${i ? '<span class="ar"></span>' : ''}<span class="n ${n.kind === 'agent' ? 'agent' : ''}" title="${esc(n.label)}">${icon(n.kind)}</span>`).join('')}</div>`;
+  }
+  function approachCard(s) {
+    const r = S(s.key);
+    const ragGates = D.validation.gates.filter(g => g.cells.rag.status !== 'na');
+    const passed = ragGates.filter(g => g.cells.rag.status === 'pass').length;
+    const blocked = ragGates.filter(g => g.cells.rag.status === 'blocked').length;
+    const segColor = st => st === 'pass' ? css('--pos') : st === 'blocked' ? css('--neg') : css('--surface-3');
+    const body = r ? `
+      <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>
+      <div class="vsrow"><span>vs own benchmark: <b class="num">${pts(r.vs_neutral.cer_difference)}</b>, likely range ${pts(r.vs_neutral.ci95[0])} to ${pts(r.vs_neutral.ci95[1])} ${tip('benchmark')}</span>
+        ${ciBar(r.vs_neutral, s.key)}${r.vs_neutral.p >= 0.05 ? NS : ''}</div>`
+      : `<div class="unavail"><span><b>Not run yet.</b> Its AI model runs await approval; until they pass validation there are no results.</span>
+          <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
+          <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
+    return `<article class="acard" style="--c:var(${VAR[s.key]})">
+      <div class="t">${badge(s.key)}<a href="#${SLUG[s.key]}">${esc(s.name)}</a></div>
+      ${r ? '' : `<div class="chips"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span></div>`}
+      <p>${esc(s.summary || s.tagline)}</p>
+      ${body}
+      <span class="go">Details →</span>
+    </article>`;
+  }
+
+  function triangle() {
+    const pos = { det: [220, 22], jev: [40, 250], rag: [400, 250] };
+    const items = D.dev.primary_contrasts.items;
+    const edge = c => {
+      // labels sit along each edge, away from the apex, so the two upper labels never overlap
+      const [x1, y1] = pos[c.a], [x2, y2] = pos[c.b];
+      const apex = c.a === 'det' ? [x1, y1] : c.b === 'det' ? [x2, y2] : null, other = apex ? (c.a === 'det' ? [x2, y2] : [x1, y1]) : null;
+      const mx = apex ? apex[0] + 0.62 * (other[0] - apex[0]) : (x1 + x2) / 2, my = apex ? apex[1] + 0.62 * (other[1] - apex[1]) : (y1 + y2) / 2;
+      const t1 = c.computed ? pts(c.cer_difference) : 'Pending';
+      const t2 = c.computed ? (c.significant ? 'statistically clear' : 'not clear') : 'needs Causal RAG';
+      const w = 132;
+      return `<line class="edge ${c.computed ? 'done' : 'pending'}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>
+        <g class="lbl" transform="translate(${mx},${my})"><rect x="${-w / 2}" y="-20" width="${w}" height="40" rx="9"/>
+          <text text-anchor="middle" y="-3">${t1}</text><text class="s" text-anchor="middle" y="12">${t2}</text></g>`;
+    };
+    const node = k => { const [x, y] = pos[k]; const below = y > 100;
+      return `<g class="node"><circle cx="${x}" cy="${y}" r="17" fill="var(${VAR[k]})"/><text x="${x}" y="${y + 4.5}" text-anchor="middle">${NUMBER[k]}</text>
+        <text class="n" x="${x}" y="${below ? y + 36 : y - 26}" text-anchor="middle">${name(k)}</text></g>`; };
+    const list = `<ul class="tri-list">${items.map(c => `<li class="${c.computed ? 'done' : 'pending'}"><span class="pair">${badge(c.a)}${badge(c.b)}</span>
+      <span>${SHORT[c.a]} ${c.computed ? '−' : 'vs'} ${SHORT[c.b]}: <b>${c.computed ? pts(c.cer_difference) : 'pending'}</b></span><small>${c.computed ? `range ${pts(c.ci95[0])} to ${pts(c.ci95[1])} · ${c.significant ? 'statistically clear' : 'not statistically clear'}` : 'needs Causal RAG results'}</small></li>`).join('')}</ul>`;
+    return list + `<svg class="tri" viewBox="-50 -30 540 330" role="img" aria-label="Primary comparison: ${items.map(c => c.computed ? `${sys(c.a).short} minus ${sys(c.b).short} ${pts(c.cer_difference)}, ${c.significant ? 'significant' : 'not significant'}` : `${sys(c.a).short} vs ${sys(c.b).short} pending`).join('; ')}">
+        ${items.map(edge).join('')}${['det', 'jev', 'rag'].map(node).join('')}</svg>
+      <div class="tri-legend"><span><i></i>Computed on development months</span><span><i class="p"></i>Pending</span></div>
+      ${items.filter(c => c.computed).map(c => `<p class="sub"><b>${SHORT[c.a]} − ${SHORT[c.b]}</b>: ${pts(c.cer_difference)} net CER per year, likely range ${pts(c.ci95[0])} to ${pts(c.ci95[1])}: ${c.significant ? 'statistically clear' : 'not statistically clear'}.</p>`).join('')}
+      <p class="sub">The comparisons with Causal RAG are pending. All three are judged together ${tip('significance')}</p>`;
+  }
+
+  function compareTable(keys) {
+    const rows = [['cer', 'Net CER', m => pct(m.cer), true], ['sharpe', 'Sharpe ratio', m => num(m.sharpe)], ['drawdown', 'Worst fall', m => pct(m.max_drawdown)],
+      ['volatility', 'Volatility', m => pct(m.volatility)], ['turnover', 'Turnover', m => pct(m.turnover, 0)]];
+    return `<div class="cmpwrap"><table class="cmp"><thead><tr><th>Development ${devYears()}</th>${keys.map(k => `<th><span class="nw"><span class="badge" style="background:var(${VAR[k]});width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px"></span>${SHORT[k]}</span></th>`).join('')}</tr></thead>
+      <tbody>${rows.map(([k, l, f, pr]) => `<tr${pr ? ' class="primary"' : ''}><td><span class="nw">${l} ${tip(k)}</span></td>${keys.map(x => `<td class="num">${S(x) ? f(S(x).metrics) : (pr ? 'not run' : '—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+
   function viewOverview() {
-    const res = primaryWithResults();
     const months = D.dev.months;
-    const pc = D.dev.primary_contrasts.items;
-    const anySig = pc.some(c => c.computed && c.significant) || res.some(s => S(s.key).vs_neutral.p < 0.05);
+    const res = D.systems.filter(s => S(s.key));
     const bkeys = [...new Set(res.map(s => S(s.key).neutral))];
     const users = bk => res.filter(s => S(s.key).neutral === bk).map(s => s.short).join(' & ');
-    const metrics = [
-      ['cer', 'Net CER (Certainty-Equivalent Return)', s => S(s).metrics.cer, pct, true, 'per year'],
-      ['benchmark', 'Net CER vs own benchmark', s => S(s).vs_neutral.cer_difference, pts, true, 'per year'],
-      ['sharpe', 'Sharpe ratio', s => S(s).metrics.sharpe, v => num(v), true, ''],
-      ['excess', 'Annual return above cash', s => S(s).metrics.ann_excess_return, pct, true, 'after costs'],
-      ['volatility', 'Volatility', s => S(s).metrics.volatility, pct, false, 'per year'],
-      ['drawdown', 'Worst fall', s => S(s).metrics.max_drawdown, pct, true, ''],
-      ['turnover', 'Turnover', s => S(s).metrics.turnover, v => pct(v, 0), false, 'per year'],
-    ];
-    const ragCell = '<td class="num na" data-label="Causal RAG">Unavailable</td>';
-    const rows = metrics.map(([k, label, get, fmt, higher, unit]) => {
-      const vals = res.map(s => get(s.key));
-      const lead = higher ? Math.max(...vals) : Math.min(...vals);
-      return `<tr><td><span class="metricname">${label}${tip(k)}${unit ? `<small>${unit}</small>` : ''}</span></td>` +
-        res.map((s, i) => `<td class="num${vals[i] === lead ? ' lead' : ''}" data-label="${esc(s.short)}">${fmt(vals[i])}</td>`).join('') + ragCell + '</tr>';
-    }).join('');
-    const sealedRow = `<tr class="sealed-row"><td><span class="metricname">Protected historical results, ${testSpan()}${tip('test')}</span></td>` +
-      res.map(s => `<td class="num na" data-label="${esc(s.short)}">Sealed</td>`).join('') + '<td class="num na" data-label="Causal RAG">Sealed</td></tr>';
     const growthLines = mode => mode === 'gap'
       ? res.map(s => { const b = D.dev.benchmarks[S(s.key).neutral].wealth; return { label: s.short, data: S(s.key).wealth.map((w, i) => (w / b[i] - 1) * 100), color: color(s.key) }; })
           .concat([{ label: 'Own benchmark', data: months.map(() => 0), color: css('--c-bench'), dash: BENCH_DASH[0] }])
       : res.map(s => ({ label: s.short, data: S(s.key).wealth, color: color(s.key) }))
-          .concat(bkeys.map((bk, i) => ({ label: `Benchmark: ${users(bk)}`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[i % 2] })));
-    const growthNote = {
-      abs: `Dashed lines are the benchmarks, each a fixed mix: ${bkeys.map(bk => `${esc(D.dev.benchmarks[bk].label)} for ${esc(users(bk))}`).join('; ')}. The two hold different assets. Causal RAG is not shown: its results are unavailable.`,
-      gap: 'Each line shows how much more (or less) $1 in the approach was worth than $1 in its own benchmark. Above zero means ahead.',
-    };
-    const range = w => { const v = w.SPY; const avg = v.reduce((a, b) => a + b, 0) / v.length; return `Stocks ${pct(Math.min(...v), 0)}–${pct(Math.max(...v), 0)}, average ${pct(avg, 0)}`; };
+          .concat(bkeys.map((bk, i) => ({ label: `Benchmark of ${users(bk)}`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[i % 2] })));
     app.innerHTML = `<div class="wrap">
       <section>
-        <h1>How do three ways of building a portfolio compare?</h1>
-        <p class="lede">A classic statistical model, an AI agentic workflow, and AI agents reasoning over economic research. Each approach keeps its own design; all are scored by the same rules: same months, same trading costs, same cash rate.</p>
-        ${statusPills()}
-        <div class="finding"><b>So far</b><span>${esc(D.notes.headline)}</span></div>
+        <h1>Three ways to build a portfolio, scored by the same rules</h1>
+        <p class="lede">Same months, trading costs and cash rate for every approach. Each keeps its own design.</p>
+        <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear winner yet</b><span>Results below are development diagnostics (${devSpan()}): no difference is statistically clear. The historical test is sealed and Causal RAG has not run.</span></div></div>
+        ${phaseStrip(false)}
       </section>
-      <section aria-label="The three approaches"><div class="cards three">${D.systems.map(s => card(s)).join('')}</div>
-        <p class="sub aside">The Agent Committee is a variant within the Agentic Workflow ${tip('variant')}. It is compared with JEV under <a href="#experiments">Experiments</a>, not with the other approaches.</p></section>
-      <section class="two">
-        <div class="panel"><h2>What the development diagnostics show</h2><ul class="list">${D.notes.can.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>
-        <div class="panel"><h2>What they can't show yet</h2><ul class="list no">${D.notes.cannot.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>
+      <section aria-label="The three primary approaches"><div class="grid3">${D.systems.map(approachCard).join('')}</div></section>
+      <section class="grid2">
+        <div class="panel"><div class="phead"><h2>What the primary backtest compares</h2></div><p class="sub">Each approach against each other, on the same months.</p>${triangle()}</div>
+        <div class="panel"><div class="phead"><h2>Findings so far</h2><span class="chip plain">${esc(D.notes.finding)}</span></div>
+          <h3>What we know</h3><ul class="facts ok">${D.notes.know.map(t => `<li>${icon('check')}<span>${esc(t)}</span></li>`).join('')}</ul>
+          <h3>Not yet known</h3><ul class="facts wait">${D.notes.not_yet.map(t => `<li>${icon('hourglass')}<span>${esc(t)}</span></li>`).join('')}</ul></div>
       </section>
       <section class="panel">
-        <div class="row between"><h2 id="g-title">Growth of $1, after costs ${tip('growth')}</h2>
+        <div class="phead"><h2>Key metrics</h2></div>
+        ${compareTable(['det', 'jev', 'rag'])}
+        <p class="sub">Net CER is the primary metric; the others describe risk and trading. Values differ, but no difference is statistically clear.</p>
+      </section>
+      <section class="panel">
+        <div class="phead"><h2 id="g-title"><span>Growth of $1, after costs</span> ${tip('growth')}</h2>
           <div class="seg" role="group" aria-label="Chart view"><button type="button" data-g="abs" aria-pressed="true">Growth of $1</button><button type="button" data-g="gap" aria-pressed="false">Versus own benchmark</button></div></div>
-        <p class="sub">Development diagnostics, ${devSpan()}</p>
         <div class="legend" id="lg-growth"></div>
-        <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach"></canvas></div>
-        <p class="sub" id="g-note"></p>
+        <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results"></canvas></div>
+        <p class="sub">Dashed lines are each approach's own benchmark. The lines differ, but the gaps are within what chance could produce. Causal RAG has no line: it has not run.</p>
       </section>
-      <section class="panel">
-        <div class="row between"><h2>How they compare</h2>
-          <span class="pill ${anySig ? 'ok' : 'wait'}"><span class="dot"></span>${anySig ? 'Some differences are statistically significant' : 'No difference is statistically significant'} ${tip('significance')}</span></div>
-        <div class="scroll"><table class="score stack"><thead><tr><th>Development diagnostics, ${devSpan()}</th>${res.map(s => `<th>${swatch(s.key)}${esc(s.short)}</th>`).join('')}<th>${swatch('rag')}Causal RAG</th></tr></thead>
-          <tbody>${rows}${sealedRow}</tbody></table></div>
-        <p class="sub"><span class="leadmark" aria-hidden="true"></span> marks the stronger value in each row, for development months only. Causal RAG shows no values: ${esc(D.ap3.status_label.toLowerCase())}.</p>
-        <div class="contrast"><h3>Primary comparisons ${tip('significance')}</h3><ul class="list">
-          ${pc.map(c => c.computed ? `<li>${contrastSentence(c)}</li>` : `<li><b>${name(c.a)}</b> vs <b>${name(c.b)}</b>: pending, Causal RAG results unavailable.</li>`).join('')}</ul>
-          <p class="sub">The three comparisons form one family, corrected together once all exist.</p></div>
-      </section>
-      <section class="panel">
-        <h2>How allocations changed</h2><p class="sub">Share of the portfolio in each asset, month by month. Each approach moves within its own limits.</p>
-        <div class="minis">${res.map(s => `<div class="mini"><h3>${swatch(s.key)}${esc(s.short)}</h3>
-          <div class="chartbox xs"><canvas id="c-alloc-${s.key}" aria-label="${esc(s.short)} portfolio weights over time"></canvas></div>
-          <p class="sub num">${range(S(s.key).weights)}</p></div>`).join('')}
-          <div class="mini"><h3>${swatch('rag')}Causal RAG</h3><div class="pending tall">${esc(D.ap3.status_label)}</div></div></div>
-      </section>
+      <section aria-label="Explore"><div class="explore">
+        <a href="#approaches"><span class="ic">${icon('flow')}</span><span><b>How each approach works</b><span>Workflows, forecasts and holdings</span></span></a>
+        <a href="#experiments"><span class="ic">${icon('layers')}</span><span><b>Within-approach experiments</b><span>Committee vs JEV and other secondary tests</span></span></a>
+        <a href="#methodology"><span class="ic">${icon('method')}</span><span><b>Methodology and validation</b><span>Frozen rules, timeline, what is still pending</span></span></a>
+      </div></section>
     </div>`;
     const drawGrowth = mode => {
       lineChart('c-growth', 'lg-growth', months, growthLines(mode), mode === 'gap' ? FMT_GAP : FMT_WEALTH);
-      document.getElementById('g-note').innerHTML = growthNote[mode];
-      document.getElementById('g-title').firstChild.textContent = mode === 'gap' ? 'Ahead of or behind own benchmark ' : 'Growth of $1, after costs ';
+      document.querySelector('#g-title > span').textContent = mode === 'gap' ? 'Ahead of or behind own benchmark' : 'Growth of $1, after costs';
       document.querySelector('#g-title .tip span[role=tooltip]').textContent = GLOSSARY[mode === 'gap' ? 'gap' : 'growth'];
     };
     drawGrowth('abs');
     document.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
       document.querySelectorAll('[data-g]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawGrowth(b.dataset.g); }));
-    res.forEach(s => weightsChart(document.getElementById(`c-alloc-${s.key}`), months, S(s.key).weights, 4));
   }
 
-  // ---------------------------------------------------------------- approaches list
-  function viewApproaches() {
-    const cols = [
-      ['What it holds', s => s.assets_label],
-      ['Forecast horizon', s => s.horizon],
-      ['Engine', s => s.model],
-      ['Turns views into weights with', s => s.key === 'jev' ? 'A capped tilt around 60/40' : 'Black–Litterman'],
-      ['Results', s => s.has_results ? `Development diagnostics, ${devSpan()}` : D.ap3.status_label],
-    ];
-    app.innerHTML = `<div class="wrap">
-      <section><h1>The three approaches</h1>
-        <p class="lede">Each approach keeps its own design, data and allocation rules. Only the scoring is shared.</p></section>
-      <section><div class="cards three">${D.systems.map(s => card(s, true)).join('')}</div></section>
-      <section class="panel"><h2>At a glance</h2>
-        <div class="scroll"><table class="score stack one glance"><thead><tr><th>Approach</th>${cols.map(([l], i) => `<th>${l}${i === 3 ? ' ' + tip('bl') : ''}</th>`).join('')}</tr></thead>
-        <tbody>${D.systems.map(s => `<tr><td><a href="#${SLUG[s.key]}" class="rowname">${swatch(s.key)}${esc(s.name)}</a></td>${cols.map(([l, f]) => `<td data-label="${esc(l)}">${esc(f(s))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-        <p class="sub">Because the approaches hold different assets and use different horizons and information, comparing them is a comparison of complete strategies, not a controlled experiment.</p>
-      </section>
-      <section class="panel aside-panel"><h2>Within-approach variant ${tip('variant')}</h2>
-        <p style="margin:0;color:var(--text-2)">The Agentic Workflow has a second implemented version, the <a href="#committee">Agent Committee</a>. It is compared only with JEV, under <a href="#experiments">Experiments</a>.</p></section>
-    </div>`;
+  // ---------------------------------------------------------------- flow diagram (approach pages)
+  const KIND = { data: 'Input data', store: 'Knowledge base', agent: 'AI agent', tool: 'Tool', model: 'Model', output: 'Forecast', alloc: 'Allocation' };
+  function flowDiagram(key) {
+    const f = D.flows[key];
+    const kinds = [...new Set(f.map(n => n.kind))];
+    const legend = [['data', '', 'Data'], ['store', 'store', 'Knowledge base'], ['agent', 'agent', 'AI agent'], ['tool', 'tool', 'Tool'], ['model', '', 'Model'], ['alloc', 'out', 'Forecast or allocation']]
+      .filter(([k]) => kinds.includes(k) || (k === 'alloc' && kinds.includes('output')));
+    return `<div class="flowd" style="--c:var(${VAR[key]})">
+      <div class="fnodes" role="group" aria-label="How information becomes a portfolio">${f.map((n, i) => `${i ? `<span class="farrow" aria-hidden="true">${icon('arrow')}</span>` : ''}
+        <button type="button" class="fnode ${n.kind}" data-i="${i}" aria-pressed="${i === 0}" aria-controls="fd-${key}"><span class="ic">${icon(n.kind)}</span><span class="k">${KIND[n.kind]}</span><span class="lb">${esc(n.label)}</span></button>`).join('')}</div>
+      <div class="fdetail" id="fd-${key}" aria-live="polite"><b>${esc(f[0].label)}.</b> ${esc(f[0].text)}</div>
+      <div class="fkinds">${legend.map(([, c, l]) => `<span><i class="${c}"></i>${l}</span>`).join('')}<span>Select a step for a short explanation</span></div></div>`;
+  }
+  function wireFlow(key) {
+    const f = D.flows[key], box = document.getElementById(`fd-${key}`);
+    const show = b => { document.querySelectorAll('.fnode').forEach(x => x.setAttribute('aria-pressed', String(x === b))); const n = f[+b.dataset.i];
+      box.innerHTML = `<b>${esc(n.label)}.</b> ${esc(n.text)}`; };
+    document.querySelectorAll('.fnode').forEach(b => { b.addEventListener('click', () => show(b)); b.addEventListener('mouseenter', () => show(b)); b.addEventListener('focus', () => show(b)); });
+  }
+
+  function approachTabs(current) {
+    return `<div class="atabs" role="navigation" aria-label="Approaches">${D.systems.map(s => `<a href="#${SLUG[s.key]}" style="--c:var(${VAR[s.key]})"${s.key === current ? ' aria-current="page"' : ''}>${badge(s.key)}<span class="t">${esc(s.short)}</span></a>`).join('')}</div>`;
   }
 
   // ---------------------------------------------------------------- one approach (or the Committee variant)
@@ -308,14 +378,14 @@
     const months = D.dev.months, fc = r.forecasts;
     const yPct = d => ({ ticks: { callback: v => v.toFixed(d) + '%' }, grid: { color: css('--border') } });
     if (s.key === 'det') {
-      return { html: `<h3>Monthly return forecasts ${tip('ridge')}</h3><p class="sub">Expected return above cash for the coming month, by asset.</p><div class="chartbox sm"><canvas id="c-sig"></canvas></div>`,
+      return { html: `<h3>Monthly return forecasts ${tip('ridge')}</h3><p class="sub">Expected return above cash for the coming month.</p><div class="chartbox sm"><canvas id="c-sig" aria-label="Monthly return forecasts by asset"></canvas></div>`,
         draw: () => chart(document.getElementById('c-sig'), { type: 'line', data: { labels: months, datasets: s.universe.map(a => ({ label: PLAIN[a], data: fc.map(f => f[a] * 100),
           borderColor: assetColor(a), borderDash: ASSET_DASH[a], borderWidth: 2, pointRadius: 0 })) },
           options: { interaction: { mode: 'index', intersect: false }, plugins: { legend: bottomLegend, tooltip: { callbacks: { title: it => monthLabel(months[it[0].dataIndex]), label: it => ` ${it.dataset.label}: ${it.parsed.y.toFixed(2)}%` } } },
             scales: { x: xTicks(months), y: yPct(1) } } }) };
     }
     if (s.key === 'com') {
-      return { html: `<h3>The CIO's 12-month views ${tip('confidence')}</h3><p class="sub">Expected total return over the next 12 months. Dots mark months when high uncertainty lowered the CIO's “Medium” confidence to “Low” ${tip('regime')}.</p><div class="chartbox sm"><canvas id="c-sig"></canvas></div>`,
+      return { html: `<h3>The CIO's 12-month views ${tip('confidence')}</h3><p class="sub">Expected total return over 12 months. Amber dots: confidence lowered by high uncertainty ${tip('regime')}</p><div class="chartbox sm"><canvas id="c-sig" aria-label="Committee 12-month views"></canvas></div>`,
         draw: () => chart(document.getElementById('c-sig'), { type: 'line', data: { labels: months, datasets: [
           { label: 'Stocks', data: fc.map(f => f.SPY), borderColor: assetColor('SPY'), borderWidth: 2, pointRadius: fc.map(f => f.confidence === 'Low' ? 3.5 : 0), pointBackgroundColor: css('--warn'), pointBorderColor: css('--warn') },
           { label: 'Long Treasuries', data: fc.map(f => f.TLT), borderColor: assetColor('TLT'), borderDash: ASSET_DASH.TLT, borderWidth: 2, pointRadius: 0 }] },
@@ -324,7 +394,7 @@
             scales: { x: xTicks(months), y: yPct(0) } } }) };
     }
     if (s.key === 'jev') {
-      return { html: `<h3>JEV's answer each month ${tip('jev')}</h3><p class="sub">Chance that stocks beat bonds over the next 12 months, and how confident JEV was.</p><div class="chartbox sm"><canvas id="c-sig"></canvas></div>`,
+      return { html: `<h3>JEV's answer each month ${tip('jev')}</h3><p class="sub">Chance stocks beat bonds over 12 months, and JEV's confidence.</p><div class="chartbox sm"><canvas id="c-sig" aria-label="JEV probability and confidence"></canvas></div>`,
         draw: () => chart(document.getElementById('c-sig'), { type: 'line', data: { labels: months, datasets: [
           { label: 'Chance stocks beat bonds', data: fc.map(f => f.p * 100), borderColor: color('jev'), borderWidth: 2, pointRadius: 0 },
           { label: 'Confidence', data: fc.map(f => f.confidence * 100), borderColor: css('--c-bench'), borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0 }] },
@@ -335,66 +405,68 @@
     return { html: '', draw: () => {} };
   }
 
+  function limitations(key) {
+    const common = 'Development months were used to build and check the approaches: diagnostics, not historical-test results.';
+    if (key === 'det') return [common, 'Uses economic-data surprises only; no prices, news or research.', 'Learns from 2015 onward, a short history.'];
+    if (key === 'com') return [common, 'GPT-4o was trained on data to October 2023, so it may know how 2019–2022 turned out.',
+      'Its inputs name the assets and show the cash-yield level, which can hint at the period.', "Uncertainty indexes are today's revised values."];
+    if (key === 'jev') return [common, "JEV's model version, prompt and raw replies were not saved: answers can be replayed, not re-created, and it cannot run live.",
+      'Its tilt sizes were set by hand.', 'Its inputs name the assets and show the cash-yield level, which can hint at the period.',
+      'Chosen to represent the Agentic Workflow after full-range results existed; this possible selection bias is disclosed.'];
+    return [common];
+  }
+
   function viewApproach(key) {
     const s = sys(key);
     if (key === 'rag') return viewCausalRag(s);
     const variant = s.role === 'variant';
-    const r = S(key);
-    const months = D.dev.months;
-    const bench = D.dev.benchmarks[r.neutral];
-    const sig = signalsBlock(s, r);
-    const rep = D.reproduction[key];
-    const steps = D.native_vs_common[key];
-    const ex = r.example;
-    const vs = r.vs_neutral;
-    const zeroIn = vs.ci95[0] <= 0 && vs.ci95[1] >= 0;
+    const r = S(key), months = D.dev.months, bench = D.dev.benchmarks[r.neutral], vs = r.vs_neutral;
+    const sig = signalsBlock(s, r), rep = D.reproduction[key], steps = D.native_vs_common[key], ex = r.example;
     const repLabel = { reproduced: 'matched saved results', replayed: 'matched saved results (replay only)' }[rep.status] || 'did not match';
-    app.innerHTML = `<div class="wrap">
-      <section class="hero"><a class="back" href="${variant ? '#experiments' : '#approaches'}">← ${variant ? 'Experiments' : 'Approaches'}</a>
-        ${variant ? `<div><span class="pill variant"><span class="dot"></span>Within-approach variant of the Agentic Workflow ${tip('variant')}</span></div>` : ''}
-        <h1 class="withswatch">${swatch(key)}${esc(s.name)}</h1>
+    app.innerHTML = `<div class="wrap" style="--c:var(${VAR[key]})">
+      ${variant ? `<a class="back" href="#experiments">← Experiments</a>` : approachTabs(key)}
+      <section class="ahead">
+        <div class="row">${variant ? `<span class="chip pause" style="color:var(--c-com)">${icon('layers')}Within-approach variant of the Agentic Workflow ${tip('variant')}</span>` : ''}${dataChip('dev')}</div>
+        <h1>${esc(s.name)}</h1>
         <p class="lede">${esc(s.tagline)}</p>
-        <div class="chips"><span class="chip">${esc(s.assets_label)}</span><span class="chip">${esc(s.horizon)}</span><span class="chip">${esc(s.model)}</span></div>
+        <div class="chips"><span class="chip plain">${icon('assets')}${esc(s.assets_label)}</span><span class="chip plain">${icon('calendar')}${esc(s.horizon)}</span><span class="chip plain">${icon('model')}${esc(s.model)}</span></div>
+        ${key === 'jev' ? `<p class="sub">JEV represents the Agentic Workflow in the primary comparison. The <a href="#committee">Agent Committee</a> version is compared with it under <a href="#experiments">Experiments</a>.</p>` : ''}
       </section>
-      ${key === 'jev' ? `<section class="panel aside-panel"><p style="margin:0;color:var(--text-2)">JEV represents the Agentic Workflow in the primary comparison. The approach's other version, the <a href="#committee">Agent Committee</a>, is compared with JEV under <a href="#experiments">Experiments</a>.</p></section>` : ''}
-      <section><h2>How it works</h2><ol class="steps">${s.steps.map(t => `<li>${esc(t)}</li>`).join('')}</ol></section>
+      <section class="panel"><h2>How it works</h2>${flowDiagram(key)}</section>
       <section class="grid2">
-        <div class="panel"><h2>Development diagnostics ${tip('development')}</h2><p class="sub">${devSpan()}. Protected historical results (${testSpan()}) are sealed.</p>
-          <div class="kpis six">
-            <div class="kpi"><div class="v num">${pct(r.metrics.cer)}</div><div class="l">Net CER ${tip('cer')}</div></div>
+        <div class="panel"><div class="phead"><h2>Results</h2></div>
+          <div class="kpis">
+            <div class="kpi primary"><div class="v num">${pct(r.metrics.cer)}</div><div class="l">Net CER ${tip('cer')}</div></div>
             <div class="kpi"><div class="v num">${num(r.metrics.sharpe)}</div><div class="l">Sharpe ${tip('sharpe')}</div></div>
             <div class="kpi"><div class="v num">${pct(r.metrics.max_drawdown)}</div><div class="l">Worst fall ${tip('drawdown')}</div></div>
-            <div class="kpi"><div class="v num">${pct(r.metrics.ann_excess_return)}</div><div class="l">Above cash ${tip('excess')}</div></div>
             <div class="kpi"><div class="v num">${pct(r.metrics.volatility)}</div><div class="l">Volatility ${tip('volatility')}</div></div>
             <div class="kpi"><div class="v num">${pct(r.metrics.turnover, 0)}</div><div class="l">Turnover ${tip('turnover')}</div></div>
           </div>
-          <h3 class="gapttl">Net CER vs own benchmark ${tip('benchmark')}</h3>
-          <p class="sub"><b class="num">${pts(vs.cer_difference)}</b> per year against holding ${esc(bench.label)}. Likely range ${pts(vs.ci95[0])} to ${tipw(pts(vs.ci95[1]), 'ci')}${zeroIn ? '; it includes zero, so the gap could be chance.' : '.'}</p>
-          ${ciBar(vs, key)}
+          <h3>Versus its own benchmark ${tip('benchmark')}</h3>
+          <p class="sub"><b class="num">${pts(vs.cer_difference)}</b> net CER per year against ${esc(bench.label)}; likely range ${pts(vs.ci95[0])} to ${tipw(pts(vs.ci95[1]), 'ci')}</p>
+          ${ciBar(vs, key)}${vs.p >= 0.05 ? NS : ''}
+          <p class="sub">Historical test ${testYears()}: sealed ${tip('test')}</p>
         </div>
-        <div class="panel">
-          <h2>Growth of $1 ${tip('growth')}</h2>
-          <div class="legend" id="lg-one"></div>
-          <div class="chartbox sm"><canvas id="c-one"></canvas></div>
-        </div>
+        <div class="panel"><h2>Growth of $1 ${tip('growth')}</h2><div class="legend" id="lg-one"></div><div class="chartbox sm"><canvas id="c-one" aria-label="Growth of one dollar"></canvas></div></div>
       </section>
       <section class="grid2">
         <div class="panel">${sig.html}</div>
-        <div class="panel"><h3>Portfolio weights</h3><p class="sub">Share of the portfolio in each asset, month by month.</p><div class="chartbox sm"><canvas id="c-w"></canvas></div></div>
+        <div class="panel"><h3>Holdings over time</h3><p class="sub">Share of the portfolio in each asset.</p><div class="chartbox sm"><canvas id="c-w" aria-label="Portfolio weights over time"></canvas></div></div>
       </section>
       ${ex && ex.cio_rationale ? `<details class="more"><summary>Sample reasoning (${monthLabel(ex.month)})</summary><div>
         <div class="quote"><b>Economist</b>${esc(ex.economist?.text)}</div>
         <div class="quote"><b>Risk Manager</b>${esc(ex.risk_manager?.text)}</div>
         <div class="quote"><b>CIO decision</b>${esc(ex.cio_rationale)}</div></div></details>` : ''}
       <details class="more"><summary>Reproduction check: ${repLabel}</summary><div>
-        <p style="margin:0">Before any comparison, the approach's own code was re-run to confirm it reproduces its saved ${tipw('results', 'reproduction')}. This confirms the decisions are faithful; it says nothing about whether they were good.</p>
+        <p style="margin:0">The approach's own code was re-run to confirm it reproduces its saved ${tipw('results', 'reproduction')}. This shows the decisions are faithful, not that they were good.</p>
         ${rep.checks.map(t => { const w = /re-run|not saved/i.test(t); return `<div class="check${w ? ' warn' : ''}"><i>${w ? '!' : '✓'}</i><span>${esc(t)}</span></div>`; }).join('')}
-        ${steps ? `<h3>From its own scoring to the shared rules ${tip('common')}</h3><p class="sub" style="margin:0">Net CER after each adjustment, applied one at a time (${devSpan()}). The approach's decisions never change; only the scoring rules do.</p>
-          <div class="chartbox sm"><canvas id="c-steps"></canvas></div>` : '<p class="sub" style="margin:0">This approach already uses the shared trading and cost rules, so its own and shared results are identical.</p>'}
+        ${steps ? `<h3>From its own scoring to the shared rules ${tip('common')}</h3><p class="sub" style="margin:0">Net CER after each adjustment (${devSpan()}). Decisions never change; only the scoring does.</p>
+          <div class="chartbox sm"><canvas id="c-steps" aria-label="Net CER after each scoring adjustment"></canvas></div>` : '<p class="sub" style="margin:0">Already uses the shared trading and cost rules, so its own and shared results are identical.</p>'}
       </div></details>
-      <details class="more"><summary>Limitations</summary><div><ul class="list no">${limitations(key).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></details>
+      <details class="more"><summary>Limitations</summary><div><ul>${limitations(key).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></details>
     </div>`;
-    lineChart('c-one', 'lg-one', months, [{ label: s.short, data: r.wealth, color: color(key) }, { label: 'Own benchmark', data: bench.wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }], FMT_WEALTH);
+    wireFlow(key);
+    lineChart('c-one', 'lg-one', months, [{ label: s.short, data: r.wealth, color: color(key) }, { label: `Own benchmark (${bench.label})`, data: bench.wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }], FMT_WEALTH);
     sig.draw();
     weightsChart(document.getElementById('c-w'), months, r.weights);
     const drawSteps = () => { const c = document.getElementById('c-steps'); if (!steps || !c || c.dataset.drawn) return; c.dataset.drawn = '1';
@@ -405,211 +477,151 @@
     document.querySelectorAll('details.more').forEach(d => d.addEventListener('toggle', () => { if (d.open && d.querySelector('#c-steps')) drawSteps(); }));
   }
 
-  function limitations(key) {
-    const common = 'Development months were used to build and check the approaches, so these are diagnostics, not protected historical results.';
-    if (key === 'det') return [common, 'Forecasts use economic-data surprises only; it ignores prices, news and research.', 'Its model learned from 2015 onward, a short history.'];
-    if (key === 'com') return [common, 'GPT-4o was trained on data up to October 2023, so it may know how 2019–2022 turned out.',
-      'The saved runs show the asset names and the cash-yield level, which can hint at the period.', 'The uncertainty indexes are today\'s revised values, not those available at the time.'];
-    if (key === 'jev') return [common, 'JEV\'s model version, training cutoff, prompt and raw replies were not saved, so its answers can be replayed but not re-created.',
-      'Its tilt sizes (±1.5 and ±3 points) were set by hand and not calibrated.', 'Its market snapshot names the assets and shows the cash-yield level, which can hint at the period.'];
-    return [common];
-  }
-
   // ---------------------------------------------------------------- Causal RAG
   function viewCausalRag(s) {
-    const a = D.ap3, demo = a.demo;
-    const flow = [
-      ['Knowledge graph', 'kg', 'Cause-and-effect findings from economics papers, limited to papers published before each year.'],
-      ['Hypothesis Agent', 'hypothesis', 'Proposes up to ' + a.limits.hypotheses_per_month + ' testable hypotheses a month, each citing research pathways.'],
-      ['Causal RAG', 'causalrag', 'Pulls the research behind each pathway: papers, methods and how strong the evidence is.'],
-      ['Testing Agent', 'testing', 'Tests each hypothesis ' + a.limits.testing_runs + ' times against dated documents, market moves and a rival explanation.'],
-      ['Forecast', 'calibration', 'Turns Supported, Contradicted and Insufficient results into 1-month return forecasts.'],
-      ['Allocation', 'bl', 'Black–Litterman sets weights for stocks, Treasuries and corporate bonds.'],
-    ];
-    const g = a.graph;
-    app.innerHTML = `<div class="wrap">
-      <section class="hero"><a class="back" href="#approaches">← Approaches</a>
-        <h1 class="withswatch">${swatch('rag')}${esc(s.name)} ${tip('causalrag')}</h1>
-        <div>${ragBadge()}</div>
+    const a = D.ap3, demo = a.demo, g = a.graph;
+    const steps = D.validation.gates.filter(x => x.cells.rag.status !== 'na');
+    app.innerHTML = `<div class="wrap" style="--c:var(--c-rag)">
+      ${approachTabs('rag')}
+      <section class="ahead">
+        <div class="row"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span>${dataChip('na')}</div>
+        <h1>${esc(s.name)} ${tip('causalrag')}</h1>
         <p class="lede">${esc(s.tagline)}</p>
-        <div class="chips"><span class="chip">${esc(s.assets_label)}</span><span class="chip">${esc(s.horizon)}</span><span class="chip">${esc(s.model)}</span></div>
+        <div class="chips"><span class="chip plain">${icon('assets')}${esc(s.assets_label)}</span><span class="chip plain">${icon('calendar')}${esc(s.horizon)}</span><span class="chip plain">${icon('model')}${esc(s.model)}</span></div>
       </section>
-      <section class="panel"><h2>Status: ${esc(a.status_label)}</h2>
-        <p style="margin:0;color:var(--text-2)">Every part is built and tested without an AI model. No development diagnostics or protected historical results exist yet, so none are shown. Results become available only after the model run is approved and the validation gates pass: a smoke run, Testing Agent fixtures, a development replay, a human audit and calibration checks.</p></section>
-      <section><h2>How it works</h2><div class="flow">${flow.map(([t, k, d]) => `<div><b>${t} ${tip(k)}</b>${esc(d)}</div>`).join('')}</div></section>
-      <section>
-        <div class="row between"><h2>What it will draw on</h2><span class="pill inv"><span class="dot"></span>Research inventory · not a result ${tip('inventory')}</span></div>
-        <div class="grid2">
-          <div class="panel"><h3>Research papers available each year ${tip('kg')}</h3><p class="sub">Each decision year sees only research published before it.</p>
-            <div class="chartbox sm"><canvas id="c-kg"></canvas></div></div>
-          <div class="panel"><h3>Research pathways by economic channel</h3><p class="sub">Pathways linking the tracked economic events to the three assets, for ${g.at(-1).decision_year} decisions. A count of available research, not a result.</p>
-            <div class="chartbox sm"><canvas id="c-ch"></canvas></div></div>
-        </div>
+      <section class="panel"><h2>How it works</h2>${flowDiagram('rag')}</section>
+      <section class="grid2">
+        <div class="panel"><div class="phead"><h2>Validation progress</h2><span class="chip plain num">${steps.filter(x => x.cells.rag.status === 'pass').length} of ${steps.length} passed</span></div>
+          <ol class="track-steps">${steps.map(x => { const c = x.cells.rag, [cls, ic, l] = GATE[c.status];
+            return `<li class="${cls}"><span class="dot">${icon(ic)}</span><span>${esc(x.name)}${c.note ? `<small>${esc(c.note)}</small>` : ''}</span><span class="chip ${cls === 'pass' ? 'ok' : cls === 'blocked' ? 'block' : cls === 'review' ? 'wait' : 'plan'}">${l}</span></li>`; }).join('')}</ol>
+          ${statusLegend(GATE, ['pass', 'pending', 'blocked'])}
+          <p class="sub">No development or historical-test results exist, so none are shown.</p></div>
+        <div class="panel"><div class="phead"><h2>Inputs: research the agents can draw on</h2><span class="chip na">${icon('dash')}No results yet ${tip('inventory')}</span></div>
+          <h3>Papers available to each decision year</h3>
+          <div class="chartbox sm"><canvas id="c-kg" aria-label="Research papers available each year"></canvas></div>
+          <h3>Research pathways by economic channel, ${g.at(-1).decision_year}</h3>
+          <div class="chartbox sm"><canvas id="c-ch" aria-label="Research pathways by channel"></canvas></div></div>
       </section>
-      ${demo ? demoBlock(demo) : ''}
-      <details class="more"><summary>Safeguards</summary><div><ul class="list">
-        <li>Each year's graph only contains papers published before that year, and claims mentioning later events are removed.</li>
-        <li>Documents and market data are filtered to what was public before each decision, at 8 p.m. New York time.</li>
-        <li>Quotes the Testing Agent cites must appear word for word in the documents it was given; anything else is rejected.</li>
+      ${demo ? `<details class="more demo-panel"><summary>Demo: one month, step by step</summary><div>${demoBlock(demo)}</div></details>` : ''}
+      <details class="more"><summary>Safeguards</summary><div><ul>
+        <li>Each year's research graph contains only papers published before that year; claims mentioning later events are removed.</li>
+        <li>Documents and market data are filtered to what was public before 8 p.m. New York time on decision day, including revised values.</li>
+        <li>Quotes the Testing Agent cites must appear word for word in the documents it was given.</li>
         <li>Each hypothesis is tested three times independently; a split decision counts as Insufficient.</li>
-        <li>“Supported” means consistent with the evidence available at the time. It is never treated as proof of cause.</li>
+        <li>“Supported” means consistent with the evidence available at the time, never proof of cause.</li>
         <li>The graph rebuilds identically from the same data: ${a.graph_rebuild_identical ? 'checked' : 'not yet checked'}.</li></ul></div></details>
     </div>`;
-    chart(document.getElementById('c-kg'), { type: 'bar', data: { labels: g.map(x => x.decision_year), datasets: [{ label: 'Papers', data: g.map(x => x.papers), backgroundColor: color('rag'), borderRadius: 4 }] },
+    wireFlow('rag');
+    chart(document.getElementById('c-kg'), { type: 'bar', data: { labels: g.map(x => x.decision_year), datasets: [{ label: 'Papers', data: g.map(x => x.papers), backgroundColor: css('--border-strong'), borderRadius: 4 }] },
       options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.y.toLocaleString()} papers · ${g[it.dataIndex].claims.toLocaleString()} claims` } } },
         scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => v === 0 ? '0' : (v / 1000) + 'k' }, grid: { color: css('--border') } } } } });
     const last = g.at(-1).pathways_by_channel;
     const names = { growth: 'Growth', inflation: 'Inflation', policy_rates: 'Policy & rates', risk_credit: 'Risk & credit', other: 'Other', direct: 'Direct' };
     const order = Object.keys(names).filter(k => k in last);
-    chart(document.getElementById('c-ch'), { type: 'bar', data: { labels: order.map(k => names[k]), datasets: [{ data: order.map(k => last[k]), backgroundColor: color('rag'), borderRadius: 4 }] },
+    chart(document.getElementById('c-ch'), { type: 'bar', data: { labels: order.map(k => names[k]), datasets: [{ data: order.map(k => last[k]), backgroundColor: css('--border-strong'), borderRadius: 4 }] },
       options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.x} pathways` } } }, scales: { x: { grid: { color: css('--border') } }, y: { grid: { display: false } } } } });
   }
 
   function demoBlock(d) {
     const arrow = v => v > 0 ? '▲ up' : v < 0 ? '▼ down' : '— no view';
     const n = v => v > 0 ? `+${v}` : v < 0 ? `−${-v}` : '0';
-    return `<section class="panel demo-panel">
-      <div class="row between"><h2>One month, step by step</h2><span class="pill demo"><span class="dot"></span>Demo ${tip('mock')}</span></div>
-      <div class="demo-banner"><b>Demo only.</b><span>This walk-through uses canned responses and synthetic documents to show the screens. Nothing in this box is a result.</span></div>
-      <div class="flow">
+    return `<div class="demo-banner"><b>Demo only.</b><span>Canned responses and synthetic documents that show how the screens work. Nothing here is a result. ${tip('mock')}</span></div>
+      <div class="dflow">
         <div><b>1 · Event</b>${d.triggers.map(t => `${esc(t.event)}${t.surprise_z != null ? ` (surprise ${n(t.surprise_z)} std)` : ''}`).join('<br>')}</div>
         ${d.hypotheses.map(h => `
-        <div><b>2 · Hypothesis</b>Channel: ${esc(h.channel)}<br>Predicted: stocks ${arrow(h.predicted.SPY)}, Treasuries ${arrow(h.predicted.IEF)}, corporate bonds ${arrow(h.predicted.LQD)}</div>
-        <div><b>3 · Research</b>${h.research_records} papers behind ${h.graph_paths_cited} pathway${h.graph_paths_cited === 1 ? '' : 's'} (${h.research_years[0]}–${h.research_years.at(-1)})</div>
-        <div><b>4 · Testing</b><div class="runs">${h.testing_runs.map((r, i) => `<span>Run ${i + 1}: <span class="status ${r.status}">${r.status}</span>${r.rejected_citations ? `<br><small class="sub">${r.rejected_citations} invalid quote rejected</small>` : ''}</span>`).join('')}</div></div>
-        <div><b>5 · Verdict</b><span class="status ${h.final_status}">${h.final_status}</span><span>${Math.round(h.run_agreement * 100)}% of runs agree</span><span class="sub">Causal proof: not established</span></div>`).join('')}
-        <div><b>6 · Signals ${tip('signals')}</b>${['SPY', 'IEF', 'LQD'].map(x => `<span><b class="asset">${PLAIN[x]}</b>Supported ${n(d.signals[x].F_S)} · Contradicted ${n(d.signals[x].F_C)} · Insufficient ${n(d.signals[x].F_I)}</span>`).join('')}</div>
-      </div>
-    </section>`;
+        <div><b>2 · Hypothesis</b>Channel: ${esc(h.channel)}<br>Stocks ${arrow(h.predicted.SPY)}, Treasuries ${arrow(h.predicted.IEF)}, corporate bonds ${arrow(h.predicted.LQD)}</div>
+        <div><b>3 · Research</b>${h.research_records} papers behind ${h.graph_paths_cited} pathway${h.graph_paths_cited === 1 ? '' : 's'}</div>
+        <div><b>4 · Testing</b>${h.testing_runs.map((r, i) => `<span>Run ${i + 1}: <span class="status ${r.status}">${r.status}</span></span>`).join('')}</div>
+        <div><b>5 · Verdict</b><span class="status ${h.final_status}">${h.final_status}</span><span>${Math.round(h.run_agreement * 100)}% of runs agree</span></div>`).join('')}
+        <div><b>6 · Signals ${tip('signals')}</b>${['SPY', 'IEF', 'LQD'].map(x => `<span><b>${PLAIN[x]}</b>: Supported ${n(d.signals[x].F_S)} · Contradicted ${n(d.signals[x].F_C)} · Insufficient ${n(d.signals[x].F_I)}</span>`).join('')}</div>
+      </div>`;
   }
 
   // ---------------------------------------------------------------- experiments
   function viewExperiments() {
-    const E = D.experiments, months = D.dev.months;
-    const w = D.dev.within_contrasts[0];
-    const keys = ['com', 'jev'];
-    const bk = S('jev').neutral;
-    const rowsDef = [
-      ['cer', 'Net CER', m => m.cer, pct], ['sharpe', 'Sharpe ratio', m => m.sharpe, v => num(v)], ['excess', 'Annual return above cash', m => m.ann_excess_return, pct],
-      ['volatility', 'Volatility', m => m.volatility, pct], ['drawdown', 'Worst fall', m => m.max_drawdown, pct], ['turnover', 'Turnover', m => m.turnover, v => pct(v, 0)],
-    ];
-    const expCard = e => `<article class="card exp${e.status === 'proposed' ? ' proposed' : ''}">
-      <div class="row between"><div class="name">${e.key ? swatch(e.key) : '<span class="swatch hollow"></span>'}${e.key ? `<a class="stretch" href="#${SLUG[e.key]}">${esc(e.name)}</a>` : esc(e.name)}</div>${statusChip(e.status)}</div>
-      <p>${esc(e.detail)}</p></article>`;
+    const E = D.experiments, months = D.dev.months, w = E.within_contrast;
+    const TITLES = { det: 'Deterministic Quantitative Model', jev: 'Agentic Workflow', rag: 'Agentic Causal RAG' };
+    const branch = (v, gi, i) => `<div class="branch ${v.status}"><button type="button" aria-expanded="false" aria-controls="b-${gi}-${i}">
+        <span class="nm">${esc(v.name)}</span>${statusChip(v.status)}${icon('chev', 'chev')}</button>
+        <div class="bd" id="b-${gi}-${i}" hidden><span>${esc(v.detail)}</span>${v.link ? `<a class="go" href="#${SLUG[v.link]}">See its results →</a>` : ''}</div></div>`;
+    const group = (g, gi) => `<section class="panel" style="--c:var(${VAR[g.approach]})">
+        <div class="phead"><h2>${badge(g.approach)}${TITLES[g.approach]}</h2></div>
+        <div class="tree">
+          <div class="base"><b>${esc(g.base.name)}</b>${statusChip(g.base.status)}<span class="sub">${esc(g.base.detail)}</span>${g.blocked_by ? `<span class="sub">Waiting on: ${esc(g.blocked_by.join(', '))}</span>` : ''}${g.base.link ? `<a href="#${SLUG[g.base.link]}" class="more">${g.base.link === 'rag' ? 'How it works →' : 'See its results →'}</a>` : ''}</div>
+          <div class="branches">${g.variants.map((v, i) => branch(v, gi, i)).join('')}</div>
+        </div></section>`;
+    const keys = ['com', 'jev'], bk = S('jev').neutral;
     app.innerHTML = `<div class="wrap">
-      <section><h1>Experiments</h1>
-        <p class="lede">The primary comparison is between the three approaches. These experiments are reported separately and never enter it.</p></section>
-      <section><h2>Within the Agentic Workflow ${tip('variant')}</h2>
-        <div class="cards three">${E.within.map(expCard).join('')}</div></section>
-      <section class="panel">
-        <div class="row between"><h2>Committee only vs JEV only</h2><span class="pill ok"><span class="dot"></span>Development diagnostics, ${devSpan()}</span></div>
-        <p class="sub">Both hold US stocks and 20+ year Treasuries, read the same market snapshot and share the same 60/40 benchmark, so this comparison isolates how the views are formed.</p>
-        <div class="legend" id="lg-exp"></div>
-        <div class="chartbox sm"><canvas id="c-exp"></canvas></div>
-        <div class="scroll"><table class="score stack"><thead><tr><th>Development diagnostics</th>${keys.map(k => `<th>${swatch(k)}${name(k)}</th>`).join('')}</tr></thead>
-          <tbody>${rowsDef.map(([k, l, get, fmt]) => `<tr><td><span class="metricname">${l}${tip(k)}</span></td>${keys.map(x => `<td class="num" data-label="${name(x)}">${fmt(get(S(x).metrics))}</td>`).join('')}</tr>`).join('')}
-          <tr><td><span class="metricname">Net CER vs 60/40 benchmark${tip('benchmark')}</span></td>${keys.map(x => `<td class="num" data-label="${name(x)}">${pts(S(x).vs_neutral.cer_difference)}</td>`).join('')}</tr></tbody></table></div>
-        <div class="contrast"><ul class="list"><li>${contrastSentence(w)}</li></ul>
-          <p class="sub">A within-approach result. It does not change the primary comparison, where JEV represents the Agentic Workflow.</p></div>
-      </section>
-      <section><h2>Secondary experiments</h2>
-        <div class="cards three">${E.secondary.map(e => expCard({ ...e, key: null })).join('')}</div>
-        <p class="sub">Proposed experiments are specified before they run and are reported apart from the primary comparison.</p></section>
-    </div>`;
-    lineChart('c-exp', 'lg-exp', months, keys.map(k => ({ label: sys(k).short, data: S(k).wealth, color: color(k) }))
-      .concat([{ label: `Benchmark: ${D.dev.benchmarks[bk].label}`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }]), FMT_WEALTH);
-  }
-
-  // ---------------------------------------------------------------- timeline
-  function viewTimeline() {
-    const w = D.windows;
-    const phases = [
-      { cls: 'train', name: 'Training', tipk: 'training', when: `${monthLabel(w.training[0])} – ${monthLabel(w.training[1])}`, what: 'Macro data the models learn from' },
-      { cls: 'dev', name: 'Development diagnostics', tipk: 'development', when: `${monthLabel(w.development[0])} – ${monthLabel(w.development[1])}`, what: 'Shown on this dashboard' },
-      { cls: 'test', name: 'Protected historical test', tipk: 'test', when: `${monthLabel(w.historical_test[0])} – ${monthLabel(w.historical_test[1])}`, what: 'Sealed until the freeze' },
-      { cls: 'pro', name: 'Live tracking', tipk: 'prospective', when: 'After the freeze', what: 'Not started' },
-    ];
-    const STATE = { scored: 'Development diagnostics shown', learn: 'Model learns from these months', saved: 'Saved decisions exist; not scored',
-      sealed: 'Saved decisions, sealed', later: 'Generated after the freeze', none: 'Not yet run', awaiting: 'Awaiting validation' };
-    const rows = [
-      ['det', 'Deterministic', ['learn', 'scored', 'later', 'none']],
-      ['jev', 'Agentic Workflow (JEV)', ['saved', 'scored', 'sealed', 'none']],
-      ['rag', 'Causal RAG', ['awaiting', 'awaiting', 'awaiting', 'none']],
-    ];
-    const variantRow = ['com', 'Agent Committee', ['saved', 'scored', 'sealed', 'none']];
-    const bar = (c, st) => `<span class="bar ${st}" style="--c:${c}" title="${esc(STATE[st])}"></span>`;
-    const legend = [['scored', 'Development diagnostics shown'], ['learn', 'Model learning, or saved decisions not scored'], ['sealed', 'Saved decisions, sealed'], ['awaiting', 'Awaiting validation'], ['none', 'Not yet run']];
-    const gridRow = ([k, label, st], cls) => `<div role="row" class="tlrow${cls ? ' ' + cls : ''}"><span role="rowheader">${swatch(k)} ${label}</span>${st.map((x, i) => `<span role="cell" aria-label="${esc(phases[i].name)}: ${esc(STATE[x])}">${bar(color(k), x)}</span>`).join('')}</div>`;
-    app.innerHTML = `<div class="wrap">
-      <section><h1>Timeline</h1><p class="lede">The primary research timeline starts with the February 2015 macro-data training period. Approaches are built on training and development months, then frozen. Only then is the protected historical test scored, once, followed by live tracking.</p></section>
-      <section class="panel tlpanel">
-        <div class="tlgrid" role="table" aria-label="Which months each approach has run">
-          <div role="row" class="tlhead"><span role="columnheader"></span>${phases.map(p => `<div role="columnheader" class="tlseg ${p.cls}"><b>${p.name} ${tip(p.tipk)}</b><small>${p.when}</small><small>${p.what}</small></div>`).join('')}</div>
-          ${rows.map(r => gridRow(r)).join('')}
-          <div role="row" class="tlsub"><span role="rowheader">Within-approach variant</span></div>
-          ${gridRow(variantRow, 'variant')}
+      <section><h1>Within-approach experiments</h1>
+        <p class="lede">Secondary tests inside each approach. None enters the primary comparison.</p>
+        ${statusLegend(STATUS, Object.keys(STATUS))}</section>
+      ${E.groups.map(group).join('')}
+      <section class="panel" style="--c:var(--c-com)">
+        <div class="phead"><h2>Agent Committee only vs JEV only</h2>${dataChip('dev')}</div>
+        <p class="sub">Same assets, inputs and 60/40 benchmark, so this isolates how the views are formed.</p>
+        <div class="grid2">
+          <div><div class="legend" id="lg-exp"></div><div class="chartbox sm"><canvas id="c-exp" aria-label="Growth of one dollar, Committee and JEV"></canvas></div></div>
+          <div style="display:grid;gap:12px;align-content:start">${compareTable(keys)}
+            <div class="vsrow"><span>${name(w.a)} − ${name(w.b)}: <b class="num">${pts(w.cer_difference)}</b> net CER per year, likely range ${pts(w.ci95[0])} to ${pts(w.ci95[1])} ${tip('ci')}</span>${ciBar(w, 'com', 'JEV ahead', 'Committee ahead')}${w.significant ? '' : NS}</div></div>
         </div>
-        <div class="tlv">${phases.map((p, i) => `<div class="tlseg ${p.cls}"><b>${p.name} ${tip(p.tipk)}</b><small>${p.when} · ${p.what}</small>
-          <ul>${rows.concat([variantRow]).map(([k, label, st]) => `<li>${bar(color(k), st[i])}<span>${label}: ${esc(STATE[st[i]])}</span></li>`).join('')}</ul></div>`).join('')}</div>
-        <div class="tllegend">${legend.map(([st, t]) => `<span>${bar(css('--text-2'), st)}${t}</span>`).join('')}</div>
-        <p class="sub" style="margin:0">Development diagnostics are not protected historical results: the approaches were built and checked on those months. The Deterministic model's protected-test decisions are generated only after the freeze; Causal RAG runs from 2015 once its model is approved and validated.</p>
+        <p class="sub">A within-approach result. It does not change the primary comparison, where JEV represents the Agentic Workflow.</p>
       </section>
-      <section class="grid2">
-        <div class="panel"><h2>Walk-forward validation ${tip('walkforward')}</h2><ol class="steps one">
-          <li>At 8 p.m. New York time on the last trading day of each month, each approach decides using only information public by then.</li>
-          <li>The portfolio is traded at the next day's closing prices and held for a month.</li>
-          <li>Models with fitted parts are refit each month on past months only, then the window moves forward.</li></ol></div>
-        <div class="panel"><h2>Two stages of checking</h2><ol class="steps one">
-          <li><b>Reproduction check ${tip('reproduction')}</b><br>Each approach's own code reproduces its saved results exactly.</li>
-          <li><b>Shared rules ${tip('common')}</b><br>The same decisions are then scored with shared timing, costs and cash rate. The effect of each adjustment is reported.</li></ol></div>
-      </section></div>`;
+    </div>`;
+    document.querySelectorAll('.branch > button').forEach(b => b.addEventListener('click', () => {
+      const open = b.getAttribute('aria-expanded') === 'true'; b.setAttribute('aria-expanded', String(!open));
+      document.getElementById(b.getAttribute('aria-controls')).hidden = open; }));
+    lineChart('c-exp', 'lg-exp', months, keys.map(k => ({ label: sys(k).short, data: S(k).wealth, color: color(k) }))
+      .concat([{ label: `Benchmark (${D.dev.benchmarks[bk].label})`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }]), FMT_WEALTH);
   }
 
-  // ---------------------------------------------------------------- method
-  function viewMethod() {
+  // ---------------------------------------------------------------- methodology
+  function viewMethodology() {
+    const M = D.methodology, V = D.validation;
+    const COLS = { det: ['Deterministic', ''], jev: ['Agentic Workflow (JEV)', ''], rag: ['Causal RAG', ''], com: ['Agent Committee (variant)', ''] };
+    const LETTER = { det: '1', jev: '2', rag: '3', com: 'C' };
+    const cell = (g, k) => { const c = g.cells[k], [cls, ic, l] = GATE[c.status];
+      return c.status === 'na' ? `<div class="cell na" aria-label="${esc(COLS[k][0])}: does not apply">–</div>`
+        : `<div class="cell ${cls}"><span class="tip"><button type="button" aria-label="${esc(COLS[k][0])}: ${l}${c.note ? '. ' + esc(c.note) : ''}">${icon(ic)}</button><span role="tooltip">${esc(l)}${c.note ? ': ' + esc(c.note) : ''}</span></span></div>`; };
     const pc = D.dev.primary_contrasts.items;
     app.innerHTML = `<div class="wrap">
-      <section><h1>How it's scored</h1><p class="lede">Shared rules decide how results are measured. Everything that forms views or sets weights stays each approach's own.</p></section>
-      <section class="panel cer-def"><h2>Primary metric: Net CER (Certainty-Equivalent Return)</h2>
-        <p class="formula num">Net CER = 12 × ( average monthly net excess return − ½ × 2.5 × variance of monthly net excess return )</p>
-        <p style="margin:0;color:var(--text-2)">The guaranteed yearly return above cash that a risk-averse investor (risk aversion 2.5) would accept instead of the strategy. It rewards return and penalises volatility, after trading costs. It is not a compound annual return (CAGR).</p></section>
-      <section class="panel"><h2>Primary comparison</h2>
-        <p style="margin:0;color:var(--text-2)">Three approaches: the Deterministic Quantitative Model, the Agentic Workflow (represented by JEV) and Agentic Causal RAG. Their pairwise net-CER differences form one family of three, corrected together (Holm) ${tip('significance')}</p>
-        <ul class="list">${pc.map(c => `<li>${name(c.a)} vs ${name(c.b)}: ${c.computed ? 'computed on development months' : 'pending, Causal RAG results unavailable'}</li>`).join('')}</ul>
-        <p class="sub">The Agent Committee (a within-approach variant) and the secondary experiments are reported separately and never enter this family.</p></section>
-      <section class="grid2">
-        <div class="panel"><h2>Same for every approach</h2><ul class="list">
-          <li>Decisions at 8 p.m. New York time on the last trading day of each month</li>
-          <li>Trades at the next trading day's close, held for one month</li>
-          <li>Trading cost of 0.05% of every dollar traded</li>
-          <li>Cash earns the 4-week Treasury bill rate</li>
-          <li>Prices from fixed, verified copies of public data</li>
-          <li>Scored by net ${tipw('CER', 'cer')} with Sharpe, worst fall and turnover alongside</li></ul></div>
-        <div class="panel"><h2>Each approach's own</h2><ul class="list">
-          <li>Which assets it holds and its forecast horizon</li>
-          <li>Its data, prompts and AI model</li>
-          <li>How it turns views into portfolio ${tipw('weights', 'bl')}</li>
-          <li>Its starting mix, used as its own ${tipw('benchmark', 'benchmark')}</li></ul></div>
+      <section><h1>Methodology</h1><p class="lede">What is fixed, what is still open, and how far each approach has been validated.</p></section>
+      <section class="panel"><div class="phead"><h2>Timeline</h2>${dataChip('sealed')}</div>
+        ${phaseStrip(true)}
+        <div class="olegend"><i></i>2023 overlaps the AI models' training data ${tip('overlap')}</div>
+        <div class="callout">${icon('review')}<div><b>Awaiting decision</b><ul>${M.pending.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></div>
       </section>
-      <details class="more" open><summary>Why this is not a controlled comparison</summary><div><ul class="list no">
-        <li>The Agentic Workflow holds stocks with 20+ year Treasuries; the other two approaches hold stocks, 7–10 year Treasuries and corporate bonds.</li>
-        <li>Horizons differ: the Agentic Workflow uses 12-month views; the other two use 1-month forecasts.</li>
-        <li>Each reads different information, from data surprises alone to research papers and documents.</li>
-        <li>Comparing each approach with its own benchmark helps, but it does not remove these differences.</li></ul></div></details>
-      <details class="more"><summary>Development diagnostics vs protected historical results</summary><div><ul class="list">
-        <li>Development diagnostics (${devSpan()}) come from months the approaches were built and checked on. They can reveal problems but cannot show which approach is better.</li>
-        <li>Protected historical results (${testSpan()}) will be scored once, after the freeze. None exist yet; the scoring software refuses to open those months without a signed approval.</li>
-        <li>The primary research timeline starts with the February 2015 macro-data training period.</li></ul></div></details>
-      <details class="more"><summary>Keeping the test honest</summary><div><ul class="list">
-        <li>Every input is used only after its publication time.</li>
-        <li>Saved AI outputs are replayed exactly as recorded; nothing missing is filled in or invented.</li>
+      <section><div class="phead"><h2>Rules and settings</h2><div class="ilegend">${Object.keys(SETTING).map(k => `<span>${icon(SETTING[k][1])}${SETTING[k][2]} ${tip(k)}</span>`).join('')}</div></div>
+        <div class="settings">${M.settings.map(x => { const [c, ic, l] = SETTING[x.status];
+          return `<div class="setting"><span class="ic">${icon(x.icon)}</span><div><b>${esc(x.name)}${x.tip ? ' ' + tip(x.tip) : ''}</b><p>${esc(x.value)}</p><span class="chip ${c}">${icon(ic)}${l}</span></div></div>`; }).join('')}</div>
+      </section>
+      <section class="panel"><div class="phead"><h2>Validation status</h2><span class="chip block">${icon('lock')}Decision: ${V.decision === 'NO-GO' ? 'not yet approved to open the test' : esc(V.decision)}</span></div>
+        <div class="matrix" role="table" aria-label="Validation checks by approach">
+          <div class="mh" role="columnheader">Check</div>${V.columns.map(k => `<div class="mh" role="columnheader" aria-label="${esc(COLS[k][0])}"><span class="badge" style="background:var(${VAR[k]});width:20px;height:20px;font-size:11.5px;border-radius:6px">${LETTER[k]}</span><span class="full">${esc(COLS[k][0])}</span></div>`).join('')}
+          ${V.gates.map(g => `<div class="gate" role="rowheader">${esc(g.name)}</div>${V.columns.map(k => cell(g, k)).join('')}`).join('')}
+        </div>
+        ${statusLegend(GATE, ['pass', 'review', 'pending', 'blocked'])}
+        <div class="ilegend phone-key">${V.columns.map(k => `<span><span class="badge" style="background:var(${VAR[k]});width:18px;height:18px;font-size:11px;border-radius:5px">${LETTER[k]}</span>${esc(COLS[k][0])}</span>`).join('')}</div>
+        <p class="sub">Select a symbol for its note.</p>
+      </section>
+      <details class="more"><summary>How net CER is calculated</summary><div>
+        <p class="formula num">Net CER = 12 × ( average monthly net excess return − ½ × 2.5 × variance of monthly net excess return )</p>
+        <p style="margin:0">The certainty-equivalent return: the guaranteed yearly return above cash that an investor with risk aversion 2.5 would accept instead of the strategy, after trading costs. It is not a compound annual return.</p></div></details>
+      <details class="more"><summary>The primary comparison and its statistics</summary><div><ul>
+        <li>Three approaches, compared in pairs: ${pc.map(c => `${name(c.a)} vs ${name(c.b)}`).join('; ')}.</li>
+        <li>Differences are measured on the same months; uncertainty comes from resampling 6-month blocks 5,000 times.</li>
+        <li>The three comparisons are corrected together (Holm). Within-approach experiments never enter this family.</li>
+        <li>With few months, only large differences are detectable: “not significant” means not enough evidence, not “no difference”.</li></ul></div></details>
+      <details class="more"><summary>Why this is not a controlled experiment</summary><div><ul>
+        <li>The Agentic Workflow holds stocks and 20+ year Treasuries; the other two hold stocks, 7–10 year Treasuries and corporate bonds.</li>
+        <li>Horizons differ: 12-month views versus 1-month forecasts.</li>
+        <li>Each reads different information, from data surprises to research papers and documents.</li>
+        <li>Comparing each approach with its own benchmark helps but does not remove these differences.</li></ul></div></details>
+      <details class="more"><summary>Keeping the test honest</summary><div><ul>
+        <li>Every input is used only after it became public, including later revisions.</li>
+        <li>Saved AI outputs are replayed exactly; nothing missing is filled in.</li>
+        <li>The historical test opens once, only with a signed approval; the scoring software refuses it otherwise.</li>
         <li>Demo screens are labelled and can never enter results.</li>
-        <li>AI models may have seen past market history during training. This is disclosed; only live months are free of it.</li></ul></div></details>
-      <details class="more"><summary>Statistics</summary><div><ul class="list">
-        <li>Differences are measured on the same months for both approaches being compared.</li>
-        <li>Uncertainty comes from resampling 6-month blocks of returns 5,000 ${tipw('times', 'ci')}</li>
-        <li>The three primary comparisons are corrected together for multiple testing ${tipw('(Holm)', 'significance')}</li>
-        <li>With 46 development months, only large differences can be detected; a non-significant result means “not enough evidence”, not “no difference”.</li></ul></div></details>
+        <li>AI models may have seen past market history in training; this is disclosed, and only live months are free of it.</li></ul></div></details>
     </div>`;
   }
 
@@ -618,16 +630,16 @@
     if (!D) return;
     killCharts();
     chartDefaults();
-    const h = (location.hash || '#overview').slice(1);
+    let h = (location.hash || '#overview').slice(1);
+    if (h === 'method' || h === 'timeline') h = 'methodology';
+    if (h === 'approaches') h = 'deterministic';
     const key = ROUTES[h];
-    const view = key ? (key === 'com' ? 'experiments' : 'approaches') : (['overview', 'approaches', 'experiments', 'timeline', 'method'].includes(h) ? h : 'overview');
-    document.querySelectorAll('nav a').forEach(a => { if (a.dataset.route === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    const view = key ? (key === 'com' ? 'experiments' : 'approaches') : (['overview', 'experiments', 'methodology'].includes(h) ? h : 'overview');
+    document.querySelectorAll('header nav a').forEach(a => { if (a.dataset.route === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     try {
       if (key) viewApproach(key);
-      else if (view === 'approaches') viewApproaches();
       else if (view === 'experiments') viewExperiments();
-      else if (view === 'timeline') viewTimeline();
-      else if (view === 'method') viewMethod();
+      else if (view === 'methodology') viewMethodology();
       else viewOverview();
     } catch (e) {
       console.error(e);
@@ -636,8 +648,7 @@
     window.scrollTo(0, 0);
   }
 
-  // Tooltips: hover or focus on desktop, tap on touch screens. The popover is fixed-positioned and
-  // clamped inside the viewport, so it never widens the page.
+  // Tooltips: hover or focus on desktop, tap on touch screens. Fixed-positioned and clamped to the viewport.
   function place(t) {
     const s = t.querySelector(':scope > span'), r = t.getBoundingClientRect();
     t.classList.add('show');
@@ -668,7 +679,7 @@
     .then(r => { if (!r.ok) throw new Error(`results file not found (${r.status})`); return r.json(); })
     .then(j => {
       D = j;
-      document.getElementById('foot-right').textContent = `Results built ${j.generated_at_utc.slice(0, 10)} · development diagnostics only`;
+      document.getElementById('foot-right').textContent = `Results built ${j.generated_at_utc.slice(0, 10)}`;
       route();
     })
     .catch(e => { app.innerHTML = `<div class="wrap"><p class="err">Results could not be loaded: ${esc(e.message)}. Start the dashboard with the local server described in the README.</p></div>`; });

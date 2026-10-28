@@ -25,14 +25,44 @@ def test_exactly_three_primary_approaches():
 def test_committee_is_a_within_approach_variant():
     assert [v["name"] for v in D["variants"]] == ["Agentic Workflow — Agent Committee"]
     assert D["variants"][0]["role"] == "variant"
-    within = {e["name"]: e["status"] for e in D["experiments"]["within"]}
-    assert within == {"Committee only": "implemented", "JEV only": "implemented", "Committee + JEV": "proposed"}
-    assert {e["name"] for e in D["experiments"]["secondary"]} == {"Signal ablations", "Market-regime experiments", "Standard RAG vs Causal RAG"}
-    assert all(e["status"] == "proposed" for e in D["experiments"]["secondary"])
+    groups = {g["approach"]: g for g in D["experiments"]["groups"]}
+    assert list(groups) == ["det", "jev", "rag"]
+    aw = groups["jev"]
+    assert aw["base"]["name"] == "JEV only" and aw["base"]["status"] == "tested"
+    assert {v["name"]: v["status"] for v in aw["variants"]} == {"Agent Committee only": "tested", "Committee + JEV": "planned"}
     # the Committee never enters the primary family
     fam = REPORT["primary_contrasts_matched_dev"]["family"]
     assert fam == ["AP2B-AP1", "AP3-AP1", "AP3-AP2B"] and not any("AP2A" in f for f in fam)
     assert [(c["a"], c["b"]) for c in D["dev"]["within_contrasts"]] == [("com", "jev")]
+    assert (D["experiments"]["within_contrast"]["a"], D["experiments"]["within_contrast"]["b"]) == ("com", "jev")
+
+
+def test_experiment_statuses_match_the_research_design():
+    """Every within-approach experiment carries one status class; nothing proposed or paused is shown as run."""
+    cfg_groups = CFG["research_design"]["within_approach_experiments"]["groups"]
+    shown = D["experiments"]["groups"]
+    assert len(cfg_groups) == len(shown) == 3
+    for c, g in zip(cfg_groups, shown):
+        assert [v["status"] for v in c["variants"]] == [v["status"] for v in g["variants"]]
+        assert c["base"]["status"] == g["base"]["status"]
+    det, rag = shown[0], shown[2]
+    assert {v["status"] for v in det["variants"]} == {"paused", "planned"}          # signal experiments are on hold
+    assert rag["base"]["status"] == "awaiting_validation" and all(v["status"] == "planned" for v in rag["variants"])
+    assert all(v["link"] is None for g in shown for v in g["variants"] if v["status"] != "tested")
+    assert "secondary" not in D["experiments"]
+
+
+def test_methodology_and_validation_blocks():
+    m = D["methodology"]
+    assert [p["key"] for p in m["phases"]] == ["train", "dev", "test", "live"]
+    assert m["phases"][0]["from"] == "2015-02" and m["phases"][2]["from"] == "2023-01" and m["phases"][2]["to"] == "2026-08"
+    assert any("2024" in t and "proposed" in t for t in m["pending"])           # the window split is flagged, not applied
+    assert {x["status"] for x in m["settings"]} <= {"frozen", "approval", "design"}
+    v = D["validation"]
+    assert v["decision"] == "NO-GO" and v["columns"] == ["det", "jev", "rag", "com"]
+    assert all(set(g["cells"]) == {"det", "jev", "rag", "com"} for g in v["gates"])
+    assert all(c["status"] in {"pass", "review", "pending", "blocked", "na"} for g in v["gates"] for c in g["cells"].values())
+    assert not any(g["cells"]["rag"]["status"] == "pass" for g in v["gates"] if "smoke" in g["name"] or "replay" in g["name"])
 
 
 def test_no_internal_labels_in_display_text():
@@ -89,7 +119,8 @@ def test_plain_language_labels():
     """Benchmarks, models and notes read in plain words (usability review)."""
     for b in D["dev"]["benchmarks"].values():
         assert not re.search(r"\b(SPY|TLT|IEF|LQD)\b", b["label"]), b["label"]
-    shown = json.dumps([D["systems"], D["variants"], D["notes"], D["reproduction"], D["native_vs_common"]], ensure_ascii=False)
+    shown = json.dumps([D["systems"], D["variants"], D["notes"], D["reproduction"], D["native_vs_common"], D["experiments"], D["flows"],
+                        D["methodology"], D["validation"]], ensure_ascii=False)
     assert not re.search(r"TypeSafe|temperature|spending approval|Native replay|\brace\b|[Cc]ompound annual", shown)
     assert D["notes"]["headline"].startswith("Development diagnostics") and "sealed" in D["notes"]["headline"]
 
