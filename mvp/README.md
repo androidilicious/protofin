@@ -1,15 +1,18 @@
 # Protofin Backtest — interactive MVP
 
-A dashboard that compares four investment approaches, each run as its own code works, under one set of scoring rules:
+A dashboard that compares three investment approaches, each run as its own code works, under one set of scoring rules:
 
 | In the dashboard | What it is | Results shown |
 |---|---|---|
-| Deterministic Quantitative Model | 8 macro surprises → Ridge → Black–Litterman (SPY/IEF/LQD) | Development 2019-03..2022-12 |
-| Agentic Workflow — Agent Committee | Economist + Risk Manager → CIO (GPT-4o, saved runs) → Black–Litterman (SPY/TLT) | Development, plus 2011–2022 history |
-| Agentic Workflow — JEV | TypeSafe JEV's saved answers → capped tilt (SPY/TLT) | Development, plus 2011–2022 history |
-| Agentic Causal RAG | Knowledge graph → Hypothesis Agent → CauseTrace → Testing Agent → forecast → allocation | **None yet**: waiting for model-spend approval; a labelled demo shows the workflow |
+| Deterministic Quantitative Model | 8 macro surprises → Ridge → Black–Litterman (SPY/IEF/LQD) | Development diagnostics 2019-03..2022-12 |
+| Agentic Workflow — JEV | JEV's saved answers → capped tilt around 60/40 (SPY/TLT) | Development diagnostics 2019-03..2022-12 |
+| Agentic Causal RAG | Knowledge graph → Hypothesis Agent → CauseTrace → Testing Agent → forecast → allocation | **Awaiting validation · results unavailable**; a labelled demo shows the workflow |
 
-The 2023-01..2026-08 historical test is **sealed**. Nothing in this MVP scores it.
+The **Experiments** view holds everything outside the primary comparison:
+- **Within the Agentic Workflow:** Committee only (implemented: Economist + Risk Manager → CIO on GPT-4o, saved runs, Black–Litterman on SPY/TLT), JEV only (implemented; the primary system), and Committee + JEV (proposed). The Committee is compared only with JEV.
+- **Secondary experiments:** signal ablations, market-regime experiments, and Standard RAG vs Causal RAG (all proposed).
+
+The 2023-01..2026-08 protected historical test is **sealed**. Nothing in this MVP scores it, and every number shown is a development diagnostic.
 
 ## Run it locally
 
@@ -27,28 +30,32 @@ The committed `mvp/data/dashboard.json` is enough to open the dashboard. To rege
 ```bash
 python mvp/run.py fetch            # pinned price, cash-rate and claims inputs from GitHub; every SHA-256 verified
 python mvp/run.py build            # AP1 rerun, AP2 native replay + reproduction, common evaluation, AP3 graph libraries, dashboard data
-python mvp/run.py check            # 51 project tests + 25 Stage 2 tests + headless-browser dashboard check
+python mvp/run.py check            # project tests + Stage 2 tests + headless-browser dashboard check
 ```
 
 `build` is deterministic: rerunning it leaves every file under `native_backtest/out/` byte-identical. Only the dashboard file's build timestamp changes.
 
 ## Using the dashboard
 
-- **Overview** — the four approaches, growth of $1, a metric scoreboard with the best value per row marked, allocations over time, and what the results do and do not show.
-- **Approaches** — a side-by-side summary, then one page per approach: how it works, development results against its own benchmark, its signals and forecasts, weights, faithfulness checks and limitations. Expandable sections hold the detail.
-- **Timeline** — training, development, the sealed historical test and live tracking, and the two stages of checking (native reproduction, then common evaluation).
-- **How it's scored** — the shared rules, what stays each approach's own, and why this is not a controlled comparison.
+- **Overview** — the three approaches, a one-line finding, growth of $1 (or the gap to each approach's own benchmark), a metric scoreboard with the stronger value per row marked, the primary comparisons, and allocations over time. Protected historical results are shown as sealed.
+- **Approaches** — a side-by-side summary, then one page per approach: how it works, development diagnostics against its own benchmark, its signals and forecasts, weights, the reproduction check and limitations.
+- **Experiments** — the within-approach Committee vs JEV comparison and the proposed secondary experiments, each marked Implemented or Proposed.
+- **Timeline** — from the February 2015 macro-data training period through development diagnostics, the sealed protected test and live tracking.
+- **How it's scored** — the CER definition, the primary comparison, the shared rules, and why this is not a controlled comparison.
 - Every term with an **i** has a one-sentence explanation on hover, focus or tap.
+
+**Net CER** is the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance). It is not a compound annual return.
 
 ## Data contract
 
 The dashboard reads one file, `mvp/data/dashboard.json`, built by `mvp/build_dashboard_data.py` from the decision records in `native_backtest/out/decisions/` through the shared evaluator (`native_backtest/framework/`). Its tests are in `mvp/tests/test_dashboard_data.py`:
 
-- the four display names, with no internal codes;
-- only months before 2023-01;
-- every metric equal to the committed development report;
-- Causal RAG without results, and its demo marked `is_mock: true`;
-- no text from the claims dataset.
+- exactly three primary approaches, with the Committee only as a within-approach variant;
+- only development months (before 2023-01), with the timeline starting February 2015;
+- every metric and contrast equal to the committed development report;
+- Causal RAG awaiting validation with no results, and its demo marked `is_mock: true`;
+- CER defined as the certainty-equivalent return;
+- no internal codes and no text from the claims dataset.
 
 ## What is real and what is a demo
 

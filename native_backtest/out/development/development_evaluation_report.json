@@ -274,6 +274,7 @@
  "common_evaluation_matched_dev": [
   {
    "system": "AP1",
+   "role": "primary",
    "universe": "SPY/IEF/LQD",
    "absolute": {
     "n_months": 46,
@@ -323,6 +324,7 @@
   },
   {
    "system": "AP2A",
+   "role": "within_approach_variant",
    "universe": "SPY/TLT",
    "absolute": {
     "n_months": 46,
@@ -371,6 +373,7 @@
   },
   {
    "system": "AP2B",
+   "role": "primary",
    "universe": "SPY/TLT",
    "absolute": {
     "n_months": 46,
@@ -422,70 +425,117 @@
   "AP2A": 0.0,
   "AP2B": 0.0
  },
- "pairwise_contrasts_matched_dev": {
-  "AP1-AP2A": {
-   "cer_difference": -0.014485873318289419,
-   "ci90": [
-    -0.0630612776029807,
-    0.029294378081360012
-   ],
-   "ci95": [
-    -0.07302290823948596,
-    0.03727161411342842
-   ],
-   "p_two_sided_bootstrap": 0.6188,
-   "n_months": 46,
-   "first_month": "2019-03",
-   "last_month": "2022-12",
-   "block_months": 6,
-   "replications": 5000,
-   "seed": 20261027,
-   "p": 0.6188,
-   "holm_adjusted_p": 1.0,
-   "reject_at_alpha": false
+ "primary_contrasts_matched_dev": {
+  "family": [
+   "AP2B-AP1",
+   "AP3-AP1",
+   "AP3-AP2B"
+  ],
+  "family_size_at_freeze": 3,
+  "multiplicity": "Holm over the full family once every contrast exists; until then the Bonferroni bound over the full family is reported (Holm-adjusted p cannot exceed it).",
+  "computed": {
+   "AP2B-AP1": {
+    "cer_difference": 0.010094945746734078,
+    "ci90": [
+     -0.027744846593366315,
+     0.04603707033157827
+    ],
+    "ci95": [
+     -0.03417585686600412,
+     0.052668989168335734
+    ],
+    "p_two_sided_bootstrap": 0.6252,
+    "n_months": 46,
+    "first_month": "2019-03",
+    "last_month": "2022-12",
+    "block_months": 6,
+    "replications": 5000,
+    "seed": 20261027,
+    "bonferroni_bound_full_family": 1.0
+   }
   },
-  "AP1-AP2B": {
-   "cer_difference": -0.010094945746734078,
-   "ci90": [
-    -0.04603707033157825,
-    0.027744846593366318
-   ],
-   "ci95": [
-    -0.05266898916833574,
-    0.03417585686600411
-   ],
-   "p_two_sided_bootstrap": 0.6252,
-   "n_months": 46,
-   "first_month": "2019-03",
-   "last_month": "2022-12",
-   "block_months": 6,
-   "replications": 5000,
-   "seed": 20261027,
-   "p": 0.6252,
-   "holm_adjusted_p": 1.0,
-   "reject_at_alpha": false
-  },
-  "AP2A-AP2B": {
-   "cer_difference": 0.004390927571555341,
-   "ci90": [
-    -0.015421677683123743,
-    0.02515322907848011
-   ],
-   "ci95": [
-    -0.018484226923241927,
-    0.029018386652627532
-   ],
-   "p_two_sided_bootstrap": 0.7236,
-   "n_months": 46,
-   "first_month": "2019-03",
-   "last_month": "2022-12",
-   "block_months": 6,
-   "replications": 5000,
-   "seed": 20261027,
-   "p": 0.7236,
-   "holm_adjusted_p": 1.0,
-   "reject_at_alpha": false
+  "pending_no_decisions": [
+   "AP3-AP1",
+   "AP3-AP2B"
+  ]
+ },
+ "within_approach_contrasts_matched_dev": {
+  "approach": "Agentic Workflow",
+  "note": "Committee only vs JEV only, reported as a separate within-approach experiment; not part of the primary family.",
+  "computed": {
+   "AP2A-AP2B": {
+    "cer_difference": 0.004390927571555341,
+    "ci90": [
+     -0.015421677683123743,
+     0.02515322907848011
+    ],
+    "ci95": [
+     -0.018484226923241927,
+     0.029018386652627532
+    ],
+    "p_two_sided_bootstrap": 0.7236,
+    "n_months": 46,
+    "first_month": "2019-03",
+    "last_month": "2022-12",
+    "block_months": 6,
+    "replications": 5000,
+    "seed": 20261027
+   }
   }
  },
- "comparability_statement": "AP1 trades SPY/IEF/LQD on one-month views; AP2A and AP2B trade SPY/TLT on 12-month views, and the systems read different information. Differences in net CER compare complete strategies, including asset choice, horizon and information access; they are not a controlled comparison of forecasting skill. Results relative to each system's native neutral portfolio do not remove these differences."
+ "research_design": {
+  "updated": "2026-10-28",
+  "primary_approaches": [
+   {
+    "approach": "Deterministic Quantitative Model",
+    "system": "AP1"
+   },
+   {
+    "approach": "Agentic Workflow",
+    "system": "AP2B",
+    "representative": "JEV"
+   },
+   {
+    "approach": "Agentic Causal RAG",
+    "system": "AP3"
+   }
+  ],
+  "within_approach_experiments": {
+   "approach": "Agentic Workflow",
+   "variants": [
+    {
+     "id": "AP2A",
+     "name": "Committee only",
+     "status": "implemented (saved native runs, development diagnostics)"
+    },
+    {
+     "id": "AP2B",
+     "name": "JEV only",
+     "status": "implemented (this is the primary Agentic Workflow system)"
+    },
+    {
+     "id": "AP2-COMBO",
+     "name": "Committee + JEV",
+     "status": "proposed; not built"
+    }
+   ],
+   "rule": "Reported separately from the primary comparison; never enters the primary Holm family."
+  },
+  "secondary_experiments": [
+   {
+    "name": "Signal ablations",
+    "status": "proposed"
+   },
+   {
+    "name": "Market-regime experiments",
+    "status": "proposed"
+   },
+   {
+    "name": "Standard RAG vs Causal RAG",
+    "status": "proposed; requires Causal RAG results first"
+   }
+  ],
+  "primary_metric": "Net CER (certainty-equivalent return) = 12 * (mean monthly net excess return - 0.5 * delta * variance of monthly net excess return), delta = 2.5. It is not a compound annual return."
+ },
+ "comparability_statement": "AP1 (and AP3) trade SPY/IEF/LQD on one-month views; AP2B (JEV) and its within-approach variant AP2A trade SPY/TLT on 12-month views, and the systems read different information. Differences in net CER compare complete strategies, including asset choice, horizon and information access; they are not a controlled comparison of forecasting skill. Results relative to each system's native neutral portfolio do not remove these differences."
 }

@@ -3,6 +3,8 @@
 Read-only audit of the code each system actually runs. Repositories are cited at the commits inspected.
 Nothing in this file changes any system; it records what each one does today.
 
+> **Roles (updated 2026-10-28).** The primary comparison has three approaches: the Deterministic Quantitative Model (AP1), the Agentic Workflow represented by JEV (AP2B) and Agentic Causal RAG (AP3). The Agent Committee (AP2A) is a within-approach variant of the Agentic Workflow, compared only with JEV. The audit below describes native behaviour and applies to every system regardless of role; where it says "all four", it means every implemented system is scored under the same shared rules.
+
 | System | Repository @ commit | Code inspected |
 |---|---|---|
 | AP1 | `androidilicious/protofin` @ `stage2-evaluation-mvp` 7ed45f8 | `stage2/scoring/stage2_backtest.py` (system A), `stage2_portfolio.py`, `stage2/config/stage2_frozen_config_v2.json`, `stage2_omega_from_A_development.json` |

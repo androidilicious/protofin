@@ -1,6 +1,6 @@
 {
-  "_comment": "Shared evaluation settings for the native four-system backtest. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.0",
+  "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
+  "version": "1.1",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -61,7 +61,7 @@
       "2019-03",
       "2022-12"
     ],
-    "extended_development_note": "AP2 systems have no fitted parameters; their earlier native months (from the first month with pinned prices) may be scored as extended development diagnostics.",
+    "extended_development_note": "Native-fidelity diagnostic only: AP2 saved runs before the research timeline (2011-01..2015-01) are used solely to check the native-to-common execution attribution. They are not part of the primary research timeline or dashboard.",
     "protected": [
       "2023-01",
       "2026-08"
@@ -70,11 +70,13 @@
     "extended_development_ap2": [
       "2011-01",
       "2022-12"
-    ]
+    ],
+    "research_timeline_start": "2015-02",
+    "research_timeline_note": "The primary research timeline begins with the February 2015 macro-data training period."
   },
   "systems": {
     "AP1": {
-      "name": "Deterministic quantitative model (Stage 2 System A)",
+      "name": "Deterministic Quantitative Model (Stage 2 System A) — primary",
       "universe": [
         "SPY",
         "IEF",
@@ -84,10 +86,11 @@
         "SPY": 0.45,
         "IEF": 0.35,
         "LQD": 0.2
-      }
+      },
+      "role": "primary"
     },
     "AP2A": {
-      "name": "Agent Committee (native gpt-4o, saved runs)",
+      "name": "Agentic Workflow — Agent Committee (native gpt-4o, saved runs) — within-approach variant",
       "universe": [
         "SPY",
         "TLT"
@@ -95,10 +98,11 @@
       "native_neutral_weights": {
         "SPY": 0.6,
         "TLT": 0.4
-      }
+      },
+      "role": "within_approach_variant"
     },
     "AP2B": {
-      "name": "JEV (native saved answers)",
+      "name": "Agentic Workflow — JEV (native saved answers) — primary representative of the Agentic Workflow",
       "universe": [
         "SPY",
         "TLT"
@@ -106,10 +110,11 @@
       "native_neutral_weights": {
         "SPY": 0.6,
         "TLT": 0.4
-      }
+      },
+      "role": "primary"
     },
     "AP3": {
-      "name": "Agentic Causal RAG",
+      "name": "Agentic Causal RAG — primary; awaiting validation, results unavailable",
       "universe": [
         "SPY",
         "IEF",
@@ -119,14 +124,11 @@
         "SPY": 0.45,
         "IEF": 0.35,
         "LQD": 0.2
-      }
+      },
+      "role": "primary"
     }
   },
   "primary_contrasts": [
-    [
-      "AP2A",
-      "AP1"
-    ],
     [
       "AP2B",
       "AP1"
@@ -137,21 +139,74 @@
     ],
     [
       "AP3",
-      "AP2A"
-    ],
-    [
-      "AP3",
       "AP2B"
+    ]
+  ],
+  "primary_contrasts_note": "Primary family: all pairwise net-CER contrasts among the three primary approaches, Holm-corrected as one family of three. Contrasts involving AP3 are computed only once AP3 has genuine decisions.",
+  "pinned_price_validity": {
+    "scorable_from_decision_month": "2011-01",
+    "finding_2026-10-28": "The pre-2018 pinned segment (jeremy111004 @ bdb8ef9c) omits distributions before December 2010: compared with the native Yahoo-adjusted monthly returns, SPY is about 2%/yr and TLT about 4.4%/yr lower in 2005-2010 (roughly their dividend yields), e.g. SPY -0.58% in the Aug and Nov 2010 ex-dividend months; from decision month 2011-01 the sources agree within 0.05% per month. Stage 2 never used months before 2015 for targets or 2016 for covariance, so Stage 2 results are unaffected.",
+    "rule": "The shared evaluator refuses to score decision months before 2011-01."
+  },
+  "research_design": {
+    "updated": "2026-10-28",
+    "primary_approaches": [
+      {
+        "approach": "Deterministic Quantitative Model",
+        "system": "AP1"
+      },
+      {
+        "approach": "Agentic Workflow",
+        "system": "AP2B",
+        "representative": "JEV"
+      },
+      {
+        "approach": "Agentic Causal RAG",
+        "system": "AP3"
+      }
     ],
+    "within_approach_experiments": {
+      "approach": "Agentic Workflow",
+      "variants": [
+        {
+          "id": "AP2A",
+          "name": "Committee only",
+          "status": "implemented (saved native runs, development diagnostics)"
+        },
+        {
+          "id": "AP2B",
+          "name": "JEV only",
+          "status": "implemented (this is the primary Agentic Workflow system)"
+        },
+        {
+          "id": "AP2-COMBO",
+          "name": "Committee + JEV",
+          "status": "proposed; not built"
+        }
+      ],
+      "rule": "Reported separately from the primary comparison; never enters the primary Holm family."
+    },
+    "secondary_experiments": [
+      {
+        "name": "Signal ablations",
+        "status": "proposed"
+      },
+      {
+        "name": "Market-regime experiments",
+        "status": "proposed"
+      },
+      {
+        "name": "Standard RAG vs Causal RAG",
+        "status": "proposed; requires Causal RAG results first"
+      }
+    ],
+    "primary_metric": "Net CER (certainty-equivalent return) = 12 * (mean monthly net excess return - 0.5 * delta * variance of monthly net excess return), delta = 2.5. It is not a compound annual return."
+  },
+  "within_approach_contrasts": [
     [
       "AP2A",
       "AP2B"
     ]
   ],
-  "primary_contrasts_note": "Proposed: all pairwise contrasts among the four systems, Holm-corrected. The family is fixed only at the freeze.",
-  "pinned_price_validity": {
-    "scorable_from_decision_month": "2011-01",
-    "finding_2026-10-28": "The pre-2018 pinned segment (jeremy111004 @ bdb8ef9c) omits distributions before December 2010: compared with the native Yahoo-adjusted monthly returns, SPY is about 2%/yr and TLT about 4.4%/yr lower in 2005-2010 (roughly their dividend yields), e.g. SPY -0.58% in the Aug and Nov 2010 ex-dividend months; from decision month 2011-01 the sources agree within 0.05% per month. Stage 2 never used months before 2015 for targets or 2016 for covariance, so Stage 2 results are unaffected.",
-    "rule": "The shared evaluator refuses to score decision months before 2011-01."
-  }
+  "within_approach_contrasts_note": "Committee only vs JEV only, reported as a separate within-approach experiment; not part of the primary family."
 }

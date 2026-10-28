@@ -1,9 +1,20 @@
-# Native four-system backtest
+# Native three-approach backtest
 
-Shared evaluation of the four executable systems as they exist in their repositories:
-AP1 (Stage 2 System A), AP2-A Agent Committee, AP2-B JEV, and AP3 Agentic Causal RAG (built and tested without a model; awaiting approval of paid inference).
+Shared evaluation of the Protofin approaches as their code exists in the repositories.
+
+| Role | System | Status |
+|---|---|---|
+| Primary | Deterministic Quantitative Model (AP1, Stage 2 System A) | Implemented; development diagnostics |
+| Primary | Agentic Workflow, represented by JEV (AP2B) | Implemented (native replay); development diagnostics |
+| Primary | Agentic Causal RAG (AP3) | Built and tested without a model; awaiting validation, results unavailable |
+| Within-approach variant | Agentic Workflow — Agent Committee (AP2A, "Committee only") | Implemented (native replay); development diagnostics, reported only against JEV |
+| Within-approach variant | Agentic Workflow — Committee + JEV | Proposed; not built |
+| Secondary experiments | Signal ablations; market-regime experiments; Standard RAG vs Causal RAG | Proposed; not run |
+
+Roles, primary contrasts and the primary metric are recorded in `config/framework_config_v1.json` (`research_design`) and `config/system_manifest_v1.csv`. The primary metric is net CER, the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance). It is not a compound annual return.
+
+The primary research timeline begins with the February 2015 macro-data training period. Months 2019-03..2022-12 are development diagnostics; 2023-01..2026-08 is the protected historical test and is sealed: the evaluator refuses to score it without a signed GO record.
 The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
-The 2023-01..2026-08 window is sealed: the evaluator refuses to score it without a signed GO record.
 
 ## Layout
 
@@ -16,10 +27,10 @@ The 2023-01..2026-08 window is sealed: the evaluator refuses to score it without
 | `adapters/ap2_native.py`, `adapters/node/ap2_native_replay.mjs` | AP2 native replay: the unchanged site engine run in Node, plus fidelity checks |
 | `adapters/execution_attribution.py` | External adapter: native → common execution, one adjustment at a time |
 | `vendor/` | Byte-identical copies of native AP2 code and saved outputs, with `PROVENANCE.json` |
-| `config/` | Shared evaluation settings; TLT data manifest |
+| `config/` | Shared evaluation settings and research design (`framework_config_v1.json`), system manifest (`system_manifest_v1.csv`), TLT and claims data manifests |
 | `ap3/` | Causal RAG: graph vintages and channel library (CauseTrace code, vendored unchanged), CauseTrace tools, Hypothesis Agent, Testing Agent (causal-rag-mvp assessor logic, model substitution documented), mediator tests, status encoder, calibration (G4c checks), allocation, LLM client (paid providers refuse without approval), engineering mock and fixtures |
 | `docs/GO_NO_GO_2026-10-28.md` | Gate status; decision NO-GO; what must happen before GO |
-| `out/` | Decision records, reproduction and development reports (development months only), AP3 library manifest, gate record |
+| `out/` | Decision records, reproduction reports, development diagnostics (primary contrasts and the within-approach contrast), AP3 library manifest, gate record |
 | `tests/` | Framework, native adapters and AP3 tests |
 
 ## Reproduce (from the repository root)

@@ -17,15 +17,19 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 VIEWS = {
-    "overview": ["So far", "Growth of $1", "Versus own benchmark", "How they compare", "What the results show", "How allocations changed",
-                 "Deterministic Quantitative Model", "Agentic Workflow — Agent Committee", "Agentic Workflow — JEV", "Agentic Causal RAG", "sealed"],
-    "approaches": ["The four approaches", "At a glance"],
-    "deterministic": ["How it works", "Development results", "Monthly return forecasts", "Portfolio weights", "Reproduction check"],
-    "committee": ["How it works", "12-month views", "Reproduction check", "Sample reasoning", "Longer history"],
-    "jev": ["How it works", "JEV's answer each month", "Can't be re-run"],
-    "causal-rag": ["Waiting for model approval", "Research inventory", "not a result", "Demo only", "Safeguards"],
-    "timeline": ["Walk-forward validation", "Historical test", "Two stages of checking", "Not yet run"],
-    "method": ["Same for every approach", "Why this is not a controlled comparison"],
+    "overview": ["So far", "Growth of $1", "Versus own benchmark", "How they compare", "Primary comparisons", "How allocations changed",
+                 "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG", "Awaiting validation · results unavailable",
+                 "Development diagnostics", "Protected historical results", "Experiments"],
+    "approaches": ["The three approaches", "At a glance", "Within-approach variant"],
+    "experiments": ["Within the Agentic Workflow", "Committee only", "JEV only", "Committee + JEV", "Proposed · not run", "Implemented",
+                    "Committee only vs JEV only", "Secondary experiments", "Signal ablations", "Market-regime experiments", "Standard RAG vs Causal RAG"],
+    "deterministic": ["How it works", "Development diagnostics", "Monthly return forecasts", "Portfolio weights", "Reproduction check"],
+    "jev": ["How it works", "JEV's answer each month", "Can't be re-run", "represents the Agentic Workflow"],
+    "committee": ["Within-approach variant of the Agentic Workflow", "12-month views", "Reproduction check", "Sample reasoning"],
+    "causal-rag": ["Awaiting validation · results unavailable", "Research inventory", "not a result", "Demo only", "Safeguards"],
+    "timeline": ["Walk-forward validation", "Training", "Feb 2015", "Protected historical test", "Development diagnostics", "Two stages of checking"],
+    "method": ["Net CER (Certainty-Equivalent Return)", "not a compound annual return", "Primary comparison", "Same for every approach",
+               "Why this is not a controlled comparison"],
 }
 # Wording the usability review flagged as jargon or as overstating the results.
 JARGON = re.compile(r"\b(best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% SPY|% TLT|% IEF|% LQD", re.I)
@@ -78,12 +82,16 @@ def main() -> int:
                         return r.width > 0 && Math.abs(r.left - (q.left + pad)) < 4 && t.closest('li').textContent.trim().length > 0; }).length""")
                     if lonely:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: {lonely} info icon(s) wrapped onto their own line")
+                    if view in ("overview", "approaches"):
+                        n_cards = page.locator("main .cards .card").count()
+                        if n_cards != 3:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: {n_cards} approach cards, expected exactly 3")
                     sw = page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
                     if sw > 1:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: page scrolls sideways by {sw}px")
                     n_canvas = page.locator("canvas").count()
                     report[f"{scheme}/{vp_name}/{view}"] = {"canvases": n_canvas, "chars": len(text)}
-                    if shots and (scheme == "dark" or view in ("overview", "causal-rag")):
+                    if shots and (scheme == "dark" or view in ("overview", "experiments")):
                         page.screenshot(path=str(shots / f"{scheme}-{vp_name}-{view}.png"), full_page=True)
                 # tooltip opens on hover (desktop) or tap (phone)
                 page.goto(a.url + "#overview")
