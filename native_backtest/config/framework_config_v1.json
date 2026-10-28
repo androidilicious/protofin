@@ -1,0 +1,157 @@
+{
+  "_comment": "Shared evaluation settings for the native four-system backtest. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
+  "version": "1.0",
+  "created": "2026-10-28",
+  "inherits_stage2_run_spec": {
+    "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
+    "use_keys": [
+      "prices",
+      "dtb4wk"
+    ],
+    "note": "SPY/IEF/LQD price segments and DTB4WK are taken unchanged from the verified Stage 2 run spec (freeze gate 5 and the FRED check apply to them)."
+  },
+  "extra_prices": {
+    "TLT": {
+      "segments": [
+        {
+          "path": "stage2/data/_pinned/market_price_TLT_pre2018.csv",
+          "end_exclusive": "2018-01-02",
+          "scale": 0.9385200780329516,
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "Close is the distribution-adjusted series (TLT 2018-01-02 Open 126.49 vs Close 97.18). Scale = ratio of the two sources' closes on 2018-01-02, the same rule that reproduces the SPY/IEF/LQD scales exactly. Issuer distribution check for TLT is pending (gate D-TLT).",
+          "expected_sha256": "25cf446d0b7278af496ac463684f390ccaa3ab22621e74e9bf587658730687bd"
+        },
+        {
+          "path": "stage2/data/_pinned/market_price_TLT_2018plus.tsv",
+          "start_inclusive": "2018-01-02",
+          "allow_close_as_adjusted": true,
+          "close_is_adjusted_evidence": "Same source and commit as SPY/IEF/LQD 2018+.",
+          "expected_sha256": "fdecb0c33c3209f6fe033e3541da1c15feda7e16b2f9c9305607263bb0b3e52e"
+        }
+      ]
+    }
+  },
+  "calendar_assets": [
+    "SPY",
+    "IEF",
+    "LQD",
+    "TLT"
+  ],
+  "timing": {
+    "decision_time_et": "20:00",
+    "decision_day": "last common trading day of the calendar month",
+    "execution": "close of the first common trading day after month-end",
+    "holding": "to the close of the first common trading day after the next month-end",
+    "cash": "DTB4WK quote at entry accrued over exact calendar days (Stage 2 rule)"
+  },
+  "costs": {
+    "cost_per_dollar_traded": 0.0005,
+    "start_from": "cash",
+    "drift_aware": true
+  },
+  "metrics": {
+    "cer_delta": 2.5,
+    "bootstrap_block_months": 6,
+    "bootstrap_reps": 5000,
+    "bootstrap_seed": 20261027,
+    "multiplicity": "Holm"
+  },
+  "windows": {
+    "development": [
+      "2019-03",
+      "2022-12"
+    ],
+    "extended_development_note": "AP2 systems have no fitted parameters; their earlier native months (from the first month with pinned prices) may be scored as extended development diagnostics.",
+    "protected": [
+      "2023-01",
+      "2026-08"
+    ],
+    "post_window_bridge_from": "2026-09",
+    "extended_development_ap2": [
+      "2011-01",
+      "2022-12"
+    ]
+  },
+  "systems": {
+    "AP1": {
+      "name": "Deterministic quantitative model (Stage 2 System A)",
+      "universe": [
+        "SPY",
+        "IEF",
+        "LQD"
+      ],
+      "native_neutral_weights": {
+        "SPY": 0.45,
+        "IEF": 0.35,
+        "LQD": 0.2
+      }
+    },
+    "AP2A": {
+      "name": "Agent Committee (native gpt-4o, saved runs)",
+      "universe": [
+        "SPY",
+        "TLT"
+      ],
+      "native_neutral_weights": {
+        "SPY": 0.6,
+        "TLT": 0.4
+      }
+    },
+    "AP2B": {
+      "name": "JEV (native saved answers)",
+      "universe": [
+        "SPY",
+        "TLT"
+      ],
+      "native_neutral_weights": {
+        "SPY": 0.6,
+        "TLT": 0.4
+      }
+    },
+    "AP3": {
+      "name": "Agentic Causal RAG",
+      "universe": [
+        "SPY",
+        "IEF",
+        "LQD"
+      ],
+      "native_neutral_weights": {
+        "SPY": 0.45,
+        "IEF": 0.35,
+        "LQD": 0.2
+      }
+    }
+  },
+  "primary_contrasts": [
+    [
+      "AP2A",
+      "AP1"
+    ],
+    [
+      "AP2B",
+      "AP1"
+    ],
+    [
+      "AP3",
+      "AP1"
+    ],
+    [
+      "AP3",
+      "AP2A"
+    ],
+    [
+      "AP3",
+      "AP2B"
+    ],
+    [
+      "AP2A",
+      "AP2B"
+    ]
+  ],
+  "primary_contrasts_note": "Proposed: all pairwise contrasts among the four systems, Holm-corrected. The family is fixed only at the freeze.",
+  "pinned_price_validity": {
+    "scorable_from_decision_month": "2011-01",
+    "finding_2026-10-28": "The pre-2018 pinned segment (jeremy111004 @ bdb8ef9c) omits distributions before December 2010: compared with the native Yahoo-adjusted monthly returns, SPY is about 2%/yr and TLT about 4.4%/yr lower in 2005-2010 (roughly their dividend yields), e.g. SPY -0.58% in the Aug and Nov 2010 ex-dividend months; from decision month 2011-01 the sources agree within 0.05% per month. Stage 2 never used months before 2015 for targets or 2016 for covariance, so Stage 2 results are unaffected.",
+    "rule": "The shared evaluator refuses to score decision months before 2011-01."
+  }
+}
