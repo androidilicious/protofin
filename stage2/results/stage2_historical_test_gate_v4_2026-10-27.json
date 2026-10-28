@@ -1,5 +1,5 @@
 {
-  "created_at_utc": "2026-10-28T01:56:27.067755+00:00",
+  "created_at_utc": "2026-10-28T01:58:26.155962+00:00",
   "stage": "Stage 2 historical-test gate",
   "supersedes": {
     "file": "stage2_historical_test_gate_v3_2026-10-27.json",
@@ -23,6 +23,11 @@
       "gate": "Risk-free DTB4WK pinned, hashed and covering the test window",
       "status": "PASS",
       "evidence": "snapshot v3; DTB4WK_combined sha256 ed2f0bc7..."
+    },
+    {
+      "gate": "Risk-free series verified against FRED (all 6,258 DTB4WK observations, 2001-07-31 to 2026-10-01)",
+      "status": "PASS",
+      "evidence": "stage2/reproducibility/stage2_dtb4wk_fred_verification_2026-10-28.json"
     },
     {
       "gate": "Canonical scorer formally adopted; the original scorer cannot be reproduced byte-for-byte; the canonical rerun supersedes the earlier B2/B4/B-All results",
@@ -53,6 +58,11 @@
       "gate": "Automated tests (backtest, portfolio, dividend gate; 25 tests)",
       "status": "PASS",
       "evidence": "cd stage2/scoring && python -m pytest -q"
+    },
+    {
+      "gate": "Environment lockfile committed alongside the scorer",
+      "status": "PASS",
+      "evidence": "stage2/scoring/requirements-lock.txt"
     },
     {
       "gate": "Historical test window not scored or inspected",
