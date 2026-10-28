@@ -1,27 +1,31 @@
 """Point-in-time mediator series for AP3's Testing Agent and its market-stress triggers.
 
-Sources (all pinned by SHA-256; raw files are git-ignored):
+Two inventories are kept. v1 is unchanged so the v1 dry-run outputs stay reproducible; v2 is the
+validated inventory (native_backtest/out/ap3/mediator_inventory_v2.json) and the default.
 
-| AP3 series   | Source                                   | Status |
-|--------------|------------------------------------------|--------|
-| UST2Y        | FRED DGS2 (ap3_mediator_manifest_v1)     | pinned |
-| UST10Y       | FRED DGS10 (ap3_mediator_manifest_v1)    | pinned |
-| SLOPE_10Y3M  | FRED T10Y3M (Stage 2 snapshot v3)        | pinned |
-| VIX          | ^VIX before 2018-12-03, VIXCLS after (Stage 2 snapshot v3, same boundary) | pinned |
-| IG_SPREAD    | FRED BAA10Y (Stage 2 snapshot v3) as a SUBSTITUTE for an investment-grade OAS | substitute, pending team approval |
-| BEI5Y        | FRED T5YIE                               | not yet pinned |
-| FF_FUTURES_6M| fed funds futures (Bloomberg)            | not available |
+| AP3 series    | v1 source                                     | v2 source and status                                                    |
+|---------------|-----------------------------------------------|-------------------------------------------------------------------------|
+| UST2Y         | FRED DGS2 (ap3_mediator_manifest_v1)          | same pin; ALFRED-checked, vintage-aware availability                    |
+| UST10Y        | FRED DGS10 (ap3_mediator_manifest_v1)         | same pin; ALFRED-checked, vintage-aware availability and revisions      |
+| SLOPE_10Y3M   | FRED T10Y3M (Stage 2 snapshot v3)             | same pin; ALFRED-checked, vintage-aware availability and revisions      |
+| VIX           | ^VIX to 2018-11-30, then VIXCLS (Stage 2 v3)  | CBOE daily close, one source (ap3_mediator_manifest_v2), = VIXCLS       |
+| IG_SPREAD     | FRED BAA10Y, substitute pending approval      | PROXY, approved 2026-10-28: Moody's Baa minus 10-year Treasury (BAA10Y); |
+|               |                                               | not an IG option-adjusted spread. ALFRED-checked, vintage-aware         |
+| BEI5Y         | not pinned                                    | FRED T5YIE, browser capture committed with hashes; ALFRED-checked       |
+| FF_FUTURES_6M | not available                                 | not available: Bloomberg export requested                               |
 
-Availability rules (conservative, America/New_York):
-- Treasury yields, the 10Y-3M slope and BAA10Y come from the Federal Reserve's H.15 release, which publishes
-  a day's values on the following business day. available_at = next US business day, 18:00 ET.
-- VIX is a market close observable at 16:15 ET on the same day. available_at = the same day, 17:00 ET.
-A value is usable for a decision only if available_at <= the decision time (20:00 ET on the decision day).
+Availability (America/New_York; a value is usable only if available_at <= the 20:00 ET decision time):
+- "h15" series (Treasury yields, the 10Y-3M slope, BAA10Y, T5YIE): next US federal business day, 18:00 ET.
+  In v2 this is a floor: when ALFRED shows FRED first posted an observation later, available_at is
+  that first vintage date, 18:00 ET. Revised values enter as new versions at their vintage date, so a
+  decision sees the value that was public at the time (MediatorStore.asof keeps the latest visible version).
+- "close" (VIX): a market close known on the day; available_at = the same day, 17:00 ET.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -33,8 +37,11 @@ from native_backtest.ap3.mediators import MediatorStore
 
 ROOT = Path(__file__).resolve().parents[2]
 PINNED = ROOT / "stage2/data/_pinned"
+MEDIATOR_DATA = ROOT / "native_backtest/data/ap3_mediators"
+EVIDENCE = MEDIATOR_DATA / "alfred_vintage_evidence_v1.json"
+DEFAULT_INVENTORY = "v2"
 
-SERIES = {
+SERIES_V1 = {
     "UST2Y": {"file": "mediator_UST2Y.csv", "column": "DGS2", "rule": "h15", "status": "pinned",
               "sha256": "709efc3c9cbd7826d960a8cfd052cc2cd39eee4a4b209443b74fd48be1d1ab1a"},
     "UST10Y": {"file": "mediator_UST10Y.csv", "column": "DGS10", "rule": "h15", "status": "pinned",
@@ -52,6 +59,31 @@ SERIES = {
     "BEI5Y": {"status": "not_pinned", "note": "FRED T5YIE: needs a pinned copy (sandbox cannot reach FRED)"},
     "FF_FUTURES_6M": {"status": "not_available", "note": "fed funds futures need a Bloomberg export, or team approval to drop or proxy this mediator"},
 }
+SERIES = SERIES_V1   # name kept for v1 callers
+
+IG_PROXY_LABEL = ("PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the "
+                  "10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.")
+
+SERIES_V2 = {
+    "UST2Y": {**SERIES_V1["UST2Y"], "alfred": "DGS2",
+              "label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)"},
+    "UST10Y": {**SERIES_V1["UST10Y"], "alfred": "DGS10",
+               "label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)"},
+    "SLOPE_10Y3M": {**SERIES_V1["SLOPE_10Y3M"], "alfred": "T10Y3M",
+                    "label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)"},
+    "IG_SPREAD": {"file": "signal_credit_spread.csv", "column": "BAA10Y", "rule": "h15", "status": "proxy_approved", "alfred": "BAA10Y",
+                  "sha256": "64fb420ac4fc8189d3c7f2271e618f0e280dc8939a6a81f1783a2faffc7da24e", "label": IG_PROXY_LABEL,
+                  "note": "approved 2026-10-28 as an explicitly labelled proxy, not an equivalent of IG OAS (MEDIATOR_INVENTORY_v2_2026-10-28.md)"},
+    "VIX": {"file": "mediator_VIX_cboe.csv", "column": "CLOSE", "date_column": "DATE", "rule": "close", "status": "pinned",
+            "sha256": "570e05630c9a5e7350d0c3dbe3acc58e793cb5248181ab0e949c121cc082fb83",
+            "label": "CBOE Volatility Index (VIX), daily close, index points"},
+    "BEI5Y": {"capture": "T5YIE", "rule": "h15", "status": "pinned", "alfred": "T5YIE",
+              "label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)"},
+    "FF_FUTURES_6M": {"status": "not_available",
+                      "label": "Fed funds rate implied by the 30-day fed funds futures contract six months ahead (100 minus settlement price, percent)",
+                      "note": "Bloomberg export requested (BLOOMBERG_FED_FUNDS_FUTURES_REQUEST_2026-10-28.md); importer: native_backtest/scripts/import_ff_futures.py"},
+}
+INVENTORIES = {"v1": SERIES_V1, "v2": SERIES_V2}
 
 
 class MediatorDataError(RuntimeError):
@@ -75,6 +107,21 @@ def _read(file: str, column: str, sha: str, date_column: Optional[str] = None) -
     return s.dropna().sort_index()
 
 
+def read_capture(series_id: str) -> pd.Series:
+    """A series captured in the browser and committed as hashed parts (YYYYMMDD,value joined by newlines)."""
+    prov = json.loads((MEDIATOR_DATA / f"{series_id}_provenance.json").read_text())
+    rows = []
+    for part in prov["parts"]:
+        p = MEDIATOR_DATA / part["file"]
+        if _sha(p) != part["sha256"]:
+            raise MediatorDataError(f"{p} does not match its browser-side SHA-256")
+        rows += p.read_text().split("\n")
+    if hashlib.sha256("\n".join(rows).encode()).hexdigest() != prov["window_table_sha256"]:
+        raise MediatorDataError(f"{series_id}: joined capture does not match its window hash")
+    d = pd.to_datetime([r.split(",")[0] for r in rows], format="%Y%m%d")
+    return pd.Series([float(r.split(",")[1]) for r in rows], index=d).sort_index()
+
+
 def available_at(dates: pd.DatetimeIndex, rule: str) -> pd.DatetimeIndex:
     if rule == "h15":
         hol = USFederalHolidayCalendar().holidays(start="1960-01-01", end="2035-12-31").values.astype("datetime64[D]")
@@ -85,8 +132,74 @@ def available_at(dates: pd.DatetimeIndex, rule: str) -> pd.DatetimeIndex:
     raise ValueError(rule)
 
 
-def load_series(name: str) -> pd.DataFrame:
-    spec = SERIES[name]
+def vintage_time(day: str) -> pd.Timestamp:
+    """A FRED vintage date as a time: 18:00 ET on that date (the same convention as the h15 rule)."""
+    return (pd.Timestamp(day) + pd.Timedelta(hours=18)).tz_localize("America/New_York")
+
+
+@lru_cache(maxsize=1)
+def alfred_evidence() -> dict:
+    return json.loads(EVIDENCE.read_text())
+
+
+def _version_value(v: dict, current: Optional[float]) -> float:
+    if v.get("deleted"):
+        return np.nan
+    if "value" in v:
+        return float(v["value"])
+    if "minus_current_bp" in v:
+        return round(current + v["minus_current_bp"] / 100.0, 6)
+    if "minus_current" in v:
+        return round(current + v["minus_current"], 6)
+    raise ValueError(v)
+
+
+def apply_alfred(frame: pd.DataFrame, series_id: str) -> pd.DataFrame:
+    """Vintage-aware availability: later first postings move available_at; revisions become dated versions."""
+    ev = alfred_evidence()["series"][series_id]
+    f = frame.copy()
+    later = ev.get("first_vintage_later_than_rule")
+    if isinstance(later, list):
+        ov = {}
+        for x in later:
+            o, v = x.split(":")
+            ov[pd.Timestamp(o)] = vintage_time(v)
+        upd = f["date"].map(ov)
+        m = upd.notna()
+        f.loc[m, "available_at"] = [max(a, b) for a, b in zip(f.loc[m, "available_at"], upd[m])]
+    extra, drop = [], []
+    cur = f.set_index("date")["value"]
+    rule_at = f.set_index("date")["available_at"]
+    lo, hi = f["date"].min(), f["date"].max()
+    for r in ev.get("revisions", []):
+        obs = pd.Timestamp(r["obs"])
+        vers = r["versions"]
+        if obs < lo or obs > hi:      # outside this file's range; a revised date inside the range must be present
+            continue
+        if obs in cur.index:
+            current = float(cur[obs])
+            last = _version_value(vers[-1], current)
+            if not np.isclose(last, current, atol=1e-9):
+                raise MediatorDataError(f"{series_id} {obs.date()}: latest ALFRED version differs from the pinned value")
+            first_at = rule_at[obs]
+            drop.append(obs)
+        else:
+            if not vers[-1].get("deleted"):
+                raise MediatorDataError(f"{series_id} {obs.date()}: revised observation missing from the pinned file")
+            current = None
+            first_at = available_at(pd.DatetimeIndex([obs]), "h15")[0]
+        for i, v in enumerate(vers):
+            t = vintage_time(v["vintage"])
+            extra.append({"date": obs, "value": _version_value(v, current), "available_at": max(t, first_at) if i == 0 else t})
+    if drop:
+        f = f[~f["date"].isin(drop)]
+    if extra:
+        f = pd.concat([f, pd.DataFrame(extra)], ignore_index=True)
+    return f.sort_values(["date", "available_at"]).reset_index(drop=True)
+
+
+def load_series(name: str, inventory: str = DEFAULT_INVENTORY) -> pd.DataFrame:
+    spec = INVENTORIES[inventory][name]
     if spec["status"] in ("not_pinned", "not_available"):
         raise MediatorDataError(f"{name}: {spec['note']}")
     if "segments" in spec:
@@ -99,25 +212,44 @@ def load_series(name: str) -> pd.DataFrame:
                 s = s[s.index >= pd.Timestamp(seg["start_inclusive"])]
             parts.append(s)
         s = pd.concat(parts).sort_index()
+    elif "capture" in spec:
+        s = read_capture(spec["capture"])
     else:
-        s = _read(spec["file"], spec["column"], spec["sha256"])
+        s = _read(spec["file"], spec["column"], spec["sha256"], spec.get("date_column"))
     idx = pd.DatetimeIndex(s.index)
-    return pd.DataFrame({"date": idx, "value": s.to_numpy(float), "available_at": available_at(idx, spec["rule"])})
+    frame = pd.DataFrame({"date": idx, "value": s.to_numpy(float), "available_at": available_at(idx, spec["rule"])})
+    if inventory != "v1" and spec.get("alfred"):
+        frame = apply_alfred(frame, spec["alfred"])
+    return frame
 
 
-def load_store(include_pending_substitutes: bool = False) -> tuple:
-    """Returns (MediatorStore, status) where status lists every series and why it is or is not loaded."""
+def labels(inventory: str = DEFAULT_INVENTORY) -> Dict[str, str]:
+    return {k: v["label"] for k, v in INVENTORIES[inventory].items() if "label" in v}
+
+
+def load_store(include_pending_substitutes: bool = False, inventory: str = "v1") -> tuple:
+    """Returns (MediatorStore, status) where status lists every series and why it is or is not loaded.
+    inventory="v1" reproduces the v1 dry run; "v2" is the validated inventory (labels attached)."""
     frames, status = {}, {}
-    for name, spec in SERIES.items():
+    for name, spec in INVENTORIES[inventory].items():
         if spec["status"] == "substitute_pending_approval" and not include_pending_substitutes:
             status[name] = "not loaded: substitute pending team approval"
             continue
         try:
-            frames[name] = load_series(name)
+            frames[name] = load_series(name, inventory)
             status[name] = spec["status"]
         except MediatorDataError as e:
             status[name] = f"unavailable: {e}"
-    return MediatorStore(frames), status
+    return MediatorStore(frames, labels(inventory) if inventory != "v1" else None), status
+
+
+def visible_available_at(store: MediatorStore, name: str, day, t) -> pd.Timestamp:
+    """available_at of the version of `day` that is visible at time t (the one the store uses)."""
+    d = store.asof(name, t)
+    row = d[d["date"] == pd.Timestamp(day)]
+    if row.empty:
+        raise KeyError(f"{name} {day} not visible at {t}")
+    return row["available_at"].iloc[-1]
 
 
 def stress_events(store: MediatorStore, month_start: pd.Timestamp, decision_time: pd.Timestamp, z_threshold: float,
@@ -141,7 +273,10 @@ def stress_events(store: MediatorStore, month_start: pd.Timestamp, decision_time
         for day, v in cur.items():
             z = v / sd
             if abs(z) >= z_threshold:
-                out.append({"series": name, "date": str(day.date()), "change": round(float(v), 4), "z": round(float(z), 2)})
+                e = {"series": name, "date": str(day.date()), "change": round(float(v), 4), "z": round(float(z), 2)}
+                if store.labels and name in store.labels:
+                    e["series_label"] = store.labels[name]
+                out.append(e)
     if per_series:
         agg = {}
         for e in out:
@@ -154,5 +289,6 @@ def stress_events(store: MediatorStore, month_start: pd.Timestamp, decision_time
     return sorted(out, key=lambda e: (e["date"], e["series"]))
 
 
-def manifest_status() -> Dict[str, dict]:
-    return {k: {"status": v["status"], **({"note": v["note"]} if "note" in v else {})} for k, v in SERIES.items()}
+def manifest_status(inventory: str = DEFAULT_INVENTORY) -> Dict[str, dict]:
+    return {k: {"status": v["status"], **({"note": v["note"]} if "note" in v else {}), **({"label": v["label"]} if "label" in v else {})}
+            for k, v in INVENTORIES[inventory].items()}

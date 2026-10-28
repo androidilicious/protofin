@@ -15,19 +15,24 @@ import pandas as pd
 
 
 class MediatorStore:
-    def __init__(self, series: Dict[str, pd.DataFrame]):
-        # each frame: columns date, value, available_at (tz-aware)
+    def __init__(self, series: Dict[str, pd.DataFrame], labels: Optional[Dict[str, str]] = None):
+        # each frame: columns date, value, available_at (tz-aware). A date may have several rows (revised
+        # versions, each with its own available_at); asof keeps the latest version visible at t.
         self.series = {}
+        self.labels = dict(labels) if labels else {}
         for k, df in series.items():
             d = df.copy()
             d["date"] = pd.to_datetime(d["date"])
             d["available_at"] = pd.to_datetime(d["available_at"], utc=True)
-            self.series[k] = d.sort_values("date").reset_index(drop=True)
+            self.series[k] = d.sort_values(["date", "available_at"], kind="mergesort").reset_index(drop=True)
 
     def asof(self, name: str, t) -> pd.DataFrame:
         t = pd.Timestamp(t).tz_convert("UTC") if pd.Timestamp(t).tzinfo else pd.Timestamp(t, tz="UTC")
         d = self.series[name]
-        return d[d["available_at"] <= t]
+        d = d[d["available_at"] <= t]
+        if d["date"].duplicated().any():
+            d = d.drop_duplicates("date", keep="last")
+        return d
 
 
 def mediator_test(store: MediatorStore, name: str, expected_sign: int, window_start, decision_time,
@@ -53,7 +58,8 @@ def mediator_test(store: MediatorStore, name: str, expected_sign: int, window_st
         result = "uninformative"
     else:
         result = "consistent" if np.sign(z) == np.sign(expected_sign) else "inconsistent"
-    return {"series": name, "expected_sign": int(expected_sign), "window_start": str(ws.date()), "window_end": str(d.index[-1].date()),
+    return {"series": name, **({"series_label": store.labels[name]} if name in store.labels else {}),
+            "expected_sign": int(expected_sign), "window_start": str(ws.date()), "window_end": str(d.index[-1].date()),
             "change": change, "z": None if not np.isfinite(z) else float(z), "result": result,
             "interpretation": "empirical consistency only; not causal validation"}
 

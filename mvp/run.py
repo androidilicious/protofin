@@ -33,6 +33,7 @@ def fetch(_: argparse.Namespace) -> None:
     sh(PY, "stage2/scoring/fetch_pinned_inputs.py", "--manifest", "stage2/reproducibility/stage2_data_snapshot_manifest_v3_2026-10-27.json")
     sh(PY, "stage2/scoring/fetch_pinned_inputs.py", "--manifest", "native_backtest/config/native_data_manifest_v1.json")
     sh(PY, "stage2/scoring/fetch_pinned_inputs.py", "--manifest", "native_backtest/config/ap3_mediator_manifest_v1.json")
+    sh(PY, "stage2/scoring/fetch_pinned_inputs.py", "--manifest", "native_backtest/config/ap3_mediator_manifest_v2.json")
     # Garg & Fetzer claims: no published licence, so they are fetched for local use only (git-ignored).
     sh(PY, "stage2/scoring/fetch_pinned_inputs.py", "--manifest", "native_backtest/config/ap3_claims_manifest_v1.json", "--out", str(EXTERNAL))
 
@@ -50,10 +51,12 @@ def build(_: argparse.Namespace) -> None:
     if rc not in (0, 2):
         sys.exit(f"TLT distribution check could not run (exit {rc})")
     sh(PY, "-m", "native_backtest.scripts.diagnose_tlt_gate5")
+    sh(PY, "-m", "native_backtest.scripts.ap3_mediator_inventory")
     if (EXTERNAL / "claims_part01.parquet").exists():
         sh(PY, "-m", "native_backtest.scripts.build_ap3_libraries")
         sh(PY, "mvp/build_ap3_demo.py")
-        sh(PY, "-m", "native_backtest.scripts.ap3_dev_readiness")
+        sh(PY, "-m", "native_backtest.scripts.ap3_dev_readiness")                        # v1 (kept reproducible)
+        sh(PY, "-m", "native_backtest.scripts.ap3_dev_readiness", "--inventory", "v2")   # validated inventory, provisional
         sh(PY, "-m", "native_backtest.scripts.ap3_inference_budget")
     else:
         print("claims data not present: skipping AP3 graph libraries and demo (committed manifest and demo are used)")

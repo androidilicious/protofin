@@ -257,3 +257,46 @@ def test_mediator_availability_rules_and_stress_aggregation():
     ev = md.stress_events(store, pd.Timestamp("2020-03-01"), pd.Timestamp("2020-03-31 20:00", tz="America/New_York"), 2.0)
     assert len({e["series"] for e in ev}) == len(ev)          # one trigger per series
     assert all(e["days_at_or_above_threshold"] >= 1 and abs(e["z"]) >= 2.0 for e in ev)
+
+
+# ------------------------------------------------------------------ mediator inventory v2: captures, ALFRED vintages, labels
+def test_t5yie_capture_verifies_and_matches_alfred_latest():
+    from native_backtest.ap3 import mediator_data as md
+    s = md.read_capture("T5YIE")           # stops if any part differs from its browser-side SHA-256
+    assert len(s) == 3709 and str(s.index[0].date()) == "2011-12-01" and str(s.index[-1].date()) == "2026-09-30"
+    ev = md.alfred_evidence()["series"]["T5YIE"]
+    assert ev["latest_window_table_sha256"] == "306e6641502a5a1e542c326c8e060a6b71d5e2c849907830fc2ea035a92ade8d"
+
+
+def test_alfred_vintages_make_availability_and_revisions_point_in_time():
+    from native_backtest.ap3 import mediator_data as md
+    from native_backtest.ap3.mediators import MediatorStore
+    # synthetic frame on real BAA10Y evidence: the 2016-10..2017-03 posting gap and the June 2020 revisions
+    days = pd.DatetimeIndex(["2016-10-06", "2016-10-07", "2020-05-26", "2020-05-29", "2020-06-01", "2020-06-02", "2020-06-03",
+                             "2020-06-04", "2020-06-05"])
+    f = pd.DataFrame({"date": days, "value": [3.0, 3.1, 3.14, 3.08, 3.10, 3.08, 3.02, 2.99, 2.86], "available_at": md.available_at(days, "h15")})
+    g = md.apply_alfred(f, "BAA10Y")
+    st = MediatorStore({"X": g})
+    t = pd.Timestamp("2016-12-30 20:00", tz="America/New_York")
+    assert st.asof("X", t)["date"].max() == pd.Timestamp("2016-10-06")      # first posted 2017-03-22
+    v = st.asof("X", pd.Timestamp("2020-06-09 20:00", tz="America/New_York")).set_index("date")["value"]
+    assert v[pd.Timestamp("2020-06-04")] == pytest.approx(3.01) and v[pd.Timestamp("2020-06-05")] == pytest.approx(2.91)
+    v = st.asof("X", pd.Timestamp("2020-06-30 20:00", tz="America/New_York")).set_index("date")["value"]
+    assert v[pd.Timestamp("2020-06-04")] == pytest.approx(2.99) and v[pd.Timestamp("2020-06-05")] == pytest.approx(2.86)
+
+
+def test_inventory_v2_labels_ig_proxy_and_keeps_v1():
+    from native_backtest.ap3 import mediator_data as md
+    lab = md.labels("v2")
+    assert lab["IG_SPREAD"].startswith("PROXY") and "not an option-adjusted" in lab["IG_SPREAD"].lower().replace("Not", "not")
+    assert md.SERIES_V2["IG_SPREAD"]["status"] == "proxy_approved" and md.SERIES_V1["IG_SPREAD"]["status"] == "substitute_pending_approval"
+    assert md.SERIES_V2["FF_FUTURES_6M"]["status"] == "not_available"
+    try:
+        store, status = md.load_store(include_pending_substitutes=True, inventory="v2")
+    except Exception as e:
+        pytest.skip(f"pinned mediators unavailable: {e}")
+    if "VIX" not in store.series or "IG_SPREAD" not in store.series:
+        pytest.skip("pinned v2 inputs not fetched")
+    assert store.labels["IG_SPREAD"] == lab["IG_SPREAD"] and "BEI5Y" in store.series
+    ev = md.stress_events(store, pd.Timestamp("2020-03-01"), pd.Timestamp("2020-03-31 20:00", tz="America/New_York"), 2.0)
+    assert all(e["series_label"] == lab[e["series"]] for e in ev)

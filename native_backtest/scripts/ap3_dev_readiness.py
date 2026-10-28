@@ -16,11 +16,17 @@ Outputs (native_backtest/out/ap3/dev_readiness/):
                          which feed the inference cost estimate.
 Mock outputs are never results: every record is marked engineering_mock and none is stored or scored.
 
+Inventory v2 (--inventory v2) uses the validated mediator inventory (vintage-aware availability, BEI5Y,
+the labelled IG-spread proxy, one-source VIX) and writes ap3_packets_v2.jsonl and readiness_report_v2.json
+next to the v1 files, which stay as they are. v2 packets carry a mediator_series block that says what each
+series is. Trigger counts remain provisional until FF_FUTURES_6M is supplied or dropped.
+
 Usage (repository root; needs `python mvp/run.py fetch` incl. claims data):
-  python -m native_backtest.scripts.ap3_dev_readiness
+  python -m native_backtest.scripts.ap3_dev_readiness [--inventory v1|v2]
 """
 from __future__ import annotations
 
+import argparse
 import collections
 import hashlib
 import json
@@ -67,7 +73,10 @@ def load_panel() -> pd.DataFrame:
     return pd.read_csv(PANEL).set_index("month")
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--inventory", choices=["v1", "v2"], default="v1")
+    inv = ap.parse_args(argv).inventory
     cfg = load_config()
     mk = load_market(cfg)
     months = months_between("2015-02", "2022-12")
@@ -76,7 +85,11 @@ def main() -> int:
     panel = load_panel()
     dd = {m: mk.decision_dates[m] for m in months}
     fomc = fomc_calendar.events_by_decision_month(dd)
-    store, med_status = mediator_data.load_store(include_pending_substitutes=True)
+    store, med_status = mediator_data.load_store(include_pending_substitutes=True, inventory=inv)
+    med_labels = None
+    if inv != "v1":
+        lab = mediator_data.labels(inv)
+        med_labels = {k: lab[k] + ("" if k in store.series else " [no data in this run]") for k in limits["mediators"]["series"]}
 
     OUT.mkdir(parents=True, exist_ok=True)
     packets, checks, per_month = [], collections.Counter(), []
@@ -93,13 +106,13 @@ def main() -> int:
             ms = pd.Timestamp(m.start_time)
             stress = mediator_data.stress_events(store, ms, dtime, limits["mediators"]["trigger_daily_z"])
             for e in stress:  # every stress input must have been public by the decision time
-                a = store.series[e["series"]].set_index("date").loc[pd.Timestamp(e["date"]), "available_at"]
+                a = mediator_data.visible_available_at(store, e["series"], e["date"], dtime)
                 checks["stress_available_before_decision"] += int(a <= dtime)
                 checks["stress_checked"] += 1
             fevents = [{"date": e["date"], "release": e["release"]} for e in fomc[m]]
             checks["fomc_before_decision"] += sum(pd.Timestamp(e["date"]) <= day for e in fomc[m])
             checks["fomc_checked"] += len(fomc[m])
-            packet = runner.build_packet(str(m), decision_time_iso(day), surprises, fevents, stress, concepts, limits)
+            packet = runner.build_packet(str(m), decision_time_iso(day), surprises, fevents, stress, concepts, limits, med_labels)
             packets.append(packet)
             year = m.year
             if year not in vintages:
@@ -125,7 +138,7 @@ def main() -> int:
                               "library_entries_for_triggers": sum(1 for e in lib["entries"] if e["trigger"] in {t["trigger"] for t in packet["triggers"]}),
                               "mock_calls": len(rec_provider.rows) - n_before})
 
-    pk = OUT / "ap3_packets_v1.jsonl"
+    pk = OUT / f"ap3_packets_{inv}.jsonl"
     pk.write_text("".join(json.dumps(p, sort_keys=True) + "\n" for p in packets))
     rows = pd.DataFrame(rec_provider.rows)
     size = {}
@@ -140,6 +153,7 @@ def main() -> int:
     ntr = [p["n_triggers"] for p in per_month]
     report = {
         "status": "DRY RUN with the engineering mock: no model was called and no output is a result",
+        **({"inventory": inv, "provisional": "trigger counts are provisional until FF_FUTURES_6M is supplied (Bloomberg) or dropped"} if inv != "v1" else {}),
         "months": [str(months[0]), str(months[-1])], "n_months": len(months),
         "components": {
             "macro_surprise_panel": f"pinned {PANEL_SHA[:12]}…; 8 series; point-in-time z-scores",
@@ -161,7 +175,7 @@ def main() -> int:
                                                                      "system_chars": int(g.system_chars.iloc[0])} for w, g in asz.groupby("words")},
         "per_month": per_month,
     }
-    (OUT / "readiness_report.json").write_text(json.dumps(report, indent=1, default=str) + "\n")
+    (OUT / ("readiness_report.json" if inv == "v1" else f"readiness_report_{inv}.json")).write_text(json.dumps(report, indent=1, default=str) + "\n")
     print(json.dumps({k: report[k] for k in ("input_checks", "triggers_per_month", "prompt_sizes_chars", "hypothesis_tool_result_growth_chars",
                                              "assessor_prompt_size_model_chars")}, indent=1, default=str))
     return 0

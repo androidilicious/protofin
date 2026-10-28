@@ -37,7 +37,7 @@ def load_limits() -> dict:
 
 
 def build_packet(decision_month: str, decision_time: str, surprises: Dict[str, float], fomc_events: List[dict], stress_events: List[dict],
-                 concepts: dict, limits: dict) -> dict:
+                 concepts: dict, limits: dict, mediator_series: Optional[Dict[str, str]] = None) -> dict:
     """Triggers: each macro release whose standardised surprise has |z| >= the locked threshold, each FOMC event in
     the month, and each mediator stress move. Surprise values are the AP1 panel's point-in-time z-scores."""
     trig = []
@@ -49,8 +49,11 @@ def build_packet(decision_month: str, decision_time: str, surprises: Dict[str, f
         trig.append({"trigger": "FOMC", "description": concepts["triggers"]["FOMC"]["label"], **e})
     for e in stress_events:
         trig.append({"trigger": "MARKET_STRESS", "description": concepts["triggers"]["MARKET_STRESS"]["label"], **e})
-    return {"decision_month": decision_month, "decision_time": decision_time, "triggers": trig,
-            "all_surprises_z": {k: (None if v is None or pd.isna(v) else round(float(v), 3)) for k, v in sorted(surprises.items())}}
+    packet = {"decision_month": decision_month, "decision_time": decision_time, "triggers": trig,
+              "all_surprises_z": {k: (None if v is None or pd.isna(v) else round(float(v), 3)) for k, v in sorted(surprises.items())}}
+    if mediator_series is not None:   # inventory v2: what each mediator series is (IG_SPREAD is labelled as a proxy)
+        packet["mediator_series"] = dict(mediator_series)
+    return packet
 
 
 def research_records(v: Vintage, hyp: dict, limit: int) -> List[dict]:
