@@ -112,7 +112,8 @@ Details: [`results/dev_rerun_v2_2026-10-27/DEV_RERUN_REPORT.md`](results/dev_rer
 - ✅ Data snapshot / hashes created (snapshot v3)
 - ✅ Canonical scorer adopted; development rerun completed
 - ✅ Black–Litterman portfolio layer implemented ([conventions](methodology/Stage2_Portfolio_Conventions_v1.md))
-- 🔒 Historical test still locked (see the latest `results/stage2_historical_test_gate_*.json`)
+- ✅ ETF distribution adjustment verified against State Street / iShares records ([freeze gate 5](results/dividend_gate/DIVIDEND_GATE_REPORT.md))
+- 🔒 Historical test still locked: every required gate passes; the GO decision is with the team (see the latest `results/stage2_historical_test_gate_*.json`)
 - ⬜ JEV approach not yet evaluated
 - ⬜ Causal-RAG approach not yet evaluated
 - ⬜ MVP not yet built

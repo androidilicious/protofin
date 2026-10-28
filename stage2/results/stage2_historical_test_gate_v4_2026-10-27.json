@@ -1,0 +1,76 @@
+{
+  "created_at_utc": "2026-10-28T01:56:27.067755+00:00",
+  "stage": "Stage 2 historical-test gate",
+  "supersedes": {
+    "file": "stage2_historical_test_gate_v3_2026-10-27.json",
+    "sha256": "96268b15c26c5d29137ac1802a1f17254c3e629f12d22f5ec961b1b43713bad1"
+  },
+  "historical_test_status": "SEALED_NOT_SCORED",
+  "decision": "READY_FOR_TEAM_GO_DECISION",
+  "decision_note": "Every required implementation and data gate passes. The historical test stays sealed until the team records GO: issue a new gate version with historical_test_status 'GO', then run historical mode with the explicit approval token. Before that, the team should settle the two open items below.",
+  "required_gates": [
+    {
+      "gate": "Calendar-complete macro panel (BUG-2026-10-27-01)",
+      "status": "PASS",
+      "evidence": "stage2/bug_notes/BUG-2026-10-27-01_same_month_aggregation.md; panel sha256 459bef98..."
+    },
+    {
+      "gate": "First development forecast uses exactly 48 labels, including 2019-01 with Retail Sales missing",
+      "status": "PASS",
+      "evidence": "stage2/results/dev_rerun_v2_2026-10-27/DEV_RERUN_REPORT.md"
+    },
+    {
+      "gate": "Risk-free DTB4WK pinned, hashed and covering the test window",
+      "status": "PASS",
+      "evidence": "snapshot v3; DTB4WK_combined sha256 ed2f0bc7..."
+    },
+    {
+      "gate": "Canonical scorer formally adopted; the original scorer cannot be reproduced byte-for-byte; the canonical rerun supersedes the earlier B2/B4/B-All results",
+      "status": "PASS",
+      "evidence": "stage2/methodology/Stage2_Canonical_Scorer_Adoption_2026-10-27.md"
+    },
+    {
+      "gate": "Development run reproduces the canonical summary",
+      "status": "PASS",
+      "evidence": "stage2/results/dev_rerun_v4_portfolio_2026-10-27/development_reproduction_check.json (MATCH)"
+    },
+    {
+      "gate": "Frozen Black-Litterman layer and secondary portfolio metrics implemented, conventions recorded before any run, Omega frozen from A's development errors",
+      "status": "PASS",
+      "evidence": "stage2/scoring/stage2_portfolio.py; stage2/methodology/Stage2_Portfolio_Conventions_v1.md; stage2/config/stage2_omega_from_A_development.json; stage2_run_spec_historical_v4.json requires it"
+    },
+    {
+      "gate": "Freeze gate 5: ETF distribution adjustment against official issuer records",
+      "status": "PASS",
+      "evidence": "stage2/results/dividend_gate/ (design committed before run: stage2/methodology/Stage2_Dividend_Adjustment_Gate_v1.md)"
+    },
+    {
+      "gate": "Historical inputs hashed and covering 2023-01..2026-08",
+      "status": "PASS",
+      "evidence": "stage2/reproducibility/stage2_data_freeze_check_v3_2026-10-27.json"
+    },
+    {
+      "gate": "Automated tests (backtest, portfolio, dividend gate; 25 tests)",
+      "status": "PASS",
+      "evidence": "cd stage2/scoring && python -m pytest -q"
+    },
+    {
+      "gate": "Historical test window not scored or inspected",
+      "status": "PASS",
+      "evidence": "No 2023-02..2026-08 return, price or model output read; incidental exposures listed in stage2/results/dividend_gate/DIVIDEND_GATE_REPORT.md"
+    }
+  ],
+  "open_items_before_go": [
+    "Settle System C's definition (README vs frozen config) and the C/D evaluation track before opening, because opening the window for A/B reveals its outcomes before C/D are frozen.",
+    "Label 2023-01..2026-08 in all reports as partly inspected by the earlier MVP, as the audit recommended."
+  ],
+  "notes": [
+    "Development portfolio results are diagnostic only: Omega is estimated from the same development errors.",
+    "Gate 5 limitation: before 2018, single IEF/LQD ex-dates can be verified only in aggregate, because the pre-2018 file has no raw prices and NAV noise exceeds a monthly distribution."
+  ],
+  "canonical_historical_run_spec": {
+    "path": "stage2/scoring/stage2_run_spec_historical_v4.json",
+    "sha256": "bbc79b5ef974d7d6b0191934155a682449d2b07f71a05217c5cf786b236692cd"
+  },
+  "historical_test_window_inspected": false
+}

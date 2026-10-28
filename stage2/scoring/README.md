@@ -25,7 +25,11 @@ python stage2/scoring/stage2_backtest.py --spec stage2/scoring/stage2_run_spec_d
 
 `stage2_portfolio.py` implements the frozen Black–Litterman allocator, both portfolio benchmarks and all secondary metrics. Details the freeze leaves open are fixed in [`../methodology/Stage2_Portfolio_Conventions_v1.md`](../methodology/Stage2_Portfolio_Conventions_v1.md), written before any portfolio result was computed. Historical mode loads the frozen Ω from `../config/stage2_omega_from_A_development.json` via `stage2_run_spec_historical_v4.json`.
 
-The sections below are the reconstruction notes supplied with the package.
+## Freeze gate 5: distribution adjustment
+
+`check_dividend_adjustment.py` checks that the adjusted prices include every official distribution, using State Street (SPY) and iShares (IEF, LQD) records. The records are under `../data/dividend_check/` and are rebuilt by `build_dividend_check_inputs.py`. `test_dividend_adjustment.py` runs the check automatically. Result: PASS ([report](../results/dividend_gate/DIVIDEND_GATE_REPORT.md)).
+
+The sections below are the reconstruction notes supplied with the package. The risk-free provenance issue they mention was resolved by data snapshots v2 and v3, which pin DTB4WK.
 
 ## What this implements
 
