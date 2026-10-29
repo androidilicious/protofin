@@ -119,6 +119,43 @@ def build_records(manifest: dict):
     return dist_df, pairs_df, mtr, men, normalized
 
 
+def diagnose_c1(sums: list, pairs: pd.DataFrame, manifest: dict) -> list:
+    """Read-only diagnosis of C1 'previous NAV date' mismatches, after the gate has run.
+
+    For each mismatch, the official NAV on the scorer's previous trading day is read from a hash-verified diagnostic
+    capture of the same issuer file (all rows around the date) and compared with the NAV the gate used. Equal values
+    mean the official file only carries the NAV forward onto non-trading days, so the residual the gate computed is
+    unaffected. Anything else is left as an unexplained exception."""
+    out = []
+    diag = manifest.get("diagnostic_captures", {})
+    for s in sums:
+        for prob in s["C1_coverage"]["problems"]:
+            parts = prob.split()
+            if "previous trading day" not in prob:
+                out.append({"ticker": s["ticker"], "problem": prob, "finding": "not diagnosed"})
+                continue
+            ex, scorer_prev, official_prev = parts[0], parts[4], parts[-2]
+            name = next((k for k, v in diag.items() if v["source"] == s["ticker"]), None)
+            if name is None:
+                out.append({"ticker": s["ticker"], "problem": prob, "finding": "no diagnostic capture"})
+                continue
+            b = (RAW / name).read_bytes().rstrip(b"\n")
+            if hashlib.sha256(b).hexdigest() != diag[name]["sha256"]:
+                raise SystemExit(f"STOP: diagnostic capture {name} hash mismatch")
+            nav = {d: (float(v), x) for d, v, x in (line.split(",") for line in b.decode().split("\n"))}
+            used = pairs[(pairs.ticker == s["ticker"]) & (pairs.ex_date == pd.Timestamp(ex))].nav_prev.iloc[0]
+            between = sorted(d for d in nav if scorer_prev < d < ex)
+            same = scorer_prev in nav and abs(nav[scorer_prev][0] - used) < 1e-9 and all(abs(nav[d][0] - used) < 1e-9 for d in between)
+            out.append({"ticker": s["ticker"], "ex_date": ex, "scorer_previous_trading_day": scorer_prev,
+                        "official_previous_nav_date": official_prev[:10], "official_nav_on_scorer_previous_day": nav.get(scorer_prev, (None,))[0],
+                        "nav_used_by_gate": float(used), "official_rows_between": {d: nav[d][0] for d in between},
+                        "nav_identical": bool(same), "diagnostic_capture": name,
+                        "finding": ("Official file carries the NAV of the scorer's previous trading day forward onto non-trading days "
+                                    "(" + ", ".join(between) + "); the NAV used is identical, so the residual is unaffected. Calendar labelling "
+                                    "in the official record, not an adjustment problem.") if same else "NAV differs: unexplained exception"})
+    return out
+
+
 def main() -> int:
     manifest = json.loads((RAW / "capture_manifest.json").read_text())
     dist, pairs, mtr, men, normalized = build_records(manifest)
@@ -159,6 +196,7 @@ def main() -> int:
             if not s[k]["pass"]:
                 exceptions.append({"ticker": s["ticker"], "criterion": k,
                                    "detail": {x: s[k][x] for x in s[k] if x not in ("pass",)}})
+    diagnosis = diagnose_c1(sums, pairs, manifest)
     head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     status = {
         "audit": "Test-window distribution audit (Stage 2 gate 5 criteria C1-C6, unchanged)",
@@ -168,6 +206,8 @@ def main() -> int:
                    "price_cutoff": LAST_PRICE.date().isoformat()},
         "status": "PASS" if all(s["pass"] for s in sums) else "FAIL",
         "by_ticker": sums, "exceptions": exceptions,
+        "exception_diagnosis": diagnosis,
+        "diagnosis_note": "Read-only and after the gate: it never changes the gate status, a criterion or a threshold.",
         "versions": {"gate_code": {"file": str(GATE_CODE.relative_to(ROOT)), "sha256": sha_file(GATE_CODE)},
                      "price_files_2018_plus": price_hashes, "official_records": manifest, "normalized_records_sha256": normalized,
                      "repository_head": head},
