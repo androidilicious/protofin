@@ -42,6 +42,8 @@ REPORTS = ROOT / "native_backtest" / "out"
 DEMO = ROOT / "mvp" / "data" / "ap3_engineering_demo.json"
 AUDIT = ROOT / "native_backtest" / "out" / "audit" / "portfolio_integrity_v1.json"
 AUDIT_REPORT = "native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md"
+SIGNAL = ROOT / "native_backtest" / "out" / "signal_value" / "signal_value_v1.json"
+SIGNAL_REPORT = "native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md"
 
 RAG_STATUS = "Awaiting validation · results unavailable"
 
@@ -311,6 +313,48 @@ def audit_block(sims: dict) -> dict | None:
             "spread": [_r(j - d) for j, d in zip(jev, det)], "report": AUDIT_REPORT}
 
 
+def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
+    """Secondary analysis: each system against its own portfolio with the signals switched off (development months)."""
+    if not SIGNAL.exists() or not {"det", "jev"} <= set(sims):
+        return None
+    r = json.loads(SIGNAL.read_text())
+    mon = pd.read_csv(SIGNAL.parent / "monthly_v1.csv", dtype={"decision_month": str})
+    ci = lambda c: {"cer_difference": _r(c["point"] if "point" in c else c["net_cer_difference"]), "ci95": [_r(v) for v in c["ci95"]],
+                    "p": _r(c["p_two_sided_bootstrap"], 4), "clear": bool(c["statistically_clear_at_5pct"])}
+    out = {"months": r["months"], "report": SIGNAL_REPORT, "systems": {}}
+    for key, src in (("det", "AP1"), ("jev", "AP2B")):
+        sv = r["systems"][src]
+        nkey = "/".join(f"{a}{int(round(w * 100))}" for a, w in sv["no_signal_weights"].items())
+        # the analysis and the dashboard must agree month by month on both portfolios
+        assert np.abs(mon[f"{src}_ON__net_total_return"].to_numpy() - sims[key]["net_total_return"].to_numpy()).max() < 1e-12
+        assert np.abs(mon[f"{src}_OFF__net_total_return"].to_numpy() - neutral_sims[nkey]["net_total_return"].to_numpy()).max() < 1e-12
+        d, inc = r["decisions"][src], sv["incremental"]
+        out["systems"][key] = {
+            "no_signal": nkey, "no_signal_label": mix_label(sv["no_signal_weights"]),
+            "with": metric_block(sims[key]), "without": metric_block(neutral_sims[nkey]),
+            "value": ci(inc), "tracking_error": _r(inc["tracking_error_annualised"], 4), "months_ahead": inc["months_active_positive"],
+            "tilt_size": _r(d["one_way_tilt_mean"], 4), "extra_turnover": _r(d["turnover_with_minus_without_annualised"], 4),
+            "tilt_before_costs": _r(r["attribution_net_cer"]["per_system"][src]["tilts_before_costs"]),
+            "extra_costs": _r(r["attribution_net_cer"]["per_system"][src]["extra_costs_from_tilts"]),
+            "hit_rate": _r(d["tilt_hit_rate_before_costs"], 3), "direction_changes": d["spy_tilt_direction_changes"],
+            "stock_weight_range": _r(d.get("spy_weight_range_across_choices", d.get("spy_weight_range_across_forecast_terciles")), 4),
+            "influence": {k: (_r(v) if isinstance(v, float) else v) for k, v in r["influence_leave_one_month_out"][src].items()},
+            "active": [_r(v) for v in mon[f"{src}_active_net"]]}
+    tp = r["attribution_net_cer"]["two_by_two"]
+    q = r["questions"]
+    out["gap"] = {"total": ci(q["jev_minus_deterministic_total"]), "mix": ci(q["no_signal_mix_difference"]),
+                  "signals": ci(q["q3_jev_vs_deterministic_after_allocation"]),
+                  "parts": {"stock": _r(tp["mix_stock_weight_net"]), "bond": _r(tp["mix_bond_sleeve_net"]),
+                            "jev": _r(tp["jev_signal_value"]), "det": _r(tp["minus_deterministic_signal_value"])},
+                  "signals_without_most_influential_month": _r(r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["without_most_influential_month"]),
+                  "most_influential_month": r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["most_influential_month"]}
+    nat, bh = r["sensitivities"]["jev_native_engine"], r["sensitivities"]["buy_and_hold_no_signal"]
+    out["checks"] = {"native_jev_value": ci(nat["incremental"]), "buy_and_hold": {k: ci(bh[s]["incremental"]) for k, s in (("det", "AP1"), ("jev", "AP2B"))},
+                     "independent_checks": json.loads((SIGNAL.parent / "independent_check_v1.json").read_text())["checks"],
+                     "reproduces_previous": all(v["max_abs_difference"] == 0.0 for v in r["reproduces_previous_results"].values())}
+    return out
+
+
 def main() -> int:
     cfg = load_config()
     mk = load_market(cfg)
@@ -489,6 +533,7 @@ def main() -> int:
                    "A controlled comparison. The approaches hold different assets and use different horizons and information.",
                    "Anything about Causal RAG yet. Its results are unavailable until its real model run is done and validated."]}
     out["audit"] = audit_block(sims)
+    out["signal_value"] = signal_value_block(sims, neutral_sims)
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)
     out["flows"] = FLOWS

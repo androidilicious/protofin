@@ -36,7 +36,8 @@ VIEWS = {
                     "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
                     "Committee + JEV", "Its primary version is chosen before the test opens", "Causal RAG — Reduced Evidence",
                     "Causal RAG — With Historical Documents", "Do historical documents help?", "Standard RAG vs Causal RAG", "Ablations and placebo checks", "Model and calibration variants",
-                    "Agent Committee only vs JEV only"],
+                    "Agent Committee only vs JEV only", "Do the signals actually add value?", "With signals", "Without signals", "Signal value",
+                    "Statistically supported:", "JEV vs Deterministic: what explains", "Do the signals change the decisions?", "Checks behind these numbers"],
     "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "reported separately", "Awaiting decision", "Jan 2024 – Aug 2026", "Supporting metrics",
                     "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
                     "How net CER is calculated", "not a compound annual return",
@@ -131,6 +132,18 @@ def main() -> int:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: detail chart lines {ds}")
                         if page.locator("main .attr .arow").count() != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: decomposition rows missing")
+                    if view == "experiments":
+                        # secondary signal-value section: two cards, each with/without lines (the no-signal one dashed), five gap rows
+                        sv = page.evaluate("""() => ['c-sv-det', 'c-sv-jev'].map(id => { const c = Chart.getChart(id); return c ? c.data.datasets.map(d => [d.label.split(' (')[0], (d.borderDash || []).length > 0, d.data.length]) : null; })""")
+                        want = [["With signals", False, 46], ["Without signals", True, 46]]
+                        if sv != [want, want]:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: signal-value charts {sv}")
+                        n_rows = page.locator("#signal-value .attr .arow").count()
+                        n_cards = page.locator("#signal-value .svcard").count()
+                        if n_rows != 5 or n_cards != 2 or page.locator("main .acard").count():
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: signal-value layout rows={n_rows} cards={n_cards}")
+                        if shots and scheme == "dark":
+                            page.locator("#signal-value").screenshot(path=str(shots / f"{scheme}-{vp_name}-signal-value.png"))
                     if view in ("approaches", "deterministic", "jev", "causal-rag"):
                         n_tabs = page.locator("main .atabs a").count()
                         if n_tabs != 3:

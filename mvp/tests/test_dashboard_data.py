@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 D = json.loads((ROOT / "mvp" / "data" / "dashboard.json").read_text())
 REPORT = json.loads((ROOT / "native_backtest/out/development/development_evaluation_report.json").read_text())
 CFG = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())
+REPORT_ROWS = {x["system"]: x for x in REPORT["common_evaluation_matched_dev"]}
 SRC = {"det": "AP1", "com": "AP2A", "jev": "AP2B"}
 
 
@@ -204,3 +205,21 @@ def test_similarity_diagnostic_comes_from_the_independent_audit():
     assert len(A["spread"]) == len(D["dev"]["months"]) == len(det)
     assert all(abs(s - (j - d)) <= 2e-6 for s, j, d in zip(A["spread"], jev, det))
     assert abs(A["share_from_mixes"] + A["share_from_decisions"] - 1) < 2e-3
+
+
+def test_signal_value_section_matches_the_analysis_and_earlier_results():
+    """'Do the signals actually add value?': numbers from the signal value analysis, which reproduces the report exactly."""
+    V = D["signal_value"]
+    r = json.loads((ROOT / "native_backtest/out/signal_value/signal_value_v1.json").read_text())
+    for key, src in (("det", "AP1"), ("jev", "AP2B")):
+        s, prev = V["systems"][key], REPORT_ROWS[src]["vs_own_neutral"]
+        assert s["value"]["cer_difference"] == round(prev["cer_difference"], 6) and s["value"]["p"] == round(prev["p_two_sided_bootstrap"], 4)
+        assert s["value"]["clear"] is False and s["no_signal"] == D["dev"]["series"][key]["neutral"]
+        assert abs(s["with"]["cer"] - s["without"]["cer"] - s["value"]["cer_difference"]) < 2e-6
+        assert len(s["active"]) == len(D["dev"]["months"])
+    g = V["gap"]
+    assert abs(sum(g["parts"].values()) - g["total"]["cer_difference"]) < 5e-6
+    assert abs(g["mix"]["cer_difference"] + g["signals"]["cer_difference"] - g["total"]["cer_difference"]) < 2e-6
+    assert g["total"]["cer_difference"] == round(r["questions"]["jev_minus_deterministic_total"]["point"], 6)
+    assert V["checks"]["reproduces_previous"] is True and V["checks"]["independent_checks"] >= 200
+    assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]      # no extra primary approach

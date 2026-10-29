@@ -18,6 +18,7 @@
     growth: 'What $1 invested at the start would be worth each month, after trading costs.',
     gap: 'How far ahead (or behind) $1 in the approach is compared with $1 in the Deterministic baseline.',
     baseline: 'Research baseline: the Deterministic Quantitative Model. The research question is whether the AI approaches improve on it.',
+    signalvalue: 'Signal value: net CER with the forecasts minus net CER of the same portfolio with the forecasts switched off (same assets, starting mix, trading rules and costs). Positive means the signals helped.',
     commonbench: 'Passive Portfolio Reference: a simple 60% SPY / 40% IEF portfolio, rebalanced monthly under the same rules. A secondary investment reference, not the research baseline and not a fourth approach.',
     separate: 'A separate question from the research comparison: beating the passive portfolio does not show that AI improves on the Deterministic baseline, and the reverse.',
     benchmark: "Own benchmark: each approach's own fixed starting mix, rebalanced monthly. Beating it means the approach's decisions added value. It differs by approach, so it is not used to compare approaches.",
@@ -223,8 +224,8 @@
       .concat(D.dev.primary_contrasts.items.filter(c => c.computed).flatMap(c => c.ci95.map(Math.abs)));
     return Math.max(0.01, Math.ceil(Math.max(...vals) * 100) / 100);
   }
-  function ciBar(c, key, leftLabel, rightLabel) {
-    const A = ciAxis(), x = v => ((v + A) / (2 * A) * 100).toFixed(2) + '%';
+  function ciBar(c, key, leftLabel, rightLabel, axis) {
+    const A = axis || ciAxis(), x = v => ((v + A) / (2 * A) * 100).toFixed(2) + '%';
     return `<div class="ci" role="img" aria-label="Difference ${pts(c.cer_difference)}, likely range ${pts(c.ci95[0])} to ${pts(c.ci95[1])}">
       <div class="cibar"><span class="zero" style="left:${x(0)}"></span>
         <span class="range" style="left:${x(c.ci95[0])};width:calc(${x(c.ci95[1])} - ${x(c.ci95[0])});background:${color(key)}"></span>
@@ -415,7 +416,7 @@
       ${passivePanel(['det', 'jev', 'rag'])}
       <section aria-label="Explore"><div class="explore">
         <a href="#approaches"><span class="ic">${icon('flow')}</span><span><b>How each approach works</b><span>Workflows, forecasts and holdings</span></span></a>
-        <a href="#experiments"><span class="ic">${icon('layers')}</span><span><b>Within-approach experiments</b><span>Committee vs JEV and other secondary tests</span></span></a>
+        <a href="#experiments"><span class="ic">${icon('layers')}</span><span><b>Within-approach experiments</b><span>Do the signals add value? Committee vs JEV and other tests</span></span></a>
         <a href="#methodology"><span class="ic">${icon('method')}</span><span><b>Methodology and validation</b><span>Frozen rules, timeline, what is still pending</span></span></a>
       </div></section>
     </div>`;
@@ -667,6 +668,91 @@
   }
 
   // ---------------------------------------------------------------- experiments
+  // ---------------------------------------------------------------- signal value (secondary analysis on the experiments page)
+  const mag = (x, d = 2) => Math.abs(x * 100).toFixed(d) + ' pts';
+  function partBars(rows, A) {
+    const bar = (v, c) => { const w = Math.abs(v) / A * 50; return `<span class="ab" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%;background:${c}"></span>`; };
+    return `<div class="attr" role="img" aria-label="${esc(rows.map(r => `${r.l} ${pts(r.v, 2)}`).join('; '))}">${rows.map(r =>
+      `<div class="arow${r.tot ? ' tot' : ''}"><span class="al">${esc(r.l)}<small>${esc(r.sub)}</small></span><span class="atrack"><span class="zero"></span>${bar(r.v, r.c)}</span><b class="num">${pts(r.v, 2)}</b></div>`).join('')}</div>`;
+  }
+  function signalValuePanel() {
+    const V = D.signal_value;
+    if (!V) return '';
+    const axis = Math.max(...['det', 'jev'].map(k => Math.max(...V.systems[k].value.ci95.map(Math.abs))), ...V.gap.signals.ci95.map(Math.abs)) * 1.1;
+    const why = k => {
+      const s = V.systems[k], inf = s.influence;
+      return k === 'det'
+        ? `Its forecasts move the weights by about ${(s.tilt_size * 100).toFixed(0)} points a month, mostly between its two bond funds. Those moves lost ${mag(s.tilt_before_costs)} even before trading costs and added ${(s.extra_turnover * 100).toFixed(0)} points of trading a year.`
+        : `JEV's answers move its stock weight by about ${(s.tilt_size * 100).toFixed(0)} points a month. The gain comes from one month: fewer stocks going into the March 2020 crash. Without that month it is ${pts(inf.without_most_influential_month, 2)}.`;
+    };
+    const card = k => {
+      const s = V.systems[k], v = s.value;
+      return `<div class="svcard" style="--c:var(${VAR[k]})">
+        <h3>${badge(k)}${esc(sys(k).short)}</h3>
+        <div class="kpis">
+          <div class="kpi"><div class="v num">${pct(s.with.cer, 2)}</div><div class="l">With signals</div></div>
+          <div class="kpi"><div class="v num">${pct(s.without.cer, 2)}</div><div class="l">Without signals</div></div>
+          <div class="kpi primary"><div class="v num">${pts(v.cer_difference, 2)}</div><div class="l">Signal value ${tip('signalvalue')}</div></div>
+        </div>
+        <div class="vsrow"><span>Likely range ${pts(v.ci95[0], 2)} to ${pts(v.ci95[1], 2)} ${tip('ci')}</span>${ciBar(v, k, 'signals hurt', 'signals help', axis)}${v.clear ? '' : NS}</div>
+        <p class="sub"><b>Observed:</b> ${v.cer_difference > 0 ? 'higher' : 'lower'} with signals. <b>Statistically supported:</b> ${v.clear ? 'yes' : 'no'} (p = ${v.p.toFixed(2)}).</p>
+        <div class="legend" id="lg-sv-${k}"></div>
+        <div class="chartbox sm"><canvas id="c-sv-${k}" aria-label="Growth of one dollar with and without the ${esc(sys(k).short)} signals"></canvas></div>
+        <p class="sub">${esc(why(k))}</p>
+      </div>`;
+    };
+    const g = V.gap, P = g.parts;
+    const rows = [
+      { l: 'More stocks', sub: '60% vs 45% in the S&P 500 fund', v: P.stock, c: css('--c-bench') },
+      { l: 'Different bonds', sub: 'long Treasuries vs Treasuries and corporate bonds', v: P.bond, c: css('--c-bench') },
+      { l: 'JEV\'s signals', sub: 'vs its own portfolio without them', v: P.jev, c: color('jev') },
+      { l: 'Deterministic signals', sub: 'not having their small loss', v: P.det, c: color('det') },
+      { l: 'Total', sub: 'JEV minus Deterministic', v: g.total.cer_difference, c: css('--c-common'), tot: true }];
+    const A = Math.max(...rows.map(r => Math.abs(r.v))) * 1.1;
+    const dj = V.systems.jev, dd = V.systems.det;
+    const drow = (l, f) => `<tr><th scope="row">${esc(l)}</th><td class="num">${f(dd)}</td><td class="num">${f(dj)}</td></tr>`;
+    return `<section class="panel" id="signal-value">
+      <div class="phead"><h2>Do the signals actually add value?</h2>${dataChip('dev')}</div>
+      <p class="sub">Each approach against its own portfolio with the forecasts switched off: same assets, starting mix, trading rules and costs. Net CER per year.</p>
+      <div class="grid2">${card('det')}${card('jev')}</div>
+      <div class="svgap">
+        <h3>JEV vs Deterministic: what explains the ${pts(g.total.cer_difference, 2)} gap?</h3>
+        ${partBars(rows, A)}
+        <p class="sub">Their different portfolios explain ${pts(g.mix.cer_difference, 2)}, the signals ${pts(g.signals.cer_difference, 2)}. Once the portfolios are accounted for, JEV's signals add ${pts(g.signals.cer_difference, 2)} a year (likely range ${pts(g.signals.ci95[0], 2)} to ${pts(g.signals.ci95[1], 2)}): not statistically clear, and ${pts(g.signals_without_most_influential_month, 2)} without February 2020. A higher total is not evidence that AI adds value.</p>
+      </div>
+      <details class="more"><summary>Do the signals change the decisions?</summary><div>
+        <div class="scroll"><table class="cmp"><thead><tr><th></th><th scope="col">Deterministic</th><th scope="col">JEV</th></tr></thead><tbody>
+          ${drow('Average weight move per month', s => mag(s.tilt_size, 1))}
+          ${drow('Stock weight spread across different forecasts', s => mag(s.stock_weight_range, 1))}
+          ${drow('Changes of direction (of 45 months)', s => s.direction_changes)}
+          ${drow('Extra trading per year', s => mag(s.extra_turnover, 0))}
+          ${drow('Months the moves made money, before costs', s => Math.round(s.hit_rate * 100) + '%')}
+          ${drow('Signal value before trading costs', s => pts(s.tilt_before_costs, 2))}
+          ${drow('Extra trading costs', s => pts(s.extra_costs, 3))}
+          ${drow('Tracking error vs own portfolio', s => pct(s.tracking_error, 2))}
+        </tbody></table></div>
+        <p class="sub">Both move their portfolios only a little, so different forecasts lead to similar investments.</p>
+      </div></details>
+      <details class="more"><summary>Checks behind these numbers</summary><div><ul>
+        <li>Without signals means each approach's frozen starting mix, rebalanced every month like the approach itself, on the same dates, prices, cash rate and 0.05% trading cost.</li>
+        <li>Same result in JEV's own original engine with its tilt switched off: ${pts(V.checks.native_jev_value.cer_difference, 2)} (p = ${V.checks.native_jev_value.p.toFixed(2)}).</li>
+        <li>Never rebalancing the no-signal portfolios instead: Deterministic ${pts(V.checks.buy_and_hold.det.cer_difference, 2)}, JEV ${pts(V.checks.buy_and_hold.jev.cer_difference, 2)}; neither statistically clear.</li>
+        <li>Rebuilt independently from the raw prices (${V.checks.independent_checks} checks). ${V.checks.reproduces_previous ? 'Earlier own-benchmark results reproduced exactly; nothing was corrected.' : ''}</li>
+        <li>Development months only (${devSpan()}); the historical test stays sealed. Full report in the project repository.</li>
+      </ul></div></details>
+    </section>`;
+  }
+  function drawSignalValue() {
+    const V = D.signal_value;
+    if (!V) return;
+    for (const k of ['det', 'jev']) {
+      const s = V.systems[k];
+      lineChart(`c-sv-${k}`, `lg-sv-${k}`, D.dev.months, [
+        { label: 'With signals', data: S(k).wealth, color: color(k) },
+        { label: `Without signals (${s.no_signal_label})`, data: D.dev.benchmarks[s.no_signal].wealth, color: css('--c-bench'), dash: OWN_DASH }], FMT_WEALTH);
+    }
+  }
+
   function viewExperiments() {
     const E = D.experiments, months = D.dev.months, w = E.within_contrast;
     const TITLES = { det: 'Deterministic Quantitative Model', jev: 'Agentic Workflow', rag: 'Agentic Causal RAG' };
@@ -684,6 +770,7 @@
       <section><h1>Within-approach experiments</h1>
         <p class="lede">Secondary tests inside each approach. None enters the primary comparison.</p>
         ${statusLegend(STATUS, Object.keys(STATUS))}</section>
+      ${signalValuePanel()}
       ${E.groups.map(group).join('')}
       <section class="panel" style="--c:var(--c-com)">
         <div class="phead"><h2>Agent Committee only vs JEV only</h2>${dataChip('dev')}</div>
@@ -701,6 +788,7 @@
       document.getElementById(b.getAttribute('aria-controls')).hidden = open; }));
     lineChart('c-exp', 'lg-exp', months, keys.map(k => ({ label: sys(k).short, data: S(k).wealth, color: color(k) }))
       .concat([{ label: `Shared own benchmark (${D.dev.benchmarks[bk].label})`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: OWN_DASH }]), FMT_WEALTH);
+    drawSignalValue();
   }
 
   // ---------------------------------------------------------------- methodology

@@ -30,6 +30,10 @@ ADD = [
     "native_backtest/notebooks/ap3_qwen3_free_run.ipynb",
     "native_backtest/out/audit/portfolio_integrity_v1.json",
     "native_backtest/out/audit/reconstruction_v1.csv",
+    "native_backtest/out/signal_value/signal_value_v1.json",
+    "native_backtest/out/signal_value/monthly_v1.csv",
+    "native_backtest/out/signal_value/independent_check_v1.json",
+    "native_backtest/out/signal_value/jev_native_signal_on_off_engine.json",
 ]
 NEVER = {"mvp/data/dashboard.json"}
 

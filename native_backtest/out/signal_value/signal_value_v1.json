@@ -1,0 +1,823 @@
+{
+ "title": "Signal value-added and portfolio attribution: Deterministic and JEV vs their own signal-disabled portfolios",
+ "status": "DEVELOPMENT DIAGNOSTIC (2019-03..2022-12); not a protected historical result; the protected window stays sealed",
+ "months": [
+  "2019-03",
+  "2022-12",
+  46
+ ],
+ "research_design": "Three primary approaches unchanged (Deterministic research baseline, Agentic Workflow - JEV, Agentic Causal RAG). The no-signal portfolios are within-approach counterfactuals, not approaches. The passive 60/40 SPY/IEF reference is separate.",
+ "conventions": {
+  "no_signal_definition": "each system's frozen native neutral weights (framework_config systems.<id>.native_neutral_weights)",
+  "rebalancing": "monthly rebalancing back to the fixed weights at each entry close, like the strategies: the frozen convention of the shared evaluator's own-benchmark contrast, Stage 2 BENCH_STATIC_45_35_20 and the native JEV engine's fixed/prior benchmarks. Buy-and-hold drift is reported only as a labelled sensitivity.",
+  "execution": "decision at the last common trading day of the month (20:00 ET); trade at the next common close; hold to the first common close after the next month-end",
+  "prices": "adjusted closes (distributions included), pinned and hash-checked",
+  "cash": "DTB4WK quote as of entry",
+  "costs": "5 bp per dollar traded against drifted weights; first month from cash",
+  "metric": "net CER = 12 x (mean monthly net excess return - 2.5/2 x its variance); differences are in percentage points",
+  "bootstrap": "paired circular block bootstrap, 6-month blocks, 5000 draws, seed 20261027 (frozen); joint draws for multi-series statistics",
+  "information": "signals come from the frozen decision records (information cutoff at or before each decision time); the no-signal portfolios use no information",
+  "multiplicity": "these within-approach contrasts are diagnostics outside the pre-registered primary family; unadjusted p-values are reported"
+ },
+ "systems": {
+  "AP1": {
+   "label": "Deterministic Quantitative Model",
+   "short": "Deterministic",
+   "role": "research baseline",
+   "universe": [
+    "SPY",
+    "IEF",
+    "LQD"
+   ],
+   "no_signal_weights": {
+    "SPY": 0.45,
+    "IEF": 0.35,
+    "LQD": 0.2
+   },
+   "with_signals": {
+    "net_cer": 0.03665239805993318,
+    "net_annualized_excess_return": 0.05324970197562168,
+    "cumulative_return": 0.2427278063636451,
+    "net_sharpe": 0.4621185635845479,
+    "max_drawdown": -0.18603180209996317,
+    "annualized_volatility": 0.11522952370183083,
+    "annualized_one_way_turnover": 0.455839757924,
+    "total_cost": 0.0017473857387086665,
+    "annualized_cost": 0.00045583975792399997,
+    "n_months": 46
+   },
+   "without_signals": {
+    "net_cer": 0.0377399153452612,
+    "net_annualized_excess_return": 0.05430757695359762,
+    "cumulative_return": 0.24783494834795206,
+    "net_sharpe": 0.4717205812234455,
+    "max_drawdown": -0.18525302467160232,
+    "annualized_volatility": 0.11512657941009596,
+    "annualized_one_way_turnover": 0.26861464735593077,
+    "total_cost": 0.0010296894815310684,
+    "annualized_cost": 0.0002686146473559309,
+    "n_months": 46
+   },
+   "incremental": {
+    "net_cer_difference": -0.0010875172853280213,
+    "ci90": [
+     -0.0026510319999606836,
+     0.00017192887656297372
+    ],
+    "ci95": [
+     -0.003073093496527387,
+     0.00034614493152573795
+    ],
+    "p_two_sided_bootstrap": 0.1708,
+    "statistically_clear_at_5pct": false,
+    "observed_direction": "lower with signals",
+    "mean_active_return_annualised": -0.0010578749779759447,
+    "tracking_error_annualised": 0.003504790669018804,
+    "information_ratio": -0.3018368507218452,
+    "months_active_positive": 18,
+    "months": 46,
+    "differences_with_minus_without": {
+     "net_cer": -0.0010875172853280213,
+     "net_annualized_excess_return": -0.0010578749779759436,
+     "cumulative_return": -0.005107141984306951,
+     "net_sharpe": -0.00960201763889762,
+     "max_drawdown": -0.0007787774283608551,
+     "annualized_volatility": 0.00010294429173486608,
+     "annualized_one_way_turnover": 0.18722511056806923,
+     "total_cost": 0.0007176962571775981,
+     "annualized_cost": 0.0001872251105680691
+    },
+    "break_even_cost_stage2_convention_14": {
+     "break_even_cost_per_dollar": null,
+     "status": "not defined: no CER gain at zero cost",
+     "cer_gap_at_zero_cost": -0.0009077374085573117
+    },
+    "bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027
+    }
+   }
+  },
+  "AP2B": {
+   "label": "Agentic Workflow \u2014 JEV",
+   "short": "JEV",
+   "role": "primary approach",
+   "universe": [
+    "SPY",
+    "TLT"
+   ],
+   "no_signal_weights": {
+    "SPY": 0.6,
+    "TLT": 0.4
+   },
+   "with_signals": {
+    "net_cer": 0.04674734380666726,
+    "net_annualized_excess_return": 0.0700680759867082,
+    "cumulative_return": 0.3118380866401762,
+    "net_sharpe": 0.5129843406572622,
+    "max_drawdown": -0.23824821534961482,
+    "annualized_volatility": 0.1365891128312676,
+    "annualized_one_way_turnover": 0.3326998961003368,
+    "total_cost": 0.0012753496017179576,
+    "annualized_cost": 0.0003326998961003368,
+    "n_months": 46
+   },
+   "without_signals": {
+    "net_cer": 0.0436530117126389,
+    "net_annualized_excess_return": 0.06803863436955201,
+    "cumulative_return": 0.29958226237768737,
+    "net_sharpe": 0.4871286467247425,
+    "max_drawdown": -0.2396216584005204,
+    "annualized_volatility": 0.13967282529372166,
+    "annualized_one_way_turnover": 0.30174210896677744,
+    "total_cost": 0.001156678084372647,
+    "annualized_cost": 0.0003017421089667775,
+    "n_months": 46
+   },
+   "incremental": {
+    "net_cer_difference": 0.0030943320940283597,
+    "ci90": [
+     -0.0038457687916296215,
+     0.01222018324609574
+    ],
+    "ci95": [
+     -0.004824082347277646,
+     0.013844732675966446
+    ],
+    "p_two_sided_bootstrap": 0.5936,
+    "statistically_clear_at_5pct": false,
+    "observed_direction": "higher with signals",
+    "mean_active_return_annualised": 0.002029441617156214,
+    "tracking_error_annualised": 0.010197090708157462,
+    "information_ratio": 0.1990216303099768,
+    "months_active_positive": 17,
+    "months": 46,
+    "differences_with_minus_without": {
+     "net_cer": 0.0030943320940283597,
+     "net_annualized_excess_return": 0.00202944161715618,
+     "cumulative_return": 0.012255824262488835,
+     "net_sharpe": 0.025855693932519686,
+     "max_drawdown": 0.0013734430509055873,
+     "annualized_volatility": -0.0030837124624540635,
+     "annualized_one_way_turnover": 0.030957787133559345,
+     "total_cost": 0.00011867151734531057,
+     "annualized_cost": 3.0957787133559255e-05
+    },
+    "break_even_cost_stage2_convention_14": {
+     "break_even_cost_per_dollar": 0.05450609988084837,
+     "break_even_cost_bps": 545.0609988084836,
+     "status": "defined",
+     "cer_gap_at_zero_cost": 0.0031226106932884246
+    },
+    "bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027
+    }
+   }
+  }
+ },
+ "questions": {
+  "q1_deterministic_signals_vs_own_no_signal": {
+   "point": -0.0010875172853280213,
+   "ci90": [
+    -0.0026510319999606836,
+    0.00017192887656297372
+   ],
+   "ci95": [
+    -0.003073093496527387,
+    0.00034614493152573795
+   ],
+   "p_two_sided_bootstrap": 0.1708,
+   "share_of_draws_above_zero": 0.0854,
+   "statistically_clear_at_5pct": false
+  },
+  "q2_jev_signals_vs_own_no_signal": {
+   "point": 0.0030943320940283597,
+   "ci90": [
+    -0.0038457687916296215,
+    0.01222018324609574
+   ],
+   "ci95": [
+    -0.004824082347277646,
+    0.013844732675966446
+   ],
+   "p_two_sided_bootstrap": 0.5936,
+   "share_of_draws_above_zero": 0.7032,
+   "statistically_clear_at_5pct": false
+  },
+  "q3_jev_vs_deterministic_after_allocation": {
+   "point": 0.004181849379356381,
+   "ci90": [
+    -0.0033065549330721887,
+    0.014426101572437415
+   ],
+   "ci95": [
+    -0.004329397560488598,
+    0.016260945854171586
+   ],
+   "p_two_sided_bootstrap": 0.508,
+   "share_of_draws_above_zero": 0.746,
+   "statistically_clear_at_5pct": false,
+   "meaning": "JEV's signal value-added minus Deterministic's: the part of the JEV-Deterministic gap not due to their different no-signal mixes"
+  },
+  "jev_minus_deterministic_total": {
+   "point": 0.010094945746734078,
+   "ci90": [
+    -0.027744846593366315,
+    0.04603707033157827
+   ],
+   "ci95": [
+    -0.03417585686600412,
+    0.052668989168335734
+   ],
+   "p_two_sided_bootstrap": 0.6252,
+   "share_of_draws_above_zero": 0.6874,
+   "statistically_clear_at_5pct": false
+  },
+  "no_signal_mix_difference": {
+   "point": 0.005913096367377697,
+   "ci90": [
+    -0.029350825761591946,
+    0.03813774782093118
+   ],
+   "ci95": [
+    -0.03580058259151548,
+    0.0427301751082824
+   ],
+   "p_two_sided_bootstrap": 0.7352,
+   "share_of_draws_above_zero": 0.6324,
+   "statistically_clear_at_5pct": false
+  },
+  "mix_stock_weight_net": {
+   "point": 0.013851020448059017,
+   "ci90": [
+    -0.011116304256926146,
+    0.037641883026928905
+   ],
+   "ci95": [
+    -0.01604085613708279,
+    0.041988346630377205
+   ],
+   "p_two_sided_bootstrap": 0.3412,
+   "share_of_draws_above_zero": 0.8294,
+   "statistically_clear_at_5pct": false
+  },
+  "mix_bond_sleeve_net": {
+   "point": -0.00793792408068132,
+   "ci90": [
+    -0.05204935527496699,
+    0.03808155500352906
+   ],
+   "ci95": [
+    -0.059649220987702464,
+    0.047111124360461734
+   ],
+   "p_two_sided_bootstrap": 0.758,
+   "share_of_draws_above_zero": 0.379,
+   "statistically_clear_at_5pct": false
+  }
+ },
+ "reproduces_previous_results": {
+  "AP1": {
+   "previously_reported_vs_own_benchmark": -0.0010875172853280213,
+   "ci95_previous": [
+    -0.003073093496527387,
+    0.00034614493152573795
+   ],
+   "p_previous": 0.1708,
+   "max_abs_difference": 0.0,
+   "previous_no_signal_net_cer": 0.0377399153452612,
+   "no_signal_net_cer_abs_difference": 0.0
+  },
+  "AP2B": {
+   "previously_reported_vs_own_benchmark": 0.0030943320940283597,
+   "ci95_previous": [
+    -0.004824082347277646,
+    0.013844732675966446
+   ],
+   "p_previous": 0.5936,
+   "max_abs_difference": 0.0,
+   "previous_no_signal_net_cer": 0.0436530117126389,
+   "no_signal_net_cer_abs_difference": 0.0
+  },
+  "primary_contrast_AP2B_minus_AP1": {
+   "previously_reported": 0.010094945746734078,
+   "ci95_previous": [
+    -0.03417585686600412,
+    0.052668989168335734
+   ],
+   "p_previous": 0.6252,
+   "max_abs_difference": 0.0
+  }
+ },
+ "attribution_net_cer": {
+  "total_net_cer_difference": 0.010094945746734078,
+  "four_parts": {
+   "1a_mix_stock_weight_before_costs": 0.013844870252804353,
+   "1b_mix_bond_sleeve_before_costs": -0.007898646949413956,
+   "2a_jev_tilts_before_costs": 0.0019308079277707837,
+   "2b_minus_deterministic_tilts_before_costs": 0.0008860799674071699,
+   "3_trading_costs": 0.00011837434149794546,
+   "4_interaction_tilts_with_mix": 0.0012134602066677718
+  },
+  "four_parts_residual": 1.0408340855860843e-17,
+  "trading_costs_split": {
+   "rebalancing_the_mixes": -3.312693601269928e-05,
+   "extra_trading_from_tilts": 0.00015150127751064474,
+   "residual": 0.0
+  },
+  "mix_before_costs": 0.005946223303390397,
+  "mix_before_costs_shapley_residual": 0.0,
+  "mix_order_effects_before_costs": {
+   "stocks_first": {
+    "stock": 0.011158946404683123,
+    "bond": -0.005212723101292727
+   },
+   "bonds_first": {
+    "bond": -0.010584570797535185,
+    "stock": 0.016530794100925582
+   }
+  },
+  "two_by_two": {
+   "mix_stock_weight_net": 0.013851020448059017,
+   "mix_bond_sleeve_net": -0.00793792408068132,
+   "jev_signal_value": 0.0030943320940283597,
+   "minus_deterministic_signal_value": 0.0010875172853280213
+  },
+  "two_by_two_residual": 0.0,
+  "mix_net_of_costs": 0.005913096367377697,
+  "mix_net_shapley_residual": 0.0,
+  "mix_order_effects_net": {
+   "stocks_first": {
+    "stock": 0.0111647555397879,
+    "bond": -0.005251659172410203
+   },
+   "bonds_first": {
+    "bond": -0.010624188988952437,
+    "stock": 0.016537285356330134
+   }
+  },
+  "per_system": {
+   "AP1": {
+    "signal_value_net": -0.0010875172853280213,
+    "tilts_before_costs": -0.0009077374085573117,
+    "tilts_before_costs_standalone": -0.0008860799674071699,
+    "interaction_tilt_with_own_mix": -2.165744115013854e-05,
+    "extra_costs_from_tilts": -0.00017977987677070956,
+    "residual": -3.2526065174565133e-18
+   },
+   "AP2B": {
+    "signal_value_net": 0.0030943320940283597,
+    "tilts_before_costs": 0.0031226106932884246,
+    "tilts_before_costs_standalone": 0.0019308079277707837,
+    "interaction_tilt_with_own_mix": 0.0011918027655176333,
+    "extra_costs_from_tilts": -2.827859926006482e-05,
+    "residual": 7.806255641895632e-18
+   }
+  }
+ },
+ "attribution_mean_return": {
+  "annualised_mean_difference": 0.016818374011086545,
+  "parts_annualised": {
+   "mix_stock_weight": 0.01884362259995055,
+   "mix_bond_sleeve": -0.0050794377223853165,
+   "jev_tilts": 0.00206039940428977,
+   "minus_deterministic_tilts": 0.0008706498674078805,
+   "trading_costs": 0.00012313986182366308
+  },
+  "trading_costs_split_annualised": {
+   "rebalancing_the_mixes": -3.312746161084663e-05,
+   "extra_trading_from_tilts": 0.00015626732343450972
+  },
+  "max_abs_monthly_residual": 8.673617379884035e-18,
+  "max_abs_mix_identity_residual": 1.0408340855860843e-17
+ },
+ "information_checks": {
+  "records_checked": 92,
+  "problems": []
+ },
+ "decisions": {
+  "AP1": {
+   "one_way_tilt_mean": 0.020729625651022904,
+   "one_way_tilt_max": 0.2,
+   "spy_tilt": {
+    "mean": 0.0010500344533551063,
+    "sd": 0.013965334377959772,
+    "min": -0.03480970633403441,
+    "max": 0.05809848158182801,
+    "months_overweight": 26,
+    "months_underweight": 20
+   },
+   "tilt_sd_by_asset": {
+    "SPY": 0.013965334377959772,
+    "IEF": 0.03419284604442623,
+    "LQD": 0.027551028170005824
+   },
+   "spy_tilt_direction_changes": 7,
+   "possible_direction_changes": 45,
+   "months_spy_tilt_at_least": {
+    "1pt": 12,
+    "2pt": 4,
+    "5pt": 1
+   },
+   "months_at_a_weight_bound": 1,
+   "weight_bounds": {
+    "SPY": [
+     0.2,
+     0.7
+    ],
+    "IEF": [
+     0.15,
+     0.6
+    ],
+    "LQD": [
+     0.1,
+     0.4
+    ]
+   },
+   "turnover_with_minus_without_annualised": 0.18722511056806912,
+   "tilt_hit_rate_before_costs": 0.391304347826087,
+   "tilt_timing_correlation": -0.15442831219194686,
+   "tilt_return_before_costs_annualised": -0.0008706498674078805,
+   "extra_cost_annualised": 0.00018722511056806912,
+   "tilt_return_after_costs_annualised": -0.0010578749779759492,
+   "tilt_covers_its_costs": false,
+   "average_tilt_vs_timing_ex_post": {
+    "note": "uses the full-period average weights, known only afterwards: descriptive only",
+    "average_tilt": {
+     "SPY": 0.0010500344533551087,
+     "IEF": -0.010219794820638062,
+     "LQD": 0.009169760367282842
+    },
+    "average_tilt_return_annualised": 0.0002933129644679583,
+    "timing_return_annualised": -0.0011639628318758383,
+    "cer_before_costs_from_average_tilt": 6.363897550389769e-05,
+    "cer_before_costs_from_timing": -0.0009713763840612094
+   },
+   "largest_tilt_month": {
+    "decision_month": "2020-05",
+    "one_way_tilt": 0.2,
+    "weights": {
+     "SPY": 0.508098481581828,
+     "IEF": 0.15,
+     "LQD": 0.341901518418172
+    },
+    "active_net_return_that_month": 0.004805782002872331
+   },
+   "stage2_bl_weights_match_records": 0.0,
+   "forecast_survival_through_black_litterman": {
+    "SPY": {
+     "forecast_sd": 0.001684366567389887,
+     "forecast_minus_prior_sd": 0.001422335264830867,
+     "posterior_minus_prior_sd": 0.00011786313350420424,
+     "share_of_forecast_departure_kept": 0.031097929599938755,
+     "corr_weight_tilt_with_posterior_departure": 0.7371436206343478
+    },
+    "IEF": {
+     "forecast_sd": 0.0026172397363554535,
+     "forecast_minus_prior_sd": 0.0026661798828317806,
+     "posterior_minus_prior_sd": 0.00013979062636388254,
+     "share_of_forecast_departure_kept": 0.041865724702559844,
+     "corr_weight_tilt_with_posterior_departure": 0.8492954384811431
+    },
+    "LQD": {
+     "forecast_sd": 0.0013459526747227595,
+     "forecast_minus_prior_sd": 0.0016119135276285472,
+     "posterior_minus_prior_sd": 6.220288835291579e-05,
+     "share_of_forecast_departure_kept": 0.046758683880319105,
+     "corr_weight_tilt_with_posterior_departure": 0.18195796681160448
+    }
+   },
+   "spy_weight_by_forecast_tercile": {
+    "highest third": 0.4624089518586503,
+    "lowest third": 0.43809590298751333,
+    "middle third": 0.45350885727829116
+   },
+   "spy_weight_range_across_forecast_terciles": 0.024313048871136944,
+   "forecast_spread_corr_with_spy_tilt": 0.9265936914844672
+  },
+  "AP2B": {
+   "one_way_tilt_mean": 0.01585718785740386,
+   "one_way_tilt_max": 0.08746699603078201,
+   "spy_tilt": {
+    "mean": -0.00400129863470673,
+    "sd": 0.024423497810608187,
+    "min": -0.08746699603078201,
+    "max": 0.02608415071815373,
+    "months_overweight": 26,
+    "months_underweight": 20
+   },
+   "tilt_sd_by_asset": {
+    "SPY": 0.024423497810608187,
+    "TLT": 0.024423497810608187
+   },
+   "spy_tilt_direction_changes": 7,
+   "possible_direction_changes": 45,
+   "months_spy_tilt_at_least": {
+    "1pt": 23,
+    "2pt": 12,
+    "5pt": 3
+   },
+   "months_at_a_weight_bound": 0,
+   "weight_bounds": {
+    "SPY": [
+     0.4,
+     0.8
+    ]
+   },
+   "turnover_with_minus_without_annualised": 0.03095778713355936,
+   "tilt_hit_rate_before_costs": 0.34782608695652173,
+   "tilt_timing_correlation": 0.11571500900875362,
+   "tilt_return_before_costs_annualised": 0.00206039940428977,
+   "extra_cost_annualised": 3.0957787133559364e-05,
+   "tilt_return_after_costs_annualised": 0.0020294416171562097,
+   "tilt_covers_its_costs": true,
+   "average_tilt_vs_timing_ex_post": {
+    "note": "uses the full-period average weights, known only afterwards: descriptive only",
+    "average_tilt": {
+     "SPY": -0.004001298634706663,
+     "TLT": 0.004001298634706663
+    },
+    "average_tilt_return_annualised": -0.0005534706106065429,
+    "timing_return_annualised": 0.002613870014896307,
+    "cer_before_costs_from_average_tilt": -0.0003865713910944091,
+    "cer_before_costs_from_timing": 0.0035091820843828336
+   },
+   "largest_tilt_month": {
+    "decision_month": "2019-05",
+    "one_way_tilt": 0.08746699603078201,
+    "weights": {
+     "SPY": 0.512533003969218,
+     "TLT": 0.48746699603078203
+    },
+    "active_net_return_that_month": -0.007182101239405679
+   },
+   "forecast_survival_through_allocation": {
+    "offset_sd_points": 0.8329850069113671,
+    "offset_range_points": [
+     -1.9949999999999999,
+     0.885
+    ],
+    "max_possible_offset_points": 3.0,
+    "confidence_mean": 0.3247826086956522,
+    "confidence_range": [
+     0.18,
+     0.61
+    ],
+    "applied_edge_sd_points": 0.3333955289729159,
+    "share_of_offset_kept_after_confidence": 0.3775528255528256,
+    "spy_weight_points_per_applied_edge_point": 6.594734108995319,
+    "corr_spy_tilt_with_applied_edge": 0.9002211246536752,
+    "corr_spy_tilt_with_p_stocks_beat_bonds": 0.8207011865591345
+   },
+   "choice_direction_changes": 7,
+   "choices": {
+    "lean_bonds": 17,
+    "lean_equities": 27,
+    "strong_bonds": 2
+   },
+   "spy_weight_by_choice": {
+    "lean_bonds": 0.5767332529935749,
+    "lean_equities": 0.6100977051819931,
+    "strong_bonds": 0.569418460999451
+   },
+   "spy_weight_range_across_choices": 0.040679244182542096
+  }
+ },
+ "regimes": {
+  "definitions": {
+   "year": "calendar year of the decision month",
+   "volatility_at_decision": "SPY realised volatility over the 63 common trading days up to the decision close, annualised; 'high' at 20% or more. Known at the decision date.",
+   "stock_market_that_month_ex_post": "whether SPY rose over the holding month: known only afterwards, so descriptive only"
+  },
+  "caution": "Small groups and several splits: descriptive only, no significance claimed.",
+  "AP1": {
+   "year": {
+    "2019": {
+     "months": 10,
+     "active_return_sum": -0.0007282391134926353,
+     "active_return_mean_monthly": -7.282391134926353e-05,
+     "months_signals_ahead": 3
+    },
+    "2020": {
+     "months": 12,
+     "active_return_sum": -0.004052976420707934,
+     "active_return_mean_monthly": -0.00033774803505899446,
+     "months_signals_ahead": 3
+    },
+    "2021": {
+     "months": 12,
+     "active_return_sum": 0.001063322116837991,
+     "active_return_mean_monthly": 8.861017640316591e-05,
+     "months_signals_ahead": 7
+    },
+    "2022": {
+     "months": 12,
+     "active_return_sum": -0.00033729399821187504,
+     "active_return_mean_monthly": -2.810783318432292e-05,
+     "months_signals_ahead": 5
+    }
+   },
+   "volatility_at_decision": {
+    "high (20%+ a year)": {
+     "months": 16,
+     "active_return_sum": -0.003142925284537512,
+     "active_return_mean_monthly": -0.0001964328302835945,
+     "months_signals_ahead": 5
+    },
+    "normal (below 20%)": {
+     "months": 30,
+     "active_return_sum": -0.0009122621310369416,
+     "active_return_mean_monthly": -3.0408737701231384e-05,
+     "months_signals_ahead": 13
+    }
+   },
+   "stock_market_that_month_ex_post": {
+    "SPY down": {
+     "months": 18,
+     "active_return_sum": -0.004961893005114258,
+     "active_return_mean_monthly": -0.00027566072250634766,
+     "months_signals_ahead": 5
+    },
+    "SPY up": {
+     "months": 28,
+     "active_return_sum": 0.0009067055895398046,
+     "active_return_mean_monthly": 3.2382342483564453e-05,
+     "months_signals_ahead": 13
+    }
+   }
+  },
+  "AP2B": {
+   "year": {
+    "2019": {
+     "months": 10,
+     "active_return_sum": -0.007728647552733143,
+     "active_return_mean_monthly": -0.0007728647552733143,
+     "months_signals_ahead": 2
+    },
+    "2020": {
+     "months": 12,
+     "active_return_sum": 0.013487796384800606,
+     "active_return_mean_monthly": 0.0011239830320667172,
+     "months_signals_ahead": 3
+    },
+    "2021": {
+     "months": 12,
+     "active_return_sum": -0.0016782587142072378,
+     "active_return_mean_monthly": -0.00013985489285060315,
+     "months_signals_ahead": 6
+    },
+    "2022": {
+     "months": 12,
+     "active_return_sum": 0.0036986360812385974,
+     "active_return_mean_monthly": 0.0003082196734365498,
+     "months_signals_ahead": 6
+    }
+   },
+   "volatility_at_decision": {
+    "high (20%+ a year)": {
+     "months": 16,
+     "active_return_sum": -0.0035655119273667844,
+     "active_return_mean_monthly": -0.00022284449546042403,
+     "months_signals_ahead": 6
+    },
+    "normal (below 20%)": {
+     "months": 30,
+     "active_return_sum": 0.011345038126465607,
+     "active_return_mean_monthly": 0.00037816793754885355,
+     "months_signals_ahead": 11
+    }
+   },
+   "stock_market_that_month_ex_post": {
+    "SPY down": {
+     "months": 18,
+     "active_return_sum": 0.020419961454592513,
+     "active_return_mean_monthly": 0.0011344423030329174,
+     "months_signals_ahead": 6
+    },
+    "SPY up": {
+     "months": 28,
+     "active_return_sum": -0.01264043525549369,
+     "active_return_mean_monthly": -0.0004514441162676318,
+     "months_signals_ahead": 11
+    }
+   }
+  }
+ },
+ "influence_leave_one_month_out": {
+  "AP1": {
+   "full": -0.0010875172853280213,
+   "leave_one_out_min": -0.0023522926466335303,
+   "leave_one_out_max": -0.0004175089382240753,
+   "most_influential_month": "2020-05",
+   "without_most_influential_month": -0.0023522926466335303,
+   "months_whose_removal_flips_the_sign": 0
+  },
+  "AP2B": {
+   "full": 0.0030943320940283597,
+   "leave_one_out_min": -0.001756770321485926,
+   "leave_one_out_max": 0.00488300062714965,
+   "most_influential_month": "2020-02",
+   "without_most_influential_month": -0.001756770321485926,
+   "months_whose_removal_flips_the_sign": 1
+  },
+  "jev_minus_deterministic_signal_value": {
+   "full": 0.004181849379356381,
+   "leave_one_out_min": -0.0009475232500491398,
+   "leave_one_out_max": 0.00615237229496152,
+   "most_influential_month": "2020-02",
+   "without_most_influential_month": -0.0009475232500491398,
+   "months_whose_removal_flips_the_sign": 1
+  }
+ },
+ "sensitivities": {
+  "jev_native_engine": {
+   "convention": "native JEV engine (vendored feature-jev livebacktest.js, unchanged): trade at the decision close, 5 bp per unit of one-way SPY turnover against the drifted weight, monthly rebalancing to target, native returns and cash",
+   "signal_disabled_how": "Jev's saved answers with offset set to 0, so edge = equilibrium edge + confidence x 0",
+   "months": 46,
+   "first_as_of": "2019-03-29",
+   "last_as_of": "2022-12-30",
+   "max_abs_spy_weight_off_minus_60pct": 2.220446049250313e-16,
+   "max_abs_prior_weight_minus_60pct": 2.220446049250313e-16,
+   "max_abs_nav_off_minus_engine_fixed_60_40": 1.7763568394002505e-15,
+   "max_abs_weight_on_minus_decision_records": 0.0,
+   "net_cer_with": 0.04136131933262409,
+   "net_cer_without": 0.03917085363693094,
+   "cumulative_with": 0.28722036758784864,
+   "cumulative_without": 0.2776073682762257,
+   "incremental": {
+    "net_cer_difference": 0.0021904656956931515,
+    "ci95": [
+     -0.004016416972079186,
+     0.010063173164807166
+    ],
+    "ci90": [
+     -0.003111575458232719,
+     0.008663497586536464
+    ],
+    "p_two_sided_bootstrap": 0.592,
+    "statistically_clear_at_5pct": false
+   },
+   "engine_output": "native_backtest/out/signal_value/jev_native_signal_on_off_engine.json"
+  },
+  "buy_and_hold_no_signal": {
+   "AP1": {
+    "net_cer_without_buy_and_hold": 0.037118931579083574,
+    "cumulative_without_buy_and_hold": 0.2470286631067291,
+    "spy_weight_at_end": 0.5431744284770107,
+    "traded_after_first_month": 0.0,
+    "incremental": {
+     "net_cer_difference": -0.0004665335191503944,
+     "ci95": [
+      -0.007598522990917293,
+      0.007378957905236211
+     ],
+     "p_two_sided_bootstrap": 0.902,
+     "statistically_clear_at_5pct": false
+    }
+   },
+   "AP2B": {
+    "net_cer_without_buy_and_hold": 0.04277113491707946,
+    "cumulative_without_buy_and_hold": 0.29112595825389365,
+    "spy_weight_at_end": 0.7085273522360117,
+    "traded_after_first_month": 0.0,
+    "incremental": {
+     "net_cer_difference": 0.003976208889587794,
+     "ci95": [
+      -0.007507924868143442,
+      0.020917010443181252
+     ],
+     "p_two_sided_bootstrap": 0.6096,
+     "statistically_clear_at_5pct": false
+    }
+   }
+  },
+  "stage2_native_deterministic": {
+   "max_abs_diff_net_return_A_vs_signals_on": 9.71445146547012e-17,
+   "max_abs_diff_net_return_static_vs_signals_off": 9.71445146547012e-17,
+   "frozen_break_even_vs_static_status": "not defined: no CER gain at zero cost",
+   "naive_forecast_reference": {
+    "what": "Stage 2's frozen BENCH_HISTMEAN_ALLOCATOR: the same Black-Litterman allocator fed historical-mean forecasts",
+    "net_cer": 0.03603430337311617,
+    "deterministic_minus_naive": {
+     "net_cer_difference": 0.0006180946868169085,
+     "ci95": [
+      -0.0006935993282022891,
+      0.0026884153895847668
+     ],
+     "p_two_sided_bootstrap": 0.7004
+    },
+    "frozen_break_even_bps": 24.25473356213152
+   }
+  }
+ },
+ "safeguards": {
+  "protected_window_scored": false,
+  "framework_lock_applied": true,
+  "native_engine_last_as_of": "2022-12-30",
+  "frozen_configuration_changed": false,
+  "model_calls": 0
+ }
+}

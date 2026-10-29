@@ -49,6 +49,14 @@ These are diagnostics on development months, not protected historical results.
 - **JEV − Deterministic:** +1.01 pts net CER per year, 95% range −3.42 to +5.27, p = 0.63. Not statistically clear.
 - **Committee − JEV:** +0.44 pts, 95% range −1.85 to +2.90, p = 0.72. Not statistically clear.
 
+**Do the signals add value?** Each approach is compared with its own portfolio with the forecasts switched off. These are within-approach counterfactuals, not new approaches: same assets, starting mix, monthly rebalancing, costs and cash.
+- **Deterministic signals:** −0.11 pts net CER (95% range −0.31 to +0.03, p = 0.17).
+- **JEV signals:** +0.31 pts (−0.48 to +1.38, p = 0.59). The gain depends on one month, the February 2020 decision; without it the figure is −0.18 pts.
+- **JEV − Deterministic after accounting for their portfolios:** +0.42 pts (−0.43 to +1.63, p = 0.51).
+- **Where JEV's +1.01 pts lead comes from:** +0.59 pts comes from the two no-signal portfolios. The larger stock weight adds +1.39 pts and the long Treasuries take away 0.79 pts.
+
+None of these is statistically clear. Report: [`native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md`](native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md).
+
 ## Run it
 
 ```bash
@@ -90,6 +98,7 @@ The dashboard contains development results, statuses and explanations only. It c
 | [`native_backtest/docs/GO_NO_GO_2026-10-28.md`](native_backtest/docs/GO_NO_GO_2026-10-28.md) | Gate status and what blocks the protected test |
 | [`native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`](native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md) | The Causal RAG versions, reliability gates, cost of model runs |
 | [`native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md`](native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md) | Evidence corpus: counts, reconciliation, storage, BLS options |
+| [`native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md`](native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md) | Signals vs each approach's own no-signal portfolio; reconciled breakdown of the JEV − Deterministic gap; independent rebuild |
 | [`native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md`](native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md) | Independent rebuild of the Deterministic, JEV and passive returns; why the Deterministic and JEV curves look alike (no calculation error) |
 | [`mvp/`](mvp/README.md) | Dashboard frontend, data builder and its tests |
 | `stage2/` | The validated Stage 2 scorer the Deterministic model runs on |

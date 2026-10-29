@@ -62,6 +62,8 @@ def build(_: argparse.Namespace) -> None:
     else:
         print("claims data not present: skipping AP3 graph libraries and demo (committed manifest and demo are used)")
     sh(PY, "-m", "native_backtest.scripts.audit_portfolio_integrity")   # independent rebuild; fails the build on any finding
+    sh(PY, "-m", "native_backtest.scripts.signal_value_added")          # signals vs own no-signal portfolios (development)
+    sh(PY, "-m", "native_backtest.scripts.audit_signal_value")          # independent rebuild of it; fails on any mismatch
     sh(PY, "mvp/build_dashboard_data.py")
 
 
