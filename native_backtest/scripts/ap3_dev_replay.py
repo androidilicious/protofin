@@ -136,8 +136,15 @@ def run_agents(variant: str, provider: str, months: List[str], workers: int, all
     client = make_client(provider, variant, out)
     packets = load_packets()
     concepts, limits = load_concepts(), runner.load_limits()
-    store, med_status = mediator_data.load_store(include_pending_substitutes=True, inventory="v2")
-    labels = mediator_data.labels("v2")
+    spec = evidence_pool.load_variants()["variants"][variant]
+    inventory = spec.get("mediator_inventory", "v2")
+    store, med_status = mediator_data.load_store(include_pending_substitutes=True, inventory=inventory)
+    labels = mediator_data.labels(inventory)
+    if inventory != "v2":          # sensitivity variant: the agents are told which series is a proxy
+        for m, pk in packets.items():
+            ms = dict(pk.get("mediator_series", {}))
+            ms.update({k: labels[k] for k in ms if k in labels and labels[k].startswith("PROXY")})
+            packets[m] = {**pk, "mediator_series": ms}
     corpus_chunks = load_corpus(allow_incomplete_corpus) if variant == "historical_documents" else None
     pool = evidence_pool.EvidencePool(variant, store, labels, {k: v["label"] for k, v in concepts["triggers"].items()}, limits, corpus_chunks)
     vintages: Dict[int, object] = {}

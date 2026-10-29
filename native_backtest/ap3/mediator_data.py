@@ -83,7 +83,33 @@ SERIES_V2 = {
                       "label": "Fed funds rate implied by the 30-day fed funds futures contract six months ahead (100 minus settlement price, percent)",
                       "note": "Bloomberg export requested (BLOOMBERG_FED_FUNDS_FUTURES_REQUEST_2026-10-28.md); importer: native_backtest/scripts/import_ff_futures.py"},
 }
-INVENTORIES = {"v1": SERIES_V1, "v2": SERIES_V2}
+POLICY_PROXY_LABEL = ("PROXY for the expected policy-rate path (stand-in for fed funds futures, which need a Bloomberg export): "
+                      "2-year Treasury yield minus the 4-week Treasury bill rate (FRED DGS2 minus DTB4WK, percentage points). "
+                      "Includes a term premium; not fed funds futures.")
+DTB4WK_FILE = ROOT / "stage2/data/risk_free/DTB4WK_combined_2001-07-31_to_2026-10-01.csv"
+DTB4WK_SHA = "ed2f0bc7e3cc337f1e1ec8f4b2b823a69fed879f2dd6c2c6eefb6e62cd22a66a"
+# Separately documented sensitivity variant (not the frozen specification): FF_FUTURES_6M is replaced by a labelled
+# proxy built from two pinned, hash-checked series. Used only by the variant that names this inventory.
+SERIES_V2_POLICY_PROXY = {**SERIES_V2, "FF_FUTURES_6M": {
+    "derived": "policy_path_proxy", "rule": "h15", "status": "proxy_variant_not_in_frozen_spec", "label": POLICY_PROXY_LABEL,
+    "note": "variant reduced_evidence_policy_proxy only; frozen specification keeps FF_FUTURES_6M as unavailable until the Bloomberg export"}}
+INVENTORIES = {"v1": SERIES_V1, "v2": SERIES_V2, "v2_policy_proxy": SERIES_V2_POLICY_PROXY}
+
+
+def _policy_path_proxy() -> pd.DataFrame:
+    """DGS2 (with its ALFRED vintages) minus DTB4WK on the same date; available when both are."""
+    if _sha(DTB4WK_FILE) != DTB4WK_SHA:
+        raise MediatorDataError(f"{DTB4WK_FILE} does not match its pinned SHA-256")
+    two = load_series("UST2Y", "v2")
+    df = pd.read_csv(DTB4WK_FILE)
+    dc = "observation_date" if "observation_date" in df.columns else df.columns[0]
+    vc = "DTB4WK" if "DTB4WK" in df.columns else df.columns[1]
+    b = pd.DataFrame({"date": pd.to_datetime(df[dc]).dt.normalize(), "bill": pd.to_numeric(df[vc], errors="coerce")}).dropna()
+    b["bill_available_at"] = available_at(pd.DatetimeIndex(b["date"]), "h15")
+    m = two.merge(b, on="date", how="inner")
+    m["value"] = m["value"] - m["bill"]
+    m["available_at"] = m[["available_at", "bill_available_at"]].max(axis=1)
+    return m[["date", "value", "available_at"]].sort_values(["date", "available_at"]).reset_index(drop=True)
 
 
 class MediatorDataError(RuntimeError):
@@ -200,6 +226,8 @@ def apply_alfred(frame: pd.DataFrame, series_id: str) -> pd.DataFrame:
 
 def load_series(name: str, inventory: str = DEFAULT_INVENTORY) -> pd.DataFrame:
     spec = INVENTORIES[inventory][name]
+    if spec.get("derived") == "policy_path_proxy":
+        return _policy_path_proxy()
     if spec["status"] in ("not_pinned", "not_available"):
         raise MediatorDataError(f"{name}: {spec['note']}")
     if "segments" in spec:

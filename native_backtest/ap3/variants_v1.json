@@ -5,16 +5,34 @@
   "reduced_evidence": {
    "label": "Causal RAG — Reduced Evidence",
    "short": "Reduced evidence",
-   "evidence": ["research_claims", "data_notes"],
+   "evidence": [
+    "research_claims",
+    "data_notes"
+   ],
    "description": "Research claims from the year-filtered knowledge graph plus point-in-time numerical data notes (mediator moves, macro surprises). No historical text documents.",
    "role": "Built because the full-evidence corpus is not yet complete. Not a silent substitute for the originally specified full-evidence system."
   },
   "historical_documents": {
    "label": "Causal RAG — With Historical Documents",
    "short": "With historical documents",
-   "evidence": ["research_claims", "data_notes", "official_documents"],
+   "evidence": [
+    "research_claims",
+    "data_notes",
+    "official_documents"
+   ],
    "description": "The reduced-evidence pool plus official Federal Reserve, BLS and Census documents published before each decision (the originally specified evidence corpus).",
    "role": "The originally specified full-evidence system. Runs once the official-document corpus is complete and validated."
+  },
+  "reduced_evidence_policy_proxy": {
+   "label": "Causal RAG — Reduced Evidence, policy-path proxy (sensitivity variant)",
+   "short": "Reduced evidence + policy proxy",
+   "evidence": [
+    "research_claims",
+    "data_notes"
+   ],
+   "mediator_inventory": "v2_policy_proxy",
+   "description": "The reduced-evidence version with FF_FUTURES_6M replaced by a labelled proxy: 2-year Treasury yield minus the 4-week bill rate (pinned data).",
+   "role": "Separately documented sensitivity variant for the unavailable fed funds futures input. Not part of the frozen specification; never the primary version unless explicitly approved."
   }
  },
  "secondary_comparison": "Historical documents minus reduced evidence on development months: does adding historical textual evidence improve Causal RAG? Development data only; reported as a within-approach experiment.",

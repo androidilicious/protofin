@@ -230,6 +230,9 @@ class EvidencePool:
         self.variant, self.spec = variant, spec
         self.store, self.trigger_labels, self.limits = store, trigger_labels, limits
         self.labels = {**labels, **NOTE_LABELS}
+        if spec.get("mediator_inventory") == "v2_policy_proxy":
+            self.labels["FF_FUTURES_6M"] = ("expected policy-path PROXY, 2-year Treasury yield minus 4-week Treasury bill rate "
+                                           "(percentage points; not fed funds futures)")
         self.corpus_chunks = corpus_chunks if "official_documents" in spec["evidence"] else None
         self._month_cache: Dict[str, List[dict]] = {}
         self._dates = release_dates()
