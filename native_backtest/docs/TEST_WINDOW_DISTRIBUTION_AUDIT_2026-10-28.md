@@ -25,7 +25,7 @@
 
 **What was not changed:** no price, threshold or criterion. The formal FAIL stands as recorded.
 
-**Decision needed.** Accept the pinned prices for the test window with this exception and its diagnosis recorded. This can be decided together with the pending TLT development-gate disposition.
+**Disposition (2026-10-28).** The project lead accepted the non-material treatment in principle, subject to the team's documented sign-off. The formal result and all evidence stay as recorded. The TLT development-period FAIL is unaffected and also awaits team sign-off.
 
 ## Results by fund (ex-dates 2023-02-02 to 2026-10-01; months 2023-01 to 2026-09)
 

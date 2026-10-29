@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.4",
+  "version": "1.5",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -72,7 +72,23 @@
       "2022-12"
     ],
     "research_timeline_start": "2015-02",
-    "research_timeline_note": "The primary research timeline begins with the February 2015 macro-data training period."
+    "research_timeline_note": "The primary research timeline begins with the February 2015 macro-data training period.",
+    "historical_test": {
+      "sealed": [
+        "2023-01",
+        "2026-08"
+      ],
+      "primary": [
+        "2024-01",
+        "2026-08"
+      ],
+      "secondary": [
+        "2023-01",
+        "2023-12"
+      ],
+      "decided": "2026-10-28 by the project lead",
+      "rule": "The whole window 2023-01..2026-08 stays sealed until a signed GO record exists (framework/lock.py, protected start 2023-01, unchanged). The confirmatory primary analysis uses decision months 2024-01..2026-08 (32 months). 2023 is reported separately as a secondary historical period because it overlaps the AI models' training data; it never enters the primary family and its results are labelled secondary."
+    }
   },
   "systems": {
     "AP1": {
@@ -142,7 +158,7 @@
       "AP2B"
     ]
   ],
-  "primary_contrasts_note": "Primary family: all pairwise net-CER contrasts among the three primary approaches, Holm-corrected as one family of three. Contrasts involving AP3 are computed only once AP3 has genuine decisions.",
+  "primary_contrasts_note": "Primary family: all pairwise net-CER contrasts among the three primary approaches, Holm-corrected as one family of three, computed on the primary historical period 2024-01..2026-08. The same contrasts for 2023 are reported separately as secondary. Contrasts involving AP3 are computed only once AP3 has genuine decisions.",
   "pinned_price_validity": {
     "scorable_from_decision_month": "2011-01",
     "finding_2026-10-28": "The pre-2018 pinned segment (jeremy111004 @ bdb8ef9c) omits distributions before December 2010: compared with the native Yahoo-adjusted monthly returns, SPY is about 2%/yr and TLT about 4.4%/yr lower in 2005-2010 (roughly their dividend yields), e.g. SPY -0.58% in the Aug and Nov 2010 ex-dividend months; from decision month 2011-01 the sources agree within 0.05% per month. Stage 2 never used months before 2015 for targets or 2016 for covariance, so Stage 2 results are unaffected.",
@@ -262,10 +278,22 @@
     },
     "primary_metric": "Net CER (certainty-equivalent return) = 12 * (mean monthly net excess return - 0.5 * delta * variance of monthly net excess return), delta = 2.5. It is not a compound annual return.",
     "pending_methodology_decisions": [
-      "Protected window: frozen as 2023-01..2026-08; proposal to treat 2023 as a secondary period and 2024-01..2026-08 as the primary test awaits approval.",
-      "Primary metric: net CER for the three-approach comparison vs forecast accuracy in the Stage 2 freeze.",
       "Whether to resume the paused signal experiments as Deterministic within-approach experiments."
-    ]
+    ],
+    "primary_metric_status": "Approved 2026-10-28: net CER is the primary performance metric for the three-approach comparison.",
+    "supporting_metrics": [
+      "Sharpe ratio",
+      "Maximum drawdown",
+      "Volatility",
+      "Cumulative return",
+      "Turnover",
+      "Results relative to the frozen common benchmark (descriptive)"
+    ],
+    "evaluation_periods": {
+      "primary": "2024-01..2026-08 (confirmatory; primary Holm family of three pairwise net-CER contrasts)",
+      "secondary": "2023-01..2023-12 (same contrasts and metrics, reported separately and labelled secondary; no confirmatory claim; with 12 months the 6-month block bootstrap has two blocks, so its intervals are reported as descriptive only)",
+      "sealed": "2023-01..2026-08 until final GO"
+    }
   },
   "within_approach_contrasts": [
     [
@@ -289,6 +317,11 @@
       "version": "1.4",
       "date": "2026-10-28",
       "change": "common_benchmark frozen on the project lead's approval (fingerprint fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed; record native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json). Wording of its role and of the decisions / benchmark-mix split finalised as approved ('common passive reference'; 'accounting decomposition'); weights, rules, timing, costs and metrics unchanged from the proposal. Primary contrasts, windows, costs and metrics unchanged."
+    },
+    {
+      "version": "1.5",
+      "date": "2026-10-28",
+      "change": "Project lead's decisions: net CER confirmed as the primary metric; supporting metrics listed; primary historical period 2024-01..2026-08; 2023 a separately reported secondary period; the whole 2023-01..2026-08 window stays sealed (lock unchanged). Costs, timing, metrics settings and the frozen common benchmark unchanged."
     }
   ],
   "common_benchmark": {

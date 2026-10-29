@@ -32,7 +32,7 @@
     development: 'Development: months used to build and check the approaches. Good for spotting problems, not for picking a winner.',
     test: 'Historical test: months held back and scored once, after the freeze. Still sealed, so no results exist.',
     live: 'Live: months after the freeze. The cleanest evidence, since nobody could have seen them in advance.',
-    overlap: "2023 overlaps the AI models' training data, so those months carry a contamination caution.",
+    overlap: "2023 overlaps the AI models' training data, so it is reported separately as a secondary period. The primary test is Jan 2024 – Aug 2026.",
     reproduction: "Reproduction check: re-running each approach's own code to confirm it gives exactly its authors' saved results.",
     common: 'Shared rules: scoring every approach with the same trade timing, costs and cash rate.',
     mock: 'Demo: canned responses that show how the screens work. Never a result.',
@@ -624,7 +624,7 @@
       <section><h1>Methodology</h1><p class="lede">What is fixed, what is still open, and how far each approach has been validated.</p></section>
       <section class="panel"><div class="phead"><h2>Timeline</h2>${dataChip('sealed')}</div>
         ${phaseStrip(true)}
-        <div class="olegend"><i></i>2023 overlaps the AI models' training data ${tip('overlap')}</div>
+        <div class="olegend"><i></i>2023 overlaps the AI models' training data: secondary, reported separately ${tip('overlap')}</div>
         <div class="callout">${icon('review')}<div><b>Awaiting decision</b><ul>${M.pending.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></div>
       </section>
       <section><div class="phead"><h2>Rules and settings</h2><div class="ilegend">${Object.keys(SETTING).map(k => `<span>${icon(SETTING[k][1])}${SETTING[k][2]} ${tip(k)}</span>`).join('')}</div></div>

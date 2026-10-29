@@ -56,7 +56,11 @@ def test_methodology_and_validation_blocks():
     m = D["methodology"]
     assert [p["key"] for p in m["phases"]] == ["train", "dev", "test", "live"]
     assert m["phases"][0]["from"] == "2015-02" and m["phases"][2]["from"] == "2023-01" and m["phases"][2]["to"] == "2026-08"
-    assert any("2024" in t and "proposed" in t for t in m["pending"])           # the window split is flagged, not applied
+    assert not any("2024" in t for t in m["pending"])                           # the window split is decided (config v1.5)
+    ev = {x["name"]: x for x in m["settings"]}["Evaluation periods"]
+    assert "Jan 2024 – Aug 2026" in ev["value"] and "2023 reported separately" in ev["value"] and ev["status"] == "frozen"
+    assert {x["name"]: x for x in m["settings"]}["Primary metric"]["status"] == "frozen"
+    assert CFG["windows"]["historical_test"]["primary"] == ["2024-01", "2026-08"] and CFG["windows"]["protected"] == ["2023-01", "2026-08"]
     assert {x["status"] for x in m["settings"]} <= {"frozen", "approval", "design"}
     v = D["validation"]
     assert v["decision"] == "NO-GO" and v["columns"] == ["det", "jev", "rag", "com"]

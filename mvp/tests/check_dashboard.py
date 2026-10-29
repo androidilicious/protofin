@@ -36,7 +36,7 @@ VIEWS = {
                     "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
                     "Committee + JEV", "Full Causal RAG", "Standard RAG vs Causal RAG", "Ablations and placebo checks", "Model and calibration variants",
                     "Agent Committee only vs JEV only"],
-    "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "Awaiting decision", "Jan 2024 – Aug 2026",
+    "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "reported separately", "Awaiting decision", "Jan 2024 – Aug 2026", "Supporting metrics",
                     "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
                     "How net CER is calculated", "not a compound annual return",
                     "Common benchmark", "Own benchmarks", "Same dates", "Monthly rebalancing", "Same trading cost", "Dividends included",
