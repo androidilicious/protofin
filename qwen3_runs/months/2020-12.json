@@ -1,0 +1,3878 @@
+{
+ "month": "2020-12",
+ "decision_time": "2020-12-31T20:00:00-05:00",
+ "graph_vintage": 2019,
+ "event": [
+  {
+   "date": "2020-12-16",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.012,
+  "CORE_CPI": 0.608,
+  "CPI": 0.658,
+  "INDUSTRIAL_PRODUCTION": 0.361,
+  "ISM_MANUFACTURING": -0.733,
+  "NFP": -0.445,
+  "PPI": 0.127,
+  "RETAIL_SALES": -0.387
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "paths",
+    "args": {
+     "source": "FOMC",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 2,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "FOMC",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1340,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1468,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1771,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1821,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1908,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 1995,
+     "completion_tokens": 990
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2020-12-H1",
+   "trigger": "FOMC",
+   "channel": "inflation",
+   "mechanism": "Monetary policy shocks increase inflation, which then increases stock returns through higher nominal interest rates",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-7f5b310a56a5": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 16
+    },
+    "sha256": "4566f55805b6a2bdeb350e440372f5acc09f9f066a3f37e7e9cb004403c87be9",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign = -1) instead of decreasing (sign = -1) after FOMC"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign = 1) instead of increasing (sign = 1) after FOMC"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign = -1) instead of decreasing (sign = -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "FOMC announcements in 2020-12 with UST10Y changes",
+       "FOMC announcements in 2020-12 with VIX changes",
+       "FOMC announcements in 2020-12 with SPY changes"
+      ],
+      "contradicting": [
+       "FOMC announcements in 2020-12 with UST10Y decreasing",
+       "FOMC announcements in 2020-12 with VIX increasing",
+       "FOMC announcements in 2020-12 with SPY decreasing"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe the 10Y-3M yield spread increasing over the period, but one uses a FOMC calendar reference and the other a published value. Neither clearly indicates SPY movement.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe the 10Y-3M yield spread increasing over the period, but one uses a FOMC calendar reference and the other a published value. Neither clearly indicates IEF movement.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-12-01 and 2020-12-30 the series rose by +0.20 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe inflation and yield movements, but neither directly connects to SPY price changes over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-12-01 and 2020-12-30 the series rose by +0.20 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe inflation and yield movements, but neither directly connects to IEF price changes over the next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign 1 expected, but observed negative)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign -1 expected, but observed positive)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 AND VIX < 0",
+       "monetary policy shocks -> inflation -> stock returns"
+      ],
+      "contradicting": [
+       "UST10Y < 0",
+       "VIX > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "RC_w8767_86a55c741048#c000",
+       "RC_w9459_86a55c741048#c000",
+       "RC_w16074_86a55c741048#c000",
+       "RC_DP5463_86a55c741048#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 2-year yield rose slightly while the 10Y-3M spread rose slightly, but neither directly addresses SPY prices or the hypothesised mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The credit spread fell while breakeven inflation rose, but neither directly addresses IEF (7-10Y Treasury prices) or the hypothesised mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "RC_w8767_86a55c741048#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "RC_w9459_86a55c741048#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "explanation": "Both excerpts describe research claims about monetary policy shocks affecting inflation, but neither measures actual market conditions for SPY prices.",
+       "rejected_quotes": 2
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "RC_DP5463_86a55c741048#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "RC_w16074_86a55c741048#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "explanation": "Both excerpts describe research claims about monetary policy shocks affecting inflation, but neither measures actual market conditions for IEF.",
+       "rejected_quotes": 2
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign -1) instead of increasing (sign +1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign +1) instead of decreasing (sign -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 after FOMC",
+       "VIX < 0 after FOMC"
+      ],
+      "contradicting": [
+       "UST10Y < 0 after FOMC",
+       "VIX > 0 after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by 0.06% over the period, indicating higher inflation expectations, which aligns with the mechanism that monetary policy shocks increase inflation leading to higher nominal interest rates and thus stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose, suggesting higher inflation expectations, which would lead to lower Treasury prices (as investors demand higher yields for the same risk), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The rise in 5-year breakeven inflation rate indicates higher inflation expectations, which through the mechanism of monetary policy shocks increasing inflation and leading to higher nominal interest rates, supports stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The rise in 5-year breakeven inflation rate suggests higher inflation expectations, which would lead to lower Treasury prices (as investors demand higher yields for the same risk), supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Supported"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-12-H2",
+   "trigger": "FOMC",
+   "channel": "growth",
+   "mechanism": "Monetary policy shocks increase output, which then increases stock returns through higher inflation",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-22b28e53460d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w2300",
+     "year": 1987,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP526",
+     "year": 1991,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "simulation"
+    },
+    {
+     "paper_id": "w8072",
+     "year": 2001,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4750",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w12089",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12442",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6593",
+     "year": 2007,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP6814",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 32,
+    "by_kind": {
+     "research_claim": 16,
+     "data_note": 16
+    },
+    "sha256": "a641254c8222ec7086ec2d2ee597c0815cc6280baa8a7a901728555cfba6d104",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) when monetary policy shocks increase output, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign = -1) when monetary policy shocks increase output, then the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-8d32a4b3c38b",
+      "mechanism": "monetary policy shocks -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y trending up after FOMC announcements in 2020-12",
+       "VIX trending down after FOMC announcements in 2020-12"
+      ],
+      "contradicting": [
+       "UST10Y trending down after FOMC announcements in 2020-12",
+       "VIX trending up after FOMC announcements in 2020-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M spread rose by +0.01 from FOMC decision (2020-12-16) to decision time, but overall rose by +0.02 over the period. Both indicate positive change, but the FOMC-specific change is smaller.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe the 10Y-3M spread rising over the period, but neither directly addresses IEF (7-10Y Treasury prices) or the hypothesised link direction.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M spread rose slightly from FOMC decision to decision time, suggesting potential inflationary pressure that could support equity prices via the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe the 10Y-3M spread rising over the period, but neither directly addresses IEF (7-10Y Treasury prices) or the hypothesised link direction.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign=-1) instead of increasing (sign=1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign=-1) instead of decreasing (sign=-1) after FOMC"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign=1) instead of increasing (sign=1) after FOMC"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign=-1) instead of decreasing (sign=-1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "search for UST10Y returns after FOMC in 2020-12",
+       "search for VIX returns after FOMC in 2020-12",
+       "search for SPY returns after FOMC in 2020-12"
+      ],
+      "contradicting": [
+       "search for UST10Y decreases after FOMC in 2020-12",
+       "search for VIX increases after FOMC in 2020-12",
+       "search for SPY decreases after FOMC in 2020-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, indicating higher relative Treasury yields, which may signal increased inflation expectations and thus support stock price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose, suggesting higher inflation expectations which could lead to decreased IEF (7-10Y Treasury prices) as investors seek higher yields.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose, indicating higher inflation expectations, which could drive stock prices up through the mechanism described.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose, suggesting higher inflation expectations which could lead to decreased IEF prices as investors seek higher yields.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign -1) instead of increasing (sign +1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-8d32a4b3c38b",
+      "mechanism": "monetary policy shocks -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0",
+       "VIX < 0"
+      ],
+      "contradicting": [
+       "UST10Y < 0",
+       "VIX > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield changes but do not directly link to SPY (equity prices) movements. Both show directional changes but neither connects to equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield and inflation changes but do not directly link to IEF (7-10 year Treasury prices) movements. Both show directional changes but neither connects to Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe inflation and yield spreads but do not directly link to SPY (equity prices) movements. Both show directional changes but neither connects to equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield spreads and inflation but do not directly link to IEF (7-10 year Treasury prices) movements. Both show directional changes but neither connects to Treasury prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-12-H3",
+   "trigger": "FOMC",
+   "channel": "inflation",
+   "mechanism": "Monetary policy shocks increase inflation, which then increases risk premia through output gap",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-8d32a4b3c38b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 16
+    },
+    "sha256": "4566f55805b6a2bdeb350e440372f5acc09f9f066a3f37e7e9cb004403c87be9",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign = -1) instead of decreasing (sign = -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y trend after FOMC announcements",
+       "VIX behavior in the 30 days following FOMC announcements"
+      ],
+      "contradicting": [
+       "UST10Y decline after FOMC announcements",
+       "VIX rise after FOMC announcements"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The SPY link is supported by the 10Y-3M spread rising, but contradicted by the IG spread falling. Both are market data notes from FOMC calendar releases before decision time.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The IEF link is supported by the 10Y-3M spread rising, but contradicted by the IG spread falling. Both are market data notes from FOMC calendar releases before decision time.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The SPY link is supported by the 10Y-3M spread rising, but contradicted by the IG spread falling. Both are market data notes from FOMC calendar releases before decision time.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The IEF link is supported by the 10Y-3M spread rising, but contradicted by the IG spread falling. Both are market data notes from FOMC calendar releases before decision time.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign = -1) instead of decreasing (sign = -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 in 2020-12",
+       "VIX < 0 in 2020-12"
+      ],
+      "contradicting": [
+       "UST10Y < 0 in 2020-12",
+       "VIX > 0 in 2020-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose by +0.01 (supported) while 2Y yield fell by -0.05 (contradicted). Both are market data notes from FOMC-related releases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose by +0.02 (supported) while 2Y yield rose by +0.01 (contradicted). Both are market data notes from FOMC-related releases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose by +0.02 (supported) while 2Y yield fell by -0.05 (contradicted). Both are market data notes from FOMC-related releases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose by +0.02 (supported) while 2Y yield rose by +0.01 (contradicted). Both are market data notes from FOMC-related releases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign: -1) instead of increasing (sign: 1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign: -1) instead of decreasing (sign: -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y changes after FOMC",
+       "VIX changes after FOMC"
+      ],
+      "contradicting": [
+       "UST10Y decreases after FOMC",
+       "VIX increases after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release above consensus suggests inflationary pressure, supporting the mechanism where monetary policy shocks increase inflation, which then increases risk premia through output gap.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy fell, indicating reduced risk premia, supporting the mechanism where monetary policy shocks increase inflation, which then increases risk premia through output gap.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 0.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release above consensus suggests inflationary pressure, supporting the mechanism where monetary policy shocks increase inflation, which then increases risk premia through output gap.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy fell, indicating reduced risk premia, supporting the mechanism where monetary policy shocks increase inflation, which then increases risk premia through output gap.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-12-H4",
+   "trigger": "FOMC",
+   "channel": "inflation",
+   "mechanism": "Monetary policy shocks increase inflation, which then increases stock returns through output growth",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-7d358bee4be7": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 16
+    },
+    "sha256": "4566f55805b6a2bdeb350e440372f5acc09f9f066a3f37e7e9cb004403c87be9",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign=-1) instead of increasing (sign=1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign=-1) instead of decreasing (sign=-1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases instead of increasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0",
+       "VIX < 0",
+       "SPY > 0"
+      ],
+      "contradicting": [
+       "UST10Y < 0",
+       "VIX > 0",
+       "SPY < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate increased (supporting higher inflation), while the credit spread proxy decreased (suggesting lower risk premiums). Neither directly addresses SPY equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose (suggesting higher short-term rates), while 2Y yield rose. Neither directly addresses IEF (7-10Y Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate increased (supporting higher inflation), while the credit spread proxy decreased (suggesting lower risk premiums). Neither directly addresses SPY equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose (suggesting higher short-term rates), while 2Y yield rose. Neither directly addresses IEF (7-10Y Treasury prices).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign=-1) instead of increasing (sign=1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign=-1) instead of decreasing (sign=-1) after FOMC"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign=1) instead of increasing (sign=1) after FOMC"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign=-1) instead of decreasing (sign=-1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "FOMC announcements in 2020-12 with UST10Y and SPY",
+       "FOMC announcements in 2020-12 with VIX and IEF"
+      ],
+      "contradicting": [
+       "FOMC announcements in 2020-12 with UST10Y decreasing",
+       "FOMC announcements in 2020-12 with VIX increasing"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose slightly (+0.02) while 2Y yield fell (-0.05), but neither directly addresses SPY price movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2020-12-01 and 2020-12-30 the series fell by -0.08 (-0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "5Y breakeven inflation rose but credit spreads fell, neither directly links to IEF price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Core CPI rose above consensus but credit spreads fell, neither directly indicates SPY price movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-12-01 and 2020-12-30 the series rose by +0.20 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2020-12-01 and 2020-12-30 the series fell by -0.08 (-0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "5Y breakeven inflation rose but credit spreads fell, neither directly links to IEF price changes.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign: -1) instead of increasing (sign: 1) after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign: -1) instead of decreasing (sign: -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y change after FOMC",
+       "VIX change after FOMC",
+       "SPY returns after FOMC"
+      ],
+      "contradicting": [
+       "UST10Y decrease after FOMC",
+       "VIX increase after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 0.6 std dev above consensus, suggesting inflation pressure that could support equity prices via the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premium which could support equity prices through the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 0.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI was 0.7 std dev above consensus, suggesting inflation that could drive equity returns via the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread rose, indicating potential inflation expectations that could support equity prices via the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Supported"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-12-H5",
+   "trigger": "FOMC",
+   "channel": "inflation",
+   "mechanism": "Monetary policy shocks increase inflation, which then increases nominal interest rates, leading to higher stock prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-7f5b310a56a5": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 16
+    },
+    "sha256": "4566f55805b6a2bdeb350e440372f5acc09f9f066a3f37e7e9cb004403c87be9",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y falls instead of rises after FOMC, the hypothesis is contradicted."
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX rises instead of falls after FOMC, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2020-12-31",
+       "VIX < 2020-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2020-12-31",
+       "VIX > 2020-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, indicating higher interest rates, which could support SPY increases per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose, suggesting higher interest rates, which would decrease IEF (Treasury prices) but the link requires a decrease in IEF prices, so contradicted.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose, indicating higher interest rates, which could support SPY increases per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose, suggesting higher interest rates, which would decrease IEF prices but the link requires a decrease in IEF prices, so contradicted.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y falls instead of rises after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX rises instead of falls after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 after FOMC",
+       "VIX < 0 after FOMC"
+      ],
+      "contradicting": [
+       "UST10Y < 0 after FOMC",
+       "VIX > 0 after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by 0.06 percentage points, indicating higher expected inflation, which supports the mechanism where monetary policy shocks increase inflation leading to higher stock prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread rose, indicating higher long-term yields relative to short-term, which supports the mechanism where monetary policy shocks increase nominal interest rates leading to lower Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.06 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose, indicating higher expected inflation, which supports the mechanism where monetary policy shocks increase inflation leading to higher stock prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread rose, indicating higher long-term yields relative to short-term, which supports the mechanism where monetary policy shocks increase nominal interest rates leading to lower Treasury prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases instead of increasing after FOMC"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases instead of decreasing after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "search for papers that show UST10Y increases after FOMC",
+       "search for papers that show VIX decreases after FOMC"
+      ],
+      "contradicting": [
+       "search for papers that show UST10Y decreases after FOMC",
+       "search for papers that show VIX increases after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "contradicting": [
+       "RC_w1117_c69c63a151a9#c000",
+       "RC_w9459_86a55c741048#c000",
+       "RC_w16074_86a55c741048#c000",
+       "RC_w9459_06886981407e#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "RC_w9459_06886981407e#c000",
+         "citation_status": "valid",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "RC_w16074_86a55c741048#c000",
+         "citation_status": "valid",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "explanation": "Both excerpts describe monetary policy effects but on different variables (output vs inflation) without connecting to SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Both excerpts describe Treasury yield movements but in opposite directions without linking to IEF price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "RC_w16074_86a55c741048#c000",
+         "citation_status": "valid",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "RC_w9459_86a55c741048#c000",
+         "citation_status": "valid",
+         "quote": "[research-claim text withheld: claims data not redistributed]"
+        }
+       ],
+       "explanation": "Both excerpts describe monetary policy effects on inflation but not on SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Both excerpts describe Treasury yield movements but in opposite directions without linking to IEF price changes.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Contradicted",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.3333333333333333,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-12-H6",
+   "trigger": "FOMC",
+   "channel": "inflation",
+   "mechanism": "Monetary policy shocks increase inflation, which then increases output, leading to higher stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-22b28e53460d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w2300",
+     "year": 1987,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP526",
+     "year": 1991,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "simulation"
+    },
+    {
+     "paper_id": "w8072",
+     "year": 2001,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4750",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w12089",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12442",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6593",
+     "year": 2007,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP6814",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 16
+    },
+    "sha256": "55132921f478739cd25c8cb3a25f417e46e9a141ab6db7c6b639fc27f23d18c5",
+    "latest_available_at": "2020-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases, it contradicts the hypothesis that monetary policy shocks increase inflation"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases, it contradicts the hypothesis that inflation increases stock returns via a mechanism that lowers volatility"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2020-12-01 to 2020-12-31",
+       "VIX < 20 in 2020-12-01 to 2020-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2020-12-01 to 2020-12-31",
+       "VIX > 20 in 2020-12-01 to 2020-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, indicating a potential increase in short-term interest rates, which could support higher equity prices as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, suggesting higher short-term rates, which could lead to lower IEF (7-10Y Treasury prices) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, indicating a potential increase in short-term rates, which could support higher equity prices as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-12-01 and 2020-12-30 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.02, suggesting higher short-term rates, which could lead to lower IEF (7-10Y Treasury prices) as per the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2020-12-31",
+       "VIX < 2020-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2020-12-31",
+       "VIX > 2020-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-12-31#c000",
+       "DN_BEI5Y_2020-12-31#c000",
+       "DN_SLOPE_10Y3M_2020-12-31#c000",
+       "DN_IG_SPREAD_2020-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-12-31#c000",
+       "DN_PPI_2020-12-31#c000",
+       "DN_CORE_CPI_2020-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose (+0.01) post-FOMC but 2Y yield fell (-0.05), suggesting mixed market reactions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Both excerpts describe yield spreads but do not directly link to SPY or IEF movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The yield spread rose post-FOMC, indicating potential equity market strength, but 2Y yield fell, suggesting mixed signals.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-12-01 and 2020-12-30 the series fell by -0.05 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "Excerpts describe yield spreads but do not directly indicate IEF price movements.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1) by decision time"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign = -1) instead of decreasing (sign = -1) by decision time"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-0c989ac8419a",
+      "mechanism": "monetary policy shocks -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 AND VIX < 0",
+       "SPY > 0 AND IEF < 0"
+      ],
+      "contradicting": [
+       "UST10Y < 0",
+       "VIX > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2020-12-16#c000",
+       "DN_BEI5Y_FOMC_2020-12-16#c000",
+       "DN_SLOPE_10Y3M_FOMC_2020-12-16#c000",
+       "DN_IG_SPREAD_FOMC_2020-12-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield changes but do not mention SPY (equity prices) or link to equity returns. Both excerpts show market reactions to FOMC but focus on fixed income, not equities.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield changes but do not mention IEF (7-10 year Treasury prices) or link to Treasury price movements. Both excerpts focus on fixed income, not equity-linked instruments.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield changes but do not mention SPY (equity prices) or link to equity returns. Both excerpts focus on fixed income, not equities.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2020-12-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2020-12-16 (14:00 ET) to the latest value published by the decision time (2020-12-30), the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Excerpts describe yield changes but do not mention IEF (7-10 year Treasury prices) or link to Treasury price movements. Both excerpts focus on fixed income, not equity-linked instruments.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-30",
+       "change": 0.010000000000000009,
+       "z": 0.049699841106135643,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2020-12-01",
+       "window_end": "2020-12-31",
+       "change": 1.9800000000000004,
+       "z": 0.1987725010828199,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 3.0,
+   "F_C": 0.0,
+   "F_I": 3.0
+  },
+  "IEF": {
+   "F_S": -3.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "735b99c4e0d2702be37dbfa9cecded39523e3d4251cd6d6c0f9c34822201e23a",
+ "packet_sha256": "e032c4bd0076df928862b3500a924a2295f6eec31dd8a625686dc7baa155ace4",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

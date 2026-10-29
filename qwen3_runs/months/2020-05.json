@@ -1,0 +1,3386 @@
+{
+ "month": "2020-05",
+ "decision_time": "2020-05-29T20:00:00-04:00",
+ "graph_vintage": 2019,
+ "event": [
+  {
+   "description": "Average hourly earnings release",
+   "direction": "above consensus",
+   "surprise_z": 34.991,
+   "trigger": "AHE"
+  },
+  {
+   "description": "Core CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.813,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "Industrial production release",
+   "direction": "above consensus",
+   "surprise_z": 2.044,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "description": "ISM manufacturing survey",
+   "direction": "above consensus",
+   "surprise_z": 2.852,
+   "trigger": "ISM_MANUFACTURING"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "above consensus",
+   "surprise_z": 7.865,
+   "trigger": "NFP"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -3.069,
+   "trigger": "PPI"
+  },
+  {
+   "description": "Advance retail sales release",
+   "direction": "below consensus",
+   "surprise_z": -11.303,
+   "trigger": "RETAIL_SALES"
+  },
+  {
+   "change": -0.09,
+   "date": "2020-05-07",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.02
+  },
+  {
+   "change": 5.47,
+   "date": "2020-05-12",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": 2.32
+  },
+  {
+   "change": 0.09,
+   "date": "2020-05-18",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.33
+  },
+  {
+   "change": -0.08,
+   "date": "2020-05-19",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": -2.38
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 34.991,
+  "CORE_CPI": -1.813,
+  "CPI": 0.093,
+  "INDUSTRIAL_PRODUCTION": 2.044,
+  "ISM_MANUFACTURING": 2.852,
+  "NFP": 7.865,
+  "PPI": -3.069,
+  "RETAIL_SALES": -11.303
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index returns",
+     "limit": 10
+    },
+    "repeat_of": 8
+   }
+  ],
+  "turns": 11,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5425,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5729,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5851,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5900,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6197,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6500,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6821,
+     "completion_tokens": 43
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6900,
+     "completion_tokens": 44
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6953,
+     "completion_tokens": 45
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp500 index returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 7007,
+     "completion_tokens": 45
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 7098,
+     "completion_tokens": 829
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2020-05-H1",
+   "trigger": "AHE",
+   "channel": "inflation",
+   "mechanism": "Nominal wages -> inflation -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-152ed42a609b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP6429",
+     "year": 2007,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 65,
+    "by_kind": {
+     "research_claim": 22,
+     "data_note": 43
+    },
+    "sha256": "5ba26059a022f5868e87649212972a38eca6ffbbac5aa446373fa7da31f79a2d",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "VIX (volatility index) rising",
+       "would_contradict": "If VIX falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500) rising",
+       "would_contradict": "If SPY falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) rising",
+       "would_contradict": "If IEF falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD (20-year Treasury note) rising",
+       "would_contradict": "If LQD falls instead of rising, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2020-05-29#c000",
+       "DN_UST2Y_AHE_2020-05-11#c000",
+       "DN_UST10Y_AHE_2020-05-11#c000",
+       "DN_BEI5Y_AHE_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_AHE_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Average hourly earnings release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_AHE_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 35.0 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose significantly after AHE release, and AHE was a large surprise, suggesting inflationary pressure from wages that could drive stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-05-01 and 2020-05-28 the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_AHE_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Average hourly earnings release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose, but the 2-year Treasury yield only rose slightly after AHE, indicating weak impact on short-term rates, not unemployment-driven inflation.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "VIX (volatility index) rising",
+       "would_contradict": "If VIX falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500) rising",
+       "would_contradict": "If SPY falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) rising",
+       "would_contradict": "If IEF falls instead of rising, the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) rising",
+       "would_contradict": "If LQD falls instead of rising, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX > 20 in 2020-05-29",
+       "SPY > 2000 in 2020-05-29",
+       "IEF > 1000 in 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX < 20 in 2020-05-29",
+       "SPY < 2000 in 2020-05-29",
+       "IEF < 1000 in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2020-05-29#c000",
+       "DN_UST2Y_AHE_2020-05-11#c000",
+       "DN_UST10Y_AHE_2020-05-11#c000",
+       "DN_BEI5Y_AHE_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_AHE_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Average hourly earnings release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by 0.12% after AHE release, indicating higher inflation expectations, which supports the nominal wages -> inflation mechanism for SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-05-01 and 2020-05-28 the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-05-01 and 2020-05-28 the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "5-year breakeven inflation rose (supporting wage-driven inflation), but 2-year Treasury yield fell (contradicting unemployment-driven inflation), creating ambiguity.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "VIX (volatility index) rising",
+       "would_contradict": "If VIX falls instead of rises, it contradicts the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500) rising",
+       "would_contradict": "If SPY falls instead of rises, it contradicts the hypothesis"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) rising",
+       "would_contradict": "If IEF falls instead of rises, it contradicts the hypothesis"
+      },
+      {
+       "observable": "LQD (20-year Treasury note) rising",
+       "would_contradict": "If LQD falls instead of rises, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2020-05-29#c000",
+       "DN_UST2Y_AHE_2020-05-11#c000",
+       "DN_UST10Y_AHE_2020-05-11#c000",
+       "DN_BEI5Y_AHE_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 35.0 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 35 standard deviations above expectations, indicating strong wage growth that could drive inflation and output, supporting the nominal wages mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe unemployment or inflation dynamics that would support the wages-unemployment mechanism for SPY returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Contradicted",
+   "run_statuses": [
+    "Insufficient",
+    "Contradicted",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-05-H2",
+   "trigger": "CORE_CPI",
+   "channel": "policy_rates",
+   "mechanism": "Inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 64,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 43
+    },
+    "sha256": "d43b9608c4955d291c4b9e77a4497cc7ff24afb9bd6546a721345fa4e72de287",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) in response to CORE_CPI, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) in response to CORE_CPI, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) in response to CORE_CPI, then the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "CORE_CPI in 2020-05-29 with UST10Y and SPY",
+       "CORE_CPI in 2020-05-29 with IEF and SPY"
+      ],
+      "contradicting": [
+       "CORE_CPI in 2020-05-29 with UST10Y increasing",
+       "CORE_CPI in 2020-05-29 with SPY decreasing"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_BEI5Y_CORE_CPI_2020-05-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2020-05-12#c000"
+      ],
+      "contradicting": [
+       "DN_CORE_CPI_2020-05-29#c000",
+       "DN_IG_SPREAD_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_2020-05-29#c000",
+       "DN_UST2Y_2020-05-29#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2020-05-29#c000",
+       "RC_w26450_6f9f9eed5eb5#c000",
+       "DN_PPI_2020-05-29#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2020-05-29#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2020-05-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2020-05-12 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.11 (0.7 std dev) after Core CPI release, indicating higher inflation expectations, which could support the mechanism (inflation -> monetary policy -> output -> stock returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address Treasury prices (IEF) or their relationship to Core CPI. Excerpts focus on other indicators like VIX, yields, and spreads but don't specify IEF behavior.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts describe Core CPI release impact on yields and spreads but don't connect to output gap or inflation effects on equity returns as per the mechanism. No direct evidence for the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign 1) as predicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) as predicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ],
+      "contradicting": [
+       "UST10Y > 0 in 2020-05-29",
+       "SPY < 0 in 2020-05-29",
+       "IEF > 0 in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-05-29#c000",
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_VIX_PPI_2020-05-13#c000",
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2020-05-29#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_BEI5Y_CORE_CPI_2020-05-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2020-05-12#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2020-05-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2020-05-12 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -0.06 (-0.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -0.06 points after Core CPI release, indicating reduced volatility, which supports the link between Core CPI and SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2020-05-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2020-05-12 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series fell by -0.06 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell by -0.06 points after Core CPI release, supporting the link between Core CPI and IEF decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2020-05-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2020-05-12 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rose by +0.11 points after Core CPI release, supporting the link between Core CPI and SPY increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreasing"
+      },
+      {
+       "observable": "SPY (S&P 500 index) increases",
+       "would_contradict": "If SPY decreases instead of increasing"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ],
+      "contradicting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-05-29#c000",
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_VIX_PPI_2020-05-13#c000",
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2020-05-29#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_BEI5Y_CORE_CPI_2020-05-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2020-05-12#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2020-05-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2020-05-12 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -0.06 (-0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by 0.06 points after Core CPI release, indicating reduced volatility, which may support the link to equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No relevant excerpts directly address Treasury prices or IEF in relation to Core CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts connect Core CPI release to equity price changes via output gap mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-05-H3",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "inflation",
+   "mechanism": "Output growth -> inflation -> nominal interest rates -> stock prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-b8152ddf67bf": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4588",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP6112",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w16522",
+     "year": 2010,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w20613",
+     "year": 2014,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP13322",
+     "year": 2018,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 66,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 43
+    },
+    "sha256": "301fed7f15126d44e5a369bb9f6dad557f19349fdb821fe4a249fa8b7e7a1235",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) as output growth rises, then the hypothesis fails."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) as output growth rises, then the hypothesis fails."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) as output growth rises, then the hypothesis fails."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-72b38a98737a",
+      "mechanism": "output growth -> money growth -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y changes with output growth",
+       "SPY changes with output growth",
+       "IEF changes with output growth"
+      ],
+      "contradicting": [
+       "UST10Y increases with output growth",
+       "SPY decreases with output growth",
+       "IEF increases with output growth"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "RC_DP4845_83fb2dd860e0#c000",
+       "RC_DP4845_5a5d456f47c3#c000",
+       "RC_DP5683_5a5d456f47c3#c000",
+       "RC_w7257_5a5d456f47c3#c000"
+      ],
+      "contradicting": [
+       "RC_DP13322_f6c9092713f9#c000",
+       "RC_DP3689_5a5d456f47c3#c000",
+       "RC_DP3897_5a5d456f47c3#c000",
+       "RC_DP5632_5a5d456f47c3#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2020-05-29#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.15 (1.0 std dev) while VIX fell by -5.10 (-0.8 std dev) post-IP release, creating conflicting signals on market reactions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_INDUSTRIAL_PRODUCTION_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Industrial production release: the latest release before the decision time came in 2.0 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "2-year Treasury yield rose slightly while IP was unexpectedly strong, but neither directly addresses IEF (7-10yr Treasury) behavior.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link IP release to SPY movements via money growth mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link IP release to IEF movements via money growth mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) as output growth rises, the hypothesis fails."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) as output growth rises, the hypothesis fails."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) as output growth rises, the hypothesis fails."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-72b38a98737a",
+      "mechanism": "output growth -> money growth -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y: negative correlation with output growth in 2020-05",
+       "SPY: positive correlation with output growth in 2020-05",
+       "IEF: negative correlation with output growth in 2020-05"
+      ],
+      "contradicting": [
+       "UST10Y: positive correlation with output growth in 2020-05",
+       "SPY: negative correlation with output growth in 2020-05",
+       "IEF: positive correlation with output growth in 2020-05"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "RC_DP4845_83fb2dd860e0#c000",
+       "RC_DP4845_5a5d456f47c3#c000",
+       "RC_DP5683_5a5d456f47c3#c000",
+       "RC_w7257_5a5d456f47c3#c000"
+      ],
+      "contradicting": [
+       "RC_DP13322_f6c9092713f9#c000",
+       "RC_DP3689_5a5d456f47c3#c000",
+       "RC_DP3897_5a5d456f47c3#c000",
+       "RC_DP5632_5a5d456f47c3#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2020-05-29#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "VIX fell (-5.10 points) but 2Y Treasury yield rose (+0.01). Both are market reactions to IP release but opposite directions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "5Y breakeven inflation rose (+0.15) but 2Y Treasury yield rose (+0.01). Both are market reactions to IP release but opposite directions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "VIX fell (-5.10 points) but 2Y Treasury yield rose (+0.01). Both are market reactions to IP release but opposite directions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "5Y breakeven inflation rose (+0.15) but 2Y Treasury yield rose (+0.01). Both are market reactions to IP release but opposite directions.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) as output growth rises, then the hypothesis that output growth leads to inflation and higher nominal interest rates (which would push down UST10Y) is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) when output growth rises, then the hypothesis that output growth leads to inflation and higher nominal interest rates (which would push up stock prices) is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) when output growth rises, then the hypothesis that output growth leads to inflation and higher nominal interest rates (which would push down the yield on Treasury Inflation-Protected Securities) is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-72b38a98737a",
+      "mechanism": "output growth -> money growth -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "search for UST10Y returns when output growth rises in 2020-05",
+       "search for SPY returns when output growth rises in 2020-05",
+       "search for IEF returns when output growth rises in 2020-05"
+      ],
+      "contradicting": [
+       "search for UST10Y rising when output growth rises in 2020-05",
+       "search for SPY falling when output growth rises in 2020-05",
+       "search for IEF rising when output growth rises in 2020-05"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "RC_DP4845_83fb2dd860e0#c000",
+       "RC_DP4845_5a5d456f47c3#c000",
+       "RC_DP5683_5a5d456f47c3#c000",
+       "RC_w7257_5a5d456f47c3#c000"
+      ],
+      "contradicting": [
+       "RC_DP13322_f6c9092713f9#c000",
+       "RC_DP3689_5a5d456f47c3#c000",
+       "RC_DP3897_5a5d456f47c3#c000",
+       "RC_DP5632_5a5d456f47c3#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2020-05-29#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.15 (1.0 std dev) while the 2-year Treasury yield rose by +0.01 (0.1 std dev). Both are market data notes from the Industrial production release period, but the magnitude of change differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.15 (1.0 std dev) while the 2-year Treasury yield rose by +0.01 (0.1 std dev). Both are market data notes from the Industrial production release period, but the magnitude of change differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.15 (1.0 std dev) while the 2-year Treasury yield rose by +0.01 (0.1 std dev). Both are market data notes from the Industrial production release period, but the magnitude of change differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.15 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2020-05-15 (09:15 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.15 (1.0 std dev) while the 2-year Treasury yield rose by +0.01 (0.1 std dev). Both are market data notes from the Industrial production release period, but the magnitude of change differs.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-05-H4",
+   "trigger": "ISM_MANUFACTURING",
+   "channel": "growth",
+   "mechanism": "Economic growth -> government spending -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-a7aba33b0b6a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0949",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6541",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w13328",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    }
+   ],
+   "evidence_pool": {
+    "n": 59,
+    "by_kind": {
+     "research_claim": 16,
+     "data_note": 43
+    },
+    "sha256": "39d06a8e081fd5a34485025d9cdd35bbae341af5a2bc7e127dac4088539f0cad",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "VIX increases",
+       "would_contradict": "VIX decreases"
+      },
+      {
+       "observable": "SPY increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF decreases",
+       "would_contradict": "IEF increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-d7c2d6d5a2b0",
+      "mechanism": "economic growth -> government spending -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX in 2020-05-29",
+       "SPY returns in 2020-05-29",
+       "IEF returns in 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX decreases in 2020-05-29",
+       "SPY decreases in 2020-05-29",
+       "IEF increases in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2020-05-29#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.9 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was 2.9 standard deviations above expectations, indicating strong manufacturing activity, which supports the mechanism linking economic growth to stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address inflation or government spending links to equity returns. The ISM data shows strength but does not specify the inflation channel.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "VIX decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) increases",
+       "would_contradict": "IEF decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-d7c2d6d5a2b0",
+      "mechanism": "economic growth -> government spending -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX levels in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2020-05-29#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.9 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was 2.9 standard deviations above expectations, indicating strong manufacturing activity that could support economic growth and thus equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to SPY price changes via inflation mechanisms; all data focus on yields and spreads without inflation dynamics.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "VIX increases",
+       "would_contradict": "VIX decreases"
+      },
+      {
+       "observable": "SPY increases",
+       "would_contradict": "SPY decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-d7c2d6d5a2b0",
+      "mechanism": "economic growth -> government spending -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX in 2020-05-29",
+       "SPY returns in 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX in 2020-05-29",
+       "SPY returns in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2020-05-29#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.9 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was 2.9 std above consensus, indicating strong manufacturing activity, which supports the mechanism of economic growth driving stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to SPY returns via inflation mechanism; all data is about yields, spreads, or industrial production without clear inflation channel.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Contradicted",
+   "run_statuses": [
+    "Contradicted",
+    "Contradicted",
+    "Contradicted"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-05-H5",
+   "trigger": "NFP",
+   "channel": "inflation",
+   "mechanism": "Unemployment -> inflation -> nominal interest rates -> stock prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-53ffe1364cb8": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25512",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    }
+   ],
+   "evidence_pool": {
+    "n": 60,
+    "by_kind": {
+     "research_claim": 17,
+     "data_note": 43
+    },
+    "sha256": "ed7faa16d5da9c758b56af3a5327163e0cf832f75838022def91ea9773e8700d",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign 1) but the hypothesis predicts it should increase, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign 1) but the hypothesis predicts it should increase, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign 0) but the hypothesis predicts it should decrease, then the hypothesis is contradicted."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign 0) but the hypothesis predicts it should decrease, then the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-fa515942ddcb",
+      "mechanism": "unemployment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX in 2020-05-29",
+       "SPY returns from 2020-05-01 to 2020-05-29",
+       "IEF returns from 2020-05-01 to 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2020-05-29#c000",
+       "DN_UST2Y_NFP_2020-05-11#c000",
+       "DN_UST10Y_NFP_2020-05-11#c000",
+       "DN_BEI5Y_NFP_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 7.9 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The NFP release was 7.9 standard deviations above consensus, indicating strong positive impact on the economy, which aligns with the mechanism's expectation of increased equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2020-05-29#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 7.9 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The NFP release was 7.9 standard deviations above consensus, indicating strong positive impact on the economy, which aligns with the mechanism's expectation of increased equity prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "VIX increases",
+       "would_contradict": "VIX decreases"
+      },
+      {
+       "observable": "SPY increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF decreases",
+       "would_contradict": "IEF increases"
+      },
+      {
+       "observable": "LQD decreases",
+       "would_contradict": "LQD increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX in 2020-05-29",
+       "SPY returns in 2020-05-29",
+       "IEF returns in 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX decreases in 2020-05-29",
+       "SPY decreases in 2020-05-29",
+       "IEF increases in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2020-05-29#c000",
+       "DN_UST2Y_NFP_2020-05-11#c000",
+       "DN_UST10Y_NFP_2020-05-11#c000",
+       "DN_BEI5Y_NFP_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2020-05-11#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose after NFP release, supporting the unemployment->inflation->interest rates->stocks mechanism.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2020-05-11#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-05-29#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-05-01 and 2020-05-28 the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "NFP release caused 2Y yield to rise (supporting R:SPY), but 2Y yield fell over the period (contradicting R:SPY).",
+       "rejected_quotes": 2
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "VIX increases",
+       "would_contradict": "VIX decreases"
+      },
+      {
+       "observable": "SPY increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF decreases",
+       "would_contradict": "IEF increases"
+      },
+      {
+       "observable": "LQD decreases",
+       "would_contradict": "LQD increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "VIX in 2020-05-29",
+       "SPY returns in 2020-05-29",
+       "IEF returns in 2020-05-29"
+      ],
+      "contradicting": [
+       "VIX decreases in 2020-05-29",
+       "SPY decreases in 2020-05-29",
+       "IEF increases in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_UST10Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_UST2Y_CORE_CPI_2020-05-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2020-05-29#c000",
+       "DN_UST2Y_NFP_2020-05-11#c000",
+       "DN_UST10Y_NFP_2020-05-11#c000",
+       "DN_BEI5Y_NFP_2020-05-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_NFP_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_UST2Y_NFP_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show small positive changes in 10-year and 2-year Treasury yields following NFP release, suggesting a link between NFP and interest rates, which could drive SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_NFP_2020-05-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Nonfarm payrolls release on 2020-05-11 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose significantly after NFP, indicating a potential link between employment and inflation, which could drive equity prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-29",
+       "change": -9.679999999999996,
+       "z": -1.0641714307223102,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Contradicted",
+   "run_statuses": [
+    "Contradicted",
+    "Contradicted",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-05-H6",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "Inflation -> output gap -> inflation dynamics -> bond yields",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-bb5b70086681": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4583",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w11806",
+     "year": 2005,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6992",
+     "year": 2008,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 64,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 43
+    },
+    "sha256": "22461da3a55ae9cd89d54f7c58926f4503ccdee5a1efc4f730e65628dac3be3c",
+    "latest_available_at": "2020-05-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) in response to PPI, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) in response to PPI, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) in response to PPI, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "PPI in 2020-05-29, UST10Y in 2020-05-29",
+       "PPI in 2020-05-29, SPY in 2020-05-29",
+       "PPI in 2020-05-29, IEF in 2020-05-29"
+      ],
+      "contradicting": [
+       "PPI in 2020-05-29, UST10Y in 2020-05-29, UST10Y > predicted",
+       "PPI in 2020-05-29, SPY in 2020-05-29, SPY < predicted",
+       "PPI in 2020-05-29, IEF in 2020-05-29, IEF > predicted"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-05-29#c000",
+       "DN_VIX_PPI_2020-05-13#c000",
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_2020-05-29#c000",
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_BEI5Y_PPI_2020-05-13#c000",
+       "DN_SLOPE_10Y3M_PPI_2020-05-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release on 2020-05-13 triggered a significant drop in VIX (equity volatility index) by -5.53 points, indicating market stress that could support equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release on 2020-05-13 triggered a significant drop in VIX (equity volatility index) by -5.53 points, indicating market stress that could support Treasury price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release on 2020-05-13 triggered a significant drop in VIX (equity volatility index) by -5.53 points, indicating market stress that could support equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release on 2020-05-13 triggered a significant drop in VIX (equity volatility index) by -5.53 points, indicating market stress that could support Treasury price increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (not decreases) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ],
+      "contradicting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-05-29#c000",
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_VIX_PPI_2020-05-13#c000",
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_BEI5Y_PPI_2020-05-13#c000",
+       "DN_SLOPE_10Y3M_PPI_2020-05-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell significantly after PPI release, indicating reduced equity volatility, supporting the link between PPI and SPY increases.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_PPI_2020-05-13#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-28), the series fell by -0.01 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread decreased after PPI release, indicating lower Treasury prices, supporting the link.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX decline post-PPI release suggests equity price increases, supporting the link.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-05-29#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-05-01 and 2020-05-28 the series rose by +0.03 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread increased, indicating lower Treasury prices, supporting the link.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500 index)",
+       "would_contradict": "If SPY decreases instead of increases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (iShares iBoxx $1-3 Year Treasury Bond ETF)",
+       "would_contradict": "If IEF increases instead of decreases, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2020-05-29",
+       "SPY in 2020-05-29",
+       "IEF in 2020-05-29"
+      ],
+      "contradicting": [
+       "UST10Y > 0 in 2020-05-29",
+       "SPY < 0 in 2020-05-29",
+       "IEF > 0 in 2020-05-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-05-29#c000",
+       "DN_UST2Y_2020-05-29#c000",
+       "DN_BEI5Y_2020-05-29#c000",
+       "DN_SLOPE_10Y3M_2020-05-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2020-05-29#c000",
+       "DN_VIX_PPI_2020-05-13#c000",
+       "DN_VIX_CORE_CPI_2020-05-12#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-05-15#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2020-05-29#c000",
+       "DN_UST2Y_PPI_2020-05-13#c000",
+       "DN_BEI5Y_PPI_2020-05-13#c000",
+       "DN_SLOPE_10Y3M_PPI_2020-05-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.53 points after PPI release, indicating market stress response consistent with inflation dynamics.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX decline post-PPI release suggests market stress, supporting bond price impact.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX decline post-PPI release indicates equity market stress consistent with inflation dynamics.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2020-05-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2020-05-13 (08:30 ET) to the latest value published by the decision time (2020-05-29), the series fell by -5.53 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX decline post-PPI release suggests market stress, supporting Treasury price impact.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2020-05-01",
+       "window_end": "2020-05-28",
+       "change": 0.05999999999999994,
+       "z": 0.3053787216214873,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Insufficient",
+    "Supported"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 1.0,
+   "F_C": 3.0,
+   "F_I": 2.0
+  },
+  "IEF": {
+   "F_S": -1.0,
+   "F_C": 0.0,
+   "F_I": -2.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "5d4cfd0aca5825bd9d2de972a952198fb675f1b22cf3c30249f176968f77f090",
+ "packet_sha256": "b0946f7a10688f4c676613651c2071943d6385b3222e63c3af7e47a808b10283",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}
