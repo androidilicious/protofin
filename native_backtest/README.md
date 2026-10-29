@@ -34,7 +34,12 @@ The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
 | `docs/CONTAMINATION_REGISTER_AND_HINDSIGHT_AUDIT_v1.md` | Draft register and audit for team sign-off |
 | `ap3/fomc_calendar.py` | FOMC trigger calendar from the team's statement index (vendored, hash-pinned) |
 | `ap3/mediator_data.py`, `config/ap3_mediator_manifest_v1.json` | Point-in-time mediator series with availability rules; stress triggers |
-| `ap3/corpus.py`, `ap3/corpus_sources_v1.json`, `scripts/ap3_corpus_fetch.py`, `scripts/ap3_corpus_build.py` | Official-document evidence corpus: fetch, time-stamp, native chunking, canaries, audit (data not yet acquired) |
+| `ap3/corpus.py`, `ap3/corpus_sources_v1.json`, `scripts/ap3_corpus_fetch.py`, `scripts/ap3_corpus_build.py`, `scripts/ap3_corpus_import.py`, `scripts/ap3_corpus_archive.py` | Official-document evidence corpus: resumable cloud fetch, time-stamp from the document, native chunking, canaries, coverage/date/ALFRED/point-in-time checks, versioned archives (Fed + Census validated; BLS blocked: `docs/AP3_CORPUS_STATUS_2026-10-29.md`) |
+| `ap3/variants_v1.json`, `ap3/evidence_pool.py` | The two Causal RAG versions (Reduced Evidence; With Historical Documents) and their point-in-time evidence pools (`docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`) |
+| `scripts/ap3_dev_replay.py`, `ap3/reliability.py`, `config/ap3_reliability_gates_v1.json` | Development replay for either version (agents → status features → calibration → G4c → allocation), agent reliability report, pre-registered gates; paid providers refuse without approval |
+| `scripts/ap3_g3b_fixtures.py`, `ap3/fixtures/testing_agent_fixtures_v1.json` | Gate G3b: the Testing Agent on 30 labelled fixtures |
+| `scripts/historical_evaluation.py` | The one-time final historical backtest; refuses without a signed GO record, the opening token, frozen decision hashes and the approved Causal RAG version |
+| `docs/RUNBOOK.md` | Reproduce the MVP; run Causal RAG; corpus; paid steps; final historical backtest after GO |
 | `scripts/ap3_dev_readiness.py`, `out/ap3/dev_readiness/` | 95-month dry run with the engineering mock; frozen packets; measured prompt sizes |
 | `scripts/ap3_inference_budget.py`, `out/ap3/inference_budget_v1.json` | Token and cost estimate by stage |
 | `scripts/diagnose_tlt_gate5.py` | TLT gate 5 diagnosis: price vs NAV vs adjustment, materiality |

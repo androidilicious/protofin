@@ -130,7 +130,14 @@ EXP_TEXT = {
     "AP2B": ("JEV only", "jev", "JEV represents the Agentic Workflow in the primary comparison."),
     "AP2A": ("Agent Committee only", "com", "Three AI agents debate; a chief investment officer sets 12-month views. Compared only with JEV."),
     "AP2-COMBO": ("Committee + JEV", None, "Combines the Committee's views with JEV's answer. The combination rule must be fixed before any test month is seen."),
-    "AP3": ("Full Causal RAG", "rag", "The complete system: research graph, hypothesis and testing agents, calibration."),
+    "AP3": ("Agentic Causal RAG", "rag",
+            "Research graph, Hypothesis and Testing Agents, calibration. Its primary version is chosen before the test opens."),
+    "AP3-RE": ("Causal RAG — Reduced Evidence", "rag",
+               "Same agents and steps; the Testing Agent weighs research findings and market and economic data known at each decision. Built and checked end to end; real model runs await approval."),
+    "AP3-HD": ("Causal RAG — With Historical Documents", "rag",
+               "The reduced-evidence version plus official Fed, BLS and Census documents published before each decision. Built; waits for the BLS documents, which this cloud environment cannot download."),
+    "AP3-RE-vs-HD": ("Do historical documents help?", None,
+                     "Compares the two versions on development months: does adding historical text improve Causal RAG? Secondary; never in the primary comparison."),
     "AP3-STD": ("Standard RAG vs Causal RAG", None,
                 "Swaps graph-guided retrieval for plain similarity search, keeping the model, documents and budget the same. Needs Causal RAG results first."),
     "AP3-NR/RG/PERM/MED": ("Ablations and placebo checks", None,
@@ -150,6 +157,41 @@ def experiments_block(cfg: dict, within: list) -> dict:
         groups.append({"approach": GROUP_KEY[g["approach"]], "base": item(g["base"]), "variants": [item(v) for v in g["variants"]],
                        **({"blocked_by": g["base"]["blocked_by"]} if "blocked_by" in g["base"] else {})})
     return {"groups": groups, "within_contrast": within[0] if within else None}
+
+
+def ap3_versions() -> dict:
+    """The two Causal RAG versions with their genuine status, read from the run and check outputs."""
+    nb = ROOT / "native_backtest"
+    var = json.loads((nb / "ap3" / "variants_v1.json").read_text())
+    eng = nb / "out" / "ap3" / "engineering_replay" / "reduced_evidence" / "summary.json"
+    eng = json.loads(eng.read_text()) if eng.exists() else None
+    chk = nb / "out" / "ap3" / "corpus_checks_v1.json"
+    chk = json.loads(chk.read_text())["summary"] if chk.exists() else None
+    real = [p for p in (nb / "out" / "ap3" / "dev_replay").glob("*/*/summary.json")] if (nb / "out" / "ap3" / "dev_replay").exists() else []
+    if real:
+        raise SystemExit("real AP3 development results exist: add them to the dashboard deliberately before rebuilding")
+    eng_ok = bool(eng and eng["months"] == 95 and not eng["testing_agent_reliability"]["point_in_time_violations"])
+    docs = chk["documents"] if chk else 0
+    bls = len(chk["families_missing"]) if chk else 3
+    base = ["Research findings from papers published before each year", "Market and economic data as known at 8 p.m. on decision day"]
+    items = [
+        {"key": "re", "label": var["variants"]["reduced_evidence"]["label"], "short": "Reduced evidence", "status": "awaiting_validation",
+         "evidence": base,
+         "checks": [("Built: same agents, retrieval, testing, calibration and allocation", True),
+                    (f"Checked end to end on {eng['months'] if eng else 0} development months with demo responses", eng_ok),
+                    ("No information later than the decision time reached the agents", eng_ok),
+                    ("Real model runs (approval needed)", False)]},
+        {"key": "hd", "label": var["variants"]["historical_documents"]["label"], "short": "With historical documents", "status": "blocked",
+         "evidence": base + ["Official Fed, BLS and Census documents published before each decision"],
+         "checks": [("Built: the reduced-evidence version plus official documents", True),
+                    (f"{docs} Fed and Census documents downloaded and validated", bool(chk and not chk["build_errors"] and chk["point_in_time_pass"])),
+                    (f"BLS documents ({bls} release families) blocked from this cloud environment", False),
+                    ("Real model runs (approval needed)", False)]},
+    ]
+    for it in items:
+        it["checks"] = [{"text": t, "done": d} for t, d in it["checks"]]
+    return {"items": items, "primary": var["primary_version"]["selected"],
+            "primary_note": "Which version represents Causal RAG is decided before the historical test opens, from development checks only."}
 
 
 def validation_block() -> dict:
@@ -186,6 +228,7 @@ def methodology_block(cfg: dict) -> dict:
              "overlap": {"from": "2023-01", "to": "2023-12", "label": "2023: secondary period, reported separately"}},
             {"key": "live", "name": "Live", "from": None, "to": None, "what": "After the freeze"}],
         "pending": [
+            "Choose which Causal RAG version represents the approach, before the historical test opens.",
             "Decide whether to resume the paused signal experiments."],
         "settings": [
             {"icon": "calendar", "name": "Decision time", "value": "8 p.m. New York time, last trading day of each month", "status": "frozen"},
@@ -221,7 +264,7 @@ FLOWS = {
         {"kind": "store", "label": "Knowledge graph", "text": "Cause-and-effect findings from economics papers. Each year sees only papers published before it."},
         {"kind": "agent", "label": "Hypothesis Agent", "text": "Proposes up to 6 testable hypotheses a month about how the events could move markets, citing research pathways."},
         {"kind": "tool", "label": "CauseTrace graph search", "text": "CauseTrace: the tools the agent uses to search the graph for pathways and pull the research behind each link."},
-        {"kind": "agent", "label": "Testing Agent", "text": "Tries to disprove each hypothesis three times against dated documents, market data and a rival explanation."},
+        {"kind": "agent", "label": "Testing Agent", "text": "Tries to disprove each hypothesis three times against the evidence available at the time and a rival explanation. Too little evidence means Insufficient, never support."},
         {"kind": "model", "label": "Calibration", "text": "Learns from past months only how much Supported and Contradicted hypotheses moved returns, and turns them into forecasts."},
         {"kind": "alloc", "label": "Black–Litterman", "text": "Same allocation as the Deterministic model: a 45/35/20 starting mix tilted toward the forecasts."}],
     "com": [
@@ -378,7 +421,8 @@ def main() -> int:
         "assets": {a: v["label"] for a, v in concepts["assets"].items()},
         "limits": {"hypotheses_per_month": limits["max_hypotheses_per_month"], "testing_runs": limits["testing_agent"]["runs"],
                    "evidence_per_side": limits["testing_agent"]["chunks_supporting"], "graph_tool_calls": limits["hypothesis_agent"]["max_tool_calls"]},
-        "demo": json.loads(DEMO.read_text()) if DEMO.exists() else None}
+        "demo": json.loads(DEMO.read_text()) if DEMO.exists() else None,
+        "versions": ap3_versions()}
 
     n_dev = len(dev)
     sig_vs = [SYSTEMS[k]["short"] for k in PRIMARY if k in out["dev"]["series"] and out["dev"]["series"][k]["vs_neutral"]["p"] < 0.05]

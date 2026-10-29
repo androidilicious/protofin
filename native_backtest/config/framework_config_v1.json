@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.6",
+  "version": "1.7",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -245,15 +245,32 @@
           "approach": "Agentic Causal RAG",
           "base": {
             "id": "AP3",
-            "name": "Full Causal RAG",
+            "name": "Agentic Causal RAG (primary version chosen before the protected window opens)",
             "status": "awaiting_validation",
             "blocked_by": [
               "paid inference approval",
-              "historical evidence corpus",
-              "fed funds futures export"
+              "choice of primary version"
             ]
           },
           "variants": [
+            {
+              "id": "AP3-RE",
+              "name": "Causal RAG — Reduced Evidence",
+              "status": "awaiting_validation",
+              "note": "Implemented: same agents, retrieval, Testing Agent, calibration and allocation; evidence = research claims + point-in-time data notes. Engineering-tested end to end on all 95 development months with mock responses; real-model validation needs paid-inference approval."
+            },
+            {
+              "id": "AP3-HD",
+              "name": "Causal RAG — With Historical Documents",
+              "status": "blocked",
+              "note": "Implemented: the reduced-evidence pool plus official documents published before each decision. Fed and Census documents downloaded and validated (474); the three BLS release families are blocked from this cloud environment."
+            },
+            {
+              "id": "AP3-RE-vs-HD",
+              "name": "Do historical documents help?",
+              "status": "planned",
+              "note": "Development-period comparison of the two versions; secondary, never in the primary family."
+            },
             {
               "id": "AP3-STD",
               "name": "Standard RAG vs Causal RAG",
@@ -334,6 +351,11 @@
       "version": "1.6",
       "date": "2026-10-28",
       "change": "Reporting amendment: the Deterministic Quantitative Model is stated as the primary research baseline (research question and primary comparisons recorded; the contrasts and Holm family are unchanged); the frozen 60/40 SPY/IEF benchmark is relabelled the Passive Portfolio Reference and shown as an optional reference line and a separate comparison. Numerical specification, fingerprint, accounting and historical calculations unchanged."
+    },
+    {
+      "version": "1.7",
+      "date": "2026-10-29",
+      "change": "Causal RAG versions: Reduced Evidence and With Historical Documents added as within-approach entries; the primary Causal RAG version is chosen and approved before the protected window opens (native_backtest/ap3/variants_v1.json). No frozen or fingerprinted field changed."
     }
   ],
   "common_benchmark": {

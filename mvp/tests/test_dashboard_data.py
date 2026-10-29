@@ -47,8 +47,15 @@ def test_experiment_statuses_match_the_research_design():
         assert c["base"]["status"] == g["base"]["status"]
     det, rag = shown[0], shown[2]
     assert {v["status"] for v in det["variants"]} == {"paused", "planned"}          # signal experiments are on hold
-    assert rag["base"]["status"] == "awaiting_validation" and all(v["status"] == "planned" for v in rag["variants"])
-    assert all(v["link"] is None for g in shown for v in g["variants"] if v["status"] != "tested")
+    assert rag["base"]["status"] == "awaiting_validation"
+    versions = {v["name"]: v["status"] for v in rag["variants"][:2]}
+    assert versions == {"Causal RAG — Reduced Evidence": "awaiting_validation", "Causal RAG — With Historical Documents": "blocked"}
+    assert all(v["status"] == "planned" for v in rag["variants"][2:])
+    # nothing untested links to results: the two Causal RAG versions link only to the explanation page, which shows none
+    assert all(v["link"] in (None, "rag") for g in shown for v in g["variants"] if v["status"] != "tested")
+    V = D["ap3"]["versions"]
+    assert V["primary"] is None and [i["key"] for i in V["items"]] == ["re", "hd"]
+    assert not any(c["done"] for i in V["items"] for c in i["checks"] if "Real model runs" in c["text"])
     assert "secondary" not in D["experiments"]
 
 

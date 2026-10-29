@@ -11,7 +11,7 @@ A dashboard that compares three investment approaches, each run as its own code 
 The **Experiments** section holds the within-approach (secondary) experiments, grouped by approach, each with a status: Tested, Awaiting validation, Planned, Blocked or Paused.
 - **Deterministic:** the 8-surprise base model (tested); adding financial signals one at a time or all together (paused by team decision, results archived and not shown); market regimes (planned).
 - **Agentic Workflow:** JEV only (tested; the primary system), Agent Committee only (tested; compared only with JEV), Committee + JEV (planned).
-- **Causal RAG:** the full system (awaiting validation), Standard RAG vs Causal RAG, ablations and placebo checks, model and calibration variants (all planned).
+- **Causal RAG:** the approach (awaiting validation; its primary version is chosen before the test opens), Causal RAG — Reduced Evidence (built and engineering-tested; real model runs await approval), Causal RAG — With Historical Documents (built; waits for the BLS documents), whether historical documents help, Standard RAG vs Causal RAG, ablations and placebo checks, model and calibration variants (planned).
 
 The 2023-01..2026-08 protected historical test is **sealed**. Nothing in this MVP scores it, and every number shown is a development diagnostic.
 
@@ -39,7 +39,7 @@ python mvp/run.py check            # project tests + Stage 2 tests + headless-br
 ## Using the dashboard
 
 - **Overview** — the research question first: does AI improve on the Deterministic baseline? The Deterministic Quantitative Model is marked as the research baseline. Shown: the verdict, the timeline, one card per approach (net CER and, for the AI approaches, the difference from the baseline with its range), the three research comparisons (JEV − Deterministic, Causal RAG − Deterministic, Causal RAG − JEV; pending where Causal RAG has no results), findings, growth of $1 (toggle: versus the baseline), key metrics, and a separate passive investment comparison against the Passive Portfolio Reference — 60% SPY / 40% IEF, which is also an optional dashed line on the chart. Nothing is marked as a winner.
-- **Approaches** — one tab per approach: an interactive flow diagram, results with the research comparison (versus the Deterministic baseline; the baseline page lists the comparisons against it), the passive 60/40 reference with its accounting split, the approach's own benchmark as a secondary check, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its validation progress and the research inputs it will use, plus a clearly labelled demo.
+- **Approaches** — one tab per approach: an interactive flow diagram, results with the research comparison (versus the Deterministic baseline; the baseline page lists the comparisons against it), the passive 60/40 reference with its accounting split, the approach's own benchmark as a secondary check, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its two versions with their real build and validation status, its validation progress and the research inputs it will use, plus a clearly labelled demo.
 - **Experiments** — the within-approach experiments described above, and the Committee vs JEV comparison.
 - **Methodology** — the timeline (2023 marked as overlapping the AI models' training data; open decisions listed), rules and settings tagged Frozen, Needs approval or Differs by design, the passive portfolio reference (mix, the five rules it shares with the backtest, and its freeze status), the validation-status matrix, and expandable details on net CER, statistics and safeguards.
 - Every term with an **i** has a one-sentence explanation on hover, focus or tap.
@@ -80,3 +80,5 @@ See `native_backtest/docs/GO_NO_GO_2026-10-28.md`. In short:
 - It also needs the official-document corpus and the remaining market series.
 - TLT needs its issuer distribution check.
 - The team still has to sign the contamination register and the hindsight audit, and review the October 23 deck.
+
+Full procedures, including the paid model runs and the final historical backtest after approval: `native_backtest/docs/RUNBOOK.md`.

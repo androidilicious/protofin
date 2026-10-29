@@ -49,6 +49,8 @@
     frozen: 'Frozen: fixed before any protected month is scored; cannot change without a new version and a full rerun.',
     approval: 'Needs approval: implemented and used, but awaiting final team sign-off.',
     design: 'Differs by design: each approach keeps its own version of this.',
+    versions: 'Two versions of Causal RAG with identical agents, model, rules and settings. Only the evidence the Testing Agent may use differs.',
+    insufficient: 'When the evidence available at the time cannot settle a hypothesis, it is marked Insufficient. It is never counted as support.',
   };
   const ROUTES = { deterministic: 'det', jev: 'jev', 'causal-rag': 'rag', committee: 'com' };
   const SLUG = { det: 'deterministic', jev: 'jev', rag: 'causal-rag', com: 'committee' };
@@ -557,6 +559,7 @@
         <div class="chips"><span class="chip plain">${icon('assets')}${esc(s.assets_label)}</span><span class="chip plain">${icon('calendar')}${esc(s.horizon)}</span><span class="chip plain">${icon('model')}${esc(s.model)}</span></div>
       </section>
       <section class="panel"><h2>How it works</h2>${flowDiagram('rag')}</section>
+      ${versionsPanel()}
       <section class="grid2">
         <div class="panel"><div class="phead"><h2>Validation progress</h2><span class="chip plain num">${steps.filter(x => x.cells.rag.status === 'pass').length} of ${steps.length} passed</span></div>
           <ol class="track-steps">${steps.map(x => { const c = x.cells.rag, [cls, ic, l] = GATE[c.status];
@@ -575,6 +578,7 @@
         <li>Documents and market data are filtered to what was public before 8 p.m. New York time on decision day, including revised values.</li>
         <li>Quotes the Testing Agent cites must appear word for word in the documents it was given.</li>
         <li>Each hypothesis is tested three times independently; a split decision counts as Insufficient.</li>
+        <li>Too little evidence means Insufficient, never support.</li>
         <li>“Supported” means consistent with the evidence available at the time, never proof of cause.</li>
         <li>The graph rebuilds identically from the same data: ${a.graph_rebuild_identical ? 'checked' : 'not yet checked'}.</li></ul></div></details>
     </div>`;
@@ -587,6 +591,20 @@
     const order = Object.keys(names).filter(k => k in last);
     chart(document.getElementById('c-ch'), { type: 'bar', data: { labels: order.map(k => names[k]), datasets: [{ data: order.map(k => last[k]), backgroundColor: css('--border-strong'), borderRadius: 4 }] },
       options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.x} pathways` } } }, scales: { x: { grid: { color: css('--border') } }, y: { grid: { display: false } } } } });
+  }
+
+  function versionsPanel() {
+    const V = D.ap3.versions;
+    if (!V) return '';
+    return `<section class="panel"><div class="phead"><h2>Two versions ${tip('versions')}</h2>
+        <span class="chip plain">${icon('target')}Primary version: ${V.primary ? esc(V.primary) : 'not yet chosen'}</span></div>
+      <div class="vcards">${V.items.map(v => `<div class="vcard">
+        <div class="vtop"><b>${esc(v.short)}</b>${statusChip(v.status)}</div>
+        <div class="vlbl">Evidence the Testing Agent can use</div>
+        <ul class="ev">${v.evidence.map(e => `<li>${icon('data')}<span>${esc(e)}</span></li>`).join('')}</ul>
+        <ul class="vchecks">${v.checks.map(c => `<li class="${c.done ? 'done' : 'todo'}">${icon(c.done ? 'check' : 'planned')}<span>${esc(c.text)}</span></li>`).join('')}</ul>
+        <div>${dataChip('na')}</div></div>`).join('')}</div>
+      <p class="sub">${esc(V.primary_note)} Comparing the two is a secondary experiment: do historical documents help? ${tip('insufficient', 'What if evidence is thin?')}</p></section>`;
   }
 
   function demoBlock(d) {
@@ -610,7 +628,7 @@
     const TITLES = { det: 'Deterministic Quantitative Model', jev: 'Agentic Workflow', rag: 'Agentic Causal RAG' };
     const branch = (v, gi, i) => `<div class="branch ${v.status}"><button type="button" aria-expanded="false" aria-controls="b-${gi}-${i}">
         <span class="nm">${esc(v.name)}</span>${statusChip(v.status)}${icon('chev', 'chev')}</button>
-        <div class="bd" id="b-${gi}-${i}" hidden><span>${esc(v.detail)}</span>${v.link ? `<a class="go" href="#${SLUG[v.link]}">See its results →</a>` : ''}</div></div>`;
+        <div class="bd" id="b-${gi}-${i}" hidden><span>${esc(v.detail)}</span>${v.link ? `<a class="go" href="#${SLUG[v.link]}">${v.link === 'rag' ? 'How it works →' : 'See its results →'}</a>` : ''}</div></div>`;
     const group = (g, gi) => `<section class="panel" style="--c:var(${VAR[g.approach]})">
         <div class="phead"><h2>${badge(g.approach)}${TITLES[g.approach]}</h2></div>
         <div class="tree">
