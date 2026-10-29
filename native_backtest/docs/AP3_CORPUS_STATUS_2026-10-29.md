@@ -39,12 +39,19 @@ Records:
 
 ## Storage (outside the repository history)
 
-- The raw documents are packed into four deterministic ZIP archives (about 94 MB), listed with their SHA-256 in `data/ap3_corpus/archive_manifest_v1.json`.
-- They are published as assets of the GitHub release `ap3-corpus-v1.0-partial` in `androidilicious/protofin`.
-  - The repository was verified as private immediately before publishing, so release assets are visible only to collaborators.
-- Restore in any environment: `gh release download ap3-corpus-v1.0-partial --repo androidilicious/protofin --dir <folder>`, then `python -m native_backtest.scripts.ap3_corpus_archive restore --zips <folder>`.
-  - Every document is re-hashed against the committed fetch manifest.
-  - The round-trip was verified: 474/474 identical.
+- The raw documents are packed into four deterministic ZIP archives (about 94 MB), listed with their SHA-256 in `data/ap3_corpus/archive_manifest_v1.json`. The round trip was verified: 474/474 documents identical.
+- **Not yet published.** The plan was a release asset in the private repository, but this session is not permitted to create GitHub releases (HTTP 403). The archives were not put in any git branch, because the raw corpus stays out of the repository. They will not outlast this environment until someone publishes them.
+- **Rebuilding needs no archive.** The fetcher re-downloads the same documents from the agencies, about 15 minutes for Fed and Census. A `git diff` of `data/ap3_corpus/fetch_manifest_v1.json` then shows any document whose SHA-256 differs from the validated set.
+- **Publishing the release** (anyone with release rights, after confirming the repository is still private):
+
+  ```bash
+  python -m native_backtest.scripts.ap3_corpus_archive pack --out corpus_zips     # after a fetch or restore; identical bytes
+  gh release create ap3-corpus-v1.0-partial --repo androidilicious/protofin --prerelease \
+    --title "AP3 evidence corpus v1.0 (partial: Federal Reserve + Census)" --notes-file native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md \
+    corpus_zips/*.zip native_backtest/data/ap3_corpus/*.json
+  ```
+
+- **Restoring** from the release: `gh release download ap3-corpus-v1.0-partial --repo androidilicious/protofin --dir <folder>`, then `python -m native_backtest.scripts.ap3_corpus_archive restore --zips <folder>`. Every document is re-hashed against the committed fetch manifest.
 - All sources are US government works in the public domain.
 
 ## Options for the BLS documents (decision needed; none applied)
