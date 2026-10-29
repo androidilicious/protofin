@@ -1,6 +1,6 @@
 {
  "_comment": "AP3 approval stage A: connectivity, canary and a 3-month smoke test on real Llama 3.1 70B Instruct. PREPARED, NOT APPROVED: no paid call has been made. The runner (native_backtest/scripts/ap3_smoke_test.py) refuses to call a paid provider unless the approval record below exists, AP3_ALLOW_PAID_INFERENCE=1 is set and credentials are present; a CostGuard stops it before any call that could pass the cap.",
- "version": "v1",
+ "version": "v1.1",
  "created": "2026-10-28",
  "status": "prepared; awaiting provider and spending approval",
  "cap_usd": 5.0,
@@ -8,7 +8,7 @@
  "approval_record_format": {
   "stage": "A",
   "provider": "bedrock | hf_endpoint",
-  "cap_usd": 5.0,
+  "cap_usd": "<= providers.<provider>.cap_usd",
   "approved_by": "<name>",
   "approved_utc": "<timestamp>",
   "note": "written only after the project lead's explicit approval in the chat"
@@ -28,7 +28,7 @@
     "usd_per_m_input": 0.99,
     "usd_per_m_output": 0.99
    },
-   "pricing_note": "List on-demand price before Legacy: $0.72 per million input and output tokens. The guard counts at $0.99 to leave room for extended-access pricing; confirm the current price in the AWS console before approval.",
+   "pricing_note": "AWS's pricing page did not render a figure for this model; third-party listings show $0.72 per million input and output tokens. The guard counts at $0.99 to leave room for extended-access pricing; confirm the price in the AWS console before approval.",
    "credentials": {
     "env": [
      "AWS_ACCESS_KEY_ID",
@@ -52,12 +52,14 @@
    },
    "network_allowlist": [
     "bedrock-runtime.us-west-2.amazonaws.com"
-   ]
+   ],
+   "cap_usd": 5.0,
+   "seed_supported": false
   },
   "hf_endpoint": {
    "description": "Dedicated Hugging Face Inference Endpoint (AWS us-east-1) running vLLM's OpenAI-compatible server",
    "model_repo": "meta-llama/Llama-3.1-70B-Instruct",
-   "revision": "<full commit SHA, recorded when the endpoint is created>",
+   "revision": "1605565b47bb9346c5515c34102e054115b4f98b",
    "container_image": "vllm/vllm-openai:<pinned version tag, recorded at creation>",
    "dtype": "bfloat16 (no quantisation)",
    "hardware": "nvidia-a100 x2 (160 GB), tensor parallel 2, max model length 16384",
@@ -66,7 +68,7 @@
    "lifecycle": "Open weights under the Llama 3.1 Community License; the license must be accepted on the Hugging Face account.",
    "pricing_for_guard": {
     "mode": "hourly",
-    "usd_per_hour": 5.0,
+    "usd_per_hour": 10.0,
     "started_utc": "<set when the endpoint is created>"
    },
    "pricing_note": "$5 per hour for nvidia-a100 x2 on AWS, billed per minute while initialising or running. The $5 cap therefore buys one hour including start-up (loading ~140 GB of weights); the endpoint is paused as soon as the run ends.",
@@ -80,7 +82,11 @@
    },
    "network_allowlist": [
     "<endpoint host>.endpoints.huggingface.cloud"
-   ]
+   ],
+   "revision_note": "Latest commit of meta-llama/Llama-3.1-70B-Instruct (last modified 2024-12-15), BF16, gated: manual licence acceptance; verified 2026-10-28",
+   "instance": "AWS nvidia-h200 x2 (282 GB), $10/hour, billed per minute including start-up; alternative nvidia-a100 x2 (160 GB, $5/hour) leaves little KV-cache room for 141 GB of BF16 weights",
+   "determinism": "vLLM is reproducible only on the same hardware and the same vLLM version, with a fixed seed and batch invariance enabled (vLLM reproducibility docs); hardware, image tag, seed and settings are recorded and never changed during a run",
+   "cap_usd": 15.0
   }
  },
  "not_recommended": {
@@ -194,5 +200,7 @@
   "At least 95% of agent calls return JSON that validates against the locked schemas.",
   "Every cited pathway ID exists in the library or in a tool result for that month.",
   "Spend stays within the cap; measured input and output tokens per month are recorded and replace the assumptions in the budget for approval B."
- ]
+ ],
+ "checked": "2026-10-28: provider availability, pricing and pinning re-verified from official pages (see AP3_INFERENCE_PROVIDER_SPEC_2026-10-28.md, 'Verified 2026-10-28')",
+ "cap_note": "Each provider has its own stage-A cap (providers.<p>.cap_usd): $5 on Bedrock (per-token), $15 on a dedicated endpoint (about 90 minutes of 2x H200 including start-up). Either needs explicit approval."
 }

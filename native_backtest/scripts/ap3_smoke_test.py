@@ -44,6 +44,11 @@ def load_config() -> dict:
     return json.loads(CONFIG.read_text())
 
 
+def cap(cfg: dict, provider: str) -> float:
+    """Stage-A spending cap for the provider (provider-level cap if set, else the global one)."""
+    return float(cfg["providers"][provider].get("cap_usd", cfg["cap_usd"]))
+
+
 def prerequisites(cfg: dict, provider: str) -> list:
     """Every reason the paid run may not start. Empty means it may."""
     missing = []
@@ -54,7 +59,7 @@ def prerequisites(cfg: dict, provider: str) -> list:
         a = json.loads(ap.read_text())
         if a.get("stage") != "A" or a.get("provider") != provider:
             missing.append(f"approval record is for stage {a.get('stage')} / provider {a.get('provider')}, not A / {provider}")
-        if float(a.get("cap_usd", 1e9)) > float(cfg["cap_usd"]):
+        if float(a.get("cap_usd", 1e9)) > cap(cfg, provider):
             missing.append("approved cap exceeds the configured cap")
     if os.environ.get("AP3_ALLOW_PAID_INFERENCE") != "1":
         missing.append("AP3_ALLOW_PAID_INFERENCE=1")
@@ -74,14 +79,14 @@ def estimate(cfg: dict, provider: str) -> dict:
     budget = json.loads((ROOT / "native_backtest/out/ap3/inference_budget_v1.json").read_text())
     p = cfg["providers"][provider]["pricing_for_guard"]
     txt = json.dumps(budget)
-    out = {"months": len(cfg["months"]), "canary_calls": len(cfg["canary"]), "cap_usd": cfg["cap_usd"], "pricing_for_guard": p}
+    out = {"months": len(cfg["months"]), "canary_calls": len(cfg["canary"]), "cap_usd": cap(cfg, provider), "pricing_for_guard": p}
     if p["mode"] == "tokens":
         per = budget["per_month"]
         out["per_month"] = per
         out["stages_from_budget"] = {k: budget["stages"][k] for k in ("1_connectivity_and_canary", "2_smoke_test_3_months") if k in budget["stages"]}
         out["note"] = "token estimate from the inference budget (typical and upper scenarios); the guard enforces the cap on measured usage"
     else:
-        out["note"] = f"billed by the hour: the cap allows {cfg['cap_usd'] / p['usd_per_hour'] * 60:.0f} minutes of endpoint time including start-up"
+        out["note"] = f"billed by the hour: the cap allows {cap(cfg, provider) / p['usd_per_hour'] * 60:.0f} minutes of endpoint time including start-up"
     out["budget_file_sha256"] = hashlib.sha256(txt.encode()).hexdigest()
     return out
 
@@ -95,7 +100,7 @@ def run(provider: str, cfg: dict) -> dict:
         raise NotApproved("the smoke folder holds real model outputs only")
     out = OUT / provider
     out.mkdir(parents=True, exist_ok=True)
-    guard = L.CostGuard(cfg["cap_usd"], out / "cost_ledger.jsonl", cfg["providers"][provider]["pricing_for_guard"])
+    guard = L.CostGuard(cap(cfg, provider), out / "cost_ledger.jsonl", cfg["providers"][provider]["pricing_for_guard"])
     client = L.LLMClient(prov, out / "cache", out / "calls.jsonl", f"ap3-smoke-A ({provider})", max_calls=cfg["max_calls"], guard=guard)
     canary = []
     for c in cfg["canary"]:
@@ -121,7 +126,7 @@ def run(provider: str, cfg: dict) -> dict:
             rec["record_kind"] = "smoke_test_not_a_decision_record"
             f.write(json.dumps(rec, sort_keys=True, default=str) + "\n")
             recs.append(rec)
-    summary = {"provider": provider, "model": prov.model, "calls": client.calls, "spent_usd": round(guard.spent(), 4), "cap_usd": cfg["cap_usd"],
+    summary = {"provider": provider, "model": prov.model, "calls": client.calls, "spent_usd": round(guard.spent(), 4), "cap_usd": cap(cfg, provider),
                "canary_ok": sum(c["ok"] for c in canary), "months": cfg["months"],
                "hypotheses": {r["decision_month"]: len(r["hypothesis_agent"]["hypotheses"]) for r in recs}}
     (out / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
