@@ -736,6 +736,131 @@
   // ---------------------------------------------------------------- signal value-added (its own tab)
   const fmtDay = d => { const [y, m, dd] = d.split('-'); return `${+dd} ${MON[+m - 1]} ${y}`; };
   const corr3 = x => (x < 0 ? '−' : '') + Math.abs(x).toFixed(3);
+  // ------------------------------------------------- Forecast-to-Allocation Sensitivity (Signal Value-Added tab)
+  function sensitivitySections() {
+    const S = D.sensitivity;
+    if (!S) return '';
+    const KEYS = ['det', 'jev', 'com'];
+    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee' };
+    const sy = k => S.systems[k];
+    const pp = (v, d) => (v * 100).toFixed(d === undefined ? 2 : d) + ' pp';
+    const share = v => (v * 100).toFixed(1) + '%';
+    const chain = [
+      { i: 'model', t: 'Forecast strength', d: 'We rescale each model\u2019s own view \u2014 to nothing, to half, as it was, to double \u2014 at the single point where a number enters its allocator.' },
+      { i: 'alloc', t: 'Portfolio weight response', d: 'The allocator then does everything else, untouched: same prior, same limits, same costs. We record what it proposes and what it finally holds.' },
+      { i: 'chart', t: 'Risk and return', d: 'Each scenario is run through the same evaluator, so the four versions differ only in how strongly the forecast was expressed.' }];
+    const WHERE = {
+      det: { head: 'Inside Black\u2013Litterman', body: `The views are large, but \u03a9 \u2014 estimated from the model\u2019s own out-of-sample errors \u2014 is large too, so the posterior keeps only ${share(sy('det').posterior_keeps)} of them. The position limits bind in ${sy('det').by_scenario['1x'].binding_months} month of ${S.months}.`,
+             steps: [['View the allocator receives', sy('det').view_vs_prior_bp.toFixed(1) + ' bp'], ['What the posterior passes on', (sy('det').view_vs_prior_bp * sy('det').posterior_keeps).toFixed(2) + ' bp'], ['Resulting position change', pp(sy('det').by_scenario['1x'].active_weight)]],
+             keep: sy('det').posterior_keeps },
+      jev: { head: 'Before the allocator', body: `This engine has no posterior step and its cap never binds: it passes the signal on in full. The shrinking happens earlier, when the five-way tilt is averaged into one number and then weighted by the model\u2019s own confidence.`,
+             steps: [['Largest tilt available', sy('jev').jev_stages.largest_tilt.toFixed(2) + ' pts'], ['After averaging the five options', sy('jev').jev_stages.weighted_offset.toFixed(2) + ' pts'], ['After the confidence weight', sy('jev').jev_stages.signal_points.toFixed(2) + ' pts']],
+             keep: 1 },
+      com: { head: 'At the position limit', body: `Its view uncertainty is set as a multiple of the prior rather than measured from errors, so the posterior keeps ${share(sy('com').posterior_keeps)} and the response is large. The cap then does the attenuating: it binds in ${sy('com').by_scenario['2x'].binding_months} of ${S.months} months at double strength and removes ${share(sy('com').by_scenario['2x'].attenuation)} of the proposed move.`,
+             steps: [['View the allocator receives', sy('com').view_vs_prior_bp.toFixed(0) + ' bp'], ['What the posterior passes on', (sy('com').view_vs_prior_bp * sy('com').posterior_keeps).toFixed(0) + ' bp'], ['Resulting position change', pp(sy('com').by_scenario['1x'].active_weight)]],
+             keep: sy('com').posterior_keeps } };
+    const whereCard = k => `<div class="fas-where" style="--c:var(${VAR[k]})">
+        <h3>${badge(k)}${esc(NAME[k])}</h3>
+        <span class="fas-tag">${esc(WHERE[k].head)}</span>
+        <ol class="fas-funnel">${WHERE[k].steps.map((st, i) => `<li><span class="l">${esc(st[0])}</span><b class="num">${esc(st[1])}</b>${i < 2 ? '<i aria-hidden="true"></i>' : ''}</li>`).join('')}</ol>
+        <div class="fas-keep"><span class="l">Share the allocator passes on</span><span class="t"><span style="width:${(WHERE[k].keep * 100).toFixed(1)}%;background:var(${VAR[k]})"></span></span><b class="num">${share(WHERE[k].keep)}</b></div>
+        <p class="sub">${esc(WHERE[k].body)}</p>
+      </div>`;
+    const row = (k, s) => { const r = sy(k).by_scenario[s];
+      return `<tr${s === '1x' ? ' class="now"' : ''}><th scope="row">${esc(S.labels[s])}</th>
+        <td class="num">${pp(r.active_weight)}</td><td class="num">${pct(r.net_cer, 2)}</td><td class="num">${pct(r.vol, 1)}</td>
+        <td class="num">${r.turnover.toFixed(2)}&times;</td><td class="num">${r.cost_bp.toFixed(1)} bp</td>
+        <td class="num">${r.binding_months}</td>
+        <td class="num">${r.vs_1x ? `${pts(r.vs_1x.cer_difference, 2)} <span class="sub nw">[${pts(r.vs_1x.ci95[0], 2)}, ${pts(r.vs_1x.ci95[1], 2)}]</span>` : '\u2014'}</td></tr>`; };
+    const scenTable = k => `<div class="fas-tbl"><h3>${badge(k)}${esc(NAME[k])} <span class="sub">\u00b7 ${esc(sy(k).neutral_label)}</span></h3>
+        <div class="fas-scroll"><table class="cmp"><thead><tr><th scope="col">Signal strength</th><th scope="col">Position change</th><th scope="col">Net CER</th>
+          <th scope="col">Volatility</th><th scope="col">Turnover</th><th scope="col">Cost</th><th scope="col">Limit binds</th>
+          <th scope="col">Net CER vs as-built</th></tr></thead>
+        <tbody>${S.scenarios.map(s => row(k, s)).join('')}</tbody></table></div></div>`;
+    const sim = S.similarity;
+    return `
+      <section class="panel" id="sva-transmission">
+        <div class="sva-eyebrow"><span class="n">5</span>Transmission</div>
+        <h2>Do the forecasts actually move the portfolios?</h2>
+        <p class="sva-body">The experiments above compared each approach with its signals switched off. That answers whether the signals helped. It does not say whether they ever reached the portfolio. So we turned the dial: each model\u2019s own view was rescaled to nothing, to half, to as it was, and to double, at the one point where a number enters its allocator \u2014 and nothing else was changed.</p>
+        <div class="fas-chain">${chain.map((c, i) => `<div class="fas-step"><span class="ic">${icon(c.i)}</span><b>${esc(c.t)}</b><p>${esc(c.d)}</p>${i < 2 ? '<i class="arw" aria-hidden="true"></i>' : ''}</div>`).join('')}</div>
+        <p class="sub">${S.months} development months. The as-built version reproduces the already-published results exactly, and the zero-strength version is a genuine signal-free configuration \u2014 both checked before any result was read.</p>
+      </section>
+
+      <section class="panel" id="sva-response">
+        <h2>Turning the dial</h2>
+        <div class="sva-split">
+          <div><div class="legend" id="lg-fas-wt"></div>
+            <div class="chartbox xs"><canvas id="c-fas-wt" aria-label="Average position change away from each approach's starting weights, at zero, half, as-built and double signal strength"></canvas></div>
+            <p class="sub">How far the portfolio sits from its own starting weights, on average.</p></div>
+          <div><div class="legend" id="lg-fas-cer"></div>
+            <div class="chartbox xs"><canvas id="c-fas-cer" aria-label="Net certainty-equivalent return at zero, half, as-built and double signal strength"></canvas></div>
+            <p class="sub">Net CER per ${tipw('year', 'cer')} for the same four scenarios.</p></div>
+        </div>
+        <p class="sva-body">The two primary approaches barely move. At their as-built strength the Deterministic portfolio sits ${pp(sy('det').by_scenario['1x'].active_weight)} from its starting weights and JEV ${pp(sy('jev').by_scenario['1x'].active_weight)}. Doubling the signal still leaves both inside ${pp(Math.max(sy('det').by_scenario['2x'].active_weight, sy('jev').by_scenario['2x'].active_weight))}. The Agent Committee, a within-approach variant on the same two assets and the same starting weights, moves ${pp(sy('com').by_scenario['1x'].active_weight)} \u2014 which is what a transmitted signal looks like.</p>
+        ${KEYS.map(scenTable).join('')}
+        <p class="sub">Position change is the average distance from the approach\u2019s own starting weights. Turnover is annualised one-way; cost is annualised. Intervals are 95% ranges from the frozen paired bootstrap. ${S.validation.any_scenario_statistically_clear ? '' : 'No scenario difference excludes zero, so none of these differences is statistically supported.'}</p>
+      </section>
+
+      <section class="panel" id="sva-where">
+        <h2>Where each signal is lost</h2>
+        <p class="sva-body">The three architectures lose their signals in three different places. Only one of them loses it to a position limit.</p>
+        <div class="fas-wheres">${KEYS.map(whereCard).join('')}</div>
+      </section>
+
+      <section class="panel" id="sva-similarity">
+        <h2>What this says about the similarity</h2>
+        <div class="fas-corr">
+          <div class="fas-cc"><span class="v num">${corr3(sim.corr_1x)}</span><span class="l">Deterministic and JEV, as built ${tipw('', 'correlation')}</span></div>
+          <div class="fas-cc hi"><span class="v num">${corr3(sim.corr_0x)}</span><span class="l">The same two with both signals switched off</span></div>
+          <div class="fas-cc"><span class="v num">${corr3(sim.corr_signal_parts)}</span><span class="l">Just the part their signals contribute</span></div>
+        </div>
+        <p class="sva-body">With the signals off, the two portfolios are <b>more</b> alike, not less. The parts their forecasts contribute are mildly negatively related, so the forecasts do disagree \u2014 there is simply very little of that disagreement in the result: it is ${share(sy('det').signal_variance_share)} of the Deterministic portfolio\u2019s month-to-month variation and ${share(sy('jev').signal_variance_share)} of JEV\u2019s. The similarity is two comparable stock-and-bond portfolios, lightly disturbed.</p>
+        <p class="sva-body">The Agent Committee is the check on that reading. Same approach family, same two assets, same starting weights, same cap \u2014 but its signal does reach the portfolio, and its correlation with the Deterministic model falls to ${corr3(sim.corr_det_vs_committee_1x)}. When a signal transmits, the similarity breaks.</p>
+      </section>
+
+      <section class="panel" id="sva-transmission-read">
+        <h2>How to read this</h2>
+        <ul class="sva-read">
+          <li><b>Reaching the portfolio is not the same as being useful.</b> This experiment measures how much of a view survives to the weights. A portfolio can react strongly to a view that carries no information, and a useful view can be shrunk to nothing. Whether these views are informative is the question the experiments above ask.</li>
+          <li><b>Stronger is not better.</b> Doubling the signal raised JEV\u2019s net CER, lowered the Deterministic model\u2019s, and cost the Committee ${pts(sy('com').by_scenario['2x'].vs_1x.cer_difference, 2)} as its cap began to bind. Costs rose in all three. The double-strength scenario is a diagnostic stress test, not a proposal.</li>
+          <li><b>Nothing here is statistically supported.</b> ${S.months} months is a short sample and every interval in the tables includes zero. The weight responses are exact; the performance differences are not.</li>
+          <li><b>The approaches are not interchangeable.</b> They hold different assets with different starting weights, so position changes compare only in relative terms.</li>
+        </ul>
+        <p class="sub">Pre-registered before the scenarios were run. Rebuilt independently from the pinned prices: ${S.validation.audit_checks} checks, ${S.validation.audit_failures} failures. Full method and results: <code>${esc(S.report)}</code>.</p>
+      </section>
+
+      <section class="panel" id="sva-transmission-rag">
+        <h2>${badge('rag')}Agentic Causal RAG \u2014 not included</h2>
+        <div class="unavail"><span><b>${esc(S.ap3.status.toLowerCase().replace(/^./, c => c.toUpperCase()))}.</b> Genuine model outputs cover ${S.ap3.months_available} of the ${S.ap3.months_required} months this needs, and both reliability checks are still failing, so there is no forecast series to rescale. No scenario was estimated or stood in for it.</span>
+          <ul class="sub">${S.ap3.blockers.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+          <span class="sub">Anything later built on the current outputs keeps the label ${esc(S.ap3.designation)}.</span></div>
+      </section>`;
+  }
+
+  function sensitivityCharts() {
+    const S = D.sensitivity;
+    if (!S) return;
+    const KEYS = ['det', 'jev', 'com'];
+    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee' };
+    const labels = S.scenarios.map(s => S.labels[s].replace(/ \(.*\)/, '') + ' (' + s + ')');
+    const bars = (canvasId, legendId, pick, fmt) => {
+      killChart(canvasId);
+      const items = KEYS.map(k => ({ label: NAME[k], color: color(k), data: S.scenarios.map(s => pick(S.systems[k].by_scenario[s])) }));
+      const lg = document.getElementById(legendId);
+      if (lg) lg.outerHTML = legendButtons(legendId, items);
+      const ch = chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: { labels, datasets: items.map(it => ({ label: it.label, data: it.data, backgroundColor: it.color, borderColor: it.color, borderWidth: 0, borderRadius: 3 })) },
+        options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.dataset.label}: ${fmt(it.parsed.y)}` } } },
+          scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: false, font: { size: 11 } } },
+                    y: { beginAtZero: true, ticks: { callback: fmt }, grid: { color: css('--border') } } } } });
+      if (ch) wireLegend(legendId, ch);
+    };
+    bars('c-fas-wt', 'lg-fas-wt', r => r.active_weight * 100, v => v.toFixed(0) + ' pp');
+    bars('c-fas-cer', 'lg-fas-cer', r => r.net_cer * 100, v => v.toFixed(1) + '%');
+  }
+
   function viewSignalValue() {
     const V = D.signal_value, A = D.audit;
     if (!V || !A) { app.innerHTML = '<div class="wrap"><p class="sub">This analysis is not in the current data build.</p></div>'; return; }
@@ -779,7 +904,7 @@
         <p class="sva-take">${esc(TAKE[k](v))}</p>
       </div>`; };
     const share = v => Math.round(v / g.total.cer_difference * 100);
-    const steps = [['observe', 'Observation'], ['tests', 'Experiments'], ['results', 'Results'], ['explain', 'Explanation'], ['takeaway', 'Takeaway']];
+    const steps = [['observe', 'Observation'], ['tests', 'Experiments'], ['results', 'Results'], ['explain', 'Explanation'], ['transmission', 'Transmission'], ['takeaway', 'Takeaway']];
     const detail = [
       { l: 'Higher equity exposure', sub: '60% vs 45% stocks in the no-signal portfolios', v: P.stock, c: css('--c-bench') },
       { l: 'Different bond exposure', sub: 'long Treasuries vs Treasuries and corporate bonds', v: P.bond, c: css('--c-bench') },
@@ -791,7 +916,7 @@
       <section>
         <div class="phead"><h1>Signal Value-Added</h1>${dataChip('dev')}</div>
         <p class="lede">Two very different forecasting approaches produced remarkably similar results. Do their forecasting signals add value beyond the portfolio each one starts from?</p>
-        <ol class="sva-steps" aria-label="The story in five steps">${steps.map(([id, l], i) => `<li><button type="button" data-jump="sva-${id}"><span class="n">${i + 1}</span>${l}</button></li>`).join('')}</ol>
+        <ol class="sva-steps" aria-label="The story in six steps">${steps.map(([id, l], i) => `<li><button type="button" data-jump="sva-${id}"><span class="n">${i + 1}</span>${l}</button></li>`).join('')}</ol>
       </section>
 
       <section class="panel" id="sva-observe">
@@ -867,16 +992,19 @@
         <p class="sva-caution">${icon('info')}<span>JEV's historical answers were recorded after the fact by a model whose training data and cutoff are unknown. This decision may reflect hindsight, so it is a research limitation, not proof of foresight.</span></p>
       </section>
 
+      ${sensitivitySections()}
+
       <section class="panel sva-final" id="sva-takeaway">
-        ${eyebrow(5, 'Takeaway')}
+        ${eyebrow(6, 'Takeaway')}
         <p class="sva-quote">Different forecasting architectures do not necessarily produce different investment outcomes, and neither system's signals demonstrated statistically significant incremental value in this development sample.</p>
         <ul class="sva-limits">
           <li>${icon('info')}<span>This does not prove the signals have zero value.</span></li>
           <li>${icon('calendar')}<span>The analysis uses a limited 46-month development sample (${devSpan()}).</span></li>
           <li>${icon('lock')}<span>The protected historical test has not been opened.</span></li>
           <li>${icon('hourglass')}<span>Agentic Causal RAG has not yet produced validated real-model backtest results.</span></li>
+          <li>${icon('model')}<span>Turning each signal up or down moved the two primary portfolios very little, so their similarity is mostly the portfolios they start from rather than agreement between their forecasts.</span></li>
         </ul>
-        <p class="sub">Full reports in the project repository: Portfolio Integrity Audit and Signal Value-Added (29 Oct 2026).</p>
+        <p class="sub">Full reports in the project repository: Portfolio Integrity Audit, Signal Value-Added and Forecast-to-Allocation Sensitivity (29 Oct 2026).</p>
       </section>
     </div>`;
     document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump).scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })));
@@ -893,6 +1021,7 @@
         backgroundColor: act.map((v, i) => i === hi ? color('jev') : css('--c-bench')), borderWidth: 0 }] },
       options: { plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => `${monthLabel(months[it[0].dataIndex])} decision`, label: it => ` With minus without signals: ${pts(act[it.dataIndex], 2)}` } } },
         scales: { x: xTicks(months), y: { ticks: { callback: v => sgn(v, Math.abs(v).toFixed(1) + ' pts') }, grid: { color: css('--border') } } } } });
+    sensitivityCharts();
   }
 
   // ---------------------------------------------------------------- signal value (helpers shared with the tab)

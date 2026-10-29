@@ -525,6 +525,77 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
     return out
 
 
+def sensitivity_block() -> dict | None:
+    """Forecast-to-allocation sensitivity: how far each allocator moves when its own view is rescaled."""
+    f = ROOT / "native_backtest" / "out" / "sensitivity" / "forecast_to_allocation_sensitivity.json"
+    if not f.exists():
+        return None
+    r = json.loads(f.read_text())
+    audit = ROOT / "native_backtest" / "out" / "sensitivity" / "audit_forecast_to_allocation.json"
+    scen = ["0x", "0.5x", "1x", "2x"]
+    keys = (("det", "AP1"), ("jev", "AP2B"), ("com", "AP2A"))
+    out = {"months": r["window"]["n_months"], "scenarios": scen, "labels": r["scenarios"],
+           "report": "native_backtest/docs/FORECAST_TO_ALLOCATION_SENSITIVITY_2026-10-29.md",
+           "preregistration": r["preregistration"], "systems": {}}
+    for key, src in keys:
+        a = r["approaches"][src]
+        by, tr, vp = a["performance"]["by_scenario"], a["transmission"]["per_scenario_vs_1x"], a["view_pipeline"]
+        rows = {}
+        for s in scen:
+            rows[s] = {
+                "net_cer": _r(by[s]["net_cer"]), "vol": _r(by[s]["annualized_volatility"]),
+                "sharpe": _r(by[s]["net_sharpe"], 4), "turnover": _r(by[s]["annualized_one_way_turnover"], 4),
+                "cost_bp": _r(by[s]["annualized_cost"] * 1e4, 3), "max_dd": _r(by[s]["max_drawdown"]),
+                "active_weight": _r(by[s]["mean_half_sum_abs_active"], 5),
+                "intermediate_change": _r(tr[s]["mean_abs_intermediate_weight_change_vs_1x"], 5),
+                "final_change": _r(tr[s]["mean_abs_final_weight_change_vs_1x"], 5),
+                "attenuation": None if tr[s]["mean_constraint_attenuation_share"] is None else _r(tr[s]["mean_constraint_attenuation_share"], 5),
+                "binding_months": tr[s]["months_with_any_binding_bound"],
+                "vs_1x": None if s == "1x" else {
+                    "cer_difference": _r(a["statistics"][f"net_cer_{s}_minus_1x"]["point"]),
+                    "ci95": [_r(v) for v in a["statistics"][f"net_cer_{s}_minus_1x"]["ci95"]],
+                    "p": _r(a["statistics"][f"net_cer_{s}_minus_1x"]["p_two_sided_bootstrap"], 4)}}
+        ctrl = a["performance"]["by_scenario"]["control:native_neutral_static"]
+        out["systems"][key] = {
+            "universe": a["universe"], "neutral_weights": a["native_neutral_weights"],
+            "neutral_label": mix_label(a["native_neutral_weights"]),
+            "allocator": a["allocator"]["kind"], "entry_point": a["allocator"]["entry_point"],
+            "bounds": a["allocator"]["bounds"], "role": a["role"],
+            "by_scenario": rows, "control_net_cer": _r(ctrl["net_cer"]),
+            "zero_equals_control": bool(a["zero_scenario_checks"].get("equals_native_neutral", False)),
+            "reproduces_1x": bool(a["reproduction_of_1x"]["within_tolerance"]),
+            "signal_variance_share": _r(r["cross_approach"]["per_approach_variance_split"][src]["signal_part_share_of_1x_variance"], 6),
+            "where_attenuated": vp["kind"],
+            "posterior_keeps": None if vp["kind"].startswith("pre-allocator") else _r(vp["mean_share_of_the_view_the_posterior_keeps"], 5),
+            "view_vs_prior_bp": None if vp["kind"].startswith("pre-allocator") else _r(vp["mean_abs_view_minus_prior_bp"], 3),
+            "jev_stages": None if not vp["kind"].startswith("pre-allocator") else {
+                "largest_tilt": vp["stage_1_largest_available_tilt_points"],
+                "weighted_offset": _r(vp["stage_2_mean_abs_probability_weighted_offset_points"], 4),
+                "share_of_largest": _r(vp["stage_2_share_of_largest_tilt"], 4),
+                "confidence": _r(vp["stage_3_mean_confidence"], 4),
+                "signal_points": _r(vp["stage_3_mean_abs_confidence_weighted_offset_points"], 4),
+                "equilibrium_edge": _r(vp["mean_abs_equilibrium_edge_points"], 4),
+                "share_of_edge": _r(vp["signal_as_share_of_equilibrium_edge"], 5)}}
+    cp = r["cross_approach"]["pairwise"]["AP1_vs_AP2B"]
+    out["similarity"] = {"corr_1x": _r(cp["monthly_net_return_correlation_1x"], 6),
+                         "corr_0x": _r(cp["monthly_net_return_correlation_0x"], 6),
+                         "corr_signal_parts": _r(cp["monthly_signal_part_correlation"], 6),
+                         "corr_det_vs_committee_1x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP2A"]["monthly_net_return_correlation_1x"], 6)}
+    out["ap3"] = {"status": r["approaches"]["AP3"]["status"], "months_available": r["approaches"]["AP3"]["months_available"],
+                  "months_required": r["approaches"]["AP3"]["months_required"],
+                  "blockers": r["approaches"]["AP3"]["blockers"],
+                  "designation": r["approaches"]["AP3"]["designation_if_run_on_current_outputs"]}
+    out["validation"] = {"audit_checks": json.loads(audit.read_text())["n_checks"] if audit.exists() else None,
+                         "audit_failures": json.loads(audit.read_text())["n_failed"] if audit.exists() else None,
+                         "any_scenario_statistically_clear": False}
+    for key, _ in keys:
+        for s in scen:
+            v = out["systems"][key]["by_scenario"][s]["vs_1x"]
+            if v and (v["ci95"][0] > 0 or v["ci95"][1] < 0) and v["p"] < 0.05:
+                out["validation"]["any_scenario_statistically_clear"] = True
+    return out
+
+
 def main() -> int:
     cfg = load_config()
     mk = load_market(cfg)
@@ -704,6 +775,7 @@ def main() -> int:
                    "Anything about Causal RAG yet. Its results are unavailable until a real model run passes its reliability checks."]}
     out["audit"] = audit_block(sims)
     out["signal_value"] = signal_value_block(sims, neutral_sims)
+    out["sensitivity"] = sensitivity_block()
     out["ap3_exploratory"] = ap3_exploratory_block(cfg, mk, dev, cost)
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)

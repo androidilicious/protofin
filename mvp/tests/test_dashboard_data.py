@@ -315,3 +315,82 @@ def test_no_experiment_or_approach_is_marked_validated_by_the_exploratory_run():
     assert st["AP3-RE"] == "awaiting_validation"                 # the exploratory run does not promote it
     gates = json.loads((ROOT / "native_backtest/config/ap3_reliability_gates_v1.json").read_text())
     assert gates["G3b_testing_agent_fixtures"]["accuracy_min"] == 0.8 and gates["G3a_first_12_months"]["failed_months_max"] == 1
+
+
+# ---------------------------------------------------------------- forecast-to-allocation sensitivity (transmission)
+SENS = json.loads((ROOT / "native_backtest/out/sensitivity/forecast_to_allocation_sensitivity.json").read_text())
+SENS_SRC = {"det": "AP1", "jev": "AP2B", "com": "AP2A"}
+
+
+def test_transmission_section_numbers_come_from_the_experiment():
+    """Every figure the transmission section shows is the experiment's own output, not a dashboard restatement."""
+    S = D["sensitivity"]
+    assert S["months"] == SENS["window"]["n_months"] == 46
+    assert S["scenarios"] == ["0x", "0.5x", "1x", "2x"]
+    assert S["preregistration"] == SENS["preregistration"]
+    for k, src in SENS_SRC.items():
+        a, got = SENS["approaches"][src], S["systems"][k]
+        by, tr = a["performance"]["by_scenario"], a["transmission"]["per_scenario_vs_1x"]
+        assert got["universe"] == a["universe"] and got["neutral_weights"] == a["native_neutral_weights"]
+        assert got["entry_point"] == a["allocator"]["entry_point"]
+        assert got["signal_variance_share"] == pytest.approx(
+            SENS["cross_approach"]["per_approach_variance_split"][src]["signal_part_share_of_1x_variance"], abs=5e-7)
+        for s in S["scenarios"]:
+            g = got["by_scenario"][s]
+            assert g["net_cer"] == pytest.approx(by[s]["net_cer"], abs=5e-7)
+            assert g["vol"] == pytest.approx(by[s]["annualized_volatility"], abs=5e-7)
+            assert g["turnover"] == pytest.approx(by[s]["annualized_one_way_turnover"], abs=5e-5)
+            assert g["cost_bp"] == pytest.approx(by[s]["annualized_cost"] * 1e4, abs=5e-4)
+            assert g["active_weight"] == pytest.approx(by[s]["mean_half_sum_abs_active"], abs=5e-6)
+            assert g["binding_months"] == tr[s]["months_with_any_binding_bound"]
+            if s != "1x":
+                st = a["statistics"][f"net_cer_{s}_minus_1x"]
+                assert g["vs_1x"]["cer_difference"] == pytest.approx(st["point"], abs=5e-7)
+                assert g["vs_1x"]["ci95"] == pytest.approx(st["ci95"], abs=5e-7)
+    cp = SENS["cross_approach"]["pairwise"]["AP1_vs_AP2B"]
+    assert S["similarity"]["corr_1x"] == pytest.approx(cp["monthly_net_return_correlation_1x"], abs=5e-7)
+    assert S["similarity"]["corr_0x"] == pytest.approx(cp["monthly_net_return_correlation_0x"], abs=5e-7)
+    assert S["similarity"]["corr_signal_parts"] == pytest.approx(cp["monthly_signal_part_correlation"], abs=5e-7)
+
+
+def test_transmission_section_is_rendered_inside_the_signal_value_story():
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    css = (ROOT / "mvp/index.html").read_text()
+    assert "${sensitivitySections()}" in js and "sensitivityCharts();" in js, "defined but never rendered"
+    # it is a step of the Signal Value-Added narrative, before the takeaway, not a new top-level tab
+    assert js.index("${sensitivitySections()}") < js.index('id="sva-takeaway"')
+    assert "['transmission', 'Transmission']" in js
+    assert re.search(r'data-route="[a-z-]+">Transmission<', css) is None
+    for cls in ("fas-chain", "fas-where", "fas-funnel", "fas-keep", "fas-corr", "sva-read"):
+        assert f".{cls} " in css, f"{cls} has no styling"
+
+
+def test_transmission_claims_no_significance_and_no_causal_rag_result():
+    S = D["sensitivity"]
+    assert S["validation"]["any_scenario_statistically_clear"] is False
+    for k in SENS_SRC:
+        for s in ("0x", "0.5x", "2x"):
+            lo, hi = S["systems"][k]["by_scenario"][s]["vs_1x"]["ci95"]
+            assert lo <= 0 <= hi, f"{k} {s} interval excludes zero; the copy says none does"
+        assert S["systems"][k]["by_scenario"]["1x"]["vs_1x"] is None            # nothing is compared with itself
+        assert S["systems"][k]["reproduces_1x"] is True                          # 1x reproduces the archived run
+    assert "rag" not in S["systems"], "Causal RAG has no computed scenario"
+    assert S["ap3"]["status"].lower().startswith("pending") and S["ap3"]["months_available"] == 12
+    assert S["ap3"]["months_required"] == 95 and S["ap3"]["blockers"]
+    assert S["ap3"]["designation"] == "EXPLORATORY — RELIABILITY GATES FAILED"  # the frozen label, em dash and all
+    assert S["validation"]["audit_failures"] == 0 and S["validation"]["audit_checks"] >= 300
+
+
+def test_transmission_keeps_each_approach_in_its_own_native_portfolio():
+    S = D["sensitivity"]
+    det, jev, com = (S["systems"][k] for k in ("det", "jev", "com"))
+    assert det["universe"] == ["SPY", "IEF", "LQD"] and jev["universe"] == ["SPY", "TLT"]
+    assert det["neutral_label"] != jev["neutral_label"]
+    assert jev["neutral_label"] == com["neutral_label"]                          # same approach family
+    assert "black-litterman" not in jev["allocator"].lower(), "JEV must not be routed through the AP1 allocator"
+    # JEV's allocator is faithful and its cap never binds; the Deterministic signal dies in the posterior
+    assert jev["posterior_keeps"] is None and jev["jev_stages"] is not None
+    assert all(jev["by_scenario"][s]["binding_months"] == 0 for s in S["scenarios"])
+    assert all(jev["by_scenario"][s]["attenuation"] in (None, 0.0) for s in S["scenarios"])
+    assert det["posterior_keeps"] < 0.10 and det["jev_stages"] is None
+    assert com["posterior_keeps"] > 0.30 and com["by_scenario"]["2x"]["binding_months"] >= 20

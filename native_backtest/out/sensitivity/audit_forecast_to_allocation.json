@@ -1,0 +1,3311 @@
+{
+ "audit": "forecast-to-allocation sensitivity, independent rebuild",
+ "imports": [
+  "numpy",
+  "pandas"
+ ],
+ "n_checks": 357,
+ "n_failed": 0,
+ "verdict": "all independent checks reproduce the published numbers",
+ "failed": [],
+ "checks": [
+  {
+   "check": "AP1 1x reproduces the archived Stage 2 weights",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 1.304512053934559e-15
+   }
+  },
+  {
+   "check": "AP1 1x reproduces the archived Stage 2 net excess returns",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 1.0061396160665481e-16
+   }
+  },
+  {
+   "check": "AP2B 1x reproduces the archived decision weights",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 0.0
+   }
+  },
+  {
+   "check": "AP2A 1x reproduces the archived decision weights",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 1.1102230246251565e-16
+   }
+  },
+  {
+   "check": "AP1 0x: distance from the static 45/35/20 control",
+   "pass": true,
+   "detail": {
+    "mine": 0.017059058813723216,
+    "published": 0.017059058813723216,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: differs from the static control, as pre-registered",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 0.017059058813723216
+   }
+  },
+  {
+   "check": "AP2B 0x: equals the native no-signal control exactly",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 1.1102230246251565e-16
+   }
+  },
+  {
+   "check": "AP2A 0x: equals the native no-signal control exactly",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 1.1102230246251565e-16
+   }
+  },
+  {
+   "check": "AP1 0x: the adjusted view is exactly the allocator's prior",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 0.0
+   }
+  },
+  {
+   "check": "AP2A 0x: the adjusted view is exactly the allocator's prior",
+   "pass": true,
+   "detail": {
+    "max_abs_difference": 0.0
+   }
+  },
+  {
+   "check": "AP2B 0x: the signal-induced edge is exactly zero",
+   "pass": true,
+   "detail": {
+    "max_abs": 0.0
+   }
+  },
+  {
+   "check": "AP1 0x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP1 0x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 0x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 0x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0010311750210570006,
+    "published": 0.0010311750210570008,
+    "abs_difference": 2.168404344971009e-19,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.022416848283847844,
+    "published": 0.022416848283847796,
+    "abs_difference": 4.85722573273506e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.6653345369377348e-16,
+    "published": 0.0,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 7.632783294297951e-17,
+    "published": 0.0,
+    "abs_difference": 7.632783294297951e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.03636433443465598,
+    "published": 0.0363643344346561,
+    "abs_difference": 1.1796119636642288e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.1130149990092287,
+    "published": 0.1130149990092288,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.052329821935975934,
+    "published": 0.05232982193597609,
+    "abs_difference": 1.5265566588595902e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.26900217940617355,
+    "published": 0.2690021794061741,
+    "abs_difference": 5.551115123125783e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.1842180585845793,
+    "published": -0.1842180585845795,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP1 0.5x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 0.5x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 0.5x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0013952374749445517,
+    "published": 0.0013952374749444452,
+    "abs_difference": 1.0646865333807654e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.030331249455316348,
+    "published": 0.0303312494553163,
+    "abs_difference": 4.85722573273506e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.367506770274758e-17,
+    "published": 0.0,
+    "abs_difference": 9.367506770274758e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0.5x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0.5x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0.5x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.3877787807814457e-16,
+    "published": 0.0,
+    "abs_difference": 1.3877787807814457e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0.5x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 6.982261990806649e-17,
+    "published": 0.0,
+    "abs_difference": 6.982261990806649e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.036653095346471175,
+    "published": 0.03665309534647128,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.1141172872437111,
+    "published": 0.11411728724371126,
+    "abs_difference": 1.5265566588595902e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.05293153940630077,
+    "published": 0.0529315394063009,
+    "abs_difference": 1.3183898417423734e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.3639749934637956,
+    "published": 0.3639749934637962,
+    "abs_difference": 6.106226635438361e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.1851227869536276,
+    "published": -0.18512278695362772,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP1 1x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 1x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 1x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0017473857387086652,
+    "published": 0.0017473857387085962,
+    "abs_difference": 6.895525817007808e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.037986646493666634,
+    "published": 0.0379866464936666,
+    "abs_difference": 3.469446951953614e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.367506770274758e-17,
+    "published": 0.0,
+    "abs_difference": 9.367506770274758e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.020562075079397e-17,
+    "published": 0.0,
+    "abs_difference": 9.020562075079397e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.6653345369377348e-16,
+    "published": 0.0,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 8.185726402265558e-17,
+    "published": 0.0,
+    "abs_difference": 8.185726402265558e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.036652398059933075,
+    "published": 0.03665239805993315,
+    "abs_difference": 7.632783294297951e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.1152295237018307,
+    "published": 0.11522952370183084,
+    "abs_difference": 1.3877787807814457e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.053249701975621525,
+    "published": 0.05324970197562165,
+    "abs_difference": 1.249000902703301e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.4558397579239992,
+    "published": 0.45583975792399967,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.1860318020999635,
+    "published": -0.18603180209996362,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP1 2x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 2x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 2x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0021227543442560327,
+    "published": 0.002122754344255855,
+    "abs_difference": 1.7780915628762273e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.04614683357078333,
+    "published": 0.0461468335707833,
+    "abs_difference": 2.7755575615628914e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.020562075079397e-17,
+    "published": 0.0,
+    "abs_difference": 9.020562075079397e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 2x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 2x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 2x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.6653345369377348e-16,
+    "published": 0.0,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 2x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 1.0408340855860843e-16,
+    "published": 0.0,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.03556596543303241,
+    "published": 0.03556596543303252,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.11740378735142977,
+    "published": 0.11740378735142988,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.052795527038607085,
+    "published": 0.05279552703860722,
+    "abs_difference": 1.3877787807814457e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.5537620028493996,
+    "published": 0.5537620028494,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.1878640218013603,
+    "published": -0.18786402180136075,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0.5x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 9.80118763926896e-17,
+    "published": 0.0,
+    "abs_difference": 9.80118763926896e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 1.734723475976807e-18,
+    "published": 0.0,
+    "abs_difference": 1.734723475976807e-18,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 2x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 2.0014372104082412e-16,
+    "published": 0.0,
+    "abs_difference": 2.0014372104082412e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 1x: adjusted view equals the original model view",
+   "pass": true,
+   "detail": {
+    "mine": 1.0061396160665481e-16,
+    "published": 0.0,
+    "abs_difference": 1.0061396160665481e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP1 0x: adjusted view equals the allocator's own prior",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-15
+   }
+  },
+  {
+   "check": "AP1 0x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP1 0.5x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP1 1x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP1 2x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP1: the decision trace carries no realised-return column",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "AP1 0x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.028322232940984012,
+    "published": 0.028322232940984036,
+    "abs_difference": 2.42861286636753e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.027430816639811995,
+    "published": 0.027430816639812002,
+    "abs_difference": 6.938893903907228e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP1 0x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.0035601701642122914,
+    "published": 0.003560170164212137,
+    "abs_difference": 1.5439038936193583e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP1 0.5x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.014161116470492003,
+    "published": 0.014161116470492003,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.013269700169319975,
+    "published": 0.013269700169319975,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP1 0.5x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.0071203403284247875,
+    "published": 0.007120340328424599,
+    "abs_difference": 1.8821749714348357e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP1 1x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 1x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 46,
+    "published": 46
+   }
+  },
+  {
+   "check": "AP1 1x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 1,
+    "published": 1
+   }
+  },
+  {
+   "check": "AP1 2x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.028322232940984054,
+    "published": 0.028322232940984054,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.02455108289995225,
+    "published": 0.02455108289995224,
+    "abs_difference": 1.0408340855860843e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP1 2x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.016613138038085916,
+    "published": 0.016613138038085968,
+    "abs_difference": 5.204170427930421e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 3,
+    "published": 3
+   }
+  },
+  {
+   "check": "AP1: mean view minus prior, basis points",
+   "pass": true,
+   "detail": {
+    "mine": 35.52729731386047,
+    "published": 35.527297313860174,
+    "abs_difference": 2.984279490192421e-13,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1: share of the view the posterior keeps",
+   "pass": true,
+   "detail": {
+    "mine": 0.03597242101355183,
+    "published": 0.03597242101355312,
+    "abs_difference": 1.2906342661267445e-15,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2B 0x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.001156678084372648,
+    "published": 0.001156678084372648,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.025145175747231473,
+    "published": 0.025145175747231418,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.8879238130678e-17,
+    "published": 0.0,
+    "abs_difference": 9.8879238130678e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 2.220446049250313e-16,
+    "published": 0.0,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 8.326672684688674e-17,
+    "published": 0.0,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.0436530117126389,
+    "published": 0.04365301171263889,
+    "abs_difference": 6.938893903907228e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.13967282529372152,
+    "published": 0.1396728252937217,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.06803863436955196,
+    "published": 0.06803863436955201,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.301742108966777,
+    "published": 0.30174210896677767,
+    "abs_difference": 6.661338147750939e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.2396216584005204,
+    "published": -0.23962165840052052,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2B 0.5x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0.5x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0.5x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0010747851032446932,
+    "published": 0.001074785103244693,
+    "abs_difference": 2.168404344971009e-19,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.023364893548797675,
+    "published": 0.023364893548797633,
+    "abs_difference": 4.163336342344337e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.020562075079397e-17,
+    "published": 0.0,
+    "abs_difference": 9.020562075079397e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 2.220446049250313e-16,
+    "published": 0.0,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 8.066464163292153e-17,
+    "published": 0.0,
+    "abs_difference": 8.066464163292153e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.04526910547310304,
+    "published": 0.045269105473103095,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.13804663555472832,
+    "published": 0.1380466355547285,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.06909019745807801,
+    "published": 0.06909019745807812,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.2803787225855716,
+    "published": 0.28037872258557217,
+    "abs_difference": 5.551115123125783e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.23891615347723505,
+    "published": -0.23891615347723516,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2B 1x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 1x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 1x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0012753496017179576,
+    "published": 0.0012753496017178592,
+    "abs_difference": 9.84455572616838e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.027724991341694732,
+    "published": 0.027724991341694684,
+    "abs_difference": 4.85722573273506e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.046747343806667084,
+    "published": 0.04674734380666726,
+    "abs_difference": 1.734723475976807e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.1365891128312675,
+    "published": 0.1365891128312676,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.070068075986708,
+    "published": 0.0700680759867082,
+    "abs_difference": 1.942890293094024e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.33269989610033623,
+    "published": 0.3326998961003368,
+    "abs_difference": 5.551115123125783e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.2382482153496147,
+    "published": -0.23824821534961482,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2B 2x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 2x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 2x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0018525458025470927,
+    "published": 0.0018525458025469349,
+    "abs_difference": 1.5785983631388945e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.04027273483798028,
+    "published": 0.04027273483798022,
+    "abs_difference": 6.245004513516506e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.8879238130678e-17,
+    "published": 0.0,
+    "abs_difference": 9.8879238130678e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.04946163983498196,
+    "published": 0.04946163983498219,
+    "abs_difference": 2.2898349882893854e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.1342125556989667,
+    "published": 0.1342125556989668,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.07197790246904226,
+    "published": 0.07197790246904254,
+    "abs_difference": 2.7755575615628914e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.4832728180557626,
+    "published": 0.48327281805576316,
+    "abs_difference": 5.551115123125783e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.2369610031248558,
+    "published": -0.23696100312485546,
+    "abs_difference": 3.3306690738754696e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: signal-induced edge = lambda x confidence x offset",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: edge = equilibrium edge + signal part",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: signal-induced edge = lambda x confidence x offset",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0.5x: edge = equilibrium edge + signal part",
+   "pass": true,
+   "detail": {
+    "mine": 1.7763568394002505e-15,
+    "published": 0.0,
+    "abs_difference": 1.7763568394002505e-15,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: signal-induced edge = lambda x confidence x offset",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 1x: edge = equilibrium edge + signal part",
+   "pass": true,
+   "detail": {
+    "mine": 1.7763568394002505e-15,
+    "published": 0.0,
+    "abs_difference": 1.7763568394002505e-15,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: signal-induced edge = lambda x confidence x offset",
+   "pass": true,
+   "detail": {
+    "mine": 2.220446049250313e-16,
+    "published": 0.0,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 2x: edge = equilibrium edge + signal part",
+   "pass": true,
+   "detail": {
+    "mine": 1.7763568394002505e-15,
+    "published": 0.0,
+    "abs_difference": 1.7763568394002505e-15,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2B 0x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2B 0.5x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2B 1x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2B 2x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2B: the decision trace carries no realised-return column",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "AP2B 0x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.015857187857403844,
+    "published": 0.015857187857403844,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.015857187857403844,
+    "published": 0.015857187857403844,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 0x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 0.5x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.007928593928701943,
+    "published": 0.007928593928701943,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.007928593928701943,
+    "published": 0.007928593928701943,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 0.5x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 1x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 1x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 46,
+    "published": 46
+   }
+  },
+  {
+   "check": "AP2B 1x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 2x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.01585718785740383,
+    "published": 0.015857187857403827,
+    "abs_difference": 3.469446951953614e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.01585718785740383,
+    "published": 0.015857187857403827,
+    "abs_difference": 3.469446951953614e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B 2x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 1.206764157201257e-17,
+    "published": 2.6548811458427657e-17,
+    "abs_difference": 1.4481169886415088e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2B: mean confidence-weighted offset",
+   "pass": true,
+   "detail": {
+    "mine": 0.2505391304347826,
+    "published": 0.2505391304347826,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B: signal as a share of the equilibrium edge",
+   "pass": true,
+   "detail": {
+    "mine": 0.04844540289634029,
+    "published": 0.04844540289634029,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2A 0x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0011566780843726475,
+    "published": 0.0011566780843726475,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.025145175747231466,
+    "published": 0.02514517574723141,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.8879238130678e-17,
+    "published": 0.0,
+    "abs_difference": 9.8879238130678e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 2.220446049250313e-16,
+    "published": 0.0,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 8.326672684688674e-17,
+    "published": 0.0,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.043653011712638856,
+    "published": 0.04365301171263889,
+    "abs_difference": 3.469446951953614e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.13967282529372152,
+    "published": 0.1396728252937217,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.06803863436955193,
+    "published": 0.06803863436955201,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.30174210896677695,
+    "published": 0.3017421089667776,
+    "abs_difference": 6.661338147750939e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.2396216584005204,
+    "published": -0.23962165840052052,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2A 0.5x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0.5x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0.5x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.0027826363431287813,
+    "published": 0.0027826363431283714,
+    "abs_difference": 4.098284211995207e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.060492094415843085,
+    "published": 0.06049209441584303,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.367506770274758e-17,
+    "published": 0.0,
+    "abs_difference": 9.367506770274758e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0.5x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0.5x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0.5x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0.5x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 1.0408340855860843e-16,
+    "published": 0.0,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.04849587927321718,
+    "published": 0.04849587927321719,
+    "abs_difference": 1.3877787807814457e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.13209293044523604,
+    "published": 0.1320929304452362,
+    "abs_difference": 1.6653345369377348e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.07030655711522965,
+    "published": 0.0703065571152297,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 0.7259051329901164,
+    "published": 0.7259051329901169,
+    "abs_difference": 5.551115123125783e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.23673182352314326,
+    "published": -0.23673182352314315,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2A 1x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 1x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 1x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.004330568250448419,
+    "published": 0.004330568250447692,
+    "abs_difference": 7.268491364342822e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.09414278805322648,
+    "published": 0.09414278805322641,
+    "abs_difference": 6.938893903907228e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 1.0061396160665481e-16,
+    "published": 0.0,
+    "abs_difference": 1.0061396160665481e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 1.0408340855860843e-16,
+    "published": 0.0,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.051138271378222556,
+    "published": 0.0511382713782226,
+    "abs_difference": 4.163336342344337e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.12961170827264865,
+    "published": 0.12961170827264876,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.07213726502991528,
+    "published": 0.07213726502991535,
+    "abs_difference": 6.938893903907228e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 1.129713456638717,
+    "published": 1.1297134566387175,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.23630574373711444,
+    "published": -0.23630574373711444,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: 46 development months",
+   "pass": true,
+   "detail": {
+    "n": 46
+   }
+  },
+  {
+   "check": "AP2A 2x: weights sum to one every month",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 2x: first month trades from cash",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 2x: total transaction cost rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.005280527131864213,
+    "published": 0.0052805271318632045,
+    "abs_difference": 1.0087417012805133e-15,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: one-way turnover rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 0.11479406808400465,
+    "published": 0.11479406808400461,
+    "abs_difference": 4.163336342344337e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: gross total return rebuilt from the pinned closes",
+   "pass": true,
+   "detail": {
+    "mine": 9.020562075079397e-17,
+    "published": 0.0,
+    "abs_difference": 9.020562075079397e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 2x: cash return rebuilt from the pinned bill series",
+   "pass": true,
+   "detail": {
+    "mine": 9.985502008591496e-17,
+    "published": 0.0,
+    "abs_difference": 9.985502008591496e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 2x: net excess return rebuilt end to end",
+   "pass": true,
+   "detail": {
+    "mine": 9.71445146547012e-17,
+    "published": 0.0,
+    "abs_difference": 9.71445146547012e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 2x: drifted pre-trade weights rebuilt",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 2x: net excess = gross excess - cost",
+   "pass": true,
+   "detail": {
+    "mine": 1.0408340855860843e-16,
+    "published": 0.0,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: net CER",
+   "pass": true,
+   "detail": {
+    "mine": 0.039750441017434676,
+    "published": 0.03975044101743475,
+    "abs_difference": 7.632783294297951e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: annualised volatility",
+   "pass": true,
+   "detail": {
+    "mine": 0.12779169027276496,
+    "published": 0.12779169027276505,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: annualised net excess return",
+   "pass": true,
+   "detail": {
+    "mine": 0.06016383614589754,
+    "published": 0.060163836145897646,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: annualised one-way turnover",
+   "pass": true,
+   "detail": {
+    "mine": 1.3775288170080553,
+    "published": 1.3775288170080557,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: maximum drawdown",
+   "pass": true,
+   "detail": {
+    "mine": -0.2360409286217604,
+    "published": -0.23604092862176074,
+    "abs_difference": 3.3306690738754696e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0.5x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 1.1102230246251565e-16,
+    "published": 0.0,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 1.3877787807814457e-17,
+    "published": 0.0,
+    "abs_difference": 1.3877787807814457e-17,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 2x: adjusted view = prior + lambda x (original - prior)",
+   "pass": true,
+   "detail": {
+    "mine": 2.220446049250313e-16,
+    "published": 0.0,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 1x: adjusted view equals the original model view",
+   "pass": true,
+   "detail": {
+    "mine": 1.0408340855860843e-16,
+    "published": 0.0,
+    "abs_difference": 1.0408340855860843e-16,
+    "tolerance": 1e-12
+   }
+  },
+  {
+   "check": "AP2A 0x: adjusted view equals the allocator's own prior",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-15
+   }
+  },
+  {
+   "check": "AP2A 0x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2A 0.5x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2A 1x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2A 2x: every weight inside the native position limits",
+   "pass": true,
+   "detail": {
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    }
+   }
+  },
+  {
+   "check": "AP2A: the decision trace carries no realised-return column",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "AP2A 0x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.1239223772344356,
+    "published": 0.1239223772344356,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.10971562132426266,
+    "published": 0.10971562132426266,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2A 0x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.042185673229650104,
+    "published": 0.0421856732296501,
+    "abs_difference": 6.938893903907228e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2A 0.5x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.061961188617217805,
+    "published": 0.061961188617217805,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.04836785944824035,
+    "published": 0.04836785944824035,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2A 0.5x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.08168344394738582,
+    "published": 0.0816834439473858,
+    "abs_difference": 1.3877787807814457e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 1,
+    "published": 1
+   }
+  },
+  {
+   "check": "AP2A 1x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.0,
+    "published": 0.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 1x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 46,
+    "published": 46
+   }
+  },
+  {
+   "check": "AP2A 1x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 7,
+    "published": 7
+   }
+  },
+  {
+   "check": "AP2A 2x: mean intermediate weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.12392237723443555,
+    "published": 0.12392237723443554,
+    "abs_difference": 1.3877787807814457e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: mean final weight change",
+   "pass": true,
+   "detail": {
+    "mine": 0.04597471457575748,
+    "published": 0.04597471457575747,
+    "abs_difference": 1.3877787807814457e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: months below the ratio floor are counted, not divided",
+   "pass": true,
+   "detail": {
+    "mine": 0,
+    "published": 0
+   }
+  },
+  {
+   "check": "AP2A 2x: mean constraint attenuation share",
+   "pass": true,
+   "detail": {
+    "mine": 0.35119427258908464,
+    "published": 0.35119427258908464,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x: months with a binding bound",
+   "pass": true,
+   "detail": {
+    "mine": 21,
+    "published": 21
+   }
+  },
+  {
+   "check": "AP2A: mean view minus prior, basis points",
+   "pass": true,
+   "detail": {
+    "mine": 479.1208649379404,
+    "published": 479.1208649379406,
+    "abs_difference": 2.2737367544323206e-13,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A: share of the view the posterior keeps",
+   "pass": true,
+   "detail": {
+    "mine": 0.4239130434782601,
+    "published": 0.4239130434782608,
+    "abs_difference": 7.216449660063518e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0002880636252770921,
+    "published": -0.0002880636252770505,
+    "abs_difference": 4.163336342344337e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.0033243041638404856,
+    "published": -0.0033243041638405654,
+    "abs_difference": 7.979727989493313e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.0033007094984130163,
+    "published": 0.0033007094984129994,
+    "abs_difference": 1.691355389077387e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.8372,
+    "published": 0.8372,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 0.5x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": 6.972865380996951e-07,
+    "published": 6.972865381274507e-07,
+    "abs_difference": 2.7755575615628914e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 0.5x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.0015107399236898888,
+    "published": -0.001510739923689822,
+    "abs_difference": 6.678685382510707e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0.5x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.0018122441392289918,
+    "published": 0.0018122441392289517,
+    "abs_difference": 4.0115480381963664e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0.5x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.9676,
+    "published": 0.9676,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 0.5x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 2x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0010864326269006686,
+    "published": -0.0010864326269006339,
+    "abs_difference": 3.469446951953614e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 2x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.005603095020371747,
+    "published": -0.005603095020371636,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 2x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.0026367556699475477,
+    "published": 0.0026367556699476236,
+    "abs_difference": 7.589415207398531e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 2x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.6272,
+    "published": 0.6272,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP1 2x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0030943320940281863,
+    "published": -0.0030943320940283667,
+    "abs_difference": 1.8041124150158794e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.013844732675966212,
+    "published": -0.013844732675966467,
+    "abs_difference": 2.5500435096859064e-16,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.004824082347277807,
+    "published": 0.004824082347277673,
+    "abs_difference": 1.3357370765021415e-16,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.5936,
+    "published": 0.5936,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 0.5x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0014782383335640442,
+    "published": -0.0014782383335641622,
+    "abs_difference": 1.1796119636642288e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 0.5x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.006841022276921384,
+    "published": -0.006841022276921483,
+    "abs_difference": 9.8879238130678e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0.5x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.002468921635366708,
+    "published": 0.0024689216353667304,
+    "abs_difference": 2.2551405187698492e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0.5x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.6096,
+    "published": 0.6096,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 0.5x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2B 2x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": 0.002714296028314876,
+    "published": 0.0027142960283149317,
+    "abs_difference": 5.551115123125783e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B 2x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.005108701330518204,
+    "published": -0.0051087013305181755,
+    "abs_difference": 2.862293735361732e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 2x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.01327017831801309,
+    "published": 0.013270178318013233,
+    "abs_difference": 1.4224732503009818e-16,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 2x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.6324,
+    "published": 0.6324,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2B 2x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0074852596655837,
+    "published": -0.007485259665583707,
+    "abs_difference": 6.938893903907228e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.0407914667609199,
+    "published": -0.04079146676091999,
+    "abs_difference": 9.020562075079397e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.020823353763180532,
+    "published": 0.020823353763180567,
+    "abs_difference": 3.469446951953614e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.6708,
+    "published": 0.6708,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 0.5x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.0026423921050053797,
+    "published": -0.0026423921050054075,
+    "abs_difference": 2.7755575615628914e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 0.5x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.01626581606862407,
+    "published": -0.01626581606862406,
+    "abs_difference": 1.0408340855860843e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0.5x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.009839596133276096,
+    "published": 0.009839596133276146,
+    "abs_difference": 5.0306980803327406e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0.5x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.696,
+    "published": 0.696,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 0.5x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP2A 2x minus 1x: net CER difference",
+   "pass": true,
+   "detail": {
+    "mine": -0.01138783036078788,
+    "published": -0.011387830360787846,
+    "abs_difference": 3.469446951953614e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A 2x minus 1x: 95% interval lower",
+   "pass": true,
+   "detail": {
+    "mine": -0.026299355269363764,
+    "published": -0.02629935526936368,
+    "abs_difference": 8.326672684688674e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 2x minus 1x: 95% interval upper",
+   "pass": true,
+   "detail": {
+    "mine": 0.0019255656775249653,
+    "published": 0.0019255656775249293,
+    "abs_difference": 3.599551212651875e-17,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 2x minus 1x: bootstrap p-value",
+   "pass": true,
+   "detail": {
+    "mine": 0.096,
+    "published": 0.096,
+    "abs_difference": 0.0,
+    "tolerance": 1e-06
+   }
+  },
+  {
+   "check": "AP2A 2x minus 1x: not described as statistically clear",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "AP1 vs AP2B: 1x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.9711445990928093,
+    "published": 0.9711445990928095,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 vs AP2B: 0x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.9837218212517275,
+    "published": 0.9837218212517271,
+    "abs_difference": 3.3306690738754696e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 vs AP2B: signal-part correlation",
+   "pass": true,
+   "detail": {
+    "mine": -0.27909967393078866,
+    "published": -0.2790996739307917,
+    "abs_difference": 3.0531133177191805e-15,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 vs AP2A: 1x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.9038898727901087,
+    "published": 0.9038898727901082,
+    "abs_difference": 4.440892098500626e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 vs AP2A: 0x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.9837218212517272,
+    "published": 0.9837218212517271,
+    "abs_difference": 1.1102230246251565e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1 vs AP2A: signal-part correlation",
+   "pass": true,
+   "detail": {
+    "mine": -0.2251907840425864,
+    "published": -0.22519078404258683,
+    "abs_difference": 4.163336342344337e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B vs AP2A: 1x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.9704496590263031,
+    "published": 0.9704496590263033,
+    "abs_difference": 2.220446049250313e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B vs AP2A: 0x monthly net return correlation",
+   "pass": true,
+   "detail": {
+    "mine": 1.0,
+    "published": 1.0,
+    "abs_difference": 0.0,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B vs AP2A: signal-part correlation",
+   "pass": true,
+   "detail": {
+    "mine": 0.8502255376546856,
+    "published": 0.8502255376546849,
+    "abs_difference": 6.661338147750939e-16,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP1: signal share of 1x variance",
+   "pass": true,
+   "detail": {
+    "mine": 0.0017213479059110836,
+    "published": 0.00172134790591109,
+    "abs_difference": 6.5052130349130266e-18,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2B: signal share of 1x variance",
+   "pass": true,
+   "detail": {
+    "mine": 0.005573402354374982,
+    "published": 0.005573402354375004,
+    "abs_difference": 2.168404344971009e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "AP2A: signal share of 1x variance",
+   "pass": true,
+   "detail": {
+    "mine": 0.10164199059069436,
+    "published": 0.10164199059069429,
+    "abs_difference": 6.938893903907228e-17,
+    "tolerance": 1e-09
+   }
+  },
+  {
+   "check": "the protected window is never scored",
+   "pass": true,
+   "detail": {
+    "last_development_month": "2022-12",
+    "protected_start": "2023-01"
+   }
+  },
+  {
+   "check": "ap1_scenario_returns.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "ap1_transmission_trace.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "ap2b_scenario_returns.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "ap2b_transmission_trace.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "ap2a_scenario_returns.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "ap2a_transmission_trace.csv: holds no protected month",
+   "pass": true,
+   "detail": {
+    "found": []
+   }
+  },
+  {
+   "check": "Causal RAG is not reported as computed",
+   "pass": true,
+   "detail": "PENDING GENUINE AGENT OUTPUTS"
+  },
+  {
+   "check": "the pre-registration is committed and referenced",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "the scenarios match the pre-registration",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "the result is labelled a development diagnostic",
+   "pass": true,
+   "detail": null
+  }
+ ]
+}

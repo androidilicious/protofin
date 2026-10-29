@@ -1,0 +1,1546 @@
+{
+ "title": "Forecast-to-Allocation Sensitivity Experiment",
+ "status": "DEVELOPMENT DIAGNOSTIC - not a confirmatory result",
+ "preregistration": {
+  "file": "native_backtest/config/forecast_to_allocation_sensitivity_preregistration_v1.json",
+  "version": "1.0"
+ },
+ "window": {
+  "development": [
+   "2019-03",
+   "2022-12"
+  ],
+  "n_months": 46,
+  "protected_window_start": "2023-01",
+  "protected_window_touched": false
+ },
+ "scenarios": {
+  "0x": "Neutral (0x)",
+  "0.5x": "Weaker (0.5x)",
+  "1x": "Original (1x)",
+  "2x": "Stronger (2x)"
+ },
+ "accounting": {
+  "evaluator": "native_backtest/framework/accounting.simulate_records (shared, unchanged)",
+  "cost_per_dollar_traded": 0.0005
+ },
+ "approaches": {
+  "AP1": {
+   "name": "Deterministic Quantitative Model",
+   "short": "Deterministic",
+   "role": "primary (research baseline)",
+   "status": "computed",
+   "universe": [
+    "SPY",
+    "IEF",
+    "LQD"
+   ],
+   "native_neutral_weights": {
+    "SPY": 0.45,
+    "IEF": 0.35,
+    "LQD": 0.2
+   },
+   "allocator": {
+    "kind": "Black-Litterman with a bounded fully invested mean-variance optimum",
+    "entry_point": "stage2/scoring/stage2_portfolio.py::bl_posterior argument q",
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    },
+    "tau": 0.05,
+    "delta": 2.5,
+    "cov_window": 36,
+    "omega_diag": {
+     "SPY": 0.003778185698677562,
+     "IEF": 0.0005097101188601551,
+     "LQD": 0.0008847323208171352
+    },
+    "intermediate_stage": "the optimizer's own all-free candidate: the fully invested optimum with the bounds ignored"
+   },
+   "reproduction_of_1x": {
+    "max_abs_pi": 9.90960785651751e-17,
+    "max_abs_mu_bl": 9.703609443745265e-17,
+    "max_abs_archived_stage2_weight": 1.2212453270876722e-15,
+    "max_abs_shared_evaluator_net_excess_vs_archived_native_sim": 1.6653345369377348e-16,
+    "tolerance": 1e-10,
+    "within_tolerance": true
+   },
+   "zero_scenario_checks": {
+    "mu_bl_equals_pi_max_abs": 1.3010426069826053e-18,
+    "adjusted_view_equals_pi_max_abs": 0.0,
+    "vs_native_neutral_static_weights": {
+     "max_abs_weight_difference": 0.017059058813723216,
+     "mean_abs_weight_difference": 0.00981396738029735,
+     "why": "pre-registered and expected: at lambda = 0 the posterior mean is exactly the allocator's own equilibrium pi, but the optimizer maximises against Sigma_post = Sigma + M, while pi was defined as DELTA Sigma w_eq. The two are different quadratic problems, so the optimum is near the 45/35/20 equilibrium without being equal to it. Nothing is corrected: both references are reported.",
+     "interpretation": "lambda = 0 is the native allocator with no incremental view, not the static neutral portfolio"
+    },
+    "vs_histmean_allocator": {
+     "mean_abs_weight_difference": 0.013233154417777735,
+     "what": "Stage 2's own BENCH_HISTMEAN_ALLOCATOR: the same allocator fed historical-mean views instead of model views"
+    }
+   },
+   "performance": {
+    "by_scenario": {
+     "0x": {
+      "label": "Neutral (0x)",
+      "lambda": 0.0,
+      "net_cer": 0.0363643344346561,
+      "net_annualized_excess_return": 0.05232982193597609,
+      "cumulative_return": 0.23957527316076077,
+      "net_sharpe": 0.46303430867351364,
+      "max_drawdown": -0.1842180585845795,
+      "annualized_volatility": 0.1130149990092288,
+      "annualized_one_way_turnover": 0.2690021794061741,
+      "total_cost": 0.0010311750210570008,
+      "annualized_cost": 0.0002690021794061741,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.001977755017621528,
+      "tracking_error_vs_native_no_signal_annualised": 0.002871999417301653,
+      "mean_abs_active_weight_per_asset": 0.00981396738029735,
+      "max_abs_active_weight_any_asset": 0.017059058813723216,
+      "mean_half_sum_abs_active": 0.014720951070446022,
+      "mean_abs_weight_deviation_per_asset": 0.018287211093208015,
+      "max_abs_weight_deviation_any_asset": 0.20938071937581423,
+      "mean_half_sum_abs_deviation": 0.027430816639812013,
+      "max_half_sum_abs_deviation": 0.2093807193758142
+     },
+     "0.5x": {
+      "label": "Weaker (0.5x)",
+      "lambda": 0.5,
+      "net_cer": 0.03665309534647128,
+      "net_annualized_excess_return": 0.0529315394063009,
+      "cumulative_return": 0.24182809370496838,
+      "net_sharpe": 0.46383453975083727,
+      "max_drawdown": -0.18512278695362772,
+      "annualized_volatility": 0.11411728724371126,
+      "annualized_one_way_turnover": 0.3639749934637962,
+      "total_cost": 0.001395237474944552,
+      "annualized_cost": 0.00036397499346379613,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.0013760375472966924,
+      "tracking_error_vs_native_no_signal_annualised": 0.0023133940901935803,
+      "mean_abs_active_weight_per_asset": 0.008338690911283886,
+      "max_abs_active_weight_any_asset": 0.1158122152390493,
+      "mean_half_sum_abs_active": 0.012508036366925828,
+      "mean_abs_weight_deviation_per_asset": 0.008846466779546654,
+      "max_abs_weight_deviation_any_asset": 0.08418778476095068,
+      "mean_half_sum_abs_deviation": 0.01326970016931998,
+      "max_half_sum_abs_deviation": 0.08418778476095065
+     },
+     "1x": {
+      "label": "Original (1x)",
+      "lambda": 1.0,
+      "net_cer": 0.03665239805993315,
+      "net_annualized_excess_return": 0.05324970197562165,
+      "cumulative_return": 0.24272780636364377,
+      "net_sharpe": 0.46211856358454756,
+      "max_drawdown": -0.18603180209996362,
+      "annualized_volatility": 0.11522952370183084,
+      "annualized_one_way_turnover": 0.45583975792399967,
+      "total_cost": 0.0017473857387086656,
+      "annualized_cost": 0.0004558397579239997,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.0010578749779759605,
+      "tracking_error_vs_native_no_signal_annualised": 0.0035047906690188107,
+      "mean_abs_active_weight_per_asset": 0.013819750434015229,
+      "max_abs_active_weight_any_asset": 0.19999999999999998,
+      "mean_half_sum_abs_active": 0.020729625651022845,
+      "mean_abs_weight_deviation_per_asset": 0.0,
+      "max_abs_weight_deviation_any_asset": 0.0,
+      "mean_half_sum_abs_deviation": 0.0,
+      "max_half_sum_abs_deviation": 0.0
+     },
+     "2x": {
+      "label": "Stronger (2x)",
+      "lambda": 2.0,
+      "net_cer": 0.03556596543303252,
+      "net_annualized_excess_return": 0.05279552703860722,
+      "cumulative_return": 0.2393678436688116,
+      "net_sharpe": 0.4496918560265187,
+      "max_drawdown": -0.18786402180136075,
+      "annualized_volatility": 0.11740378735142988,
+      "annualized_one_way_turnover": 0.5537620028494,
+      "total_cost": 0.0021227543442560327,
+      "annualized_cost": 0.0005537620028493998,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.0015120499149903959,
+      "tracking_error_vs_native_no_signal_annualised": 0.006387894464060603,
+      "mean_abs_active_weight_per_asset": 0.027757459323899534,
+      "max_abs_active_weight_any_asset": 0.2,
+      "mean_half_sum_abs_active": 0.04163618898584931,
+      "mean_abs_weight_deviation_per_asset": 0.016367388599968155,
+      "max_abs_weight_deviation_any_asset": 0.09688908940276358,
+      "mean_half_sum_abs_deviation": 0.02455108289995223,
+      "max_half_sum_abs_deviation": 0.09688908940276351
+     },
+     "control:native_neutral_static": {
+      "label": "control: native_neutral_static",
+      "lambda": null,
+      "net_cer": 0.0377399153452612,
+      "net_annualized_excess_return": 0.05430757695359762,
+      "cumulative_return": 0.24783494834795206,
+      "net_sharpe": 0.4717205812234455,
+      "max_drawdown": -0.18525302467160232,
+      "annualized_volatility": 0.11512657941009596,
+      "annualized_one_way_turnover": 0.26861464735593077,
+      "total_cost": 0.0010296894815310684,
+      "annualized_cost": 0.0002686146473559309,
+      "n_months": 46
+     },
+     "control:histmean_allocator": {
+      "label": "control: histmean_allocator",
+      "lambda": null,
+      "net_cer": 0.03603430337311632,
+      "net_annualized_excess_return": 0.052635279260163675,
+      "cumulative_return": 0.23981165535575566,
+      "net_sharpe": 0.4567358785004013,
+      "max_drawdown": -0.18595947922348854,
+      "annualized_volatility": 0.11524226963071268,
+      "annualized_one_way_turnover": 0.28825256391292353,
+      "total_cost": 0.0011049681616662065,
+      "annualized_cost": 0.00028825256391292343,
+      "n_months": 46
+     }
+    },
+    "monthly_net_return_correlation": {
+     "0x": {
+      "0x": 1.0,
+      "0.5x": 0.9997945285,
+      "1x": 0.9993107529,
+      "2x": 0.9980795254
+     },
+     "0.5x": {
+      "0x": 0.9997945285,
+      "0.5x": 1.0,
+      "1x": 0.999854316,
+      "2x": 0.9990253607
+     },
+     "1x": {
+      "0x": 0.9993107529,
+      "0.5x": 0.999854316,
+      "1x": 1.0,
+      "2x": 0.9995789074
+     },
+     "2x": {
+      "0x": 0.9980795254,
+      "0.5x": 0.9990253607,
+      "1x": 0.9995789074,
+      "2x": 1.0
+     }
+    }
+   },
+   "transmission": {
+    "per_scenario_vs_1x": {
+     "0x": {
+      "mean_abs_view_change_vs_1x": 35.52729731386017,
+      "max_abs_view_change_vs_1x": 66.59553867298801,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.028322232940984036,
+      "max_abs_intermediate_weight_change_vs_1x": 0.25038586922972705,
+      "mean_abs_final_weight_change_vs_1x": 0.027430816639812002,
+      "max_abs_final_weight_change_vs_1x": 0.20938071937581423,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.003560170164212137,
+      "max_constraint_attenuation_share": 0.1637678275537623,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "0.5x": {
+      "mean_abs_view_change_vs_1x": 17.76364865693008,
+      "max_abs_view_change_vs_1x": 33.29776933649401,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.014161116470492003,
+      "max_abs_intermediate_weight_change_vs_1x": 0.12519293461486347,
+      "mean_abs_final_weight_change_vs_1x": 0.013269700169319975,
+      "max_abs_final_weight_change_vs_1x": 0.08418778476095068,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.007120340328424599,
+      "max_constraint_attenuation_share": 0.3275356551075246,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "1x": {
+      "mean_abs_view_change_vs_1x": 0.0,
+      "max_abs_view_change_vs_1x": 0.0,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.0,
+      "max_abs_intermediate_weight_change_vs_1x": 0.0,
+      "mean_abs_final_weight_change_vs_1x": 0.0,
+      "max_abs_final_weight_change_vs_1x": 0.0,
+      "months_above_ratio_floor": 0,
+      "months_below_ratio_floor_not_divided": 46,
+      "mean_constraint_attenuation_share": null,
+      "max_constraint_attenuation_share": null,
+      "months_with_any_binding_bound": 1,
+      "share_of_months_with_any_binding_bound": 0.021739130434782608,
+      "binding_bound_counts": {
+       "IEF:lower": 1
+      }
+     },
+     "2x": {
+      "mean_abs_view_change_vs_1x": 35.52729731386017,
+      "max_abs_view_change_vs_1x": 66.59553867298801,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.028322232940984054,
+      "max_abs_intermediate_weight_change_vs_1x": 0.2503858692297269,
+      "mean_abs_final_weight_change_vs_1x": 0.02455108289995224,
+      "max_abs_final_weight_change_vs_1x": 0.09688908940276358,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.016613138038085968,
+      "max_constraint_attenuation_share": 0.6603612429502785,
+      "months_with_any_binding_bound": 3,
+      "share_of_months_with_any_binding_bound": 0.06521739130434782,
+      "binding_bound_counts": {
+       "LQD:upper": 1,
+       "IEF:lower": 1,
+       "LQD:lower": 1
+      }
+     }
+    },
+    "local_finite_difference_around_1x": {
+     "definition": "symmetric difference between the 2x and 0.5x scenarios, per month",
+     "mean_abs_weight_change_per_unit_view": 0.0007094017085809972,
+     "median_abs_weight_change_per_unit_view": 0.0006170536001460854,
+     "weight_change_per_lambda_mean": 0.024540832502686148,
+     "view_change_unit": "basis points a month",
+     "months_used": 46,
+     "months_flagged_tiny_view_change": 0
+    }
+   },
+   "view_pipeline": {
+    "kind": "Black-Litterman posterior shrinkage",
+    "mean_abs_view_minus_prior_bp": 35.527297313860174,
+    "mean_abs_posterior_minus_prior_bp": 1.289582662020494,
+    "mean_share_of_the_view_the_posterior_keeps": 0.03597242101355312,
+    "median_share_of_the_view_the_posterior_keeps": 0.042117469912067065,
+    "months_used": 46,
+    "months_flagged_tiny_view": 0,
+    "note": "the posterior weight on the view is tau x Sigma against Omega: a large Omega, estimated from the model's own out-of-sample errors, is what shrinks the view, not any position limit"
+   },
+   "signal_share_of_allocation": {
+    "mean_distance_1x_from_native_neutral": 0.020729625651022845,
+    "mean_distance_0x_from_native_neutral": 0.014720951070446022,
+    "mean_distance_1x_from_0x_the_signal_part": 0.027430816639812013,
+    "max_distance_1x_from_0x_the_signal_part": 0.2093807193758142,
+    "signal_share_of_1x_distance_from_neutral": 1.323266377386729
+   },
+   "statistics": {
+    "net_cer_0x": {
+     "point": 0.0363643344346561,
+     "ci90": [
+      -0.054779819519403035,
+      0.11956656450859007
+     ],
+     "ci95": [
+      -0.07519368169929012,
+      0.13113100588464366
+     ],
+     "p_two_sided_bootstrap": 0.4772,
+     "share_of_draws_above_zero": 0.7614
+    },
+    "net_cer_0x_minus_1x": {
+     "point": -0.0002880636252770505,
+     "ci90": [
+      -0.002899235878431517,
+      0.0026312612902994097
+     ],
+     "ci95": [
+      -0.0033243041638405654,
+      0.0033007094984129994
+     ],
+     "p_two_sided_bootstrap": 0.8372,
+     "share_of_draws_above_zero": 0.4186
+    },
+    "net_cer_0x_minus_native_neutral_static": {
+     "point": -0.0013755809106050995,
+     "ci90": [
+      -0.003370550817781082,
+      0.0006089485141114806
+     ],
+     "ci95": [
+      -0.0037642616790636517,
+      0.0009487993211597851
+     ],
+     "p_two_sided_bootstrap": 0.2528,
+     "share_of_draws_above_zero": 0.1264
+    },
+    "net_cer_0x_minus_histmean_allocator": {
+     "point": 0.0003300310615397817,
+     "ci90": [
+      -0.0025778736284253604,
+      0.0036898307661296084
+     ],
+     "ci95": [
+      -0.002906316835954922,
+      0.0044365416140075414
+     ],
+     "p_two_sided_bootstrap": 0.8916,
+     "share_of_draws_above_zero": 0.5542
+    },
+    "net_cer_0.5x": {
+     "point": 0.03665309534647128,
+     "ci90": [
+      -0.054497206431945854,
+      0.1205053215357785
+     ],
+     "ci95": [
+      -0.07587835447352267,
+      0.1324848186435015
+     ],
+     "p_two_sided_bootstrap": 0.4784,
+     "share_of_draws_above_zero": 0.7608
+    },
+    "net_cer_0.5x_minus_1x": {
+     "point": 6.972865381274507e-07,
+     "ci90": [
+      -0.0013282683735193056,
+      0.001504567211549881
+     ],
+     "ci95": [
+      -0.001510739923689822,
+      0.0018122441392289517
+     ],
+     "p_two_sided_bootstrap": 0.9676,
+     "share_of_draws_above_zero": 0.4838
+    },
+    "net_cer_0.5x_minus_native_neutral_static": {
+     "point": -0.0010868199987899216,
+     "ci90": [
+      -0.002183052838256297,
+      -0.0001593655471311453
+     ],
+     "ci95": [
+      -0.0024101315008473742,
+      2.6851792417849936e-05
+     ],
+     "p_two_sided_bootstrap": 0.0552,
+     "share_of_draws_above_zero": 0.0276
+    },
+    "net_cer_0.5x_minus_histmean_allocator": {
+     "point": 0.0006187919733549596,
+     "ci90": [
+      -0.0013031576457667937,
+      0.0029722630523976172
+     ],
+     "ci95": [
+      -0.001493320758040375,
+      0.0034880631484547732
+     ],
+     "p_two_sided_bootstrap": 0.68,
+     "share_of_draws_above_zero": 0.66
+    },
+    "net_cer_1x": {
+     "point": 0.03665239805993315,
+     "ci90": [
+      -0.05488661574253169,
+      0.12086244100289442
+     ],
+     "ci95": [
+      -0.07603510725709732,
+      0.13303709210589476
+     ],
+     "p_two_sided_bootstrap": 0.4788,
+     "share_of_draws_above_zero": 0.7606
+    },
+    "net_cer_1x_minus_native_neutral_static": {
+     "point": -0.001087517285328049,
+     "ci90": [
+      -0.0026510319999606866,
+      0.0001719288765629758
+     ],
+     "ci95": [
+      -0.003073093496527511,
+      0.0003461449315257452
+     ],
+     "p_two_sided_bootstrap": 0.1708,
+     "share_of_draws_above_zero": 0.0854
+    },
+    "net_cer_1x_minus_histmean_allocator": {
+     "point": 0.0006180946868168322,
+     "ci90": [
+      -0.0006110851489474016,
+      0.0021969816183552504
+     ],
+     "ci95": [
+      -0.0006935993282022702,
+      0.0026884153895847386
+     ],
+     "p_two_sided_bootstrap": 0.7004,
+     "share_of_draws_above_zero": 0.6498
+    },
+    "net_cer_2x": {
+     "point": 0.03556596543303252,
+     "ci90": [
+      -0.05570079961756546,
+      0.11985487647089799
+     ],
+     "ci95": [
+      -0.07705763762588506,
+      0.1318357532287967
+     ],
+     "p_two_sided_bootstrap": 0.4944,
+     "share_of_draws_above_zero": 0.7528
+    },
+    "net_cer_2x_minus_1x": {
+     "point": -0.0010864326269006339,
+     "ci90": [
+      -0.004881631833135855,
+      0.002154525089809469
+     ],
+     "ci95": [
+      -0.005603095020371636,
+      0.0026367556699476236
+     ],
+     "p_two_sided_bootstrap": 0.6272,
+     "share_of_draws_above_zero": 0.3136
+    },
+    "net_cer_2x_minus_native_neutral_static": {
+     "point": -0.002173949912228683,
+     "ci90": [
+      -0.00717245327137598,
+      0.0020525198889004433
+     ],
+     "ci95": [
+      -0.008349851221553893,
+      0.0026343869363289734
+     ],
+     "p_two_sided_bootstrap": 0.4428,
+     "share_of_draws_above_zero": 0.2214
+    },
+    "net_cer_2x_minus_histmean_allocator": {
+     "point": -0.0004683379400838017,
+     "ci90": [
+      -0.003595721837878072,
+      0.0023530029120888904
+     ],
+     "ci95": [
+      -0.004298953562744642,
+      0.0027347057214117967
+     ],
+     "p_two_sided_bootstrap": 0.818,
+     "share_of_draws_above_zero": 0.409
+    },
+    "net_cer_control_native_neutral_static": {
+     "point": 0.0377399153452612,
+     "ci90": [
+      -0.05380485011745837,
+      0.12217343053150087
+     ],
+     "ci95": [
+      -0.07506017878853598,
+      0.1341850776953861
+     ],
+     "p_two_sided_bootstrap": 0.47,
+     "share_of_draws_above_zero": 0.765
+    },
+    "net_cer_control_histmean_allocator": {
+     "point": 0.03603430337311632,
+     "ci90": [
+      -0.05516616593975089,
+      0.11953706718118122
+     ],
+     "ci95": [
+      -0.0759630626601934,
+      0.13190125754496052
+     ],
+     "p_two_sided_bootstrap": 0.4816,
+     "share_of_draws_above_zero": 0.7592
+    },
+    "_bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027,
+     "cer_delta": 2.5,
+     "paired": "every statistic uses the same resampled months"
+    }
+   }
+  },
+  "AP2B": {
+   "name": "Agentic Workflow - JEV",
+   "short": "JEV",
+   "role": "primary representative of the Agentic Workflow",
+   "status": "computed",
+   "universe": [
+    "SPY",
+    "TLT"
+   ],
+   "native_neutral_weights": {
+    "SPY": 0.6,
+    "TLT": 0.4
+   },
+   "allocator": {
+    "kind": "capped tilt on the stock-minus-bond edge",
+    "entry_point": "livebacktest.js: edge = baseEdge + confidence x offset",
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    },
+    "delta": 2.5,
+    "equilibrium_spy": 0.6,
+    "intermediate_stage": "the engine's own unclipped fully invested SPY weight"
+   },
+   "reproduction_of_1x": {
+    "max_abs_archived_decision_weight": 0.0,
+    "max_abs_net_excess_vs_archived_decisions": 0.0,
+    "tolerance": 1e-10,
+    "within_tolerance": true
+   },
+   "zero_scenario_checks": {
+    "max_abs_weight_difference_vs_native_neutral": 1.1102230246251565e-16,
+    "equals_native_neutral": true,
+    "why": "the native equilibrium edge alone reproduces the equilibrium SPY weight exactly, so this engine's lambda = 0 scenario and its native no-signal control are the same portfolio",
+    "months_without_a_native_view": 0
+   },
+   "performance": {
+    "by_scenario": {
+     "0x": {
+      "label": "Neutral (0x)",
+      "lambda": 0.0,
+      "net_cer": 0.04365301171263889,
+      "net_annualized_excess_return": 0.06803863436955201,
+      "cumulative_return": 0.29958226237768715,
+      "net_sharpe": 0.4871286467247424,
+      "max_drawdown": -0.23962165840052052,
+      "annualized_volatility": 0.1396728252937217,
+      "annualized_one_way_turnover": 0.30174210896677767,
+      "total_cost": 0.001156678084372648,
+      "annualized_cost": 0.0003017421089667777,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 1.0719459740139292e-17,
+      "tracking_error_vs_native_no_signal_annualised": 1.8850770100608017e-17,
+      "mean_abs_active_weight_per_asset": 3.137586808723268e-17,
+      "max_abs_active_weight_any_asset": 1.1102230246251565e-16,
+      "mean_half_sum_abs_active": 3.137586808723268e-17,
+      "mean_abs_weight_deviation_per_asset": 0.015857187857403844,
+      "max_abs_weight_deviation_any_asset": 0.08746699603078201,
+      "mean_half_sum_abs_deviation": 0.015857187857403844,
+      "max_half_sum_abs_deviation": 0.08746699603078201
+     },
+     "0.5x": {
+      "label": "Weaker (0.5x)",
+      "lambda": 0.5,
+      "net_cer": 0.045269105473103095,
+      "net_annualized_excess_return": 0.06909019745807812,
+      "cumulative_return": 0.30594728372301705,
+      "net_sharpe": 0.5004844716457242,
+      "max_drawdown": -0.23891615347723516,
+      "annualized_volatility": 0.1380466355547285,
+      "annualized_one_way_turnover": 0.28037872258557217,
+      "total_cost": 0.001074785103244693,
+      "annualized_cost": 0.00028037872258557207,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.0010515630885261096,
+      "tracking_error_vs_native_no_signal_annualised": 0.005094781723365648,
+      "mean_abs_active_weight_per_asset": 0.007928593928701919,
+      "max_abs_active_weight_any_asset": 0.04373349801539095,
+      "mean_half_sum_abs_active": 0.007928593928701919,
+      "mean_abs_weight_deviation_per_asset": 0.007928593928701943,
+      "max_abs_weight_deviation_any_asset": 0.04373349801539106,
+      "mean_half_sum_abs_deviation": 0.007928593928701943,
+      "max_half_sum_abs_deviation": 0.04373349801539106
+     },
+     "1x": {
+      "label": "Original (1x)",
+      "lambda": 1.0,
+      "net_cer": 0.04674734380666726,
+      "net_annualized_excess_return": 0.0700680759867082,
+      "cumulative_return": 0.3118380866401762,
+      "net_sharpe": 0.5129843406572622,
+      "max_drawdown": -0.23824821534961482,
+      "annualized_volatility": 0.1365891128312676,
+      "annualized_one_way_turnover": 0.3326998961003368,
+      "total_cost": 0.0012753496017179576,
+      "annualized_cost": 0.0003326998961003368,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.002029441617156214,
+      "tracking_error_vs_native_no_signal_annualised": 0.010197090708157462,
+      "mean_abs_active_weight_per_asset": 0.01585718785740386,
+      "max_abs_active_weight_any_asset": 0.08746699603078201,
+      "mean_half_sum_abs_active": 0.01585718785740386,
+      "mean_abs_weight_deviation_per_asset": 0.0,
+      "max_abs_weight_deviation_any_asset": 0.0,
+      "mean_half_sum_abs_deviation": 0.0,
+      "max_half_sum_abs_deviation": 0.0
+     },
+     "2x": {
+      "label": "Stronger (2x)",
+      "lambda": 2.0,
+      "net_cer": 0.04946163983498219,
+      "net_annualized_excess_return": 0.07197790246904254,
+      "cumulative_return": 0.3230515945895185,
+      "net_sharpe": 0.5362978306626243,
+      "max_drawdown": -0.23696100312485546,
+      "annualized_volatility": 0.1342125556989668,
+      "annualized_one_way_turnover": 0.48327281805576316,
+      "total_cost": 0.001852545802547092,
+      "annualized_cost": 0.0004832728180557632,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.003939268099490533,
+      "tracking_error_vs_native_no_signal_annualised": 0.020392874761327884,
+      "mean_abs_active_weight_per_asset": 0.03171437571480768,
+      "max_abs_active_weight_any_asset": 0.1749339920615639,
+      "mean_half_sum_abs_active": 0.03171437571480768,
+      "mean_abs_weight_deviation_per_asset": 0.015857187857403827,
+      "max_abs_weight_deviation_any_asset": 0.0874669960307819,
+      "mean_half_sum_abs_deviation": 0.015857187857403827,
+      "max_half_sum_abs_deviation": 0.08746699603078187
+     },
+     "control:native_neutral_static": {
+      "label": "control: native_neutral_static",
+      "lambda": null,
+      "net_cer": 0.0436530117126389,
+      "net_annualized_excess_return": 0.06803863436955201,
+      "cumulative_return": 0.29958226237768737,
+      "net_sharpe": 0.4871286467247425,
+      "max_drawdown": -0.2396216584005204,
+      "annualized_volatility": 0.13967282529372166,
+      "annualized_one_way_turnover": 0.30174210896677744,
+      "total_cost": 0.001156678084372647,
+      "annualized_cost": 0.0003017421089667775,
+      "n_months": 46
+     }
+    },
+    "monthly_net_return_correlation": {
+     "0x": {
+      "0x": 1.0,
+      "0.5x": 0.9993954705,
+      "1x": 0.9975240479,
+      "2x": 0.9897029246
+     },
+     "0.5x": {
+      "0x": 0.9993954705,
+      "0.5x": 1.0,
+      "1x": 0.999365972,
+      "2x": 0.9940808404
+     },
+     "1x": {
+      "0x": 0.9975240479,
+      "0.5x": 0.999365972,
+      "1x": 1.0,
+      "2x": 0.9973186953
+     },
+     "2x": {
+      "0x": 0.9897029246,
+      "0.5x": 0.9940808404,
+      "1x": 0.9973186953,
+      "2x": 1.0
+     }
+    }
+   },
+   "transmission": {
+    "per_scenario_vs_1x": {
+     "0x": {
+      "mean_abs_view_change_vs_1x": 0.2505391304347826,
+      "max_abs_view_change_vs_1x": 0.9063,
+      "view_change_unit": "edge points",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.015857187857403844,
+      "max_abs_intermediate_weight_change_vs_1x": 0.08746699603078201,
+      "mean_abs_final_weight_change_vs_1x": 0.015857187857403844,
+      "max_abs_final_weight_change_vs_1x": 0.08746699603078201,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.0,
+      "max_constraint_attenuation_share": 0.0,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "0.5x": {
+      "mean_abs_view_change_vs_1x": 0.1252695652173913,
+      "max_abs_view_change_vs_1x": 0.45315,
+      "view_change_unit": "edge points",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.007928593928701943,
+      "max_abs_intermediate_weight_change_vs_1x": 0.04373349801539106,
+      "mean_abs_final_weight_change_vs_1x": 0.007928593928701943,
+      "max_abs_final_weight_change_vs_1x": 0.04373349801539106,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.0,
+      "max_constraint_attenuation_share": 0.0,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "1x": {
+      "mean_abs_view_change_vs_1x": 0.0,
+      "max_abs_view_change_vs_1x": 0.0,
+      "view_change_unit": "edge points",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.0,
+      "max_abs_intermediate_weight_change_vs_1x": 0.0,
+      "mean_abs_final_weight_change_vs_1x": 0.0,
+      "max_abs_final_weight_change_vs_1x": 0.0,
+      "months_above_ratio_floor": 0,
+      "months_below_ratio_floor_not_divided": 46,
+      "mean_constraint_attenuation_share": null,
+      "max_constraint_attenuation_share": null,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "2x": {
+      "mean_abs_view_change_vs_1x": 0.2505391304347826,
+      "max_abs_view_change_vs_1x": 0.9063,
+      "view_change_unit": "edge points",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.015857187857403827,
+      "max_abs_intermediate_weight_change_vs_1x": 0.0874669960307819,
+      "mean_abs_final_weight_change_vs_1x": 0.015857187857403827,
+      "max_abs_final_weight_change_vs_1x": 0.08746699603078184,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 2.6548811458427657e-17,
+      "max_constraint_attenuation_share": 4.773959005888173e-15,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     }
+    },
+    "local_finite_difference_around_1x": {
+     "definition": "symmetric difference between the 2x and 0.5x scenarios, per month",
+     "mean_abs_weight_change_per_unit_view": 0.06253659363284782,
+     "median_abs_weight_change_per_unit_view": 0.0704805237643316,
+     "weight_change_per_lambda_mean": 0.015857187857403844,
+     "view_change_unit": "edge points",
+     "months_used": 46,
+     "months_flagged_tiny_view_change": 0
+    }
+   },
+   "view_pipeline": {
+    "kind": "pre-allocator shrinkage; this engine has no posterior step",
+    "stage_1_largest_available_tilt_points": 3.0,
+    "stage_2_mean_abs_probability_weighted_offset_points": 0.663586956521739,
+    "stage_2_share_of_largest_tilt": 0.22119565217391302,
+    "stage_3_mean_confidence": 0.3247826086956522,
+    "stage_3_mean_abs_confidence_weighted_offset_points": 0.2505391304347826,
+    "stage_3_share_of_stage_2": 0.3775528255528256,
+    "mean_abs_equilibrium_edge_points": 5.1715769806036445,
+    "signal_as_share_of_equilibrium_edge": 0.04844540289634029,
+    "allocator_is_linear_in_the_edge": true,
+    "note": "the saved offset is already an average over the five tilt options weighted by the model's own probabilities, so by the time the allocator sees it the signal has been shrunk twice"
+   },
+   "signal_share_of_allocation": {
+    "mean_distance_1x_from_native_neutral": 0.01585718785740386,
+    "mean_distance_0x_from_native_neutral": 3.137586808723268e-17,
+    "mean_distance_1x_from_0x_the_signal_part": 0.015857187857403844,
+    "max_distance_1x_from_0x_the_signal_part": 0.08746699603078201,
+    "signal_share_of_1x_distance_from_neutral": 0.9999999999999989
+   },
+   "statistics": {
+    "net_cer_0x": {
+     "point": 0.04365301171263889,
+     "ci90": [
+      -0.07956105726237225,
+      0.15132584397774218
+     ],
+     "ci95": [
+      -0.10374002552623127,
+      0.16743198069520707
+     ],
+     "p_two_sided_bootstrap": 0.5156,
+     "share_of_draws_above_zero": 0.7422
+    },
+    "net_cer_0x_minus_1x": {
+     "point": -0.0030943320940283667,
+     "ci90": [
+      -0.01222018324609574,
+      0.0038457687916296627
+     ],
+     "ci95": [
+      -0.013844732675966467,
+      0.004824082347277673
+     ],
+     "p_two_sided_bootstrap": 0.5936,
+     "share_of_draws_above_zero": 0.2968
+    },
+    "net_cer_0x_minus_native_neutral_static": {
+     "point": -6.938893903907228e-18,
+     "ci90": [
+      -1.3877787807814457e-17,
+      4.163336342344337e-17
+     ],
+     "ci95": [
+      -2.7755575615628914e-17,
+      5.551115123125783e-17
+     ],
+     "p_two_sided_bootstrap": 0.896,
+     "share_of_draws_above_zero": 0.552
+    },
+    "net_cer_0.5x": {
+     "point": 0.045269105473103095,
+     "ci90": [
+      -0.07750297275343167,
+      0.15307643634867224
+     ],
+     "ci95": [
+      -0.10185058784956964,
+      0.16819161796887105
+     ],
+     "p_two_sided_bootstrap": 0.5036,
+     "share_of_draws_above_zero": 0.7482
+    },
+    "net_cer_0.5x_minus_1x": {
+     "point": -0.0014782383335641622,
+     "ci90": [
+      -0.00600285326302131,
+      0.0019730203830640807
+     ],
+     "ci95": [
+      -0.006841022276921483,
+      0.0024689216353667304
+     ],
+     "p_two_sided_bootstrap": 0.6096,
+     "share_of_draws_above_zero": 0.3048
+    },
+    "net_cer_0.5x_minus_native_neutral_static": {
+     "point": 0.0016160937604641976,
+     "ci90": [
+      -0.0018654144806062366,
+      0.006203901502299256
+     ],
+     "ci95": [
+      -0.0023468026564503535,
+      0.007033425638175871
+     ],
+     "p_two_sided_bootstrap": 0.5764,
+     "share_of_draws_above_zero": 0.7118
+    },
+    "net_cer_1x": {
+     "point": 0.04674734380666726,
+     "ci90": [
+      -0.07685861663459401,
+      0.1546805208699182
+     ],
+     "ci95": [
+      -0.10123201115094083,
+      0.16945437259525478
+     ],
+     "p_two_sided_bootstrap": 0.4892,
+     "share_of_draws_above_zero": 0.7554
+    },
+    "net_cer_1x_minus_native_neutral_static": {
+     "point": 0.0030943320940283597,
+     "ci90": [
+      -0.0038457687916296215,
+      0.01222018324609574
+     ],
+     "ci95": [
+      -0.004824082347277646,
+      0.013844732675966446
+     ],
+     "p_two_sided_bootstrap": 0.5936,
+     "share_of_draws_above_zero": 0.7032
+    },
+    "net_cer_2x": {
+     "point": 0.04946163983498219,
+     "ci90": [
+      -0.07432723851118522,
+      0.15724553987794748
+     ],
+     "ci95": [
+      -0.09927821541038526,
+      0.17316466672474995
+     ],
+     "p_two_sided_bootstrap": 0.4708,
+     "share_of_draws_above_zero": 0.7646
+    },
+    "net_cer_2x_minus_1x": {
+     "point": 0.0027142960283149317,
+     "ci90": [
+      -0.004094697643005091,
+      0.0114839137010612
+     ],
+     "ci95": [
+      -0.0051087013305181755,
+      0.013270178318013233
+     ],
+     "p_two_sided_bootstrap": 0.6324,
+     "share_of_draws_above_zero": 0.6838
+    },
+    "net_cer_2x_minus_native_neutral_static": {
+     "point": 0.0058086281223432915,
+     "ci90": [
+      -0.00790638499501118,
+      0.02374285016946446
+     ],
+     "ci95": [
+      -0.009902753524912497,
+      0.027121286738671254
+     ],
+     "p_two_sided_bootstrap": 0.6128,
+     "share_of_draws_above_zero": 0.6936
+    },
+    "net_cer_control_native_neutral_static": {
+     "point": 0.0436530117126389,
+     "ci90": [
+      -0.07956105726237231,
+      0.15132584397774218
+     ],
+     "ci95": [
+      -0.10374002552623131,
+      0.16743198069520707
+     ],
+     "p_two_sided_bootstrap": 0.5156,
+     "share_of_draws_above_zero": 0.7422
+    },
+    "_bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027,
+     "cer_delta": 2.5,
+     "paired": "every statistic uses the same resampled months"
+    }
+   }
+  },
+  "AP2A": {
+   "name": "Agentic Workflow - Agent Committee",
+   "short": "Committee",
+   "role": "secondary within-approach variant",
+   "status": "computed",
+   "universe": [
+    "SPY",
+    "TLT"
+   ],
+   "native_neutral_weights": {
+    "SPY": 0.6,
+    "TLT": 0.4
+   },
+   "allocator": {
+    "kind": "Black-Litterman on the engine's own two-asset equilibrium, then the same cap",
+    "entry_point": "allocation.js::allocate -> blPosterior(pi, sigma, q, confidence)",
+    "bounds": {
+     "SPY": [
+      0.4,
+      0.8
+     ]
+    },
+    "delta": 2.5,
+    "equilibrium_spy": 0.6,
+    "intermediate_stage": "the engine's own unclipped fully invested SPY weight"
+   },
+   "reproduction_of_1x": {
+    "max_abs_archived_decision_weight": 1.1102230246251565e-16,
+    "max_abs_net_excess_vs_archived_decisions": 1.3877787807814457e-17,
+    "tolerance": 1e-10,
+    "within_tolerance": true
+   },
+   "zero_scenario_checks": {
+    "max_abs_weight_difference_vs_native_neutral": 1.1102230246251565e-16,
+    "equals_native_neutral": true,
+    "why": "the native equilibrium edge alone reproduces the equilibrium SPY weight exactly, so this engine's lambda = 0 scenario and its native no-signal control are the same portfolio",
+    "months_without_a_native_view": 0
+   },
+   "performance": {
+    "by_scenario": {
+     "0x": {
+      "label": "Neutral (0x)",
+      "lambda": 0.0,
+      "net_cer": 0.04365301171263889,
+      "net_annualized_excess_return": 0.06803863436955201,
+      "cumulative_return": 0.29958226237768715,
+      "net_sharpe": 0.4871286467247424,
+      "max_drawdown": -0.23962165840052052,
+      "annualized_volatility": 0.1396728252937217,
+      "annualized_one_way_turnover": 0.3017421089667776,
+      "total_cost": 0.0011566780843726475,
+      "annualized_cost": 0.0003017421089667776,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 5.51528931220887e-18,
+      "tracking_error_vs_native_no_signal_annualised": 2.0935182735614925e-17,
+      "mean_abs_active_weight_per_asset": 4.344350965924526e-17,
+      "max_abs_active_weight_any_asset": 1.1102230246251565e-16,
+      "mean_half_sum_abs_active": 4.344350965924526e-17,
+      "mean_abs_weight_deviation_per_asset": 0.10971562132426266,
+      "max_abs_weight_deviation_any_asset": 0.20000000000000018,
+      "mean_half_sum_abs_deviation": 0.10971562132426266,
+      "max_half_sum_abs_deviation": 0.20000000000000018
+     },
+     "0.5x": {
+      "label": "Weaker (0.5x)",
+      "lambda": 0.5,
+      "net_cer": 0.04849587927321719,
+      "net_annualized_excess_return": 0.0703065571152297,
+      "cumulative_return": 0.3159912990767684,
+      "net_sharpe": 0.5322507183257454,
+      "max_drawdown": -0.23673182352314315,
+      "annualized_volatility": 0.1320929304452362,
+      "annualized_one_way_turnover": 0.7259051329901169,
+      "total_cost": 0.0027826363431287813,
+      "annualized_cost": 0.0007259051329901169,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.0022679227456776987,
+      "tracking_error_vs_native_no_signal_annualised": 0.02413138637711569,
+      "mean_abs_active_weight_per_asset": 0.061347761876022304,
+      "max_abs_active_weight_any_asset": 0.19999999999999996,
+      "mean_half_sum_abs_active": 0.061347761876022304,
+      "mean_abs_weight_deviation_per_asset": 0.04836785944824033,
+      "max_abs_weight_deviation_any_asset": 0.09961588930560328,
+      "mean_half_sum_abs_deviation": 0.04836785944824035,
+      "max_half_sum_abs_deviation": 0.09961588930560325
+     },
+     "1x": {
+      "label": "Original (1x)",
+      "lambda": 1.0,
+      "net_cer": 0.0511382713782226,
+      "net_annualized_excess_return": 0.07213726502991535,
+      "cumulative_return": 0.3267623306750058,
+      "net_sharpe": 0.5565644183793085,
+      "max_drawdown": -0.23630574373711444,
+      "annualized_volatility": 0.12961170827264876,
+      "annualized_one_way_turnover": 1.1297134566387175,
+      "total_cost": 0.004330568250448419,
+      "annualized_cost": 0.001129713456638718,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.004098630660363391,
+      "tracking_error_vs_native_no_signal_annualised": 0.04132195072993921,
+      "mean_abs_active_weight_per_asset": 0.10971562132426266,
+      "max_abs_active_weight_any_asset": 0.20000000000000007,
+      "mean_half_sum_abs_active": 0.10971562132426262,
+      "mean_abs_weight_deviation_per_asset": 0.0,
+      "max_abs_weight_deviation_any_asset": 0.0,
+      "mean_half_sum_abs_deviation": 0.0,
+      "max_half_sum_abs_deviation": 0.0
+     },
+     "2x": {
+      "label": "Stronger (2x)",
+      "lambda": 2.0,
+      "net_cer": 0.03975044101743475,
+      "net_annualized_excess_return": 0.060163836145897646,
+      "cumulative_return": 0.26860091582248913,
+      "net_sharpe": 0.4707961528443744,
+      "max_drawdown": -0.23604092862176074,
+      "annualized_volatility": 0.12779169027276505,
+      "annualized_one_way_turnover": 1.3775288170080557,
+      "total_cost": 0.005280527131864213,
+      "annualized_cost": 0.0013775288170080557,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.007874798223654361,
+      "tracking_error_vs_native_no_signal_annualised": 0.04927004414925926,
+      "mean_abs_active_weight_per_asset": 0.1556903359000201,
+      "max_abs_active_weight_any_asset": 0.20000000000000007,
+      "mean_half_sum_abs_active": 0.1556903359000201,
+      "mean_abs_weight_deviation_per_asset": 0.04597471457575747,
+      "max_abs_weight_deviation_any_asset": 0.09912550910243945,
+      "mean_half_sum_abs_deviation": 0.04597471457575747,
+      "max_half_sum_abs_deviation": 0.09912550910243945
+     },
+     "control:native_neutral_static": {
+      "label": "control: native_neutral_static",
+      "lambda": null,
+      "net_cer": 0.0436530117126389,
+      "net_annualized_excess_return": 0.06803863436955201,
+      "cumulative_return": 0.29958226237768737,
+      "net_sharpe": 0.4871286467247425,
+      "max_drawdown": -0.2396216584005204,
+      "annualized_volatility": 0.13967282529372166,
+      "annualized_one_way_turnover": 0.30174210896677744,
+      "total_cost": 0.001156678084372647,
+      "annualized_cost": 0.0003017421089667775,
+      "n_months": 46
+     }
+    },
+    "monthly_net_return_correlation": {
+     "0x": {
+      "0x": 1.0,
+      "0.5x": 0.985775748,
+      "1x": 0.9556356179,
+      "2x": 0.9359523644
+     },
+     "0.5x": {
+      "0x": 0.985775748,
+      "0.5x": 1.0,
+      "1x": 0.9906578441,
+      "2x": 0.9777065726
+     },
+     "1x": {
+      "0x": 0.9556356179,
+      "0.5x": 0.9906578441,
+      "1x": 1.0,
+      "2x": 0.9949334169
+     },
+     "2x": {
+      "0x": 0.9359523644,
+      "0.5x": 0.9777065726,
+      "1x": 0.9949334169,
+      "2x": 1.0
+     }
+    }
+   },
+   "transmission": {
+    "per_scenario_vs_1x": {
+     "0x": {
+      "mean_abs_view_change_vs_1x": 479.12086493794055,
+      "max_abs_view_change_vs_1x": 1574.902176179101,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.1239223772344356,
+      "max_abs_intermediate_weight_change_vs_1x": 0.4564352601899839,
+      "mean_abs_final_weight_change_vs_1x": 0.10971562132426266,
+      "max_abs_final_weight_change_vs_1x": 0.20000000000000018,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.0421856732296501,
+      "max_constraint_attenuation_share": 0.561821757774031,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "0.5x": {
+      "mean_abs_view_change_vs_1x": 239.56043246897028,
+      "max_abs_view_change_vs_1x": 787.4510880895505,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.061961188617217805,
+      "max_abs_intermediate_weight_change_vs_1x": 0.22821763009499182,
+      "mean_abs_final_weight_change_vs_1x": 0.04836785944824035,
+      "max_abs_final_weight_change_vs_1x": 0.09961588930560322,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.0816834439473858,
+      "max_constraint_attenuation_share": 1.0,
+      "months_with_any_binding_bound": 1,
+      "share_of_months_with_any_binding_bound": 0.021739130434782608,
+      "binding_bound_counts": {
+       "SPY:lower": 1
+      }
+     },
+     "1x": {
+      "mean_abs_view_change_vs_1x": 0.0,
+      "max_abs_view_change_vs_1x": 0.0,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.0,
+      "max_abs_intermediate_weight_change_vs_1x": 0.0,
+      "mean_abs_final_weight_change_vs_1x": 0.0,
+      "max_abs_final_weight_change_vs_1x": 0.0,
+      "months_above_ratio_floor": 0,
+      "months_below_ratio_floor_not_divided": 46,
+      "mean_constraint_attenuation_share": null,
+      "max_constraint_attenuation_share": null,
+      "months_with_any_binding_bound": 7,
+      "share_of_months_with_any_binding_bound": 0.15217391304347827,
+      "binding_bound_counts": {
+       "SPY:lower": 4,
+       "SPY:upper": 3
+      }
+     },
+     "2x": {
+      "mean_abs_view_change_vs_1x": 479.12086493794055,
+      "max_abs_view_change_vs_1x": 1574.902176179101,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.12392237723443554,
+      "max_abs_intermediate_weight_change_vs_1x": 0.4564352601899837,
+      "mean_abs_final_weight_change_vs_1x": 0.04597471457575747,
+      "max_abs_final_weight_change_vs_1x": 0.09912550910243945,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.35119427258908464,
+      "max_constraint_attenuation_share": 1.0,
+      "months_with_any_binding_bound": 21,
+      "share_of_months_with_any_binding_bound": 0.45652173913043476,
+      "binding_bound_counts": {
+       "SPY:upper": 11,
+       "SPY:lower": 10
+      }
+     }
+    },
+    "local_finite_difference_around_1x": {
+     "definition": "symmetric difference between the 2x and 0.5x scenarios, per month",
+     "mean_abs_weight_change_per_unit_view": 0.0002340198923377399,
+     "median_abs_weight_change_per_unit_view": 0.00013453901783502326,
+     "weight_change_per_lambda_mean": 0.06289504934933186,
+     "view_change_unit": "basis points a month",
+     "months_used": 46,
+     "months_flagged_tiny_view_change": 0
+    }
+   },
+   "view_pipeline": {
+    "kind": "Black-Litterman posterior shrinkage",
+    "mean_abs_view_minus_prior_bp": 479.1208649379406,
+    "mean_abs_posterior_minus_prior_bp": 192.6358616450522,
+    "mean_share_of_the_view_the_posterior_keeps": 0.4239130434782608,
+    "median_share_of_the_view_the_posterior_keeps": 0.49999999999999983,
+    "months_used": 46,
+    "months_flagged_tiny_view": 0,
+    "note": "the posterior weight on the view is tau x Sigma against Omega: a large Omega, estimated from the model's own out-of-sample errors, is what shrinks the view, not any position limit"
+   },
+   "signal_share_of_allocation": {
+    "mean_distance_1x_from_native_neutral": 0.10971562132426262,
+    "mean_distance_0x_from_native_neutral": 4.344350965924526e-17,
+    "mean_distance_1x_from_0x_the_signal_part": 0.10971562132426266,
+    "max_distance_1x_from_0x_the_signal_part": 0.20000000000000018,
+    "signal_share_of_1x_distance_from_neutral": 1.0000000000000004
+   },
+   "statistics": {
+    "net_cer_0x": {
+     "point": 0.04365301171263889,
+     "ci90": [
+      -0.07956105726237224,
+      0.15132584397774218
+     ],
+     "ci95": [
+      -0.10374002552623131,
+      0.16743198069520707
+     ],
+     "p_two_sided_bootstrap": 0.5156,
+     "share_of_draws_above_zero": 0.7422
+    },
+    "net_cer_0x_minus_1x": {
+     "point": -0.007485259665583707,
+     "ci90": [
+      -0.0345463315855775,
+      0.016527578650610428
+     ],
+     "ci95": [
+      -0.04079146676091999,
+      0.020823353763180567
+     ],
+     "p_two_sided_bootstrap": 0.6708,
+     "share_of_draws_above_zero": 0.3354
+    },
+    "net_cer_0x_minus_native_neutral_static": {
+     "point": -6.938893903907228e-18,
+     "ci90": [
+      -2.7755575615628914e-17,
+      3.469446951953614e-17
+     ],
+     "ci95": [
+      -4.163336342344337e-17,
+      4.163336342344337e-17
+     ],
+     "p_two_sided_bootstrap": 1.0,
+     "share_of_draws_above_zero": 0.3978
+    },
+    "net_cer_0.5x": {
+     "point": 0.04849587927321719,
+     "ci90": [
+      -0.0726602425261225,
+      0.1538058973082007
+     ],
+     "ci95": [
+      -0.0972580284703894,
+      0.16814610137324087
+     ],
+     "p_two_sided_bootstrap": 0.4712,
+     "share_of_draws_above_zero": 0.7644
+    },
+    "net_cer_0.5x_minus_1x": {
+     "point": -0.0026423921050054075,
+     "ci90": [
+      -0.014016101574165905,
+      0.00828396548209897
+     ],
+     "ci95": [
+      -0.01626581606862406,
+      0.009839596133276146
+     ],
+     "p_two_sided_bootstrap": 0.696,
+     "share_of_draws_above_zero": 0.348
+    },
+    "net_cer_0.5x_minus_native_neutral_static": {
+     "point": 0.004842867560578293,
+     "ci90": [
+      -0.00961717383676154,
+      0.02168439853374365
+     ],
+     "ci95": [
+      -0.01201612586777529,
+      0.025370161184111825
+     ],
+     "p_two_sided_bootstrap": 0.6616,
+     "share_of_draws_above_zero": 0.6692
+    },
+    "net_cer_1x": {
+     "point": 0.0511382713782226,
+     "ci90": [
+      -0.06790635992266586,
+      0.15695411511727667
+     ],
+     "ci95": [
+      -0.09330237980295418,
+      0.17297228536000106
+     ],
+     "p_two_sided_bootstrap": 0.4492,
+     "share_of_draws_above_zero": 0.7754
+    },
+    "net_cer_1x_minus_native_neutral_static": {
+     "point": 0.0074852596655837,
+     "ci90": [
+      -0.016527578650610424,
+      0.03454633158557749
+     ],
+     "ci95": [
+      -0.020823353763180584,
+      0.040791466760919944
+     ],
+     "p_two_sided_bootstrap": 0.6708,
+     "share_of_draws_above_zero": 0.6646
+    },
+    "net_cer_2x": {
+     "point": 0.03975044101743475,
+     "ci90": [
+      -0.0747157877024294,
+      0.1421144147682764
+     ],
+     "ci95": [
+      -0.09796016370810562,
+      0.1578248806628572
+     ],
+     "p_two_sided_bootstrap": 0.5316,
+     "share_of_draws_above_zero": 0.7342
+    },
+    "net_cer_2x_minus_1x": {
+     "point": -0.011387830360787846,
+     "ci90": [
+      -0.023932618243275892,
+      -7.02463583431285e-05
+     ],
+     "ci95": [
+      -0.02629935526936368,
+      0.0019255656775249293
+     ],
+     "p_two_sided_bootstrap": 0.096,
+     "share_of_draws_above_zero": 0.048
+    },
+    "net_cer_2x_minus_native_neutral_static": {
+     "point": -0.0039025706952041453,
+     "ci90": [
+      -0.03651380035557047,
+      0.02943952869872237
+     ],
+     "ci95": [
+      -0.04191339878953996,
+      0.036020672921052474
+     ],
+     "p_two_sided_bootstrap": 0.8236,
+     "share_of_draws_above_zero": 0.4118
+    },
+    "net_cer_control_native_neutral_static": {
+     "point": 0.0436530117126389,
+     "ci90": [
+      -0.07956105726237231,
+      0.15132584397774218
+     ],
+     "ci95": [
+      -0.10374002552623131,
+      0.16743198069520707
+     ],
+     "p_two_sided_bootstrap": 0.5156,
+     "share_of_draws_above_zero": 0.7422
+    },
+    "_bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027,
+     "cer_delta": 2.5,
+     "paired": "every statistic uses the same resampled months"
+    }
+   }
+  },
+  "AP3": {
+   "name": "Agentic Causal RAG",
+   "short": "Causal RAG",
+   "role": "primary",
+   "status": "PENDING GENUINE AGENT OUTPUTS",
+   "reason": "Genuine qwen3:4b outputs cover 12 of the 95 required months (2015-02..2016-01) and both pre-registered reliability gates failed (G3a schema-valid call rate 0.9771 < 0.98; G3b accuracy 0.5667 < 0.80 with 2 opposite-direction errors > 1). No calibrated numerical view series exists for the 46 development months, so no sensitivity scenario can be run.",
+   "months_available": 12,
+   "months_required": 95,
+   "gates": {
+    "G3b": false,
+    "G3a": false
+   },
+   "designation_if_run_on_current_outputs": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "designation_preregistered_as": "EXPLORATORY - RELIABILITY GATES FAILED",
+   "planned_entry_point": "the calibrated numerical view produced after the Testing Agent's categorical assessments are encoded and calibrated, never the categorical labels themselves",
+   "explicit_prohibition": "Supported, Contradicted and Insufficient are categories, not magnitudes, and are never multiplied. Scaling applies only downstream of calibration.",
+   "machinery_ready": "the scenario, tracing and statistics machinery in this module is approach-agnostic: it needs a per-month calibrated numerical view, the allocator's own prior, and the native weights it produces. None of that exists for the development window yet.",
+   "blockers": [
+    "83 of 95 development-replay months are not yet run on the free GPU",
+    "G3a schema-valid call rate 0.9771 against a 0.98 floor, from the vendored assessor",
+    "G3b accuracy 0.5667 against 0.80 with 2 opposite-direction errors against a limit of 1"
+   ]
+  }
+ },
+ "cross_approach": {
+  "pairwise": {
+   "AP1_vs_AP2B": {
+    "monthly_net_return_correlation_1x": 0.9711445990928095,
+    "monthly_net_return_correlation_0x": 0.9837218212517271,
+    "monthly_net_return_correlation_native_no_signal_controls": 0.9825181705186872,
+    "monthly_signal_part_correlation": -0.2790996739307917,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   },
+   "AP1_vs_AP2A": {
+    "monthly_net_return_correlation_1x": 0.9038898727901082,
+    "monthly_net_return_correlation_0x": 0.9837218212517271,
+    "monthly_net_return_correlation_native_no_signal_controls": 0.9825181705186872,
+    "monthly_signal_part_correlation": -0.22519078404258683,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   },
+   "AP2B_vs_AP2A": {
+    "monthly_net_return_correlation_1x": 0.9704496590263033,
+    "monthly_net_return_correlation_0x": 1.0,
+    "monthly_net_return_correlation_native_no_signal_controls": 1.0,
+    "monthly_signal_part_correlation": 0.8502255376546849,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   }
+  },
+  "per_approach_variance_split": {
+   "AP1": {
+    "annualised_vol_1x": 0.11522952370183084,
+    "annualised_vol_0x_baseline_only": 0.1130149990092288,
+    "annualised_vol_of_the_signal_part": 0.00478077268558465,
+    "signal_part_share_of_1x_variance": 0.00172134790591109,
+    "correlation_1x_with_own_0x": 0.9993107528859613,
+    "mean_abs_signal_induced_weight_change": 0.027430816639812013,
+    "mean_abs_active_weight_vs_native_neutral": 0.020729625651022845
+   },
+   "AP2B": {
+    "annualised_vol_1x": 0.1365891128312676,
+    "annualised_vol_0x_baseline_only": 0.1396728252937217,
+    "annualised_vol_of_the_signal_part": 0.010197090708157464,
+    "signal_part_share_of_1x_variance": 0.005573402354375004,
+    "correlation_1x_with_own_0x": 0.9975240478650409,
+    "mean_abs_signal_induced_weight_change": 0.015857187857403844,
+    "mean_abs_active_weight_vs_native_neutral": 0.01585718785740386
+   },
+   "AP2A": {
+    "annualised_vol_1x": 0.12961170827264876,
+    "annualised_vol_0x_baseline_only": 0.1396728252937217,
+    "annualised_vol_of_the_signal_part": 0.04132195072993921,
+    "signal_part_share_of_1x_variance": 0.10164199059069429,
+    "correlation_1x_with_own_0x": 0.9556356178664244,
+    "mean_abs_signal_induced_weight_change": 0.10971562132426266,
+    "mean_abs_active_weight_vs_native_neutral": 0.10971562132426262
+   }
+  },
+  "mechanisms_examined": {
+   "similar_baseline_market_exposure": "Supported by the numbers: each approach's 0x scenario is nearly all of its own 1x return series, and the two 0x series are more correlated with each other than the 1x series are.",
+   "views_weak_relative_to_the_prior": "Measured per approach as the size of the signal-induced part of the view against the allocator's own prior; see transmission.",
+   "capped_or_constrained_response": "Measured per approach as the share of months with a binding bound and the constraint attenuation share; see transmission.",
+   "different_signals_producing_small_active_positions": "Measured as mean_abs_signal_induced_weight_change against mean_abs_active_weight_vs_native_neutral.",
+   "not_attributable_to_Black_Litterman_alone": "JEV does not use the Deterministic model's Black-Litterman path. It applies a capped tilt to its own equilibrium edge, so any shared attenuation has to be explained per architecture, not by one allocator."
+  },
+  "separation_note": "Signal transmission is not signal predictive quality. These numbers say how much of each portfolio's behaviour comes from its views; they do not say whether those views are informative. The Signal Value-Added study addresses the second question and is not restated here."
+ },
+ "limitations": [
+  "46 development months. The intervals are wide and none of these comparisons is confirmatory.",
+  "Four scenarios for each of three allocators were examined. No multiplicity correction is applied and no bootstrap p-value here is a claim of significance.",
+  "The 2x scenario is a diagnostic stress test. It is not a recommendation, and it was not selected on any criterion.",
+  "This experiment measures signal transmission, not signal predictive quality. A portfolio can respond strongly to an uninformative view, and a useful view can be attenuated to nothing.",
+  "The approaches hold different assets (SPY/IEF/LQD against SPY/TLT) with different neutral portfolios and different risk structures, so weight responses are comparable only in relative terms.",
+  "Causal RAG is not included: no calibrated view series exists for the development window."
+ ]
+}
