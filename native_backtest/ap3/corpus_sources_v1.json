@@ -112,14 +112,16 @@
    "link_regex": "https://www2\\.census\\.gov/retail/releases/historical/marts/adv(\\d{4})\\.pdf",
    "url": "https://www2.census.gov/retail/releases/historical/marts/adv{yymm}.pdf (yymm = reference month)",
    "available_at_rule": "release date and time printed on the first page ('... RELEASED AT 8:30 A.M. EDT, <WEEKDAY>, <MONTH> <D>, <YYYY>')",
-   "embargo_regex": "(?:RELEASED? AT|EMBARGOED UNTIL|FOR RELEASE AT) ?(\\d{1,2}):(\\d{2}) ?([AP])\\.?M\\.? ?(?:EDT|EST|ET)?,? ?(?:[A-Z]+DAY,? )?([A-Z][A-Za-z]+ \\d{1,2},? \\d{4})",
+   "embargo_regex": "(?:RELEASED? AT|EMBARGOED UNTIL|FOR RELEASE AT) ?(\\d{1,2}):(\\d{2}) ?([AP])\\.?M\\.? ?(?:E ?D ?T|E ?S ?T|E ?T)?,? ?(?:[A-Z]+DAY,? )?([A-Z][A-Za-z]+ \\d{1,2},? \\d{4})",
    "format": "pdf",
    "role": "data_release",
    "expected_per_year": [
     12,
     12
    ],
-   "verified_2026-10-28": "historical page lists 850 PDFs named adv<yymm>.pdf through adv2608; the release line on page 1 is checked at build time (a document without one is rejected for manual review)"
+   "verified_2026-10-28": "historical page lists 850 PDFs named adv<yymm>.pdf through adv2608; the release line on page 1 is checked at build time (a document without one is rejected for manual review)",
+   "embargo_regex_date_first": "FOR IMMEDIATE RELEASE,?\\s*(?:[A-Z]+DAY,?\\s*)?([A-Z][A-Za-z]+ \\d{1,2},? \\d{4}),?\\s*AT\\s*(\\d{1,2}):(\\d{2})\\s*([AP])\\.?M\\.?",
+   "parsing_note": "2026-10-29: text is whitespace-normalised before matching (non-breaking spaces; PDF extraction splits such as 'ED T'), and the 2014-12..2016-11 layout ('FOR IMMEDIATE RELEASE <WEEKDAY>, <MONTH D, YYYY>, AT 8:30 A.M. EDT', date before time) is read by embargo_regex_date_first. The rule is unchanged: the release time printed in the document."
   }
  },
  "excluded": {

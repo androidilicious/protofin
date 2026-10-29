@@ -100,10 +100,16 @@ def available_at(family: str, spec: dict, text: str, url_date: Optional[pd.Times
     """Returns (timestamp, source-of-time). Prefers the time printed in the document; falls back only to the
     family's documented release time on the documented date, and says so."""
     if "embargo_regex" in spec:
+        text = re.sub(r"[ \t\u00a0]+", " ", text.replace("\u00a0", " "))   # PDF extraction whitespace
         m = re.search(spec["embargo_regex"], text, re.I)
+        groups = (m.group(1), m.group(2), m.group(3), m.group(4)) if m else None
+        if m is None and "embargo_regex_date_first" in spec:
+            m2 = re.search(spec["embargo_regex_date_first"], text, re.I)
+            if m2:
+                m, groups = m2, (m2.group(2), m2.group(3), m2.group(4), m2.group(1))
         if m:
-            hh, mm = _hm(m.group(1), m.group(2), m.group(3))
-            d = _parse_date(m.group(4))
+            hh, mm = _hm(groups[0], groups[1], groups[2])
+            d = _parse_date(groups[3])
             if url_date is not None and abs((d - url_date).days) > 1:
                 raise CorpusError(f"{family}: printed release date {d.date()} differs from the URL date {url_date.date()}")
             return _ts(d, hh, mm), "printed in the document"

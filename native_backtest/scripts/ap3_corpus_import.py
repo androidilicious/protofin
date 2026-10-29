@@ -21,6 +21,7 @@ Steps
      no chunk is eligible before it was public and no canary is ever eligible.
 
 Usage (repository root): python -m native_backtest.scripts.ap3_corpus_import --zips <folder>
+                          python -m native_backtest.scripts.ap3_corpus_import --from-fetch-log   (direct fetch)
 Exit code 0 only if every archive verifies and every check passes or is a documented exception.
 """
 from __future__ import annotations
@@ -96,6 +97,59 @@ def import_archives(folder: Path) -> dict:
     return out
 
 
+FETCH_MANIFEST = ROOT / "native_backtest/data/ap3_corpus/fetch_manifest_v1.json"
+
+
+def from_fetch_log() -> dict:
+    """Direct-fetch path: read the fetcher's log, re-hash every raw file, and write the committed fetch manifest.
+
+    The manifest lists, per family, every document that was fetched (source URL, SHA-256, bytes, retrieval time,
+    index date, release date) and every planned document or index page that was not (URL and HTTP status), so
+    missing records are explicit. The raw files themselves stay outside git.
+    """
+    log = [json.loads(l) for l in (RAW / "fetch_log.jsonl").read_text().splitlines()]
+    latest, failed, index = {}, {}, {}
+    for r in log:
+        if r.get("kind") == "index":
+            index[r["url"]] = {"family": r["family"], "url": r["url"], "status": r["status"], "sha256": r["sha256"],
+                               "retrieved_utc": r["retrieved_utc"]}
+        elif r.get("status") == 200 and r.get("file"):
+            latest[r["url"]] = r
+            failed.pop(r["url"], None)
+        elif r["url"] not in latest:
+            failed[r["url"]] = {"family": r["family"], "url": r["url"], "status": r["status"], "retrieved_utc": r["retrieved_utc"],
+                                "url_date": r.get("url_date"), "release_date": r.get("release_date")}
+    docs = []
+    for r in latest.values():
+        body = (ROOT / r["file"]).read_bytes()
+        if sha(body) != r["sha256"] or len(body) != r["bytes"]:
+            raise SystemExit(f"STOP: {r['file']} differs from its logged SHA-256")
+        docs.append({k: r.get(k) for k in ("family", "url", "sha256", "bytes", "retrieved_utc", "url_date", "release_date")}
+                    | {"file": Path(r["file"]).name, "via": r.get("via", "direct_fetch")})
+    fams = {}
+    for fam in FAMILIES:
+        fams[fam] = {"fetched": sum(d["family"] == fam for d in docs),
+                     "failed_documents": sorted((f for f in failed.values() if f["family"] == fam), key=lambda f: f["url"]),
+                     "index_pages": sorted((i for i in index.values() if i["family"] == fam), key=lambda i: i["url"])}
+        fams[fam]["index_unreachable"] = [i["url"] for i in fams[fam]["index_pages"] if i["status"] != 200]
+    out = {"title": "AP3 evidence corpus: direct fetch from the issuing agencies",
+           "sources_config": "native_backtest/ap3/corpus_sources_v1.json",
+           "raw_store": "native_backtest/data/_corpus_raw/ (git-ignored; versioned archives stored outside the repository history)",
+           "families": fams,
+           "documents": sorted(docs, key=lambda d: (d["family"], d["url"]))}
+    FETCH_MANIFEST.write_text(json.dumps(out, indent=1) + "\n")
+    return out
+
+
+def _same_year_december_minutes(fd: list, by_url: dict, y: int):
+    """The December meeting of year y whose minutes the calendar dates within year y (normally they follow in January)."""
+    for d in fd:
+        meet = (by_url.get(d["url"], {}) or {}).get("url_date")
+        if meet and meet[:7] == f"{y}-12" and d["available_at_et"][:4] == str(y):
+            return {"url_date": meet, "available_at_et": d["available_at_et"]}
+    return None
+
+
 def checks(imported: dict) -> dict:
     src = corpus.load_sources()
     man = json.loads(CORPUS_MANIFEST.read_text())
@@ -119,6 +173,10 @@ def checks(imported: dict) -> dict:
                 status = "explained: " + SHUTDOWN_2025
             elif y == int(w0[:4]) and fam in ("fomc_minutes",) and n < lo:
                 status = "partial year"
+            elif fam == "fomc_minutes" and n == hi + 1 and _same_year_december_minutes(fd, by_url, y):
+                d = _same_year_december_minutes(fd, by_url, y)
+                status = (f"explained: minutes of the December {y} meeting ({d['url_date']}) were released on {d['available_at_et'][:10]}, "
+                          f"within the same year, per the Federal Reserve calendar")
             else:
                 status = "UNEXPLAINED"
             rows[str(y)] = {"n": n, "expected": [lo, hi], "status": status}
@@ -147,7 +205,10 @@ def checks(imported: dict) -> dict:
         "date_mismatches": sum(len(v["mismatches"]) for v in res["dates"].values()),
         "alfred_mismatches": sum(len(v["not_an_alfred_vintage_date"]) for v in res["alfred"].values()),
         "point_in_time_pass": res["point_in_time_audit_2015_02_to_2026_08"]["pass"],
-        "pdf_metadata_used": False}
+        "pdf_metadata_used": False,
+        "families_missing": [f for f, x in imported.get("families", {}).items() if x.get("fetched") == 0],
+        "index_pages_unreachable": {f: x["index_unreachable"] for f, x in imported.get("families", {}).items() if x.get("index_unreachable")},
+        "failed_documents": {f: len(x["failed_documents"]) for f, x in imported.get("families", {}).items() if x.get("failed_documents")}}
     s = res["summary"]
     s["pass"] = bool(not s["build_errors"] and not unexplained and not s["date_mismatches"] and not s["alfred_mismatches"] and s["point_in_time_pass"])
     CHECKS.write_text(json.dumps(res, indent=1) + "\n")
@@ -156,10 +217,17 @@ def checks(imported: dict) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--zips", type=Path, required=True)
+    g = ap.add_mutually_exclusive_group(required=True)
+    g.add_argument("--zips", type=Path, help="folder of browser-captured archives")
+    g.add_argument("--from-fetch-log", action="store_true", help="use the direct fetcher's raw store and log")
     a = ap.parse_args()
-    imported = import_archives(a.zips)
-    print(json.dumps({f: {k: v for k, v in x.items() if k in ("imported", "documents", "missing")} for f, x in imported["archives"].items()}))
+    if a.from_fetch_log:
+        imported = from_fetch_log()
+        print(json.dumps({f: {"fetched": x["fetched"], "failed": len(x["failed_documents"]), "index_unreachable": x["index_unreachable"]}
+                          for f, x in imported["families"].items()}))
+    else:
+        imported = import_archives(a.zips)
+        print(json.dumps({f: {k: v for k, v in x.items() if k in ("imported", "documents", "missing")} for f, x in imported["archives"].items()}))
     from native_backtest.scripts import ap3_corpus_build
     ap3_corpus_build.main()
     res = checks(imported)
