@@ -384,3 +384,38 @@ def test_smoke_runner_refuses_without_approval(monkeypatch):
     with pytest.raises(sm.NotApproved):
         sm.main(["--provider", "bedrock", "--execute"])
     assert not (sm.ROOT / cfg["approval_record"]).exists()
+
+
+# ---------------------------------------------------------------- browser-captured corpus import
+def _corpus_zip(path, docs, tamper=False):
+    import hashlib as _h
+    import json as _j
+    import zipfile as _z
+    man = {"archive": path.stem, "created_utc": "2026-10-29T02:00:00Z", "page_origin": "https://www.bls.gov", "documents": []}
+    with _z.ZipFile(path, "w", compression=_z.ZIP_DEFLATED) as z:
+        for name, body, meta in docs:
+            rec = {**meta, "status": 200, "bytes": len(body), "sha256": _h.sha256(body).hexdigest(), "retrieved_utc": "2026-10-29T02:00:01Z", "file": name}
+            man["documents"].append(rec)
+            z.writestr(name, body + (b"x" if tamper else b""))
+        man["documents"].append({"family": "bls_cpi", "url": "https://www.bls.gov/x_missing.htm", "status": 404})
+        z.writestr("manifest.json", _j.dumps(man))
+
+
+def test_corpus_import_verifies_page_side_hashes(tmp_path, monkeypatch):
+    import pytest
+    from native_backtest.scripts import ap3_corpus_import as imp
+    monkeypatch.setattr(imp, "RAW", tmp_path / "raw")
+    monkeypatch.setattr(imp, "IMPORT_MANIFEST", tmp_path / "import_manifest.json")
+    monkeypatch.setattr(imp, "ROOT", tmp_path)
+    zips = tmp_path / "zips"
+    zips.mkdir()
+    meta = {"family": "bls_cpi", "url": "https://www.bls.gov/news.release/archives/cpi_01162015.htm", "url_date": "2015-01-16", "release_date": "2015-01-16"}
+    _corpus_zip(zips / "ap3_corpus_bls_cpi_v1.zip", [("bls_cpi/20150116.html", b"<pre>embargoed until 8:30 a.m. (EST) Friday, January 16, 2015</pre>", meta)])
+    out = imp.import_archives(zips)
+    a = out["archives"]["bls_cpi"]
+    assert a["imported"] == 1 and a["failed_fetches"][0]["status"] == 404 and out["archives"]["bls_ppi"] == {"missing": True}
+    log = [json.loads(l) for l in (tmp_path / "raw" / "fetch_log.jsonl").read_text().splitlines()]
+    assert log[0]["via"] == "browser_capture" and log[0]["file"] == "raw/bls_cpi/20150116.html" and log[0]["url_date"] == "2015-01-16"
+    _corpus_zip(zips / "ap3_corpus_bls_cpi_v1.zip", [("bls_cpi/20150116.html", b"<pre>abc</pre>", meta)], tamper=True)
+    with pytest.raises(SystemExit, match="page-side SHA-256"):
+        imp.import_archives(zips)
