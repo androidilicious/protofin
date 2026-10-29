@@ -1,0 +1,2297 @@
+{
+ "month": "2022-09",
+ "decision_time": "2022-09-30T20:00:00-04:00",
+ "graph_vintage": 2021,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "above consensus",
+   "surprise_z": 1.78,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "date": "2022-09-21",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 0.17,
+   "date": "2022-09-28",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": 4.33
+  },
+  {
+   "change": -0.3,
+   "date": "2022-09-28",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -5.24
+  },
+  {
+   "change": -0.25,
+   "date": "2022-09-28",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -4.5
+  },
+  {
+   "change": -0.23,
+   "date": "2022-09-28",
+   "days_at_or_above_threshold": 5,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -4.87
+  },
+  {
+   "change": -0.19,
+   "date": "2022-09-29",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -3.84
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.574,
+  "CORE_CPI": 1.78,
+  "CPI": 0.72,
+  "INDUSTRIAL_PRODUCTION": -0.406,
+  "ISM_MANUFACTURING": 0.695,
+  "NFP": 0.147,
+  "PPI": -0.107,
+  "RETAIL_SALES": 0.303
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "repeat_of": 3
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4008,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4296,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4418,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4467,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4770,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 3,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4858,
+     "completion_tokens": 554
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2022-09-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "Core inflation -> output gap -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-a570f9bd389f": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w26450",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP2246",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2848",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "simulation"
+    },
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4957",
+     "year": 2005,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 30,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 17
+    },
+    "sha256": "5b69bea63364017b435e1c533acc7a142068fee3201f515f41f8c2958a98ec06",
+    "latest_available_at": "2022-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield)",
+       "would_contradict": "If BEI5Y increases instead of decreases"
+      },
+      {
+       "observable": "UST10Y (10-year Treasury yield)",
+       "would_contradict": "If UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "UST2Y (2-year Treasury yield)",
+       "would_contradict": "If UST2Y increases instead of decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-09-30#c000",
+       "DN_CPI_2022-09-30#c000",
+       "RC_w26450_6f9f9eed5eb5#c000",
+       "DN_PPI_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.8 std above consensus, supporting the link's hypothesised direction (core inflation -> equity returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.8 std above consensus, supporting the link's hypothesised direction (core inflation -> equity returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.8 std above consensus, supporting the link's hypothesised direction (inflation -> monetary policy -> output -> stock returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.8 std above consensus, supporting the link's hypothesised direction (inflation -> monetary policy -> output -> stock returns).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield)",
+       "would_contradict": "If BEI5Y increases (positive sign) instead of decreasing"
+      },
+      {
+       "observable": "UST10Y (10-year Treasury yield)",
+       "would_contradict": "If UST10Y increases (positive sign) instead of decreasing"
+      },
+      {
+       "observable": "UST2Y (2-year Treasury yield)",
+       "would_contradict": "If UST2Y increases (positive sign) rather than decreasing"
+      },
+      {
+       "observable": "SPY (S&P 500 index)",
+       "would_contradict": "If SPY increases (positive) instead of staying flat"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF)",
+       "would_contradict": "If IEF increases (positive) instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-09-30#c000",
+       "DN_CPI_2022-09-30#c000",
+       "RC_w26450_6f9f9eed5eb5#c000",
+       "DN_PPI_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) rose by +0.07 after Core CPI release, indicating higher credit risk, which may correlate with decreased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy rose after Core CPI release, indicating higher credit risk, which may correlate with decreased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-30), the series rose by +7.75 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose significantly after Core CPI release, indicating increased market stress, which may correlate with decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread proxy rose after Core CPI release, indicating higher credit risk, which may correlate with decreased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) decreases",
+       "would_contradict": "If BEI5Y increases instead of decreasing"
+      },
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreasing"
+      },
+      {
+       "observable": "UST2Y (2-year Treasury yield) decreases",
+       "would_contradict": "If UST2Y increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-09-30#c000",
+       "DN_CPI_2022-09-30#c000",
+       "RC_w26450_6f9f9eed5eb5#c000",
+       "DN_PPI_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.20 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a rise in the 10-year minus 3-month Treasury yield spread after Core CPI release, indicating higher Treasury prices (lower yields) over the period. This supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a rise in the investment-grade credit spread after Core CPI release, indicating lower corporate bond prices (higher yields) over the period. This supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.20 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a rise in the 10-year minus 3-month Treasury yield spread after Core CPI release, indicating higher Treasury prices (lower yields) over the period. This supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a rise in the investment-grade credit spread after Core CPI release, indicating lower corporate bond prices (higher yields) over the period. This supports the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-09-H2",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "Monetary policy shocks -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-3d43afcc584e": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 31,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 17
+    },
+    "sha256": "0d7a4424e4389479bd15a9b6a911ca3474954fe51a890398b1047f7736fd4ec0",
+    "latest_available_at": "2022-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield)",
+       "would_contradict": "If BEI5Y increases instead of decreases after FOMC"
+      },
+      {
+       "observable": "UST10Y (10-year Treasury yield)",
+       "would_contradict": "If UST10Y increases instead of decreases after FOMC"
+      },
+      {
+       "observable": "UST2Y (2-year Treasury yield)",
+       "would_contradict": "If UST2Y increases instead of decreases after FOMC"
+      },
+      {
+       "observable": "SPY (S&P 500 index)",
+       "would_contradict": "If SPY increases instead of staying flat after FOMC"
+      },
+      {
+       "observable": "IEF (10-year Treasury inflation-protected security)",
+       "would_contradict": "If IEF increases instead of decreasing after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "Find papers that show BEI5Y decreases after FOMC",
+       "Find papers that show UST10Y decreases after FOMC",
+       "Find papers that show UST2Y decreases after FOMC"
+      ],
+      "contradicting": [
+       "Find papers that show BEI5Y increases after FOMC",
+       "Find papers that show UST10Y increases after FOMC",
+       "Find papers that show UST2Y increases after FOMC"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+       "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+       "RC_w9459_86a55c741048#c000"
+      ],
+      "contradicting": [
+       "RC_w16074_86a55c741048#c000",
+       "RC_w9459_06886981407e#c000",
+       "RC_DP5463_86a55c741048#c000",
+       "RC_w12605_86a55c741048#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-09-30#c000",
+       "DN_PPI_2022-09-30#c000",
+       "DN_CORE_CPI_2022-09-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) rose by +0.14 points from FOMC decision to decision time, indicating higher credit risk, which supports the link to FOMC communication affecting IEF (7-10 year Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) rose by +0.14 points from FOMC decision to decision time, indicating higher credit risk, which supports the link to FOMC communication affecting LQD (US investment-grade corporate bond prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.18 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the 10-year minus 3-month Treasury yield spread rose by +0.18 points from FOMC decision to decision time, indicating higher yield differentials, which supports the link to FOMC communication affecting IEF (7-10 year Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.18 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the 10-year minus 3-month Treasury yield spread rose by +0.18 points from FOMC decision to decision time, indicating higher yield differentials, which supports the link to FOMC communication affecting LQD (US investment-grade corporate bond prices).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield)",
+       "would_contradict": "If BEI5Y increases (sign +1) instead of decreasing (sign -1) after FOMC"
+      },
+      {
+       "observable": "UST10Y (10-year bond yield)",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) after FOMC"
+      },
+      {
+       "observable": "UST2Y (2-year bond yield)",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1) after FOMC"
+      },
+      {
+       "observable": "SPY (S&P 500 index)",
+       "would_contradict": "If SPY increases (sign +1) instead of staying flat (sign 0) after FOMC"
+      },
+      {
+       "observable": "IEF (10-year Treasury inflation-protected security)",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y trend after FOMC 2022-09",
+       "UST10Y trend after FOMC 2022-09",
+       "UST2Y trend after FOMC 2022-09"
+      ],
+      "contradicting": [
+       "BEI5Y increase after FOMC 2022-09",
+       "UST10Y increase after FOMC 2022-09",
+       "UST2Y increase after FOMC 2022-09"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+       "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+       "DN_VIX_2022-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-09-30#c000",
+       "DN_PPI_2022-09-30#c000",
+       "DN_CORE_CPI_2022-09-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose 4.46 points after FOMC on 2022-09-21, indicating increased market stress that could correlate with Treasury price declines (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread rose 0.14 points after FOMC on 2022-09-21, indicating higher corporate bond prices (LQD) as yields fell.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose 4.46 points after FOMC on 2022-09-21, indicating increased market stress that could correlate with Treasury price declines (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread rose 0.14 points after FOMC on 2022-09-21, indicating higher corporate bond prices (LQD) as yields fell.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y increases instead of decreases"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "UST2Y increases instead of decreases"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "SPY increases instead of staying flat"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "IEF increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+       "DN_CPI_2022-09-30#c000",
+       "DN_PPI_2022-09-30#c000",
+       "DN_CORE_CPI_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.18 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.11 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-09-30 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC decision on 2022-09-21 caused a rise in the 10Y-3M Treasury spread (IEF) by +0.18pp, while the 10Y-3M spread rose by +0.11pp over the period. Both indicate a positive change, but the magnitude differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.05 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-09-30 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC decision on 2022-09-21 caused a rise in the IG credit spread (LQD) by +0.14pp, while the IG spread rose by +0.05pp over the period. Both indicate a positive change, but the magnitude differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.18 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.11 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-09-30 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC decision on 2022-09-21 caused a rise in the 10Y-3M Treasury spread (IEF) by +0.18pp, while the 10Y-3M spread rose by +0.11pp over the period. Both indicate a positive change, but the magnitude differs.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.05 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-09-30 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC decision on 2022-09-21 caused a rise in the IG credit spread (LQD) by +0.14pp, while the IG spread rose by +0.05pp over the period. Both indicate a positive change, but the magnitude differs.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-09-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 17
+    },
+    "sha256": "a0846bad9d53596b61fefc7a7da6b180b14472cbd00f20fb63b15530a9832a0e",
+    "latest_available_at": "2022-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "UST10Y > 0",
+       "UST2Y > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "UST10Y < 0",
+       "UST2Y < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_IG_SPREAD_2022-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 4.46 points from FOMC on 2022-09-21 to 2022-09-30, indicating market stress that could drive SPY down.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise indicates market stress that could drive IEF down as risk assets decline.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise indicates market stress that could drive LQD down as risk assets decline.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rise indicates market stress that typically leads to SPY declines, not increases.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rise typically leads to IEF declines, not increases.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rise typically leads to LQD declines, not increases.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive) instead of decreasing, the hypothesis is falsified"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive) instead of decreasing, the hypothesis is falsified"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive) instead of decreasing, the hypothesis is falsified"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, the hypothesis is falsified"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, the hypothesis is falsified"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y > 0 in 2022-09-30",
+       "UST10Y > 0 in 2022-09-30",
+       "UST2Y > 0 in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_FOMC_2022-09-21#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-30), the series rose by +7.75 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +7.75 points from pre-Core CPI to decision time, indicating increased volatility. This supports the link where large market moves (VIX) lead to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "IG spread rose by +0.14 points from pre-FOMC to decision time, supporting the link where large market moves lead to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.05 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "IG spread rose by +0.05 points over the period, supporting the link where large market moves lead to decreased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-30), the series rose by +4.46 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by +4.46 points from pre-FOMC to decision time, contradicting the link where large market moves lead to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-09-21 (14:00 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.14 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "IG spread rose by +0.14 points from pre-FOMC to decision time, contradicting the link where large market moves lead to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-09-01 and 2022-09-29 the series rose by +0.05 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "IG spread rose by +0.05 points over the period, contradicting the link where large market moves lead to decreased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y increases instead of decreases"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "UST2Y increases instead of decreases"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "SPY increases instead of decreases"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "IEF increases instead of decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-09-30",
+       "UST10Y in 2022-09-30",
+       "UST2Y in 2022-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-09-30#c000",
+       "DN_SLOPE_10Y3M_2022-09-30#c000",
+       "DN_IG_SPREAD_2022-09-30#c000",
+       "DN_VIX_CORE_CPI_2022-09-13#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-09-21#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+       "DN_SLOPE_10Y3M_FOMC_2022-09-21#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_FOMC_2022-09-21#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-30), the series rose by +7.75 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly (+7.75 points) after Core CPI release, indicating market stress that may have driven SPY declines.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.20 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M spread increased by +0.20 points after Core CPI release, suggesting IEF (longer-term Treasury) prices fell.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread (LQD proxy) increased by +0.07 points after Core CPI release, indicating LQD prices fell.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-30), the series rose by +7.75 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose significantly after Core CPI release, indicating market stress that would typically decrease SPY prices, not increase them.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.20 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "10Y-3M spread increased after Core CPI release, suggesting IEF prices fell, not rose.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-09-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-09-13 (08:30 ET) to the latest value published by the decision time (2022-09-29), the series rose by +0.07 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spread (LQD proxy) increased after Core CPI release, indicating LQD prices fell, not rose.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": -0.33999999999999986,
+       "z": -1.2778266816952024,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.5,
+       "z": 2.188789045537777,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-09-01",
+       "window_end": "2022-09-29",
+       "change": 0.6500000000000004,
+       "z": 2.6562548829709387,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Contradicted",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -1.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "e3bc6d59424a2c33ebae8602bf9006e1eeb9732237b0e20fd133e29e2b60d091",
+ "packet_sha256": "6c8d3964e99f0ba8c31879d3cb2902de9337eeb418cd256f74302a85ad8f7709",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

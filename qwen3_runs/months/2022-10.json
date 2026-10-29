@@ -1,0 +1,1785 @@
+{
+ "month": "2022-10",
+ "decision_time": "2022-10-31T20:00:00-04:00",
+ "graph_vintage": 2021,
+ "event": [
+  {
+   "change": -0.29,
+   "date": "2022-10-03",
+   "days_at_or_above_threshold": 5,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -4.92
+  },
+  {
+   "change": -0.16,
+   "date": "2022-10-03",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.8
+  },
+  {
+   "change": 0.19,
+   "date": "2022-10-13",
+   "days_at_or_above_threshold": 5,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 3.9
+  },
+  {
+   "change": 0.19,
+   "date": "2022-10-20",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 3.78
+  },
+  {
+   "change": 0.12,
+   "date": "2022-10-21",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": 2.99
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.041,
+  "CORE_CPI": 0.856,
+  "CPI": 0.594,
+  "INDUSTRIAL_PRODUCTION": 0.418,
+  "ISM_MANUFACTURING": -0.761,
+  "NFP": -0.055,
+  "PPI": 0.563,
+  "RETAIL_SALES": -0.274
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "stock market returns",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "repeat_of": 0
+   }
+  ],
+  "turns": 7,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3212,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3519,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3641,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3690,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "stock market returns",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3993,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4060,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4147,
+     "completion_tokens": 843
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2022-10-H1",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases risk aversion, leading to higher credit spreads",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Low",
+   "confidence_applied": "Low",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-792fcac4da25": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP890",
+     "year": 1994,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 27,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 13
+    },
+    "sha256": "095862952b01312fe1de3adaf69c98031bafd7f06af145dbf50171f1dbeb11b4",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-10-H1_s2: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-10-H2",
+   "trigger": "MARKET_STRESS",
+   "channel": "inflation",
+   "mechanism": "Market stress drives inflation expectations, increasing nominal interest rates",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 33,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 13
+    },
+    "sha256": "e45f906015fc251d73612de19c08144afd192a79d3f2e24997d2cfeae771cdc9",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases or remains stable"
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "If SPY increases or remains stable"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) increases",
+       "would_contradict": "If IEF decreases or remains stable"
+      },
+      {
+       "observable": "LQD (iShares iBoxx $US Treasury 1-3 Year) decreases",
+       "would_contradict": "If LQD increases or remains stable"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2022-10-01 to 2022-10-31",
+       "SPY < 4500 in 2022-10-01 to 2022-10-31",
+       "IEF > 2.2% in 2022-10-01 to 2022-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2022-10-01 to 2022-10-31",
+       "SPY > 4500 in 2022-10-01 to 2022-10-31",
+       "IEF < 2.2% in 2022-10-01 to 2022-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000",
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2022-10-01 and 2022-10-28 the series rose by +0.19 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by 0.19% over the period, indicating higher short-term interest rates, which aligns with market stress driving inflation expectations and higher nominal rates as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by 0.66 percentage points, suggesting a narrowing of the yield curve, which typically indicates lower long-term rates and aligns with market stress increasing nominal rates.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-10-01 and 2022-10-28 the series rose by +0.06 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread proxy rose by 0.06 percentage points, indicating higher corporate bond yields relative to Treasuries, which aligns with market stress driving inflation expectations and higher nominal rates.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe stock price movements or the mechanism involving uncertainty, aggregate demand, and output. Evidence is limited to market data notes without direct links to stock price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe corporate bond price movements or the mechanism involving uncertainty, aggregate demand, and output. Evidence is limited to market data notes without direct links to bond price changes.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.1899999999999995,
+       "z": 0.780004880371328,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases (sign = 1) instead of increasing"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign = -1) instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01 AND date > 2022-10-01 AND date < 2022-10-31",
+       "SPY < 0.01 AND date > 2022-10-01 AND date < 2022-10-31",
+       "IEF > 0.01 AND date > 2022-10-01 AND date < 2022-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 0.01 AND date > 2022-10-01 AND date < 2022-10-31",
+       "SPY > 0.01 AND date > 2022-10-01 AND date < 2022-10-31",
+       "IEF < 0.01 AND date > 2022-10-01 AND date < 2022-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000",
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell by -0.66, indicating a narrowing of the yield curve, which typically correlates with decreasing equity prices (SPY) during market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread narrowing suggests higher short-term yields relative to long-term, which typically increases 10Y Treasury prices (IEF) during market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-10-01 and 2022-10-28 the series rose by +0.06 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The rising credit spread (LQD) indicates higher corporate bond yields relative to Treasuries, suggesting decreasing investment-grade bond prices (LQD) during market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell, indicating reduced market volatility, which contradicts the mechanism where uncertainty drives stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell, indicating reduced market volatility, which contradicts the mechanism where uncertainty drives Treasury returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell, indicating reduced market volatility, which contradicts the mechanism where uncertainty drives corporate bond returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.1899999999999995,
+       "z": 0.780004880371328,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500) decreases",
+       "would_contradict": "If SPY increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF) increases",
+       "would_contradict": "If IEF decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "LQD (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If LQD increases, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2022-10-01 to 2022-10-31",
+       "SPY < 4500 in 2022-10-01 to 2022-10-31",
+       "IEF > 150 in 2022-10-01 to 2022-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2022-10-01 to 2022-10-31",
+       "SPY > 4500 in 2022-10-01 to 2022-10-31",
+       "IEF < 150 in 2022-10-01 to 2022-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000",
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.74 points, indicating reduced market volatility, which supports the link where market stress (large moves) leads to decreased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell by 0.66 pp, indicating tighter market conditions, supporting the link where market stress increases nominal interest rates, raising Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-10-01 and 2022-10-28 the series rose by +0.06 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread rose by 0.06 pp, indicating higher corporate borrowing costs, supporting the link where market stress leads to decreased investment-grade bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe the mechanism (uncertainty -> aggregate demand -> output -> stock returns) or provide evidence for SPY price changes over the next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.1899999999999995,
+       "z": 0.780004880371328,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-10-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "growth",
+   "mechanism": "Market stress reduces aggregate demand, lowering output",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST2Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-02cb13cc390b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP890",
+     "year": 1994,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w0550",
+     "year": 1980,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w6790",
+     "year": 1998,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w8072",
+     "year": 2001,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w26056",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w26650",
+     "year": 2020,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w27957",
+     "year": 2020,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 13
+    },
+    "sha256": "dc55395773bbac709024e9d0b9eb11332b7e5e99d805fbfac2e1f3443f437429",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-10-H3_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-10-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "growth",
+   "mechanism": "Market stress reduces aggregate demand, lowering output",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-792fcac4da25": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP890",
+     "year": 1994,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 33,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 13
+    },
+    "sha256": "8f7aa56ab5da4595b93bc79b2e52dd603851c5708a88b9b8b7f94a0b1e244eda",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-10-H4_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-10-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "inflation",
+   "mechanism": "Market stress increases inflation expectations, reducing real yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-6517235006e4": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 13
+    },
+    "sha256": "bfd280d86c85111f927c964e50f4f56e5348edee02f5b0287f7bdf66572d8461",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-10-H5_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-10-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases risk aversion, leading to higher credit spreads",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Low",
+   "confidence_applied": "Low",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 13
+    },
+    "sha256": "2e3036d31ea3f24ba9346a2c50899dcbfbed7e4189f7affdef97a5267ac8e06b",
+    "latest_available_at": "2022-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2022-10-31",
+       "SPY < 0 in 2022-10-31",
+       "IEF > 0 in 2022-10-31"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2022-10-31",
+       "SPY > 0 in 2022-10-31",
+       "IEF < 0 in 2022-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_VIX_2022-10-31#c000",
+       "DN_UST10Y_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.74 points, indicating reduced volatility, which may support market stress leading to lower equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Treasury yield spread fell, suggesting increased risk aversion, which may support higher Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Treasury yield spread fell, indicating higher risk aversion, which may support lower corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address stock price movements or aggregate demand mechanisms.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.05999999999999961,
+       "z": 0.19002918849690997,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign = -1) instead of increasing (sign = 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases (sign = 1) instead of increasing (sign = 1) during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "Find recent data on IG_SPREAD during market stress events",
+       "Find recent data on SPY returns during market stress events",
+       "Find recent data on IEF returns during market stress events"
+      ],
+      "contradicting": [
+       "Find recent data on IG_SPREAD during market stress events where IG_SPREAD decreased",
+       "Find recent data on SPY returns during market stress events where SPY increased",
+       "Find recent data on IEF returns during market stress events where IEF decreased"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000",
+       "DN_UST10Y_2022-10-31#c000",
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_2022-10-31#c000",
+       "DN_CPI_2022-10-31#c000",
+       "DN_PPI_2022-10-31#c000",
+       "DN_CORE_CPI_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.74 points, indicating reduced volatility, which may support market stress causing equity price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell by 0.66 pp, suggesting tighter credit conditions, which may support market stress increasing risk aversion.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell, indicating higher credit spreads, which may support market stress causing corporate bond price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link market stress to equity price changes via the specified mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link market stress to Treasury price changes via the specified mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link market stress to corporate bond price changes via the specified mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.05999999999999961,
+       "z": 0.19002918849690997,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-ecc76d5aeb07",
+      "mechanism": "volatility -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "Find papers that show IG_SPREAD increases during market stress",
+       "Find data on SPY returns during market stress",
+       "Find data on IEF returns during market stress"
+      ],
+      "contradicting": [
+       "Find data where IG_SPREAD decreases during market stress",
+       "Find data where SPY increases during market stress",
+       "Find data where IEF decreases during market stress"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2022-10-31#c000",
+       "DN_UST2Y_2022-10-31#c000",
+       "DN_UST10Y_2022-10-31#c000",
+       "DN_BEI5Y_2022-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_2022-10-31#c000",
+       "DN_CPI_2022-10-31#c000",
+       "DN_PPI_2022-10-31#c000",
+       "DN_CORE_CPI_2022-10-31#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release showed surprise above consensus, suggesting potential market stress affecting equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release showed surprise above consensus, suggesting potential market stress increasing Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 0.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "PPI release showed surprise above consensus, suggesting potential market stress decreasing corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-10-01 and 2022-10-31 the series fell by -5.74 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell, indicating reduced volatility, which may have decreased equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2022-10-01 and 2022-10-28 the series fell by -0.66 (-2.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell, suggesting increased Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2022-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2022-10-01 and 2022-10-28 the series rose by +0.48 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5Y breakeven inflation rose, suggesting higher risk premia decreasing corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2022-10-01",
+       "window_end": "2022-10-28",
+       "change": 0.05999999999999961,
+       "z": 0.19002918849690997,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": -2.0,
+   "F_C": 0.0,
+   "F_I": -4.0
+  },
+  "IEF": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 4.0
+  },
+  "LQD": {
+   "F_S": -2.0,
+   "F_C": 0.0,
+   "F_I": -4.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "1be0aff6761bdde33c15a03eb5ff2b9b7df626ca12e8a7cf8b19039743fe4328",
+ "packet_sha256": "7ef2e237d86cbf7d061d68f26a9309a157cb79f530d8306410af1f16918441da",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

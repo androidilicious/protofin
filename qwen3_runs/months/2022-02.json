@@ -1,0 +1,2866 @@
+{
+ "month": "2022-02",
+ "decision_time": "2022-02-28T20:00:00-05:00",
+ "graph_vintage": 2021,
+ "event": [
+  {
+   "description": "Industrial production release",
+   "direction": "above consensus",
+   "surprise_z": 1.378,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "above consensus",
+   "surprise_z": 1.577,
+   "trigger": "NFP"
+  },
+  {
+   "change": 0.11,
+   "date": "2022-02-04",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.31
+  },
+  {
+   "change": 0.25,
+   "date": "2022-02-10",
+   "days_at_or_above_threshold": 5,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 7.11
+  },
+  {
+   "change": 0.1,
+   "date": "2022-02-15",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.06
+  },
+  {
+   "change": 0.12,
+   "date": "2022-02-23",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.86
+  },
+  {
+   "change": 0.14,
+   "date": "2022-02-24",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": 3.94
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.341,
+  "CORE_CPI": 0.033,
+  "CPI": 0.295,
+  "INDUSTRIAL_PRODUCTION": 1.378,
+  "ISM_MANUFACTURING": 0.059,
+  "NFP": 1.577,
+  "PPI": 0.853,
+  "RETAIL_SALES": 0.684
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "treasury yields",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "treasury bonds",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "corporate bonds",
+     "limit": 10
+    }
+   }
+  ],
+  "turns": 9,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 0,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3992,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4299,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4421,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4470,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4773,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "treasury yields",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5068,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "treasury bonds",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5366,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "corporate bonds",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5713,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6047,
+     "completion_tokens": 1293
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2022-02-H1",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "Output growth leads to higher money growth, which increases inflation, driving equity returns upward",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Low",
+   "confidence_applied": "Low",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-72b38a98737a": "3 links",
+    "p2021-e6a1a854c07b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 14
+    },
+    "sha256": "ee5d1b8ea97b57485a90e0bad85c1e395f306a42cb2e9b9b77f5646b73d6cef2",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-02-H1_s2: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-02-H2",
+   "trigger": "NFP",
+   "channel": "inflation",
+   "mechanism": "Unemployment leads to higher inflation, which increases nominal interest rates, driving stock prices upward",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-53ffe1364cb8": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25512",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP15210",
+     "year": 2020,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    },
+    {
+     "paper_id": "w28005",
+     "year": 2020,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP16557",
+     "year": 2021,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 23,
+    "by_kind": {
+     "research_claim": 9,
+     "data_note": 14
+    },
+    "sha256": "636f708348aa97664b6727981d491a0ba3d6632a0dcee5633d8ce565461c6841",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-02-H2_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-02-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Volatility increases inflation, which widens the output gap, reducing risk premia for bonds",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 14
+    },
+    "sha256": "bbbea2b4cad4ffc76da539c2b016bd97ece1319c32059c03cce4f66813e18a3c",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases, then the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01",
+       "UST2Y > 0.01",
+       "SLOPE_10Y3M > 0.01"
+      ],
+      "contradicting": [
+       "UST10Y < 0.01",
+       "UST2Y < 0.01",
+       "SLOPE_10Y3M < 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-28), the series rose by +4.45 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_VIX_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show VIX rose significantly from pre-release to decision time, indicating market stress (large moves) that could lead to SPY declines as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-28), the series rose by +4.45 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_VIX_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rises indicate market stress (large moves) that could lead to IEF increases as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy rose, indicating increased risk (LQD prices would fall) as per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rose significantly, suggesting market stress (large moves) that would typically decrease SPY, contradicting the mechanism's prediction of SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rose significantly, suggesting market stress (large moves) that would typically decrease IEF, contradicting the mechanism's prediction of IEF decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "explanation": "Credit spread proxy rose, indicating increased risk (LQD prices would fall), contradicting the mechanism's prediction of LQD decreases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 5,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01 in last 30 days",
+       "UST2Y > 0.01 in last 30 days",
+       "SLOPE_10Y3M > 0.01 in last 30 days"
+      ],
+      "contradicting": [
+       "UST10Y < 0.01 in last 30 days",
+       "UST2Y < 0.01 in last 30 days",
+       "SLOPE_10Y3M < 0.01 in last 30 days"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_NFP_2022-02-04#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +5.80 points from pre-NFP release to decision time, indicating increased volatility. This aligns with the hypothesised link where large market moves (VIX) lead to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy rose by +0.21 points from pre-IP release to decision time, supporting the link where market moves increase IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy rose by +0.28 points over the period, indicating increased LQD prices as per the hypothesised link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +8.19 points over the period, supporting the link where market moves increase SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "Credit spread proxy rose by +0.28 points, contradicting the hypothesised link where market moves decrease IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "explanation": "Credit spread proxy rose by +0.28 points, contradicting the hypothesised link where market moves decrease LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2022-02-28",
+       "UST2Y > 2022-02-28",
+       "SLOPE_10Y3M > 2022-02-28"
+      ],
+      "contradicting": [
+       "UST10Y <= 2022-02-28",
+       "UST2Y <= 2022-02-28",
+       "SLOPE_10Y3M <= 2022-02-28"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly from pre-release to decision time, indicating increased volatility. This supports the link where large market moves (VIX) lead to decreased equity prices (SPY).",
+       "rejected_quotes": 2
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spreads rose, indicating higher risk premia, which aligns with the mechanism where volatility leads to wider output gaps and reduced risk premia for bonds.",
+       "rejected_quotes": 2
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spreads rose, indicating higher risk premia, which supports the link where volatility leads to increased corporate bond prices (LQD).",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly, indicating increased market volatility, which supports the link where large market moves lead to increased equity prices (SPY).",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spreads rose, indicating higher risk premia, contradicting the link where large market moves lead to decreased Treasury prices (IEF).",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spreads rose, indicating higher risk premia, contradicting the link where large market moves lead to decreased corporate bond prices (LQD).",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-02-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Uncertainty reduces aggregate demand, lowering output, which decreases stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-792fcac4da25": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP890",
+     "year": 1994,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 28,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 14
+    },
+    "sha256": "c58a3f575ecbc1767b4d3d15f421d476c47b26703679fd8cf8ef118c28fb6ded",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-02-H4_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-02-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Volatility increases nominal interest rates, reducing stock prices",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 14
+    },
+    "sha256": "147a559b708924acc926025fd678985dcfeec00d3372ceae619f04c6a1d74ebd",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing (sign -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01 AND date > 2022-02-28",
+       "UST2Y > 0.01 AND date > 2022-02-28",
+       "SLOPE_10Y3M > 0.01 AND date > 2022-02-28"
+      ],
+      "contradicting": [
+       "UST10Y < 0.01 AND date > 2022-02-28",
+       "UST2Y < 0.01 AND date > 2022-02-28",
+       "SLOPE_10Y3M < 0.01 AND date > 2022-02-28"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000",
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +5.80 points from pre-NFP release to decision time, indicating increased volatility. This supports the mechanism where volatility increases nominal interest rates, reducing stock prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +5.80 points from pre-NFP release to decision time, indicating increased volatility. This supports the mechanism where volatility increases nominal interest rates, reducing stock prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread rose by +0.28 percentage points from pre-NFP release to decision time, indicating increased volatility. This supports the mechanism where volatility increases nominal interest rates, reducing stock prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by +8.19 points over the period, indicating increased volatility. This contradicts the mechanism where uncertainty leads to increased aggregate demand, which would increase stock prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by +8.19 points over the period, indicating increased volatility. This contradicts the mechanism where uncertainty leads to increased aggregate demand, which would increase Treasury prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by +8.19 points over the period, indicating increased volatility. This contradicts the mechanism where uncertainty leads to increased aggregate demand, which would increase corporate bond prices.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-02-28T20:00:00-05:00",
+       "UST2Y in 2022-02-28T20:00:00-05:00",
+       "SLOPE_10Y3M in 2022-02-28T20:00:00-05:00"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-02-28T20:00:00-05:00",
+       "BEI5Y in 2022-02-28T20:00:00-05:00"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-28), the series rose by +4.45 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose by +4.45 points from Industrial production release to decision time, indicating increased volatility. This aligns with the mechanism where volatility increases nominal interest rates, reducing stock prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread rose by +0.28 percentage points, indicating higher risk premiums. This supports the link where volatility increases nominal interest rates, reducing stock prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (US investment-grade corporate bond prices) or the mechanism. The available data focuses on credit spreads and VIX, not LQD.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe the mechanism (uncertainty -> aggregate demand -> output -> stock returns) or link to SPY. The data shows VIX and credit spreads but not the causal chain for SPY.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing (sign -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-02-28T20:00:00-05:00",
+       "UST2Y in 2022-02-28T20:00:00-05:00",
+       "SLOPE_10Y3M in 2022-02-28T20:00:00-05:00"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-02-28T20:00:00-05:00",
+       "SPY in 2022-02-28T200:00:00-05:00"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly from pre-release to decision time, indicating increased volatility. This supports the mechanism where volatility increases nominal interest rates, reducing stock prices (SPY).",
+       "rejected_quotes": 2
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, indicating higher risk premiums. This supports the mechanism where volatility increases nominal interest rates, reducing Treasury prices (IEF).",
+       "rejected_quotes": 2
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, indicating higher risk premiums. This supports the mechanism where volatility increases nominal interest rates, reducing corporate bond prices (LQD).",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe the mechanism (uncertainty -> aggregate demand -> output -> stock returns) or stock price movements. Evidence only shows VIX volatility, not stock prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spread increased, indicating higher risk premiums, which contradicts the mechanism where uncertainty leads to lower Treasury prices (IEF).",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spread increased, indicating higher risk premiums, which contradicts the mechanism where uncertainty leads to lower corporate bond prices (LQD).",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Contradicted",
+   "run_statuses": [
+    "Contradicted",
+    "Insufficient",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-02-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Risk aversion reduces consumption, lowering output, which decreases stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-20bcb717f453": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w19319",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP5212",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w17584",
+     "year": 2011,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP14279",
+     "year": 2020,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w26647",
+     "year": 2020,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP1995",
+     "year": 1998,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 14
+    },
+    "sha256": "f56e2f16f8bdda310878a17a72e44f29e114a204a03a1b0ad9304236aa6fd013",
+    "latest_available_at": "2022-02-28T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-02-28",
+       "UST2Y in 2022-02-28",
+       "SLOPE_10Y3M in 2022-02-28"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-02-28",
+       "UST10Y in 2022-02-28",
+       "UST2Y in 2022-02-28"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly by decision time, indicating market stress that could reduce equity prices (SPY) as per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, suggesting risk aversion that could raise Treasury prices (IEF) as per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, indicating risk aversion that could raise corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly, indicating market stress that could reduce equity prices (SPY) as per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, suggesting risk aversion that could raise Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased, indicating risk aversion that could raise corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.0001 and UST2Y > 0.0001 and SLOPE_10Y3M > 0.0001 and BEI5Y < 0.0001",
+       "UST10Y < 0.0001 and UST2Y < 0.0001 and SLOPE_10Y3M < 0.0001 and BEI5Y > 0.0001"
+      ],
+      "contradicting": [
+       "UST10Y > 0.0001 and UST2Y > 0.0001 and SLOPE_10Y3M > 0.0001 and BEI5Y < 0.0001",
+       "UST10Y < 0.0001 and UST2Y < 0.0001 and SLOPE_10Y3M < 0.0001 and BEI5Y > 0.0001"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-28), the series rose by +4.45 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rose by 4.45 points after Industrial Production release, but also rose by 8.19 points over full period. Both indicate increased volatility, but direction of link is unclear.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "Credit spread rose slightly but VIX rose significantly; neither directly addresses bond price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention LQD or corporate bond prices directly.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rose after NFP release, but also rose over full period; both indicate increased volatility.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-02-01 and 2022-02-25 the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-02-28#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-02-01 and 2022-02-28 the series rose by +8.19 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-02-28 17:00 ET."
+        }
+       ],
+       "explanation": "Credit spread rose slightly but VIX rose significantly; neither directly addresses bond price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention LQD or corporate bond prices directly.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-02-28",
+       "UST2Y in 2022-02-28",
+       "SLOPE_10Y3M in 2022-02-28"
+      ],
+      "contradicting": [
+       "BEI5Y in 2022-02-28",
+       "UST10Y in 2022-02-28",
+       "UST2Y in 2022-02-28"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-02-28#c000",
+       "DN_IG_SPREAD_2022-02-28#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_VIX_NFP_2022-02-04#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+       "DN_IG_SPREAD_NFP_2022-02-04#c000"
+      ],
+      "neutral": []
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-28), the series rose by +5.80 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 5.80 points from pre-NFP release to decision time, indicating increased market stress that may have driven SPY down.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased by 0.28 points from pre-NFP release to decision time, suggesting risk aversion that could raise IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2022-02-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2022-02-04 (08:30 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.28 (+1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased by 0.28 points from pre-NFP release to decision time, indicating potential LQD price increases due to risk aversion.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-28), the series rose by +4.45 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 4.45 points from pre-IP release to decision time, signaling market stress that could lower SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased by 0.21 points from pre-IP release to decision time, indicating potential IEF price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2022-02-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2022-02-16 (09:15 ET) to the latest value published by the decision time (2022-02-25), the series rose by +0.21 (+1.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread increased by 0.21 points from pre-IP release to decision time, suggesting LQD price increases due to risk aversion.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.15999999999999992,
+       "z": 0.8627671273534923,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.3700000000000001,
+       "z": 2.168669099485425,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.019999999999999796,
+       "z": 0.10312073387244287,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2022-02-01",
+       "window_end": "2022-02-25",
+       "change": 0.2200000000000002,
+       "z": 1.0025213072246688,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": -1.0,
+   "F_I": -1.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 1.0,
+   "F_I": 1.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 1.0,
+   "F_I": 1.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "f96a99b44c6278ba585f30269b0a3e2cf3ba1677e5d4aff7e90e158926b5c02b",
+ "packet_sha256": "fc24f5b0f60e39213e70da4fa13e3c66e5706c7147786d15e01016da62c76a66",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}
