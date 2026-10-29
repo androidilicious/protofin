@@ -13,6 +13,10 @@ the Agentic Workflow.
 - Primary contrasts: pairwise net-CER differences among the primary approaches, one Holm family
   of three at the freeze. Contrasts with AP3 are pending until AP3 has genuine decisions.
 - Within-approach contrast: Committee only vs JEV only, reported separately.
+- Common benchmark (framework_config "common_benchmark"; evaluation layer only, secondary and
+  descriptive): every system against the same fixed reference portfolio on the same dates, with the
+  exact split into active allocation decisions (vs its own native benchmark) and the benchmark mix
+  difference (own native benchmark vs the common one). It never enters the primary family.
 - Consistency: the common-rule variant V4 must equal the shared evaluator's own result.
 
 The protected window is enforced: every scored month is checked by framework.lock before use.
@@ -27,6 +31,7 @@ import numpy as np
 import pandas as pd
 
 from native_backtest.adapters import execution_attribution as ea
+from native_backtest.framework import benchmark as B
 from native_backtest.framework import metrics as M
 from native_backtest.framework.accounting import simulate_records, static_portfolio_records
 from native_backtest.framework.lock import assert_scoring_allowed
@@ -77,6 +82,30 @@ def main() -> int:
                      "vs_own_neutral": rel})
     report["common_evaluation_matched_dev"] = rows
 
+    # 2b. Common benchmark, matched window (secondary, descriptive; not part of the primary family)
+    spec = B.spec(cfg)
+    delta = cfg["metrics"]["cer_delta"]
+    tmpl = [r for r in recs["AP1"] if r.decision_month in {str(m) for m in matched}]
+    bench = B.simulate(cfg, mk, matched, tmpl)
+    bench.to_csv(OUT / f"{spec['id']}_matched_dev.csv", index=False)
+    cb_rows = []
+    for s in ("AP1", "AP2B", "AP2A"):
+        cb_rows.append({"system": s, "role": cfg["systems"][s]["role"],
+                        "absolute": {**M.metrics(sims[s]), "cumulative_return": B.cumulative_return(sims[s])},
+                        "native_benchmark": {"weights": cfg["systems"][s]["native_neutral_weights"],
+                                             "cumulative_return": B.cumulative_return(sims[f"{s}_NEUTRAL"])},
+                        "vs_common": B.relative(sims[s], bench, cfg),
+                        "attribution": B.decomposition(sims[s], sims[f"{s}_NEUTRAL"], bench, delta)})
+    cb_rows.append({"system": "AP3", "role": cfg["systems"]["AP3"]["role"] if "AP3" in cfg["systems"] else "primary",
+                    "status": "pending: no genuine model decisions yet; nothing is simulated"})
+    report["common_benchmark_matched_dev"] = {
+        "status": spec["status"], "id": spec["id"], "label": spec["label"], "weights": spec["weights"], "rules": spec["rules"],
+        "role": spec["role"], "attribution_rule": spec["attribution"],
+        "benchmark": {**M.metrics(bench), "cumulative_return": B.cumulative_return(bench)},
+        "systems": cb_rows,
+        "note": "Secondary and descriptive. Subtracting one common benchmark leaves every difference between approaches unchanged; "
+                "the pre-registered pairwise net-CER contrasts below remain the primary comparison."}
+
     # consistency: V4 == shared evaluator for AP2 on the matched window
     cons = {}
     for s in ("AP2A", "AP2B"):
@@ -99,6 +128,9 @@ def main() -> int:
         "family": [f"{x}-{y}" for x, y in cfg["primary_contrasts"]], "family_size_at_freeze": family,
         "multiplicity": "Holm over the full family once every contrast exists; until then the Bonferroni bound over the full family is reported (Holm-adjusted p cannot exceed it).",
         "computed": primary, "pending_no_decisions": pending}
+    vc = {r["system"]: r["vs_common"]["cer_difference"] for r in cb_rows if "vs_common" in r}
+    report["common_benchmark_matched_dev"]["check_primary_gaps_unchanged"] = {
+        k: abs((vc[k.split("-")[0]] - vc[k.split("-")[1]]) - v["cer_difference"]) for k, v in primary.items()}
     within = {}
     for x, y in cfg["within_approach_contrasts"]:
         within[f"{x}-{y}"] = M.paired_cer_contrast(sims[x], sims[y])
@@ -116,7 +148,13 @@ def main() -> int:
     for r in rows:
         print(r["system"], {k: round(v, 4) for k, v in r["absolute"].items() if k in ("cer_delta_2_5", "net_sharpe", "annualized_volatility")},
               "vs neutral ΔCER", round(r["vs_own_neutral"]["cer_difference"], 4), [round(x, 4) for x in r["vs_own_neutral"]["ci90"]])
-    return 0 if max(cons.values()) < 1e-12 else 1
+    gaps = report["common_benchmark_matched_dev"]["check_primary_gaps_unchanged"]
+    for r in cb_rows:
+        if "attribution" in r:
+            a = r["attribution"]
+            print(r["system"], "vs common ΔCER", round(a["total_vs_common"], 4), "= decisions", round(a["active_decisions"], 4),
+                  "+ benchmark mix", round(a["benchmark_mix_difference"], 4))
+    return 0 if max(cons.values()) < 1e-12 and max(gaps.values(), default=0) < 1e-12 else 1
 
 
 if __name__ == "__main__":

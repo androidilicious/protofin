@@ -16,8 +16,13 @@
     volatility: 'Volatility: how much returns swing in a year. Lower is smoother.',
     turnover: 'Turnover: share of the portfolio traded in a year. More trading costs more.',
     growth: 'What $1 invested at the start would be worth each month, after trading costs.',
-    gap: 'How far ahead (or behind) $1 in the approach is compared with $1 in its own benchmark.',
-    benchmark: "Own benchmark: the approach's fixed starting mix, rebalanced monthly. Beating it means the forecasts added value.",
+    gap: 'How far ahead (or behind) $1 in the approach is compared with $1 in the common benchmark.',
+    commonbench: 'Common benchmark: one reference portfolio for all three approaches, 60% US equities (SPY) and 40% intermediate-term Treasuries (IEF), rebalanced monthly on the same dates, costs and accounting. A reference point, not a neutral or broad-market benchmark.',
+    benchmark: "Own benchmark: each approach's own fixed starting mix, rebalanced monthly. Beating it means the approach's decisions added value. It differs by approach, so it is not used to compare approaches.",
+    attribution: "The gap to the common benchmark splits exactly into two parts: the approach's decisions (versus its own starting mix) and the benchmark mix (its own starting mix versus the common benchmark), which comes from the assets it may hold, not from its decisions.",
+    cumulative: 'Cumulative return: total growth over the period after trading costs, including dividends. Not adjusted for risk.',
+    vscommon: 'Net CER of the approach minus net CER of the common benchmark, in percentage points per year.',
+    freeze: 'Awaiting freeze approval: specified and checked. It becomes fixed only when the project lead approves it, before the historical test opens, and cannot change afterwards.',
     significance: 'Statistically clear: too large to be explained by chance (5% level), after adjusting for running three comparisons.',
     ci: 'Likely range (95%): where the true difference most likely lies. If it spans zero, the gap could be chance.',
     bl: 'Black–Litterman: starts from a neutral mix and tilts toward the forecasts, more when they are confident.',
@@ -50,7 +55,7 @@
   const ASSET_VAR = { SPY: '--a-eq', IEF: '--a-gov', TLT: '--a-gov', LQD: '--a-credit' };
   const ASSET_DASH = { SPY: [], IEF: [6, 4], TLT: [6, 4], LQD: [2, 3] };
   const PLAIN = { SPY: 'Stocks', IEF: 'Treasuries', TLT: 'Long Treasuries', LQD: 'Corporate bonds' };
-  const BENCH_DASH = [[6, 4], [2, 3]];
+  const COMMON_DASH = [7, 4], OWN_DASH = [2, 3];
 
   // Line icons (24 px grid, stroked with the current colour).
   const P = {
@@ -161,7 +166,10 @@
   const xTicks = (months, n) => ({ ticks: { maxTicksLimit: n || (window.innerWidth < 560 ? 4 : 8), maxRotation: 0, autoSkip: true, callback: (v, i) => monthLabel(months[i]) }, grid: { display: false } });
   const bottomLegend = { position: 'bottom', labels: { boxWidth: 18, boxHeight: 2 } };
   const FMT_WEALTH = { y: v => '$' + v.toFixed(2), tip: v => '$' + v.toFixed(3) };
-  const FMT_GAP = { y: v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%', tip: v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}% vs own benchmark` };
+  const FMT_GAP = { y: v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%', tip: v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}% vs common benchmark` };
+  const CB = () => D.dev.common_benchmark;
+  const commonLine = label => ({ label: label || 'Common benchmark', data: CB().wealth, color: css('--c-common'), dash: COMMON_DASH });
+  const freezeChip = () => `<span class="chip wait">${icon('hourglass')}${esc(CB().status_label)} ${tip('freeze')}</span>`;
 
   function legendButtons(id, items) {
     return `<div class="legend" id="${id}">` + items.map((it, i) => {
@@ -202,7 +210,7 @@
 
   // One shared symmetric axis for every interval bar, so bars compare across pages.
   function ciAxis() {
-    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.map(Math.abs)).concat((D.dev.within_contrasts || []).flatMap(c => c.ci95.map(Math.abs)))
+    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.concat(s.vs_common.ci95).map(Math.abs)).concat((D.dev.within_contrasts || []).flatMap(c => c.ci95.map(Math.abs)))
       .concat(D.dev.primary_contrasts.items.filter(c => c.computed).flatMap(c => c.ci95.map(Math.abs)));
     return Math.max(0.01, Math.ceil(Math.max(...vals) * 100) / 100);
   }
@@ -249,8 +257,8 @@
     const segColor = st => st === 'pass' ? css('--pos') : st === 'blocked' ? css('--neg') : css('--surface-3');
     const body = r ? `
       <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>
-      <div class="vsrow"><span>vs own benchmark: <b class="num">${pts(r.vs_neutral.cer_difference)}</b>, likely range ${pts(r.vs_neutral.ci95[0])} to ${pts(r.vs_neutral.ci95[1])} ${tip('benchmark')}</span>
-        ${ciBar(r.vs_neutral, s.key)}${r.vs_neutral.p >= 0.05 ? NS : ''}</div>`
+      <div class="vsrow"><span>vs common benchmark: <b class="num">${pts(r.vs_common.cer_difference)}</b>, likely range ${pts(r.vs_common.ci95[0])} to ${pts(r.vs_common.ci95[1])} ${tip('commonbench')}</span>
+        ${ciBar(r.vs_common, s.key)}${r.vs_common.p >= 0.05 ? NS : ''}</div>`
       : `<div class="unavail"><span><b>Not run yet.</b> Its AI model runs await approval; until they pass validation there are no results.</span>
           <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
           <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
@@ -290,23 +298,29 @@
       <p class="sub">The comparisons with Causal RAG are pending. All three are judged together ${tip('significance')}</p>`;
   }
 
-  function compareTable(keys) {
+  // Same metrics for every approach; with bench=true a final column for the common benchmark itself.
+  function compareTable(keys, bench) {
     const rows = [['cer', 'Net CER', m => pct(m.cer), true], ['sharpe', 'Sharpe ratio', m => num(m.sharpe)], ['drawdown', 'Worst fall', m => pct(m.max_drawdown)],
-      ['volatility', 'Volatility', m => pct(m.volatility)], ['turnover', 'Turnover', m => pct(m.turnover, 0)]];
-    return `<div class="cmpwrap"><table class="cmp"><thead><tr><th>Development ${devYears()}</th>${keys.map(k => `<th><span class="nw"><span class="badge" style="background:var(${VAR[k]});width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px"></span>${SHORT[k]}</span></th>`).join('')}</tr></thead>
-      <tbody>${rows.map(([k, l, f, pr]) => `<tr${pr ? ' class="primary"' : ''}><td><span class="nw">${l} ${tip(k)}</span></td>${keys.map(x => `<td class="num">${S(x) ? f(S(x).metrics) : (pr ? 'not run' : '—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      ['cumulative', 'Cumulative return', m => pct(m.cumulative_return)], ['volatility', 'Volatility', m => pct(m.volatility)], ['turnover', 'Turnover', m => pct(m.turnover, 0)],
+      ['vscommon', 'Net CER vs common benchmark', null]];
+    const cell = (x, f, pr, k) => { const r = S(x); if (!r) return pr ? 'not run' : '—'; return f ? f(r.metrics) : pts(r.vs_common.cer_difference); };
+    const col = k => k === 'rag' ? ' class="rag-col"' : '';
+    const head = k => `<th${col(k)}><span class="nw"><span class="badge" style="background:var(${VAR[k]});width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px"></span>${SHORT[k]}</span></th>`;
+    const label = (l, k) => { const w = l.split(' '); return `${w.slice(0, -1).join(' ')} ${tipw(w.at(-1), k)}`; };
+    return `<div class="cmpwrap"><table class="cmp"><thead><tr><th>Development ${devYears()}</th>${keys.map(head).join('')}${bench ? `<th class="cb"><span class="ln-cb" aria-hidden="true"></span>Common<span class="ph-hide"> benchmark</span></th>` : ''}</tr></thead>
+      <tbody>${rows.map(([k, l, f, pr]) => `<tr${pr ? ' class="primary"' : ''}${f ? '' : ' class="rel"'}><td>${label(l, k)}</td>${keys.map(x => `<td class="num${x === 'rag' ? ' rag-col' : ''}">${cell(x, f, pr, k)}</td>`).join('')}${bench ? `<td class="num cb">${f ? f(CB().metrics) : 'reference'}</td>` : ''}</tr>`).join('')}</tbody></table></div>
+      ${keys.includes('rag') ? '<p class="sub ph-only">Causal RAG has no results yet, so it is left out of this table on small screens.</p>' : ''}`;
   }
 
   function viewOverview() {
     const months = D.dev.months;
     const res = D.systems.filter(s => S(s.key));
-    const bkeys = [...new Set(res.map(s => S(s.key).neutral))];
-    const users = bk => res.filter(s => S(s.key).neutral === bk).map(s => s.short).join(' & ');
+    const cbw = CB().wealth;
+    // One common reference line for every approach; each approach's own benchmark is in its details.
     const growthLines = mode => mode === 'gap'
-      ? res.map(s => { const b = D.dev.benchmarks[S(s.key).neutral].wealth; return { label: s.short, data: S(s.key).wealth.map((w, i) => (w / b[i] - 1) * 100), color: color(s.key) }; })
-          .concat([{ label: 'Own benchmark', data: months.map(() => 0), color: css('--c-bench'), dash: BENCH_DASH[0] }])
-      : res.map(s => ({ label: s.short, data: S(s.key).wealth, color: color(s.key) }))
-          .concat(bkeys.map((bk, i) => ({ label: `Benchmark of ${users(bk)}`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[i % 2] })));
+      ? res.map(s => ({ label: s.short, data: S(s.key).wealth.map((w, i) => (w / cbw[i] - 1) * 100), color: color(s.key) }))
+          .concat([{ label: 'Common benchmark', data: months.map(() => 0), color: css('--c-common'), dash: COMMON_DASH }])
+      : res.map(s => ({ label: s.short, data: S(s.key).wealth, color: color(s.key) })).concat([commonLine()]);
     app.innerHTML = `<div class="wrap">
       <section>
         <h1>Three ways to build a portfolio, scored by the same rules</h1>
@@ -322,16 +336,17 @@
           <h3>Not yet known</h3><ul class="facts wait">${D.notes.not_yet.map(t => `<li>${icon('hourglass')}<span>${esc(t)}</span></li>`).join('')}</ul></div>
       </section>
       <section class="panel">
-        <div class="phead"><h2>Key metrics</h2></div>
-        ${compareTable(['det', 'jev', 'rag'])}
-        <p class="sub">Net CER is the primary metric; the others describe risk and trading. Values differ, but no difference is statistically clear.</p>
+        <div class="phead"><h2 id="g-title"><span>Growth of $1, after costs</span> ${tip('growth')}</h2>
+          <div class="seg" role="group" aria-label="Chart view"><button type="button" data-g="abs" aria-pressed="true">Growth of $1</button><button type="button" data-g="gap" aria-pressed="false">Versus common benchmark</button></div></div>
+        <div class="legend" id="lg-growth"></div>
+        <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results and the common benchmark"></canvas></div>
+        <div class="cbnote"><span class="ln-cb" aria-hidden="true"></span><span><b>Common benchmark</b> · ${esc(CB().label)}, rebalanced monthly under the same rules ${tip('commonbench')}</span>${freezeChip()}</div>
+        <p class="sub">The gaps are within what chance could produce. Causal RAG has no line: it has not run. Each approach's own benchmark is in its details ${tip('benchmark')}</p>
       </section>
       <section class="panel">
-        <div class="phead"><h2 id="g-title"><span>Growth of $1, after costs</span> ${tip('growth')}</h2>
-          <div class="seg" role="group" aria-label="Chart view"><button type="button" data-g="abs" aria-pressed="true">Growth of $1</button><button type="button" data-g="gap" aria-pressed="false">Versus own benchmark</button></div></div>
-        <div class="legend" id="lg-growth"></div>
-        <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results"></canvas></div>
-        <p class="sub">Dashed lines are each approach's own benchmark. The lines differ, but the gaps are within what chance could produce. Causal RAG has no line: it has not run.</p>
+        <div class="phead"><h2>Key metrics</h2></div>
+        ${compareTable(['det', 'jev', 'rag'], true)}
+        <p class="sub">Net CER is the primary metric; the others describe risk and trading. Values differ, but no difference is statistically clear.</p>
       </section>
       <section aria-label="Explore"><div class="explore">
         <a href="#approaches"><span class="ic">${icon('flow')}</span><span><b>How each approach works</b><span>Workflows, forecasts and holdings</span></span></a>
@@ -341,7 +356,7 @@
     </div>`;
     const drawGrowth = mode => {
       lineChart('c-growth', 'lg-growth', months, growthLines(mode), mode === 'gap' ? FMT_GAP : FMT_WEALTH);
-      document.querySelector('#g-title > span').textContent = mode === 'gap' ? 'Ahead of or behind own benchmark' : 'Growth of $1, after costs';
+      document.querySelector('#g-title > span').textContent = mode === 'gap' ? 'Ahead of or behind the common benchmark' : 'Growth of $1, after costs';
       document.querySelector('#g-title .tip span[role=tooltip]').textContent = GLOSSARY[mode === 'gap' ? 'gap' : 'growth'];
     };
     drawGrowth('abs');
@@ -416,11 +431,22 @@
     return [common];
   }
 
+  // Exact split of the gap to the common benchmark: decisions (vs own benchmark) + benchmark mix (own vs common).
+  function attributionBars(a, key) {
+    const A = Math.max(0.005, Math.abs(a.total), Math.abs(a.decisions), Math.abs(a.mix)) * 1.1;
+    const bar = (v, c) => { const w = Math.abs(v) / A * 50; return `<span class="ab" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%;background:${c}"></span>`; };
+    const row = (l, sub, v, c, cls) => `<div class="arow${cls ? ' ' + cls : ''}"><span class="al">${l}<small>${sub}</small></span><span class="atrack"><span class="zero"></span>${bar(v, c)}</span><b class="num">${pts(v, 2)}</b></div>`;
+    return `<div class="attr" role="img" aria-label="Gap to the common benchmark ${pts(a.total, 2)}: decisions ${pts(a.decisions, 2)}, benchmark mix ${pts(a.mix, 2)}">
+      ${row('Decisions', 'vs its own starting mix', a.decisions, color(key))}
+      ${row('Benchmark mix', 'own starting mix vs common', a.mix, css('--c-bench'))}
+      ${row('Total', 'vs common benchmark', a.total, css('--c-common'), 'tot')}</div>`;
+  }
+
   function viewApproach(key) {
     const s = sys(key);
     if (key === 'rag') return viewCausalRag(s);
     const variant = s.role === 'variant';
-    const r = S(key), months = D.dev.months, bench = D.dev.benchmarks[r.neutral], vs = r.vs_neutral;
+    const r = S(key), months = D.dev.months, bench = D.dev.benchmarks[r.neutral], vs = r.vs_neutral, vc = r.vs_common;
     const sig = signalsBlock(s, r), rep = D.reproduction[key], steps = D.native_vs_common[key], ex = r.example;
     const repLabel = { reproduced: 'matched saved results', replayed: 'matched saved results (replay only)' }[rep.status] || 'did not match';
     app.innerHTML = `<div class="wrap" style="--c:var(${VAR[key]})">
@@ -441,13 +467,23 @@
             <div class="kpi"><div class="v num">${pct(r.metrics.max_drawdown)}</div><div class="l">Worst fall ${tip('drawdown')}</div></div>
             <div class="kpi"><div class="v num">${pct(r.metrics.volatility)}</div><div class="l">Volatility ${tip('volatility')}</div></div>
             <div class="kpi"><div class="v num">${pct(r.metrics.turnover, 0)}</div><div class="l">Turnover ${tip('turnover')}</div></div>
+            <div class="kpi"><div class="v num">${pct(r.metrics.cumulative_return)}</div><div class="l">Cumulative ${tip('cumulative')}</div></div>
           </div>
-          <h3>Versus its own benchmark ${tip('benchmark')}</h3>
-          <p class="sub"><b class="num">${pts(vs.cer_difference)}</b> net CER per year against ${esc(bench.label)}; likely range ${pts(vs.ci95[0])} to ${tipw(pts(vs.ci95[1]), 'ci')}</p>
-          ${ciBar(vs, key)}${vs.p >= 0.05 ? NS : ''}
-          <p class="sub">Historical test ${testYears()}: sealed ${tip('test')}</p>
+          <h3>Versus the common benchmark ${tip('commonbench')}</h3>
+          <p class="sub"><b class="num">${pts(vc.cer_difference)}</b> net CER per year against ${esc(CB().label)}; likely range ${pts(vc.ci95[0])} to ${tipw(pts(vc.ci95[1]), 'ci')}</p>
+          ${ciBar(vc, key)}${vc.p >= 0.05 ? NS : ''}
+          <p class="sub">Cumulative return ${pts(vc.cumulative_difference)} versus the common benchmark. Historical test ${testYears()}: sealed ${tip('test')}</p>
         </div>
-        <div class="panel"><h2>Growth of $1 ${tip('growth')}</h2><div class="legend" id="lg-one"></div><div class="chartbox sm"><canvas id="c-one" aria-label="Growth of one dollar"></canvas></div></div>
+        <div class="panel"><h2>Growth of $1 ${tip('growth')}</h2><div class="legend" id="lg-one"></div><div class="chartbox sm"><canvas id="c-one" aria-label="Growth of one dollar, with the common benchmark and the approach's own benchmark"></canvas></div></div>
+      </section>
+      <section class="grid2">
+        <div class="panel"><div class="phead"><h2>Where the gap comes from ${tip('attribution')}</h2></div>
+          ${attributionBars(r.attribution, key)}
+          <p class="sub">${Math.abs(r.attribution.mix) > Math.abs(r.attribution.decisions) ? 'Most of the gap comes from the assets this approach may hold, not from its decisions.' : 'Most of the gap comes from the approach\'s decisions.'} Parts may not add up exactly because of rounding.</p></div>
+        <div class="panel"><div class="phead"><h2>Versus its own benchmark ${tip('benchmark')}</h2><span class="chip plain">Secondary check</span></div>
+          <p class="sub"><b class="num">${pts(vs.cer_difference)}</b> net CER per year against ${esc(bench.label)}; likely range ${pts(vs.ci95[0])} to ${pts(vs.ci95[1])}</p>
+          ${ciBar(vs, key)}${vs.p >= 0.05 ? NS : ''}
+          <p class="sub">Shows whether its decisions beat its own starting mix. It differs by approach, so it is not used to compare approaches.</p></div>
       </section>
       <section class="grid2">
         <div class="panel">${sig.html}</div>
@@ -466,7 +502,8 @@
       <details class="more"><summary>Limitations</summary><div><ul>${limitations(key).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div></details>
     </div>`;
     wireFlow(key);
-    lineChart('c-one', 'lg-one', months, [{ label: s.short, data: r.wealth, color: color(key) }, { label: `Own benchmark (${bench.label})`, data: bench.wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }], FMT_WEALTH);
+    lineChart('c-one', 'lg-one', months, [{ label: s.short, data: r.wealth, color: color(key) }, commonLine(),
+      { label: `Own benchmark (${bench.label})`, data: bench.wealth, color: css('--c-bench'), dash: OWN_DASH }], FMT_WEALTH);
     sig.draw();
     weightsChart(document.getElementById('c-w'), months, r.weights);
     const drawSteps = () => { const c = document.getElementById('c-steps'); if (!steps || !c || c.dataset.drawn) return; c.dataset.drawn = '1';
@@ -558,7 +595,7 @@
       ${E.groups.map(group).join('')}
       <section class="panel" style="--c:var(--c-com)">
         <div class="phead"><h2>Agent Committee only vs JEV only</h2>${dataChip('dev')}</div>
-        <p class="sub">Same assets, inputs and 60/40 benchmark, so this isolates how the views are formed.</p>
+        <p class="sub">Same assets, inputs and own 60/40 benchmark, so this isolates how the views are formed.</p>
         <div class="grid2">
           <div><div class="legend" id="lg-exp"></div><div class="chartbox sm"><canvas id="c-exp" aria-label="Growth of one dollar, Committee and JEV"></canvas></div></div>
           <div style="display:grid;gap:12px;align-content:start">${compareTable(keys)}
@@ -571,7 +608,7 @@
       const open = b.getAttribute('aria-expanded') === 'true'; b.setAttribute('aria-expanded', String(!open));
       document.getElementById(b.getAttribute('aria-controls')).hidden = open; }));
     lineChart('c-exp', 'lg-exp', months, keys.map(k => ({ label: sys(k).short, data: S(k).wealth, color: color(k) }))
-      .concat([{ label: `Benchmark (${D.dev.benchmarks[bk].label})`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: BENCH_DASH[0] }]), FMT_WEALTH);
+      .concat([{ label: `Shared own benchmark (${D.dev.benchmarks[bk].label})`, data: D.dev.benchmarks[bk].wealth, color: css('--c-bench'), dash: OWN_DASH }]), FMT_WEALTH);
   }
 
   // ---------------------------------------------------------------- methodology
@@ -594,6 +631,11 @@
         <div class="settings">${M.settings.map(x => { const [c, ic, l] = SETTING[x.status];
           return `<div class="setting"><span class="ic">${icon(x.icon)}</span><div><b>${esc(x.name)}${x.tip ? ' ' + tip(x.tip) : ''}</b><p>${esc(x.value)}</p><span class="chip ${c}">${icon(ic)}${l}</span></div></div>`; }).join('')}</div>
       </section>
+      <section class="panel"><div class="phead"><h2>Common benchmark ${tip('commonbench')}</h2>${freezeChip()}</div>
+        <div class="cbspec"><div class="cbmix" role="img" aria-label="${esc(CB().label)}">${Object.entries(CB().weights).map(([a, w]) => `<span style="flex:${w} 1 0;background:${assetColor(a)}"><b>${Math.round(w * 100)}%</b> ${a === 'SPY' ? 'US equities' : 'Intermediate-term Treasuries'}<small>${esc(CB().instruments[a].split('(')[0].trim())}</small></span>`).join('')}</div>
+          <ul class="rules">${CB().rules.map(x => `<li>${icon('check')}<span><b>${esc(x.name)}</b>${esc(x.text)}</span></li>`).join('')}</ul></div>
+        <p class="sub">${esc(CB().not_neutral)} ${esc(CB().data_checks)} It is a reference for all three approaches and never changes their decisions or the primary comparison.</p>
+      </section>
       <section class="panel"><div class="phead"><h2>Validation status</h2><span class="chip block">${icon('lock')}Decision: ${V.decision === 'NO-GO' ? 'not yet approved to open the test' : esc(V.decision)}</span></div>
         <div class="matrix" role="table" aria-label="Validation checks by approach">
           <div class="mh" role="columnheader">Check</div>${V.columns.map(k => `<div class="mh" role="columnheader" aria-label="${esc(COLS[k][0])}"><span class="badge" style="background:var(${VAR[k]});width:20px;height:20px;font-size:11.5px;border-radius:6px">${LETTER[k]}</span><span class="full">${esc(COLS[k][0])}</span></div>`).join('')}
@@ -610,12 +652,14 @@
         <li>Three approaches, compared in pairs: ${pc.map(c => `${name(c.a)} vs ${name(c.b)}`).join('; ')}.</li>
         <li>Differences are measured on the same months; uncertainty comes from resampling 6-month blocks 5,000 times.</li>
         <li>The three comparisons are corrected together (Holm). Within-approach experiments never enter this family.</li>
+        <li>The common benchmark is a secondary reference: it never enters this family, and it leaves every difference between approaches unchanged.</li>
         <li>With few months, only large differences are detectable: “not significant” means not enough evidence, not “no difference”.</li></ul></div></details>
       <details class="more"><summary>Why this is not a controlled experiment</summary><div><ul>
         <li>The Agentic Workflow holds stocks and 20+ year Treasuries; the other two hold stocks, 7–10 year Treasuries and corporate bonds.</li>
         <li>Horizons differ: 12-month views versus 1-month forecasts.</li>
         <li>Each reads different information, from data surprises to research papers and documents.</li>
-        <li>Comparing each approach with its own benchmark helps but does not remove these differences.</li></ul></div></details>
+        <li>The common benchmark gives one reference line but does not remove these differences: part of each approach's gap to it comes from the assets it may hold.</li>
+        <li>Comparing each approach with its own benchmark helps but does not remove these differences either.</li></ul></div></details>
       <details class="more"><summary>Keeping the test honest</summary><div><ul>
         <li>Every input is used only after it became public, including later revisions.</li>
         <li>Saved AI outputs are replayed exactly; nothing missing is filled in.</li>

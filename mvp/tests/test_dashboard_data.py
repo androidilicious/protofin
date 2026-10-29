@@ -129,3 +129,39 @@ def test_cer_is_defined_as_certainty_equivalent_return():
     assert "certainty-equivalent return" in CFG["research_design"]["primary_metric"]
     js = (ROOT / "mvp" / "assets" / "app.js").read_text()
     assert "Net CER = Certainty-Equivalent Return" in js and "It is not a compound annual return" in js
+
+
+# ---------------------------------------------------------------- common benchmark
+def test_common_benchmark_is_one_spy_ief_reference_awaiting_freeze():
+    cb = D["dev"]["common_benchmark"]
+    assert cb["weights"] == {"SPY": 0.6, "IEF": 0.4} == CFG["common_benchmark"]["weights"]
+    assert cb["label"] == "60% US Equities / 40% Intermediate-Term Treasuries"
+    assert cb["status"] != "frozen" and cb["status_label"] == "Awaiting freeze approval"
+    assert len(cb["wealth"]) == len(D["dev"]["months"])
+    rep = REPORT["common_benchmark_matched_dev"]["benchmark"]
+    assert abs(cb["metrics"]["cer"] - rep["cer_delta_2_5"]) < 1e-6
+    assert "neutral" in cb["not_neutral"] and len(cb["rules"]) == 5
+
+
+@pytest.mark.parametrize("key", ["det", "jev", "com"])
+def test_vs_common_and_attribution_match_the_report(key):
+    s = D["dev"]["series"][key]
+    row = {r["system"]: r for r in REPORT["common_benchmark_matched_dev"]["systems"]}[SRC[key]]
+    assert abs(s["vs_common"]["cer_difference"] - row["vs_common"]["cer_difference"]) < 1e-6
+    a = s["attribution"]
+    assert abs(a["total"] - a["decisions"] - a["mix"]) < 2e-6           # exact up to display rounding
+    assert abs(a["decisions"] - s["vs_neutral"]["cer_difference"]) < 2e-6   # decisions part = vs own benchmark
+    assert "cumulative_return" in s["metrics"]
+
+
+def test_common_benchmark_leaves_primary_contrasts_unchanged():
+    gaps = REPORT["common_benchmark_matched_dev"]["check_primary_gaps_unchanged"]
+    assert gaps and max(gaps.values()) < 1e-12
+    # the primary family is still the three pairwise approach contrasts, with no benchmark in it
+    assert all("COMMON" not in p for p in REPORT["primary_contrasts_matched_dev"]["family"])
+
+
+def test_causal_rag_has_no_benchmark_comparison():
+    assert "rag" not in D["dev"]["series"]
+    row = {r["system"]: r for r in REPORT["common_benchmark_matched_dev"]["systems"]}["AP3"]
+    assert "vs_common" not in row and row["status"].startswith("pending")

@@ -15,6 +15,8 @@ The specification lives in framework_config_v1.json under "common_benchmark".
 """
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Dict, Mapping, Sequence
 
 import numpy as np
@@ -43,6 +45,19 @@ def spec(cfg: dict) -> dict:
     if b.get("rebalance") != "monthly_to_target_at_entry_close":
         raise BenchmarkSpecError("only monthly rebalancing at the shared entry close is implemented")
     return b
+
+
+FINGERPRINT_FIELDS = ("id", "weights", "rebalance", "rules", "role", "attribution")
+
+
+def fingerprint(cfg: dict) -> str:
+    """SHA-256 of everything that defines the benchmark's returns and role: its own specification fields plus the
+    shared settings it inherits (calendar assets, timing, costs, metrics). Status and notes are excluded, so the
+    fingerprint is unchanged by approval and changes if anything that affects a number changes."""
+    b = spec(cfg)
+    payload = {"common_benchmark": {k: b[k] for k in FINGERPRINT_FIELDS},
+               "inherited": {k: cfg[k] for k in ("calendar_assets", "timing", "costs", "metrics")}}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def records(cfg: dict, template: Sequence[DecisionRecord]) -> list:
@@ -76,10 +91,12 @@ def relative(sim: pd.DataFrame, bench: pd.DataFrame, cfg: dict) -> Dict:
 
 
 def decomposition(sim: pd.DataFrame, own_neutral: pd.DataFrame, bench: pd.DataFrame, delta: float) -> Dict[str, float]:
-    """Exact split of CER(system) - CER(common) into the system's tilt against its own starting mix and the
-    difference between that starting mix and the common benchmark (a pure asset-mix effect)."""
+    """Exact split of CER(system) - CER(common benchmark):
+    active_decisions          = CER(system) - CER(its own native benchmark): what the system's allocation decisions added;
+    benchmark_mix_difference  = CER(own native benchmark) - CER(common benchmark): a pure asset-mix effect that
+                                no decision of the system caused (different universes and starting mixes)."""
     cs, cn, cb = (M.cer(x["net_excess_return"], delta) for x in (sim, own_neutral, bench))
-    return {"system_minus_common": cs - cb, "system_minus_own_benchmark": cs - cn, "own_benchmark_minus_common": cn - cb}
+    return {"total_vs_common": cs - cb, "active_decisions": cs - cn, "benchmark_mix_difference": cn - cb}
 
 
 def static_metrics(cfg: dict, market: Market, months: Sequence[pd.Period], template: Sequence[DecisionRecord], weights: Mapping[str, float], label: str) -> Dict:

@@ -167,7 +167,7 @@ def test_common_benchmark_spec_is_proposed_and_valid():
     from native_backtest.framework import benchmark as B
     cfg = load_config()
     b = B.spec(cfg)
-    assert b["status"] == "proposed_not_frozen"
+    assert b["status"] == "specified_awaiting_freeze_approval" and b["weights"] == {"SPY": 0.6, "IEF": 0.4}
     assert abs(sum(b["weights"].values()) - 1) < 1e-12
     bad = json.loads(json.dumps(cfg))
     bad["common_benchmark"]["weights"] = {"SPY": 0.7, "TLT": 0.4}
@@ -204,10 +204,36 @@ def test_common_benchmark_decomposition_is_exact_and_cancels_between_systems(mar
     a, b, own = sim({"SPY": 0.7, "IEF": 0.3}), sim({"SPY": 0.4, "TLT": 0.6}), sim({"SPY": 0.5, "IEF": 0.5})
     bench = B.simulate(cfg, market, months, tmpl)
     dec = B.decomposition(a, own, bench, d)
-    assert abs(dec["system_minus_common"] - dec["system_minus_own_benchmark"] - dec["own_benchmark_minus_common"]) < 1e-15
+    assert abs(dec["total_vs_common"] - dec["active_decisions"] - dec["benchmark_mix_difference"]) < 1e-15
     # a common reference never changes the gap between two systems
-    ga = B.decomposition(a, own, bench, d)["system_minus_common"]
-    gb = B.decomposition(b, own, bench, d)["system_minus_common"]
+    ga = B.decomposition(a, own, bench, d)["total_vs_common"]
+    gb = B.decomposition(b, own, bench, d)["total_vs_common"]
     assert abs((ga - gb) - (M.cer(a["net_excess_return"], d) - M.cer(b["net_excess_return"], d))) < 1e-12
     rel = B.relative(a, bench, cfg)
     assert rel["n_months"] == len(months) and rel["tracking_error_annualized"] > 0
+
+
+def test_common_benchmark_independent_reimplementation(market):
+    from native_backtest.framework import benchmark as B
+    from native_backtest.scripts.common_benchmark_checks import independent_path
+    cfg = load_config()
+    months = [pd.Period(f"2020-{i:02d}", "M") for i in range(1, 7)]
+    bench = B.simulate(cfg, market, months, _template(market, months))
+    dates = {r.decision_month: (r.entry_date, r.exit_date) for r in bench.itertuples()}
+    ind = independent_path(market, months, cfg["common_benchmark"]["weights"], cfg["costs"]["cost_per_dollar_traded"], dates)
+    for c in ("traded_notional", "cost", "net_total_return", "net_excess_return"):
+        assert np.abs(ind[c].to_numpy(float) - bench[c].to_numpy(float)).max() < 1e-12
+
+
+def test_common_benchmark_fingerprint_tracks_numbers_not_status():
+    from native_backtest.framework import benchmark as B
+    cfg = load_config()
+    f0 = B.fingerprint(cfg)
+    c = json.loads(json.dumps(cfg))
+    c["common_benchmark"]["status"], c["common_benchmark"]["status_note"] = "frozen", "approved"
+    assert B.fingerprint(c) == f0
+    c["common_benchmark"]["weights"] = {"SPY": 0.55, "IEF": 0.45}
+    assert B.fingerprint(c) != f0
+    c = json.loads(json.dumps(cfg))
+    c["costs"]["cost_per_dollar_traded"] = 0.001
+    assert B.fingerprint(c) != f0

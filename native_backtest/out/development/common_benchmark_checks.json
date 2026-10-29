@@ -1,0 +1,124 @@
+{
+ "benchmark": "COMMON_60_40_SPY_IEF",
+ "window": [
+  "2019-03",
+  "2022-12"
+ ],
+ "all_pass": true,
+ "checks": {
+  "protected": {
+   "pass": true,
+   "last_month": "2022-12",
+   "protected_start": "2023-01"
+  },
+  "spec": {
+   "pass": true,
+   "id": "COMMON_60_40_SPY_IEF",
+   "label": "60% US Equities / 40% Intermediate-Term Treasuries",
+   "weights": {
+    "SPY": 0.6,
+    "IEF": 0.4
+   },
+   "status": "specified_awaiting_freeze_approval",
+   "fingerprint_sha256": "2fecfe0f21c177fe969f0f5bc50d12cbae68b3b240c30bf161ba57b02e64c848"
+  },
+  "data_gates": {
+   "pass": true,
+   "gate5": {
+    "SPY": "PASS",
+    "IEF": "PASS"
+   },
+   "price_data_cutoff": "2023-02-01",
+   "source": "stage2/results/dividend_gate/dividend_gate_status.json"
+  },
+  "inputs": {
+   "pass": true,
+   "verified_sha256": {
+    "SPY#0": "cee2cfc1959e64976266f5d14b03ae602a64f28659b50dace54941fdb98dcd0b",
+    "SPY#1": "c3e8f068c5b2e28e1010317e2c6eaae7e658ffb73c592949420a3610da70618d",
+    "IEF#0": "d8f79ffc9af3aeefdceb3a5fe1c0165ec3cb5a613dd336a7b65b1217b69d4d13",
+    "IEF#1": "78dc66055d35e01cf24cb0b01327690dc5c64176cea128d049609a6446d6221d",
+    "DTB4WK": "ed2f0bc7e3cc337f1e1ec8f4b2b823a69fed879f2dd6c2c6eefb6e62cd22a66a"
+   },
+   "how": "load_market refuses to load if any pinned input differs from its recorded SHA-256"
+  },
+  "dates": {
+   "pass": true,
+   "identical_to": {
+    "AP1": true,
+    "AP2B": true,
+    "AP2A": true
+   },
+   "first": [
+    "2019-03",
+    "2019-04-01",
+    "2019-05-01"
+   ],
+   "last": [
+    "2022-12",
+    "2023-01-03",
+    "2023-02-01"
+   ]
+  },
+  "template": {
+   "pass": true,
+   "max_abs_difference": {
+    "AP1": 0.0,
+    "AP2B": 0.0,
+    "AP2A": 0.0
+   }
+  },
+  "independent": {
+   "pass": true,
+   "max_abs_difference": {
+    "traded_notional": 0.0,
+    "cost": 0.0,
+    "gross_total_return": 3.469446951953614e-18,
+    "net_total_return": 3.469446951953614e-18,
+    "net_excess_return": 3.469446951953614e-18
+   },
+   "tolerance": 1e-12
+  },
+  "first_month": {
+   "pass": true,
+   "traded_notional": 1.0,
+   "cost": 0.0005
+  },
+  "gaps": {
+   "pass": true,
+   "abs_difference": {
+    "AP2B-AP1": 0.0
+   }
+  },
+  "attribution": {
+   "pass": true,
+   "by_system": {
+    "AP1": {
+     "total_vs_common": -0.0131466920105145,
+     "active_decisions": -0.0010875172853280213,
+     "benchmark_mix_difference": -0.01205917472518648,
+     "residual": 0.0
+    },
+    "AP2B": {
+     "total_vs_common": -0.003051746263780422,
+     "active_decisions": 0.0030943320940283597,
+     "benchmark_mix_difference": -0.006146078357808782,
+     "residual": 0.0
+    },
+    "AP2A": {
+     "total_vs_common": 0.0013391813077749185,
+     "active_decisions": 0.0074852596655837,
+     "benchmark_mix_difference": -0.006146078357808782,
+     "residual": 0.0
+    }
+   }
+  }
+ },
+ "information": {
+  "cer_at_0bp": 0.050071051036425986,
+  "cer_at_10bp": 0.049526970692075956,
+  "cer_at_5bp": 0.04979909007044768,
+  "annualized_one_way_turnover": 0.27628213691598213
+ },
+ "note": "Development months only. Checks the specification and accounting; they say nothing about whether the benchmark is easy or hard to beat."
+}

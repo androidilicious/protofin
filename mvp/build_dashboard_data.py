@@ -29,6 +29,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from native_backtest.framework import benchmark as B  # noqa: E402
 from native_backtest.framework import metrics as M  # noqa: E402
 from native_backtest.framework.accounting import simulate_records, static_portfolio_records  # noqa: E402
 from native_backtest.framework.lock import assert_scoring_allowed  # noqa: E402
@@ -157,9 +158,27 @@ def validation_block() -> dict:
             "gates": [{"name": g["name"], "cells": g["cells"]} for g in v["gates"]]}
 
 
+COMMON_RULES = [
+    ("Same dates", "Decided at 8 p.m. New York time on the last trading day of each month, like every approach"),
+    ("Monthly rebalancing", "Back to 60/40 at the next trading day's close; weights drift with returns during the month"),
+    ("Same trading cost", "0.05% of every dollar traded; the first month starts from cash"),
+    ("Dividends included", "Prices adjusted for every distribution (total return), from the same verified data"),
+    ("Same return accounting", "Monthly return after costs, minus the 4-week Treasury bill rate over the same days")]
+
+
+def common_block(cfg: dict) -> dict:
+    b = cfg["common_benchmark"]
+    return {"id": b["id"], "label": b["label"], "weights": b["weights"], "status": b["status"],
+            "status_label": "Awaiting freeze approval" if b["status"] != "frozen" else "Frozen",
+            "instruments": b["instruments"], "rules": [{"name": n, "text": t} for n, t in COMMON_RULES],
+            "not_neutral": "A reference mix, not a neutral or broad-market benchmark: no corporate bonds, no long-term Treasuries and no cash.",
+            "data_checks": "Both funds passed the dividend-adjustment data check."}
+
+
 def methodology_block(cfg: dict) -> dict:
     w = cfg["windows"]
     return {
+        "common_benchmark": common_block(cfg),
         "phases": [
             {"key": "train", "name": "Training", "from": w["research_timeline_start"], "to": "2019-02", "what": "Models learn; nothing scored"},
             {"key": "dev", "name": "Development", "from": w["development"][0], "to": w["development"][1], "what": "Diagnostics shown here"},
@@ -169,7 +188,8 @@ def methodology_block(cfg: dict) -> dict:
         "pending": [
             "Treat 2023 as a secondary period and Jan 2024 – Aug 2026 as the primary test (proposed; the frozen window is Jan 2023 – Aug 2026).",
             "Confirm net CER as the primary metric (the earlier frozen plan ranked forecast accuracy first).",
-            "Decide whether to resume the paused signal experiments."],
+            "Decide whether to resume the paused signal experiments.",
+            "Freeze the common benchmark, 60% US Equities / 40% Intermediate-Term Treasuries (specified and checked; awaiting approval)."],
         "settings": [
             {"icon": "calendar", "name": "Decision time", "value": "8 p.m. New York time, last trading day of each month", "status": "frozen"},
             {"icon": "arrow", "name": "Trading", "value": "Next trading day's close; held one month", "status": "frozen"},
@@ -178,8 +198,10 @@ def methodology_block(cfg: dict) -> dict:
             {"icon": "window", "name": "Evaluation periods", "value": "Development Mar 2019 – Dec 2022; test Jan 2023 – Aug 2026", "status": "frozen"},
             {"icon": "target", "name": "Primary metric", "value": "Net CER (certainty-equivalent return)", "status": "approval", "tip": "cer"},
             {"icon": "chart", "name": "Secondary metrics", "value": "Sharpe ratio, worst fall, volatility, turnover", "status": "frozen"},
+            {"icon": "chart", "name": "Descriptive metrics", "value": "Cumulative return; difference from the common benchmark", "status": "approval"},
             {"icon": "scale", "name": "Significance test", "value": "Resampled blocks of months; the three comparisons judged together", "status": "frozen", "tip": "significance"},
-            {"icon": "bench", "name": "Benchmark", "value": "Each approach's own fixed starting mix", "status": "design", "tip": "benchmark"},
+            {"icon": "bench", "name": "Common benchmark", "value": "60% US Equities / 40% Intermediate-Term Treasuries, rebalanced monthly; one reference for all three approaches", "status": "approval", "tip": "commonbench"},
+            {"icon": "bench", "name": "Own benchmarks", "value": "Each approach's own fixed starting mix; shown in its details as a secondary check", "status": "design", "tip": "benchmark"},
             {"icon": "clock", "name": "Point-in-time data", "value": "Only information public before each decision", "status": "design"},
             {"icon": "refresh", "name": "Walk-forward", "value": "Refit monthly on past data (Deterministic); replay (JEV); walk-forward calibration (Causal RAG)", "status": "design", "tip": "walkforward"},
             {"icon": "assets", "name": "Assets and horizon", "value": "Stocks, Treasuries, corporate bonds over 1 month; or stocks and long Treasuries over 12 months", "status": "design"}],
@@ -233,7 +255,9 @@ def main() -> int:
            "assets": ASSET_NAMES, "primary": PRIMARY, "systems": [], "variants": [],
            "dev": {"months": [str(m) for m in dev], "series": {}, "benchmarks": {}}}
 
-    sims, neutral_sims = {}, {}
+    cbrep = report["common_benchmark_matched_dev"]
+    cb_rows = {x["system"]: x for x in cbrep["systems"]}
+    sims, neutral_sims, common = {}, {}, None
     for key, s in SYSTEMS.items():
         sysd = {k: v for k, v in s.items() if k != "src"}
         sysd["key"] = key
@@ -256,9 +280,23 @@ def main() -> int:
             out["dev"]["benchmarks"][nkey] = {"label": mix_label(s["neutral"]), "wealth": wealth(nsim), "metrics": metric_block(nsim)}
         vs = M.paired_cer_contrast(sim, neutral_sims[nkey])
         assert abs(vs["cer_difference"] - rep["vs_own_neutral"]["cer_difference"]) < 1e-9
+        if common is None:
+            common = B.simulate(cfg, mk, dev, dev_recs)
+            cb = cbrep["benchmark"]
+            assert abs(M.metrics(common)["cer_delta_2_5"] - cb["cer_delta_2_5"]) < 1e-12, "common benchmark differs from the development report"
+            out["dev"]["common_benchmark"] = {**common_block(cfg), "wealth": wealth(common), "metrics": metric_block(common)}
+        rel = B.relative(sim, common, cfg)
+        att = B.decomposition(sim, neutral_sims[nkey], common, cfg["metrics"]["cer_delta"])
+        r0 = cb_rows[s["src"]]
+        assert abs(rel["cer_difference"] - r0["vs_common"]["cer_difference"]) < 1e-12
+        assert all(abs(att[k] - r0["attribution"][k]) < 1e-12 for k in att)
         series = {"wealth": wealth(sim), "monthly_net_return": [_r(v) for v in sim["net_total_return"]],
                   "weights": {a: [_r(v, 4) for v in sim[f"w_{a}"]] for a in s["universe"]},
-                  "metrics": mb, "neutral": nkey, "vs_neutral": contrast_block(vs)}
+                  "metrics": mb, "neutral": nkey, "vs_neutral": contrast_block(vs),
+                  "vs_common": {**contrast_block(rel), "cumulative_difference": _r(rel["cumulative_return"]["difference"]),
+                                "excess_return_difference": _r(rel["annualized_excess_return_difference"]),
+                                "tracking_error": _r(rel["tracking_error_annualized"])},
+                  "attribution": {"total": _r(att["total_vs_common"]), "decisions": _r(att["active_decisions"]), "mix": _r(att["benchmark_mix_difference"])}}
         fc = []
         for r in dev_recs:
             v = (r.forecast or {}).get("values", {})
@@ -362,8 +400,8 @@ def main() -> int:
         "headline": headline,
         "finding": finding,
         "know": ["Both approaches with results reproduce their authors' saved results exactly.",
-                 f"On {n_dev} development months, neither beat its own benchmark or the other by a margin chance can't explain.",
-                 "Every approach is scored on the same months, trading costs and cash rate."],
+                 f"On {n_dev} development months, neither beat the common benchmark, its own benchmark or the other by a margin chance can't explain.",
+                 "Every approach is scored on the same months, trading costs and cash rate, against the same reference portfolio."],
         "not_yet": ["Which approach is better: the historical test (2023–2026) is still sealed.",
                     "Anything about Causal RAG: its model runs await approval and validation.",
                     "A controlled comparison: assets, horizons and information differ by design."],

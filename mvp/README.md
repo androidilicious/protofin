@@ -38,10 +38,10 @@ python mvp/run.py check            # project tests + Stage 2 tests + headless-br
 
 ## Using the dashboard
 
-- **Overview** — the verdict first (no clear winner yet), the timeline at a glance, one card per approach (net CER and its range against the approach's own benchmark, or validation progress for Causal RAG), a diagram of the three primary comparisons, findings and limitations, the key metrics, and growth of $1. Nothing is marked as a winner.
-- **Approaches** — one tab per approach: an interactive flow diagram (select a step for a short explanation), results against the approach's own benchmark, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its validation progress and the research inputs it will use, plus a clearly labelled demo.
+- **Overview** — the verdict first (no clear winner yet), the timeline at a glance, one card per approach (net CER and its range against the common benchmark, or validation progress for Causal RAG), a diagram of the three primary comparisons, findings and limitations, growth of $1 with one dashed common-benchmark line (60% US Equities / 40% Intermediate-Term Treasuries; toggle to the gap versus it), and the key metrics with a common-benchmark column. Nothing is marked as a winner.
+- **Approaches** — one tab per approach: an interactive flow diagram (select a step for a short explanation), results against the common benchmark, where that gap comes from (the approach's decisions versus its own starting mix, and the benchmark-mix difference), the comparison with its own benchmark as a secondary check, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its validation progress and the research inputs it will use, plus a clearly labelled demo.
 - **Experiments** — the within-approach experiments described above, and the Committee vs JEV comparison.
-- **Methodology** — the timeline (2023 marked as overlapping the AI models' training data; open decisions listed), rules and settings tagged Frozen, Needs approval or Differs by design, the validation-status matrix, and expandable details on net CER, statistics and safeguards.
+- **Methodology** — the timeline (2023 marked as overlapping the AI models' training data; open decisions listed), rules and settings tagged Frozen, Needs approval or Differs by design, the common benchmark (mix, the five rules it shares with the backtest, and its freeze status), the validation-status matrix, and expandable details on net CER, statistics and safeguards.
 - Every term with an **i** has a one-sentence explanation on hover, focus or tap.
 
 **Net CER** is the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance). It is not a compound annual return.

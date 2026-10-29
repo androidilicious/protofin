@@ -44,6 +44,7 @@ def build(_: argparse.Namespace) -> None:
     sh(PY, "-m", "native_backtest.scripts.build_ap1_decisions")
     sh(PY, "-m", "native_backtest.scripts.ap2_native_reproduction")
     sh(PY, "-m", "native_backtest.scripts.development_evaluation")
+    sh(PY, "-m", "native_backtest.scripts.common_benchmark_checks")
     # Gate 5 extended to TLT: reports PASS or FAIL in native_backtest/out/tlt_dividend_gate; a FAIL is a gate
     # result for the team to review, not a build error.
     print("$", PY, "-m native_backtest.scripts.check_tlt_distributions", flush=True)
