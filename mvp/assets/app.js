@@ -1335,7 +1335,7 @@
       return `<div class="pcols">
           <div><h4>From the drifted holdings to the target</h4>${weightCompare(A, v.pretrade, v.weights, 'Pre-trade (drifted)', 'Target')}</div>
           <div><h4>What the trade cost</h4>
-            <div class="pgrid">${vrow('One-way turnover', ppw(v.turnover, 2), 'decision')}${vrow('Transaction cost', bp(v.cost, 2), 'decision')}${vrow('Traded at the close of', esc(v.entry), 'decision')}${vrow('Held until', esc(v.exit), 'decision')}</div>
+            <div class="pgrid">${vrow('One-way turnover', ppw(v.turnover, 2), 'decision')}${vrow('Transaction cost', costBp(v.cost), 'decision')}${vrow('Traded at the close of', esc(v.entry), 'decision')}${vrow('Held until', esc(v.exit), 'decision')}</div>
             <p class="sub">Cost is ${esc(costLabel())} against the drifted pre-trade weights. The first month starts from cash.</p></div>
         </div>`;
     }
@@ -1343,7 +1343,7 @@
       ? A.map(a => ({ label: PLAIN[a] || a, v: v.realized[a], color: ac(a) })) : [];
     return `<div class="pcols">
         <div><h4>What the month returned</h4>
-          <div class="pgrid">${vrow('Gross return above cash', pct(v.gross, 2), 'realized')}${vrow('Transaction cost', bp(v.cost, 2), 'decision')}${vrow('Net return above cash', pct(v.net, 2), 'realized')}${vrow('Cash rate that month', pct(v.rf, 2), 'realized')}</div></div>
+          <div class="pgrid">${vrow('Gross return above cash', pct(v.gross, 2), 'realized')}${vrow('Transaction cost', costBp(v.cost), 'decision')}${vrow('Net return above cash', pct(v.net, 2), 'realized')}${vrow('Cash rate that month', pct(v.rf, 2), 'realized')}</div></div>
         <div>${rows.length ? `<h4>What each asset did</h4>${pbars(rows, Math.max(...rows.map(r => Math.abs(r.v)), 0.01), x => pct(x, 1))}` : ''}
           <p class="sub">This month joins the ${D.dev.months.length}-month development series scored by the shared evaluator. It is one month: the metrics are built from all of them.</p></div>
       </div>`;
@@ -1805,8 +1805,308 @@ different neutral portfolios, so differences between them are not attributable t
   }
 
 
+
+  // ---------------------------------------------------------------- Historical Backtest Replay
+  // Playback of committed historical artifacts. Nothing is computed live, no model is called, and a lane with no
+  // genuine output for a month shows that rather than animating one. The running metrics are recomputed from the
+  // same committed monthly series the rest of the dashboard uses; a test checks the end state reproduces it.
+  const RP = {
+    i: 0,            // index into the development months
+    stage: 0,        // 0..5 within the month
+    playing: false,
+    speed: 1,
+    mode: 'auto',    // 'auto' plays stages then advances; 'step' waits for the presenter
+    timer: null,
+    reduced: false,
+  };
+  const RP_STAGE_MS = 700;   // at 1x; one stage per tick
+  const RSTAGES = ['data', 'signal', 'forecast', 'alloc', 'trade', 'eval'];
+  const RSHORT = { data: 'Data', signal: 'Signal', forecast: 'Forecast', alloc: 'Allocation', trade: 'Trades', eval: 'Result' };
+  const LANES = ['det', 'jev', 'rag'];
+
+  const costBp = x => x == null ? '—' : (Math.abs(x) * 1e4).toFixed(2) + ' bp';
+  const rpMonths = () => (D.pipeline ? D.pipeline.months : []);
+  const rpMonth = () => rpMonths()[RP.i];
+  const prefersReduced = () => RP.reduced || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // net CER to date, from the committed monthly series (same definition as the frozen evaluator)
+  function cerTo(series, n) {
+    const x = series.slice(0, n + 1);
+    if (x.length < 2) return null;
+    const m = x.reduce((a, b) => a + b, 0) / x.length;
+    const v = x.reduce((a, b) => a + (b - m) * (b - m), 0) / (x.length - 1);
+    return 12 * (m - 1.25 * v);
+  }
+  function ddTo(wealth, n) {
+    let peak = -Infinity, dd = 0;
+    for (let i = 0; i <= n; i++) { peak = Math.max(peak, wealth[i]); dd = Math.min(dd, wealth[i] / peak - 1); }
+    return dd;
+  }
+
+  // What each lane has for the month in play. A lane with nothing returns {pending:true} and never animates values.
+  function laneData(k, m) {
+    const P = D.pipeline;
+    if (k === 'rag') return { pending: true };
+    const v = (P[k] || {})[m];
+    return v ? { v } : { pending: true };
+  }
+
+  function rpStageValue(k, stage, v) {
+    // One headline number per stage: what this stage produced, in its own units.
+    if (k === 'det') {
+      if (stage === 'data') return [`${v.n_macro_available} of 8 releases`, 'available at the decision date'];
+      if (stage === 'signal') { const b = v.surprises.reduce((a, x) => Math.abs(x.z) > Math.abs(a.z) ? x : a, v.surprises[0]);
+        return [`${b.label} ${sgn(b.z, Math.abs(b.z).toFixed(2))} σ`, 'largest standardised surprise']; }
+      if (stage === 'forecast') return [bp(v.forecast.SPY, 1) + ' stocks', v.fit.intercept_only ? 'intercept only: the training mean' : `ridge, penalty ${v.fit.alpha}`];
+      if (stage === 'alloc') return [bp(v.posterior.SPY, 1) + ' posterior', `view ${bp(v.forecast.SPY, 1)}, prior ${bp(v.prior.SPY, 1)}`];
+      if (stage === 'trade') return [ppw(v.turnover, 2) + ' traded', `cost ${costBp(v.cost)}`];
+      return [pct(v.net, 2), 'net return above cash'];
+    }
+    if (stage === 'data') return [esc(v.regime || '—') + ' regime', 'context at the cut-off'];
+    if (stage === 'signal') return [esc(v.choice_label), `confidence ${num(v.confidence, 2)}`];
+    if (stage === 'forecast') return [num(v.weighted_offset, 2) + ' pts', `offset ${num(v.offset_original, 2)} × confidence`];
+    if (stage === 'alloc') return [num(v.edge, 2) + ' pts edge', `base ${num(v.base_edge, 2)} + signal ${num(v.weighted_offset, 2)}`];
+    if (stage === 'trade') return [ppw(v.turnover, 2) + ' traded', `cost ${costBp(v.cost)}`];
+    return [pct(v.net, 2), 'net return above cash'];
+  }
+
+  function rpWeights(k, v, reached) {
+    const A = k === 'det' ? ['SPY', 'IEF', 'LQD'] : ['SPY', 'TLT'];
+    if (!reached) return `<div class="rw-wait">${A.map(() => '<span></span>').join('')}</div>`;
+    return `<div class="rw">${A.map(a => `<span class="b" style="background:${assetColor(a)};flex:${Math.max(0.0001, v.weights[a])} 1 0"><b>${(v.weights[a] * 100).toFixed(0)}</b></span>`).join('')}</div>
+      <div class="rw-key">${A.map(a => `<span><i style="background:${assetColor(a)}"></i>${esc(PLAIN[a] || a)}</span>`).join('')}</div>`;
+  }
+
+  function laneHtml(k) {
+    const m = rpMonth(), st = RP.stage, d = laneData(k, m);
+    const nm = D.systems.find(x => x.key === k) || { short: SHORT[k] };
+    const stages = (D.pipeline.stages[k] || []);
+    const head = `<div class="rl-h">${badge(k)}<div><b>${esc(nm.short)}</b><span class="sub">${esc((nm.universe || []).map(a => PLAIN[a] || a).join(' · '))}</span></div></div>`;
+    if (d.pending) {
+      const X = D.ap3_exploratory;
+      return `<section class="rlane pending" style="--c:var(${VAR[k]})" aria-label="${esc(nm.short)}">
+        ${head}
+        <div class="rl-badge">${icon('hourglass')}${esc(X.label)}</div>
+        <ol class="rl-stages">${stages.map((x, i) => `<li class="idle"><span class="n">${i + 1}</span><span class="t">${esc(RSHORT[x.id])}</span><span class="v">—</span></li>`).join('')}</ol>
+        <div class="rl-pend">
+          <p>No genuine agent output exists for <b>${esc(monthLabel(m))}</b>, so nothing is replayed in this lane.</p>
+          <ul class="sub">
+            <li>${X.months_done} of ${X.months_needed} agent months have been run, and they fall in the ${esc(monthLabel(D.windows.training[0]))}–${esc(monthLabel(D.windows.training[1]))} training window, not these development months.</li>
+            <li>Both pre-registered reliability gates fail: ${Object.entries(X.gates_failed).map(([g, c]) => `${g} (${Object.entries(c).map(([n, val]) => `${esc(n.replace(/_/g, ' '))} ${typeof val === 'number' ? (val < 1 && val > 0 ? val.toFixed(4) : val) : esc(String(val))}`).join(', ')})`).join('; ')}.</li>
+            <li>This lane is built to take a genuine replay the moment those months exist and the gates are re-scored.</li>
+          </ul>
+          <a class="go" href="#causal-rag">Causal RAG status ${icon('arrow')}</a>
+        </div>
+      </section>`;
+    }
+    const v = d.v;
+    return `<section class="rlane" style="--c:var(${VAR[k]})" aria-label="${esc(nm.short)}">
+      ${head}
+      <ol class="rl-stages">${stages.map((x, i) => {
+        const cls = i < st ? 'done' : i === st ? 'live' : 'idle';
+        const [val, note] = i <= st ? rpStageValue(k, x.id, v) : ['—', ''];
+        return `<li class="${cls}"><span class="n">${i < st ? '✓' : i + 1}</span><span class="t">${esc(RSHORT[x.id])}</span>
+          <span class="v">${i <= st ? val : '<em>waiting</em>'}</span>${i <= st && note ? `<small>${note}</small>` : ''}</li>`;
+      }).join('')}</ol>
+      <div class="rl-out">
+        <div class="rl-w"><span class="l">Portfolio${st >= 3 ? '' : ' <em>(pending allocation)</em>'}</span>${rpWeights(k, v, st >= 3)}</div>
+        <div class="rl-r"><span class="l">This month's result</span>
+          ${st >= 5 ? `<b class="num ${v.net >= 0 ? 'up' : 'down'}">${pct(v.net, 2)}</b><small>held ${esc(v.entry)} → ${esc(v.exit)}</small>`
+                    : `<b class="num wait">—</b><small>${st >= 4 ? 'holding period not finished' : 'no trade yet'}</small>`}</div>
+      </div>
+    </section>`;
+  }
+
+  // the committed per-month net excess return series for a lane, in replay order
+  const rpExcess = k => { const P = D.pipeline[k];
+    return P ? rpMonths().map(m => (P[m] || {}).net) : null; };
+
+  function rpRunning() {
+    const n = RP.i, done = RP.stage >= 5;      // the month's result is known only once the holding period has run
+    const upto = done ? n : n - 1;
+    const row = k => {
+      const S2 = S(k);
+      if (!S2) return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th><td colspan="4" class="na">no results — reliability gates failed</td></tr>`;
+      if (upto < 0) return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>`;
+      // growth and drawdown run on the committed total-return wealth; net CER is defined on net EXCESS
+      // returns, so it is taken from the pipeline's own per-month net excess series, not from wealth.
+      const w = S2.wealth, x = rpExcess(k);
+      return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th>
+        <td class="num">$${w[upto].toFixed(3)}</td>
+        <td class="num">${pct(w[upto] - 1, 1)}</td>
+        <td class="num">${upto >= 1 && x ? pct(cerTo(x, upto), 2) : '—'}</td>
+        <td class="num">${pct(ddTo(w, upto), 1)}</td></tr>`;
+    };
+    return `<table class="cmp rp-run"><thead><tr><th scope="col">To ${upto >= 0 ? esc(monthLabel(rpMonths()[upto])) : '—'}</th>
+        <th scope="col">$1 grew to</th><th scope="col">Cumulative</th><th scope="col">Net CER ${tip('cer')}</th><th scope="col">Worst fall</th></tr></thead>
+      <tbody>${LANES.map(row).join('')}</tbody></table>
+      <p class="sub">Running figures, computed only from months whose holding period has finished. They are <b>to date</b>, not the full-sample result — those appear in the fixed summary below.</p>`;
+  }
+
+  function rpFinal() {
+    const row = k => { const S2 = S(k);
+      if (!S2) return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th><td colspan="4" class="na">no results — reliability gates failed</td></tr>`;
+      const m = S2.metrics;
+      return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th><td class="num">${pct(m.cer, 2)}</td><td class="num">${pct(m.cumulative_return, 1)}</td>
+        <td class="num">${pct(m.volatility, 1)}</td><td class="num">${pct(m.max_drawdown, 1)}</td></tr>`; };
+    return `<table class="cmp"><thead><tr><th scope="col">Full development sample · ${esc(devSpan())}</th>
+        <th scope="col">Net CER</th><th scope="col">Cumulative</th><th scope="col">Volatility</th><th scope="col">Worst fall</th></tr></thead>
+      <tbody>${LANES.map(row).join('')}</tbody></table>`;
+  }
+
+  function viewReplay() {
+    if (!D.pipeline) { app.innerHTML = '<div class="wrap"><p class="sub">The replay data is not in this build.</p></div>'; return; }
+    const months = rpMonths(), m = rpMonth(), pos = RP.i / Math.max(1, months.length - 1);
+    const stageName = (D.pipeline.stages.det[RP.stage] || {}).name || '';
+    app.innerHTML = `<div class="wrap rp">
+      <section class="rp-head">
+        <div><div class="phead"><h1>Historical Backtest Replay</h1><span class="chip plain">${icon('refresh')}Playback of recorded results — no model runs</span></div>
+          <p class="lede">Press Play and watch all three approaches work through the same ${months.length} development months, stage by stage, on their own native pipelines.</p></div>
+      </section>
+
+      <section class="panel rp-ctl" aria-label="Replay controls">
+        <div class="rp-now">
+          <div><span class="l">Decision month</span><b id="rp-m">${esc(monthLabel(m))}</b></div>
+          <div><span class="l">Stage</span><b id="rp-s">${RP.stage + 1} of 6 · ${esc(stageName)}</b></div>
+          <div><span class="l">Progress</span><b id="rp-p">${RP.i + 1} / ${months.length} months</b></div>
+        </div>
+        <div class="rp-buttons">
+          <button type="button" id="rp-play" class="pbtn primary">${icon(RP.playing ? 'pause' : 'arrow')}<span>${RP.playing ? 'Pause' : 'Play Backtest'}</span></button>
+          <button type="button" id="rp-restart" class="pbtn">${icon('refresh')}Restart</button>
+          <span class="rp-gap"></span>
+          <button type="button" class="pbtn" data-rp="pm" title="Previous month">${icon('chev', 'flip')}Month</button>
+          <button type="button" class="pbtn" data-rp="ps" title="Previous stage">${icon('chev', 'flip')}Stage</button>
+          <button type="button" class="pbtn" data-rp="ns" title="Next stage">Stage${icon('chev')}</button>
+          <button type="button" class="pbtn" data-rp="nm" title="Next month">Month${icon('chev')}</button>
+        </div>
+        <div class="rp-opts">
+          <div class="seg" role="group" aria-label="Replay mode">
+            <button type="button" data-mode="auto" aria-pressed="${RP.mode === 'auto'}">Automatic</button>
+            <button type="button" data-mode="step" aria-pressed="${RP.mode === 'step'}">Step-by-step</button>
+          </div>
+          <div class="seg" role="group" aria-label="Replay speed">${[0.5, 1, 2, 4].map(x => `<button type="button" data-sp="${x}" aria-pressed="${RP.speed === x}">${x}×</button>`).join('')}</div>
+          <label class="rp-rm"><input type="checkbox" id="rp-reduced"${prefersReduced() ? ' checked' : ''}> Reduce motion</label>
+        </div>
+        <label class="rp-slider"><span class="sr">Timeline</span>
+          <input type="range" id="rp-range" min="0" max="${months.length - 1}" value="${RP.i}" step="1" aria-valuetext="${esc(monthLabel(m))}">
+          <span class="rp-ends"><span>${esc(monthLabel(months[0]))}</span><span>${esc(monthLabel(months[months.length - 1]))}</span></span>
+        </label>
+        <div class="rp-prog" aria-hidden="true"><i style="width:${(pos * 100).toFixed(2)}%"></i></div>
+      </section>
+
+      <section class="rlanes" id="rp-lanes">${LANES.map(laneHtml).join('')}</section>
+
+      <section class="panel">
+        <div class="phead"><h2>Growth of $1, as the replay runs</h2><span class="sub" id="rp-upto"></span></div>
+        <div class="legend" id="lg-rp"></div>
+        <div class="chartbox sm"><canvas id="c-rp" aria-label="Growth of one dollar for each approach, revealed month by month"></canvas></div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel"><h2>Running result, to date</h2><div id="rp-running">${rpRunning()}</div></div>
+        <div class="panel"><h2>Fixed summary · full development sample</h2>${rpFinal()}
+          <p class="sub">These never change during playback. They describe all ${months.length} months, whatever month the replay is on.</p></div>
+      </section>
+
+      <section class="panel"><h2>What is being replayed</h2>
+        <div class="grid3">
+          ${LANES.map(k => { const src = (D.pipeline.sources || {})[k];
+            return `<div class="rsrc" style="--c:var(${VAR[k]})"><b>${badge(k)}${esc(SHORT[k])}</b>
+              ${src ? `<ul class="sub">${src.map(f => `<li><code>${esc(f)}</code></li>`).join('')}</ul>`
+                    : `<p class="sub">Nothing to replay: no genuine development-window output exists. The lane shows its real architecture and the recorded reliability outcome only.</p>`}</div>`; }).join('')}
+        </div>
+        <p class="sub">Every value in the lanes is read from these committed artifacts. No model is called, no inference happens, and no month is interpolated or inferred.</p>
+      </section>
+    </div>`;
+    rpDrawChart();
+    rpWire();
+  }
+
+  function rpDrawChart() {
+    const months = rpMonths(), upto = RP.stage >= 5 ? RP.i : RP.i - 1;
+    const cut = i => i <= upto;
+    const lines = D.systems.filter(x => S(x.key)).map(x => ({
+      label: x.key === 'det' ? 'Deterministic (baseline)' : x.short,
+      data: S(x.key).wealth.map((w, i) => (cut(i) ? w : null)), color: color(x.key), spanGaps: false }));
+    lineChart('c-rp', 'lg-rp', months, lines, FMT_WEALTH);
+    const u = document.getElementById('rp-upto');
+    if (u) u.textContent = upto >= 0 ? `revealed to ${monthLabel(months[upto])}` : 'nothing revealed yet';
+  }
+
+  function rpApply() {
+    // Re-render only what changes, so playback stays smooth and the chart is not rebuilt every stage.
+    const months = rpMonths(), m = rpMonth();
+    const lanes = document.getElementById('rp-lanes');
+    if (lanes) lanes.innerHTML = LANES.map(laneHtml).join('');
+    const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+    set('rp-m', monthLabel(m));
+    set('rp-s', `${RP.stage + 1} of 6 · ${(D.pipeline.stages.det[RP.stage] || {}).name || ''}`);
+    set('rp-p', `${RP.i + 1} / ${months.length} months`);
+    const r = document.getElementById('rp-range'); if (r) { r.value = String(RP.i); r.setAttribute('aria-valuetext', monthLabel(m)); }
+    const pr = document.querySelector('.rp-prog i'); if (pr) pr.style.width = (RP.i / Math.max(1, months.length - 1) * 100).toFixed(2) + '%';
+    const run = document.getElementById('rp-running'); if (run) run.innerHTML = rpRunning();
+    rpDrawChart();
+  }
+
+  function rpTick() {
+    if (!RP.playing) return;
+    if (RP.stage < 5) RP.stage++;
+    else if (RP.i < rpMonths().length - 1) { RP.i++; RP.stage = 0; }
+    else { rpPause(); rpApply(); return; }
+    rpApply();
+    rpSchedule();
+  }
+  function rpSchedule() {
+    clearTimeout(RP.timer);
+    if (!RP.playing) return;
+    const base = prefersReduced() ? RP_STAGE_MS * 0.55 : RP_STAGE_MS;
+    RP.timer = setTimeout(rpTick, Math.max(90, base / RP.speed));
+  }
+  function rpPlay() { if (RP.i === rpMonths().length - 1 && RP.stage >= 5) { RP.i = 0; RP.stage = 0; } RP.playing = true; rpPlayBtn(); rpSchedule(); }
+  function rpPause() { RP.playing = false; clearTimeout(RP.timer); rpPlayBtn(); }
+  function rpPlayBtn() {
+    const b = document.getElementById('rp-play');
+    if (!b) return;
+    b.innerHTML = `${icon(RP.playing ? 'pause' : 'arrow')}<span>${RP.playing ? 'Pause' : 'Play Backtest'}</span>`;
+    b.setAttribute('aria-pressed', String(RP.playing));
+  }
+  const rpStep = d => {
+    const n = rpMonths().length;
+    let f = RP.i * 6 + RP.stage + d;
+    f = Math.max(0, Math.min(n * 6 - 1, f));
+    RP.i = Math.floor(f / 6); RP.stage = f % 6;
+  };
+
+  function rpWire() {
+    const on = (sel, ev, fn) => document.querySelectorAll(sel).forEach(e => e.addEventListener(ev, fn));
+    const play = document.getElementById('rp-play');
+    if (play) play.addEventListener('click', () => { RP.playing ? rpPause() : rpPlay(); });
+    const rs = document.getElementById('rp-restart');
+    if (rs) rs.addEventListener('click', () => { rpPause(); RP.i = 0; RP.stage = 0; rpApply(); });
+    on('[data-rp]', 'click', e => { rpPause();
+      const a = e.currentTarget.dataset.rp;
+      if (a === 'ns') rpStep(1); else if (a === 'ps') rpStep(-1);
+      else if (a === 'nm') { RP.i = Math.min(rpMonths().length - 1, RP.i + 1); RP.stage = 0; }
+      else { RP.i = Math.max(0, RP.i - 1); RP.stage = 0; }
+      rpApply(); });
+    on('[data-mode]', 'click', e => { RP.mode = e.currentTarget.dataset.mode;
+      document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === RP.mode)));
+      if (RP.mode === 'step') rpPause(); });
+    on('[data-sp]', 'click', e => { RP.speed = +e.currentTarget.dataset.sp;
+      document.querySelectorAll('[data-sp]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.sp === RP.speed)));
+      rpSchedule(); });
+    const rng = document.getElementById('rp-range');
+    if (rng) rng.addEventListener('input', () => { rpPause(); RP.i = +rng.value; RP.stage = 5; rpApply(); });
+    const rm = document.getElementById('rp-reduced');
+    if (rm) rm.addEventListener('change', () => { RP.reduced = rm.checked; document.body.classList.toggle('reduced', RP.reduced); rpSchedule(); });
+    document.body.classList.toggle('reduced', prefersReduced());
+    rpPlayBtn();
+  }
+
+
   function route() {
     if (!D) return;
+    if (typeof rpPause === 'function') rpPause();
     killCharts();
     chartDefaults();
     let h = (location.hash || '#overview').slice(1);
@@ -1816,7 +2116,7 @@ different neutral portfolios, so differences between them are not attributable t
     if (h === 'method' || h === 'timeline' || h === 'methodology') h = 'appendix';
     if (h === 'approaches') h = 'deterministic';
     const key = ROUTES[h];
-    const TOP = ['overview', 'pipeline', 'comparison', 'signal-value', 'sensitivity', 'experiments', 'causal-rag', 'appendix'];
+    const TOP = ['overview', 'replay', 'pipeline', 'comparison', 'signal-value', 'sensitivity', 'experiments', 'causal-rag', 'appendix'];
     // the per-approach detail pages are reached from Comparison; they light its tab
     const view = key ? (key === 'com' ? 'experiments' : key === 'rag' ? 'causal-rag' : 'comparison')
                      : (TOP.includes(h) ? h : 'overview');
@@ -1824,6 +2124,7 @@ different neutral portfolios, so differences between them are not attributable t
     document.querySelectorAll('header nav a').forEach(a => { if (a.dataset.route === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     try {
       if (key) viewApproach(key);
+      else if (view === 'replay') viewReplay();
       else if (view === 'pipeline') viewPipeline();
       else if (view === 'comparison') viewComparison();
       else if (view === 'experiments') viewExperiments();

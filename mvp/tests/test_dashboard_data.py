@@ -312,14 +312,14 @@ def test_signal_value_tab_series_come_from_the_analysis():
     assert V["systems"]["det"]["no_signal_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2} and V["systems"]["jev"]["no_signal_weights"] == {"SPY": 0.6, "TLT": 0.4}
 
 
-def test_the_information_architecture_is_the_eight_redesigned_sections():
+def test_the_information_architecture_is_the_nine_redesigned_sections():
     html = (ROOT / "mvp/index.html").read_text()
     nav = re.findall(r'<a href="#([a-z-]+)" data-route="[a-z-]+">([^<]+)</a>', html)
-    assert nav == [("overview", "Overview"), ("pipeline", "Pipeline"), ("comparison", "Comparison"),
-                   ("signal-value", "Signal Value"), ("sensitivity", "Sensitivity"), ("experiments", "Experiments"),
-                   ("causal-rag", "Causal RAG"), ("appendix", "Appendix")]
+    assert nav == [("overview", "Overview"), ("replay", "Replay"), ("pipeline", "Pipeline"),
+                   ("comparison", "Comparison"), ("signal-value", "Signal Value"), ("sensitivity", "Sensitivity"),
+                   ("experiments", "Experiments"), ("causal-rag", "Causal RAG"), ("appendix", "Appendix")]
     js = (ROOT / "mvp/assets/app.js").read_text()
-    for v in ("viewOverview", "viewPipeline", "viewComparison", "viewSignalValue", "viewSensitivity",
+    for v in ("viewOverview", "viewReplay", "viewPipeline", "viewComparison", "viewSignalValue", "viewSensitivity",
               "viewExperiments", "viewCausalRag", "viewAppendix"):
         assert f"function {v}" in js, f"{v} is navigable but not defined"
     assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]          # the three approaches are unchanged
@@ -538,3 +538,88 @@ def test_build_provenance_is_recorded_for_the_manifest():
     assert re.fullmatch(r"[0-9a-f]{40}", B["git_commit_at_build"] or "")
     assert re.fullmatch(r"[0-9a-f]{64}", B["release_manifest_sha256"] or "")
     assert "schema" in B["dashboard_schema"] or "2.0" in B["dashboard_schema"]
+
+
+# ---------------------------------------------------------------- historical backtest replay
+def test_replay_is_a_navigable_primary_view_with_three_lanes():
+    html = (ROOT / "mvp/index.html").read_text()
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    nav = re.findall(r'<a href="#([a-z-]+)" data-route="[a-z-]+">([^<]+)</a>', html)
+    assert ("replay", "Replay") in nav and nav[1] == ("replay", "Replay"), "Replay sits right after Overview"
+    assert "function viewReplay" in js and "view === 'replay') viewReplay()" in js
+    assert "const LANES = ['det', 'jev', 'rag']" in js, "all three approaches, always, in one view"
+    assert "Historical Backtest Replay" in js and "Playback of recorded results" in js
+
+
+def test_replay_controls_all_exist():
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    for ctl in ("rp-play", "rp-restart", "rp-range", "rp-reduced", "data-rp=\"nm\"", "data-rp=\"pm\"",
+                "data-rp=\"ns\"", "data-rp=\"ps\"", "data-sp=", "data-mode="):
+        assert ctl in js, f"the replay is missing the {ctl} control"
+    assert "Play Backtest" in js and "Pause" in js
+    for sp in ("0.5", "1", "2", "4"):
+        assert f"[{sp}, " in js or f", {sp}," in js or f"{sp}]" in js
+    assert "function rpPlay" in js and "function rpPause" in js and "function rpTick" in js
+
+
+def test_replay_runs_the_development_window_in_order():
+    """The replay walks the committed development months, in order, and never past them."""
+    assert PIPE["months"] == sorted(PIPE["months"]) == D["dev"]["months"]
+    assert PIPE["months"][0] == D["windows"]["development"][0]
+    assert PIPE["months"][-1] == D["windows"]["development"][1] < D["windows"]["historical_test"][0]
+    assert len(PIPE["months"]) == 46
+    # each replayed month has, for both lanes with data, the stage values the lanes display
+    for k in ("det", "jev"):
+        for m in PIPE["months"]:
+            v = PIPE[k][m]
+            for f in ("entry", "exit", "turnover", "cost", "net", "weights"):
+                assert f in v, (k, m, f)
+
+
+def test_replay_running_metrics_reproduce_the_committed_result():
+    """Net CER to date must be the frozen definition on net EXCESS returns, landing on the committed value."""
+    for k in ("det", "jev"):
+        x = [PIPE[k][m]["net"] for m in PIPE["months"]]
+        mean = sum(x) / len(x)
+        var = sum((v - mean) ** 2 for v in x) / (len(x) - 1)
+        assert 12 * (mean - 1.25 * var) == pytest.approx(D["dev"]["series"][k]["metrics"]["cer"], abs=5e-6)
+        # and growth/drawdown run on the committed total-return wealth
+        w = D["dev"]["series"][k]["wealth"]
+        assert w[-1] - 1 == pytest.approx(D["dev"]["series"][k]["metrics"]["cumulative_return"], abs=5e-6)
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    assert "rpExcess" in js and "net CER is defined on net EXCESS" in js, "the running CER must not use total returns"
+    assert "to date</b>, not the full-sample result" in js, "running and full-sample figures must be distinguished"
+
+
+def test_replay_never_invents_causal_rag():
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    assert "if (k === 'rag') return { pending: true }" in js, "the Causal RAG lane can never source month values"
+    assert "No genuine agent output exists for" in js
+    # the lane states the real, current gate outcome rather than a placeholder
+    X = D["ap3_exploratory"]
+    assert X["label"] == "EXPLORATORY — RELIABILITY GATES FAILED"
+    assert X["gates_failed"] and set(X["gates_failed"]) <= {"G3a", "G3b"}
+    assert X["months_done"] < X["months_needed"]
+    assert "rag" not in D["dev"]["series"], "no Causal RAG performance series exists to replay"
+
+
+def test_replay_reflects_the_latest_committed_agent_run():
+    """The lane must show the current run's gate values, not a superseded earlier run."""
+    bundle = json.loads((ROOT / "native_backtest/out/ap3/qwen3_runs/summary.json").read_text())
+    assert bundle["protocol"]["version"] == "1.1", "the imported bundle must be the protocol 1.1 run"
+    g = D["ap3_exploratory"]["gates_failed"]
+    assert g["G3b"]["accuracy"] == pytest.approx(bundle["gates"]["G3b"]["checks"]["accuracy"]["value"])
+    assert g["G3a"]["schema_valid_call_rate"] == pytest.approx(
+        bundle["gates"]["G3a"]["checks"]["schema_valid_call_rate"]["value"])
+    assert bundle["gates"]["G3a"]["checks"]["failed_months"]["value"] == 0, "run 2 completed every sample month"
+
+
+def test_replay_preserves_the_rest_of_the_dashboard():
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    html = (ROOT / "mvp/index.html").read_text()
+    routes = [r for r, _ in re.findall(r'<a href="#([a-z-]+)" data-route="([a-z-]+)">', html)]
+    for keep in ("overview", "pipeline", "comparison", "signal-value", "sensitivity", "experiments",
+                 "causal-rag", "appendix"):
+        assert keep in routes, f"the redesign dropped {keep}"
+    assert 'id="dl"' in html and "Download Content" in html and "function downloadContent" in js
+    assert "function makeZip" in js
