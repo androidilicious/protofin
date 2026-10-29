@@ -36,8 +36,21 @@ VIEWS = {
                     "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
                     "Committee + JEV", "Its primary version is chosen before the test opens", "Causal RAG — Reduced Evidence",
                     "Causal RAG — With Historical Documents", "Do historical documents help?", "Standard RAG vs Causal RAG", "Ablations and placebo checks", "Model and calibration variants",
-                    "Agent Committee only vs JEV only", "Do the signals actually add value?", "With signals", "Without signals", "Signal value",
-                    "Statistically supported:", "JEV vs Deterministic: what explains", "Do the signals change the decisions?", "Checks behind these numbers"],
+                    "Agent Committee only vs JEV only", "Do the signals actually add value?", "See the Signal Value-Added tab"],
+    "signal-value": ["Signal Value-Added", "Observation", "Experiments", "Results", "Explanation", "Takeaway",
+                     "Two very different forecasting approaches, remarkably similar performance curves", "0.971", "0.983",
+                     "no calculation or charting error", "Keep the investment framework fixed. Change only the forecasting signal.",
+                     "Experiment 1", "Experiment 2", "Deterministic signal value", "JEV signal value", "Same assets: SPY, IEF, LQD", "Same assets: SPY, TLT",
+                     "Same starting weights: 45% / 35% / 20%", "Same starting weights: 60% / 40%", "Only the Ridge-generated portfolio tilts are switched off",
+                     "Only the JEV-generated portfolio tilts are switched off", "not protected historical test results",
+                     "3.67%", "3.77%", "−0.11 pts", "4.67%", "4.37%", "+0.31 pts", "p = 0.17", "p = 0.59",
+                     "95% interval −0.31 pts to +0.03 pts", "95% interval −0.48 pts to +1.38 pts", "Interval includes zero: not statistically significant",
+                     "+1.01 pts", "+0.59 pts", "+0.42 pts", "+1.39 pts", "−0.79 pts", "+0.11 pts", "Accounting attribution, not proof of causality",
+                     "does not establish AI-generated alpha", "Rounded, the parts add up to +1.02", "+0.31 pts → −0.18 pts", "Feb 2020 decision",
+                     "54.7%", "SPY fell 19.9%", "not proof of foresight",
+                     "neither system's signals demonstrated statistically significant incremental value in this development sample",
+                     "This does not prove the signals have zero value.", "46-month development sample", "The protected historical test has not been opened.",
+                     "Agentic Causal RAG has not yet produced validated real-model backtest results."],
     "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "reported separately", "Awaiting decision", "Jan 2024 – Aug 2026", "Supporting metrics",
                     "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
                     "How net CER is calculated", "not a compound annual return",
@@ -47,7 +60,7 @@ VIEWS = {
     "method": ["Rules and settings"],
 }
 # Wording the usability review flagged as jargon or as overstating the results.
-JARGON = re.compile(r"\b(common benchmark|attribution|Awaiting freeze approval|best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% TLT|% LQD", re.I)   # "60% SPY / 40% IEF" is the approved passive-reference label
+JARGON = re.compile(r"\b(common benchmark|(?<!accounting )attribution|Awaiting freeze approval|best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% TLT|% LQD", re.I)   # "60% SPY / 40% IEF" is the approved passive-reference label
 FORBIDDEN = re.compile(r"\b(AP1|AP2A|AP2B|AP2-A|AP2-B|AP3|engineering_mock|saved_native_replay|\.jsonl|\.py\b)")
 
 
@@ -132,18 +145,38 @@ def main() -> int:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: detail chart lines {ds}")
                         if page.locator("main .attr .arow").count() != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: decomposition rows missing")
-                    if view == "experiments":
-                        # secondary signal-value section: two cards, each with/without lines (the no-signal one dashed), five gap rows
-                        sv = page.evaluate("""() => ['c-sv-det', 'c-sv-jev'].map(id => { const c = Chart.getChart(id); return c ? c.data.datasets.map(d => [d.label.split(' (')[0], (d.borderDash || []).length > 0, d.data.length]) : null; })""")
-                        want = [["With signals", False, 46], ["Without signals", True, 46]]
-                        if sv != [want, want]:
-                            problems.append(f"[{scheme}/{vp_name}] #{view}: signal-value charts {sv}")
-                        n_rows = page.locator("#signal-value .attr .arow").count()
-                        n_cards = page.locator("#signal-value .svcard").count()
-                        if n_rows != 5 or n_cards != 2 or page.locator("main .acard").count():
-                            problems.append(f"[{scheme}/{vp_name}] #{view}: signal-value layout rows={n_rows} cards={n_cards}")
-                        if shots and scheme == "dark":
-                            page.locator("#signal-value").screenshot(path=str(shots / f"{scheme}-{vp_name}-signal-value.png"))
+                    if view == "signal-value":
+                        # its own top-level tab: the right strategies, periods and series in every chart
+                        if page.locator("header nav a[aria-current=page]").text_content() != "Signal Value-Added" or page.locator("header nav a").count() != 5:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: not a selected top-level tab")
+                        ch = page.evaluate("""() => Object.fromEntries(['c-sva-growth', 'c-sva-det', 'c-sva-jev', 'c-sva-month'].map(id => { const c = Chart.getChart(id);
+                            return [id, c ? {labels: [c.data.labels[0], c.data.labels.at(-1), c.data.labels.length],
+                                             sets: c.data.datasets.map(d => [d.label.split(' (')[0], (d.borderDash || []).length > 0, d.data.length])} : null]; }))""")
+                        period = ["2019-03", "2022-12", 46]
+                        want = {"c-sva-growth": [["Deterministic", False, 46], ["Agentic Workflow", False, 46]],
+                                "c-sva-det": [["With signals", False, 46], ["Without signals", True, 46]], "c-sva-jev": [["With signals", False, 46], ["Without signals", True, 46]],
+                                "c-sva-month": [["JEV signal contribution", False, 46]]}
+                        for cid, w in want.items():
+                            got = ch.get(cid)
+                            if not got or got["labels"] != period or [[l[0].split(" (")[0], l[1], l[2]] for l in got["sets"]] != w:
+                                problems.append(f"[{scheme}/{vp_name}] #{view}: chart {cid} {got}")
+                        hi = page.evaluate("""() => { const c = Chart.getChart('c-sva-month'); const bg = c.data.datasets[0].backgroundColor;
+                            const odd = bg.map((x, i) => x !== bg[0] ? i : -1).filter(i => i >= 0); return odd.map(i => c.data.labels[i]); }""")
+                        if hi != ["2020-02"]:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: highlighted month {hi}")
+                        # both 95% intervals include zero, and nothing in the tab uses the green 'success' colour
+                        cis = page.evaluate("""() => [...document.querySelectorAll('#sva-results .cibar')].map(b => { const r = b.querySelector('.range').getBoundingClientRect(), z = b.querySelector('.zero').getBoundingClientRect();
+                            return r.left <= z.left + 1 && z.right <= r.right + 1; })""")
+                        green = page.evaluate("""() => { const pos = getComputedStyle(document.documentElement).getPropertyValue('--pos').trim(); const tmp = document.createElement('i'); tmp.style.color = pos; document.body.append(tmp);
+                            const rgb = getComputedStyle(tmp).color; tmp.remove(); return [...document.querySelectorAll('main *')].filter(e => { const s = getComputedStyle(e); return s.color === rgb || s.backgroundColor === rgb; }).length; }""")
+                        if cis != [True, True] or green:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: intervals-include-zero {cis}, green elements {green}")
+                        tips = page.evaluate("""() => [...document.querySelectorAll('main .tip span[role=tooltip]')].map(t => t.textContent.split(':')[0])""")
+                        need = ["Net CER = Certainty-Equivalent Return", "No-signal portfolio", "Correlation", "Likely range (95%)", "p-value"]
+                        if [n for n in need if n not in tips]:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: missing tooltips {[n for n in need if n not in tips]}")
+                        if page.locator("#sva-results .sva-exp").count() != 2 or page.locator("#sva-tests .sva-exp").count() != 2 or page.locator("#sva-explain .arow").count() != 5:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: experiment or split cards missing")
                     if view in ("approaches", "deterministic", "jev", "causal-rag"):
                         n_tabs = page.locator("main .atabs a").count()
                         if n_tabs != 3:
@@ -159,7 +192,7 @@ def main() -> int:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: page scrolls sideways by {sw}px")
                     n_canvas = page.locator("canvas").count()
                     report[f"{scheme}/{vp_name}/{view}"] = {"canvases": n_canvas, "chars": len(text)}
-                    if shots and (scheme == "dark" or view in ("overview", "experiments")):
+                    if shots and (scheme == "dark" or view in ("overview", "experiments", "signal-value")):
                         page.screenshot(path=str(shots / f"{scheme}-{vp_name}-{view}.png"), full_page=True)
                 # flow diagram: selecting a step shows its short explanation
                 page.goto(a.url + "#causal-rag")

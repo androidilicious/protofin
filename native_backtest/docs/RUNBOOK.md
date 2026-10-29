@@ -10,7 +10,7 @@ pip install -r stage2/scoring/requirements-lock.txt pyarrow jsonschema playwrigh
 python mvp/run.py serve        # dashboard at http://127.0.0.1:8000 from the committed results
 python mvp/run.py fetch        # pinned inputs, every SHA-256 verified (claims data: local use only, git-ignored)
 python mvp/run.py build        # AP1 rerun, AP2 replay, shared evaluation, AP3 graph libraries, dashboard data
-python mvp/run.py check        # all tests + headless-browser check of 40 views (desktop/phone, light/dark)
+python mvp/run.py check        # all tests + headless-browser check of 44 views (desktop/phone, light/dark)
 ```
 
 ## 2. Causal RAG without paid inference

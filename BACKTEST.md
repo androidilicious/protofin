@@ -65,7 +65,7 @@ pip install -r stage2/scoring/requirements-lock.txt pyarrow jsonschema playwrigh
 python mvp/run.py serve     # dashboard at http://127.0.0.1:8000 from the committed results
 python mvp/run.py fetch     # pinned inputs, SHA-256 verified (claims data: local research use only, never committed)
 python mvp/run.py build     # regenerates every result; native_backtest/out/ comes back byte-identical
-python mvp/run.py check     # all tests + headless-browser check of 40 views (desktop/phone, light/dark)
+python mvp/run.py check     # all tests + headless-browser check of 44 views (desktop/phone, light/dark)
 sha256sum -c RELEASE_MANIFEST.sha256
 ```
 

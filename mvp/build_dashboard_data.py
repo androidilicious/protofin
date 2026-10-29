@@ -358,7 +358,8 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
             "hit_rate": _r(d["tilt_hit_rate_before_costs"], 3), "direction_changes": d["spy_tilt_direction_changes"],
             "stock_weight_range": _r(d.get("spy_weight_range_across_choices", d.get("spy_weight_range_across_forecast_terciles")), 4),
             "influence": {k: (_r(v) if isinstance(v, float) else v) for k, v in r["influence_leave_one_month_out"][src].items()},
-            "active": [_r(v) for v in mon[f"{src}_active_net"]]}
+            "active": [_r(v) for v in mon[f"{src}_active_net"]],
+            "universe": sv["universe"], "no_signal_weights": sv["no_signal_weights"]}
     tp = r["attribution_net_cer"]["two_by_two"]
     q = r["questions"]
     out["gap"] = {"total": ci(q["jev_minus_deterministic_total"]), "mix": ci(q["no_signal_mix_difference"]),
@@ -367,6 +368,22 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
                             "jev": _r(tp["jev_signal_value"]), "det": _r(tp["minus_deterministic_signal_value"])},
                   "signals_without_most_influential_month": _r(r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["without_most_influential_month"]),
                   "most_influential_month": r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["most_influential_month"]}
+    # rounding: parts shown to 2 decimals need not add up to the rounded total; the tab says so when they do not
+    shown = lambda v: round(v * 100, 2)
+    out["gap"]["full_precision_residual"] = _r(r["attribution_net_cer"]["two_by_two_residual"], 12)
+    out["gap"]["rounded_parts_sum"] = round(sum(shown(v) for v in tp.values()), 2)
+    out["gap"]["rounded_total"] = shown(r["attribution_net_cer"]["total_net_cer_difference"])
+    # the month that moved JEV's signal value most (leave-one-month-out), read from the analysis's monthly output
+    inf = r["influence_leave_one_month_out"]["AP2B"]
+    row = mon[mon["decision_month"] == inf["most_influential_month"]].iloc[0]
+    assert abs(row["AP2B_active_net"] - (row["AP2B_ON__net_total_return"] - row["AP2B_OFF__net_total_return"])) < 1e-12
+    out["influential_month"] = {
+        "decision_month": inf["most_influential_month"], "entry": row["entry_date"], "exit": row["exit_date"],
+        "jev_spy_weight": _r(row["AP2B_ON__w_SPY"], 4), "no_signal_spy_weight": _r(row["AP2B_OFF__w_SPY"], 4),
+        "jev_active_return": _r(row["AP2B_active_net"]), "spy_return": _r(row["asset_return_SPY"], 4), "tlt_return": _r(row["asset_return_TLT"], 4),
+        "jev_active_sum_all_months": _r(mon["AP2B_active_net"].sum()),
+        "value_with": _r(inf["full"]), "value_without": _r(inf["without_most_influential_month"]),
+        "only_month_that_flips_the_sign": inf["months_whose_removal_flips_the_sign"] == 1}
     nat, bh = r["sensitivities"]["jev_native_engine"], r["sensitivities"]["buy_and_hold_no_signal"]
     out["checks"] = {"native_jev_value": ci(nat["incremental"]), "buy_and_hold": {k: ci(bh[s]["incremental"]) for k, s in (("det", "AP1"), ("jev", "AP2B"))},
                      "independent_checks": json.loads((SIGNAL.parent / "independent_check_v1.json").read_text())["checks"],

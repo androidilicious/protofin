@@ -40,7 +40,15 @@ python mvp/run.py check            # project tests + Stage 2 tests + headless-br
 
 - **Overview** — the research question first: does AI improve on the Deterministic baseline? The Deterministic Quantitative Model is marked as the research baseline. Shown: the verdict, the timeline, one card per approach (net CER and, for the AI approaches, the difference from the baseline with its range), the three research comparisons (JEV − Deterministic, Causal RAG − Deterministic, Causal RAG − JEV; pending where Causal RAG has no results), findings, growth of $1 (toggle: versus the baseline), key metrics, and a separate passive investment comparison against the Passive Portfolio Reference — 60% SPY / 40% IEF, which is also an optional dashed line on the chart. Nothing is marked as a winner.
 - **Approaches** — one tab per approach: an interactive flow diagram, results with the research comparison (versus the Deterministic baseline; the baseline page lists the comparisons against it), the passive 60/40 reference with its accounting split, the approach's own benchmark as a secondary check, forecasts, holdings, the reproduction check and limitations. Causal RAG shows its two versions with their real build and validation status, its validation progress and the research inputs it will use, plus a clearly labelled demo.
-- **Experiments** — the within-approach experiments described above, and the Committee vs JEV comparison.
+- **Experiments** — the within-approach experiments described above, the Committee vs JEV comparison, and a short pointer to the signal value analysis.
+- **Signal Value-Added** — a short research story in five steps:
+  1. **Observation:** the Deterministic and JEV curves look alike (monthly return correlation 0.971; their no-signal portfolios alone 0.983); the integrity audit found no calculation or charting error.
+  2. **Experiments:** each approach against its own portfolio with the forecasting signal switched off.
+  3. **Results:** net CER with and without signals, growth of $1, and the incremental net CER with its 95% interval and p-value; both intervals include zero.
+  4. **Explanation:** JEV's +1.01-point lead split into its no-signal portfolio (+0.59) and signals (+0.42), as accounting attribution, not causality, plus the February 2020 sensitivity check.
+  5. **Takeaway:** the conclusion and its limits.
+
+  Every number and series comes from `native_backtest/out/signal_value/` and `native_backtest/out/audit/` through the build.
 - **Methodology** — the timeline (2023 marked as overlapping the AI models' training data; open decisions listed), rules and settings tagged Frozen, Needs approval or Differs by design, the passive portfolio reference (mix, the five rules it shares with the backtest, and its freeze status), the validation-status matrix, and expandable details on net CER, statistics and safeguards.
 - Every term with an **i** has a one-sentence explanation on hover, focus or tap.
 

@@ -223,3 +223,62 @@ def test_signal_value_section_matches_the_analysis_and_earlier_results():
     assert g["total"]["cer_difference"] == round(r["questions"]["jev_minus_deterministic_total"]["point"], 6)
     assert V["checks"]["reproduces_previous"] is True and V["checks"]["independent_checks"] >= 200
     assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]      # no extra primary approach
+
+
+def test_signal_value_tab_numbers_match_the_reports():
+    """Every headline number of the Signal Value-Added tab, as displayed (rounded), equals the verified analysis and
+    appears in the two canonical reports."""
+    V, A = D["signal_value"], D["audit"]
+    r = json.loads((ROOT / "native_backtest/out/signal_value/signal_value_v1.json").read_text())
+    p2 = lambda x: round(x * 100, 2)
+    shown = {"det": (3.67, 3.77, -0.11, 0.17, (-0.31, 0.03)), "jev": (4.67, 4.37, 0.31, 0.59, (-0.48, 1.38))}
+    for key, src in (("det", "AP1"), ("jev", "AP2B")):
+        s, want = V["systems"][key], shown[key]
+        assert (p2(s["with"]["cer"]), p2(s["without"]["cer"]), p2(s["value"]["cer_difference"]), round(s["value"]["p"], 2)) == want[:4]
+        assert tuple(p2(x) for x in s["value"]["ci95"]) == want[4] and s["value"]["ci95"][0] < 0 < s["value"]["ci95"][1]
+        assert abs(s["value"]["cer_difference"] - r["systems"][src]["incremental"]["net_cer_difference"]) < 5e-7
+    g = V["gap"]
+    assert (p2(g["total"]["cer_difference"]), p2(g["mix"]["cer_difference"]), p2(g["signals"]["cer_difference"])) == (1.01, 0.59, 0.42)
+    assert {k: p2(v) for k, v in g["parts"].items()} == {"stock": 1.39, "bond": -0.79, "jev": 0.31, "det": 0.11}
+    assert g["rounded_parts_sum"] == 1.02 and g["rounded_total"] == 1.01 and g["full_precision_residual"] == 0.0   # flagged on the tab
+    im = V["influential_month"]
+    assert im["decision_month"] == "2020-02" and (p2(im["value_with"]), p2(im["value_without"])) == (0.31, -0.18) and im["only_month_that_flips_the_sign"]
+    assert (round(A["corr_monthly_net"], 3), round(A["corr_own_mixes"], 3)) == (0.971, 0.983)
+    sva = (ROOT / "native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md").read_text()
+    for t in ("−0.11 pts", "+0.31 pts", "−0.18 pts", "+0.59 pts", "+0.42 pts", "+1.39 pts", "−0.79 pts", "+1.01 pts",
+              "−0.31 pts to +0.03 pts", "−0.48 pts to +1.38 pts", "3.67%", "3.77%", "4.67%", "4.37%"):
+        assert t in sva, t
+    audit = (ROOT / "native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md").read_text()
+    assert "0.9712" in audit and "0.9826" in audit
+
+
+def test_signal_value_tab_series_come_from_the_analysis():
+    """The tab's charts use the development months only, and its with/without growth curves reproduce the analysis's
+    own monthly returns (no hand-made series)."""
+    import pandas as pd
+    V = D["signal_value"]
+    mon = pd.read_csv(ROOT / "native_backtest/out/signal_value/monthly_v1.csv", dtype={"decision_month": str})
+    assert D["dev"]["months"] == mon["decision_month"].tolist() and (D["dev"]["months"][0], D["dev"]["months"][-1], len(D["dev"]["months"])) == ("2019-03", "2022-12", 46)
+    for key, src in (("det", "AP1"), ("jev", "AP2B")):
+        s = V["systems"][key]
+        with_w = (1 + mon[f"{src}_ON__net_total_return"]).cumprod().tolist()
+        without_w = (1 + mon[f"{src}_OFF__net_total_return"]).cumprod().tolist()
+        assert max(abs(a - b) for a, b in zip(D["dev"]["series"][key]["wealth"], with_w)) < 1e-6
+        assert max(abs(a - b) for a, b in zip(D["dev"]["benchmarks"][s["no_signal"]]["wealth"], without_w)) < 1e-6
+        assert len(s["active"]) == 46 and s["universe"] == list(s["no_signal_weights"])
+    im = V["influential_month"]
+    i = D["dev"]["months"].index(im["decision_month"])
+    assert V["systems"]["jev"]["active"][i] == im["jev_active_return"] and abs(sum(V["systems"]["jev"]["active"]) - im["jev_active_sum_all_months"]) < 1e-5
+    row = mon.iloc[i]
+    assert (im["entry"], im["exit"]) == (row["entry_date"], row["exit_date"]) and abs(im["spy_return"] - row["asset_return_SPY"]) < 5e-5
+    assert V["systems"]["det"]["no_signal_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2} and V["systems"]["jev"]["no_signal_weights"] == {"SPY": 0.6, "TLT": 0.4}
+
+
+def test_signal_value_is_a_separate_top_level_tab():
+    html = (ROOT / "mvp/index.html").read_text()
+    nav = re.findall(r'<a href="#([a-z-]+)" data-route="[a-z-]+">([^<]+)</a>', html)
+    assert nav == [("overview", "Overview"), ("approaches", "Approaches"), ("experiments", "Experiments"),
+                   ("signal-value", "Signal Value-Added"), ("methodology", "Methodology")]
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    assert "view === 'signal-value') viewSignalValue()" in js and "function signalValuePanel" not in js    # not a section of Experiments
+    assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]                                      # the three approaches are unchanged

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Four sections (Overview, Approaches, Experiments, Methodology). Colour carries two meanings only:
+/* Five sections (Overview, Approaches, Experiments, Signal Value-Added, Methodology). Colour carries two meanings only:
    which approach (blue, teal, violet; amber for the Committee variant) and status (green passed,
    amber waiting, grey planned, red blocked, slate paused; magenta demo). Text always accompanies colour. */
 :root {
@@ -386,6 +386,82 @@ details.more ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--border); }
 footer .wrap { padding-block: 16px 26px; display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
 .err { color: var(--neg); }
+/* Signal Value-Added tab: a five-step story; neutral colours for results (nothing here is a "success") */
+.sva-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sva-steps li { display: flex; align-items: center; gap: 6px; }
+.sva-steps li + li::before { content: ""; width: 12px; height: 1px; background: var(--border-strong); }
+.sva-steps button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+  border-radius: 999px; padding: 4px 12px 4px 4px; font: 600 13px/1.2 var(--font); cursor: pointer; }
+.sva-steps button:hover { border-color: var(--border-strong); color: var(--text); }
+.sva-steps .n, .sva-eyebrow .n { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; flex: none; }
+.sva-eyebrow { display: flex; align-items: center; gap: 8px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.sva .panel { gap: 14px; padding: 20px; scroll-margin-top: 84px; }
+.sva-split { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 20px; align-items: center; }
+.sva-stats { display: grid; gap: 10px; align-content: center; }
+.sva-stat { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
+.sva-stat .v { font: 700 28px/1.1 var(--font); font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--text); }
+.sva-stat .l { color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.sva-body { color: var(--text-2); font-size: 14.5px; line-height: 1.55; max-width: 76ch; margin: 0; }
+.sva-note { display: grid; grid-template-columns: 20px 1fr; gap: 8px; color: var(--text-2); font-size: 13.5px; margin: 0; }
+.sva-note svg.i { width: 17px; height: 17px; margin-top: 1px; color: var(--text-2); }
+.sva-principle { display: flex; flex-wrap: wrap; gap: 8px; }
+.sva-principle > div { flex: 1 1 150px; border-radius: 12px; padding: 10px 12px; display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+.sva-principle b { color: var(--text); font-size: 13.5px; display: flex; gap: 6px; align-items: center; }
+.sva-principle svg.i { width: 16px; height: 16px; color: var(--muted); }
+.sva-principle .fixed { background: var(--surface-2); border: 1px solid var(--border); }
+.sva-principle .switch { border: 1.5px solid var(--accent); background: var(--accent-soft); }
+.sva-principle .switch svg.i { color: var(--accent); }
+.sva-toggle { justify-self: start; display: inline-flex; border-radius: 999px; overflow: hidden; border: 1px solid var(--accent); font-size: 12px; font-weight: 700; }
+.sva-toggle span { padding: 2px 10px; color: var(--accent); }
+.sva-toggle .on { background: var(--accent); color: var(--bg); }
+.sva-principle-line { margin: 0; font-size: 15px; color: var(--text); }
+.sva-exp { border: 1px solid var(--border); border-top: 3px solid var(--c); border-radius: 12px; padding: 14px; display: grid; gap: 11px; align-content: start; min-width: 0; background: var(--surface); }
+.sva-exp-h { display: grid; gap: 4px; }
+.sva-tag { color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.sva-vs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.sva-vs .pill { border-radius: 999px; padding: 3px 10px; font-weight: 600; border: 1.5px solid var(--c); color: var(--text); }
+.sva-vs .pill.off { border-style: dashed; border-color: var(--c-bench); color: var(--text-2); }
+.sva-vs .x { color: var(--muted); font-size: 12px; }
+.mixbar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; border: 1px solid var(--border); }
+.mixbar span { display: block; }
+.mixlegend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--text-2); }
+.mixlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--border-strong); }
+.sva-setup { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 13.5px; color: var(--text-2); }
+.sva-setup li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; }
+.sva-setup svg.i { width: 16px; height: 16px; margin-top: 1px; color: var(--muted); }
+.sva-setup li.only { color: var(--text); font-weight: 600; }
+.sva-setup li.only svg.i { color: var(--c); }
+.sva-q { margin: 0; font-weight: 650; font-size: 14.5px; line-height: 1.45; color: var(--text); border-left: 3px solid var(--c); padding-left: 10px; }
+.cerbars { display: grid; gap: 7px; }
+.cerbar { display: grid; grid-template-columns: 104px minmax(0, 1fr) 54px; gap: 10px; align-items: center; font-size: 13px; color: var(--text-2); }
+.cerbar .t { height: 14px; background: var(--surface-2); border-radius: 5px; position: relative; overflow: hidden; }
+.cerbar .t span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }
+.cerbar .t span.off { opacity: .75; background-image: repeating-linear-gradient(135deg, transparent 0 5px, rgba(0,0,0,.18) 5px 8px) !important; }
+.cerbar b { text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.sva-delta { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sva-delta .big { font: 700 28px/1.1 var(--font); letter-spacing: -.02em; color: var(--text); }
+.sva-take { margin: 0; font-size: 13.5px; color: var(--text); }
+.chartbox.xs { height: 170px; }
+.gapbar { display: flex; height: 26px; border-radius: 8px; overflow: hidden; }
+.gapbar span { display: block; height: 100%; }
+.gapbar span + span { box-shadow: inset 3px 0 0 var(--surface); }
+.gaplegend { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 10px 18px; font-size: 13.5px; color: var(--text-2); }
+.gaplegend > div { display: grid; grid-template-columns: 14px 1fr; gap: 8px; align-items: start; }
+.gaplegend i { width: 14px; height: 14px; border-radius: 4px; margin-top: 2px; }
+.gaplegend b { color: var(--text); font-size: 15px; margin-right: 4px; }
+.gaplegend small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.gaplegend .tot { grid-template-columns: 1fr; border-left: 2px solid var(--border-strong); padding-left: 10px; }
+.sva-label { margin: 0; font-size: 13.5px; color: var(--text); font-weight: 600; }
+.sva-list { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; color: var(--text-2); }
+.sva-caution { display: grid; grid-template-columns: 20px 1fr; gap: 8px; background: var(--surface-2); border-left: 3px solid var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--text-2); margin: 0; }
+.sva-caution svg.i { width: 17px; height: 17px; color: var(--warn); margin-top: 1px; }
+.sva-final { border-color: var(--border-strong); }
+.sva-quote { font-size: clamp(17px, 2.1vw, 21px); font-weight: 650; line-height: 1.4; margin: 0; max-width: 62ch; color: var(--text); text-wrap: balance; }
+.sva-limits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 8px 18px; font-size: 13.5px; color: var(--text-2); }
+.sva-limits li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; align-items: start; }
+.sva-limits svg.i { width: 16px; height: 16px; color: var(--muted); margin-top: 1px; }
+@media (max-width: 720px) { .sva-split { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .sva .panel { padding: 16px; } .cerbar { grid-template-columns: 102px minmax(0, 1fr) 50px; font-size: 12.5px; gap: 8px; } .sva-steps li + li::before { display: none; } .sva-stat .v, .sva-delta .big { font-size: 24px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media (max-width: 720px) {
   .tree { grid-template-columns: 1fr; gap: 12px; }
@@ -402,8 +478,9 @@ footer .wrap { padding-block: 16px 26px; display: flex; flex-wrap: wrap; gap: 6p
 @media (max-width: 560px) {
   .top .wrap { gap: 6px; }
   .kpis.k4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  header nav { margin-left: 0; width: 100%; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-flow: row; }
-  header nav a { padding: 6px 2px; font-size: 13px; }
+  header nav { margin-left: 0; width: 100%; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-flow: row; }
+  header nav a { padding: 6px 2px; font-size: 13px; grid-column: span 2; }
+  header nav a:nth-child(n + 4) { grid-column: span 3; }       /* five tabs: three, then two */
   .pseg { padding: 8px 7px; }
   .pseg .full { display: none; }
   .pseg .short { display: inline; }
@@ -483,6 +560,7 @@ footer .wrap { padding-block: 16px 26px; display: flex; flex-wrap: wrap; gap: 6p
       <a href="#overview" data-route="overview">Overview</a>
       <a href="#approaches" data-route="approaches">Approaches</a>
       <a href="#experiments" data-route="experiments">Experiments</a>
+      <a href="#signal-value" data-route="signal-value">Signal Value-Added</a>
       <a href="#methodology" data-route="methodology">Methodology</a>
     </nav>
   </div>
