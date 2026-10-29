@@ -3,7 +3,7 @@
 
 Runs wherever www.federalreserve.gov, www.bls.gov and www.census.gov are reachable (this sandbox cannot
 reach them until they are allowed). Polite: one request every 2 s, a descriptive User-Agent, no retries
-beyond one. Every response is logged with URL, HTTP status, SHA-256, size and retrieval time in
+beyond one. Resumable: documents already on disk whose SHA-256 matches the log are skipped. Every response is logged with URL, HTTP status, SHA-256, size and retrieval time in
 native_backtest/data/_corpus_raw/fetch_log.jsonl; raw files go to native_backtest/data/_corpus_raw/<family>/.
 The folder is git-ignored; the committed corpus manifest records every hash so the corpus can be re-fetched
 and verified. A family whose index yields fewer documents than expected stops the run.
@@ -57,6 +57,19 @@ class Fetcher:
         self.log.write(json.dumps(rec) + "\n")
         self.log.flush()
         return body if status == 200 else None
+
+
+def already_fetched() -> set:
+    """URLs whose latest successful fetch is on disk and still matches its logged SHA-256."""
+    log = RAW / "fetch_log.jsonl"
+    if not log.exists():
+        return set()
+    latest = {}
+    for line in log.read_text().splitlines():
+        r = json.loads(line)
+        if r.get("status") == 200 and r.get("file"):
+            latest[r["url"]] = r
+    return {u for u, r in latest.items() if (ROOT / r["file"]).exists() and hashlib.sha256((ROOT / r["file"]).read_bytes()).hexdigest() == r["sha256"]}
 
 
 def in_window(d: pd.Timestamp, w) -> bool:
@@ -132,13 +145,17 @@ def main() -> int:
         summary[fam] = {"planned": len(planned), "by_year": {int(k): int(v) for k, v in sorted(years.items())}}
         if a.dry_run:
             continue
-        got = 0
+        got, kept = 0, 0
+        done = already_fetched()
         for url, d, rel in planned:
+            if url in done:          # resumable: a document already on disk with its logged SHA-256 is not fetched again
+                kept += 1
+                continue
             ext = ".pdf" if url.lower().endswith(".pdf") else ".html"
             name = (d.strftime("%Y%m%d") if d is not None else re.sub(r"\W", "_", url.rsplit("/", 1)[-1])) + ext
             body = f.get(url, fam, save_as=name, url_date=None if d is None else str(d.date()), release_date=None if rel is None else str(rel.date()))
             got += body is not None
-        summary[fam]["fetched"] = got
+        summary[fam].update({"fetched": got, "already_verified": kept})
     print(json.dumps(summary, indent=1))
     return 0
 

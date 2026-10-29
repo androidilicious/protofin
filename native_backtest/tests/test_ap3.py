@@ -438,3 +438,18 @@ def test_smoke_runner_safeguards(tmp_path, monkeypatch):
     g = L.CostGuard(15.0, tmp_path / "l.jsonl", {"mode": "hourly", "usd_per_hour": 10.0, "started_utc": "2026-10-28T00:00:00Z"})
     with pytest.raises(L.BudgetExceeded):
         g.check(L.Request(step="x", system="s", user="u", schema={}, temperature=0.0, seed=0))
+
+
+def test_corpus_fetch_is_resumable(tmp_path, monkeypatch):
+    import hashlib as _h
+    from native_backtest.scripts import ap3_corpus_fetch as fe
+    monkeypatch.setattr(fe, "ROOT", tmp_path)
+    monkeypatch.setattr(fe, "RAW", tmp_path / "raw")
+    (tmp_path / "raw" / "bls_cpi").mkdir(parents=True)
+    good, bad = tmp_path / "raw/bls_cpi/a.html", tmp_path / "raw/bls_cpi/b.html"
+    good.write_bytes(b"ok"); bad.write_bytes(b"changed")
+    rows = [{"url": "u1", "status": 200, "file": "raw/bls_cpi/a.html", "sha256": _h.sha256(b"ok").hexdigest()},
+            {"url": "u2", "status": 200, "file": "raw/bls_cpi/b.html", "sha256": _h.sha256(b"original").hexdigest()},
+            {"url": "u3", "status": 404}]
+    (tmp_path / "raw" / "fetch_log.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    assert fe.already_fetched() == {"u1"}
