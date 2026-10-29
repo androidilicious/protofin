@@ -1,6 +1,6 @@
 # Protofin
 
-> **Branch `backtest`:** this branch adds the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its interactive dashboard. See [BACKTEST.md](BACKTEST.md) and run `python mvp/run.py serve`.
+> **Branch `backtest`:** the three-approach backtest — Deterministic Quantitative Model (research baseline), Agentic Workflow represented by JEV, and Agentic Causal RAG — with a point-in-time evaluation framework and an interactive dashboard. Start with **[BACKTEST.md](BACKTEST.md)** (design, status, development results, how to run and deploy); run the dashboard with `python mvp/run.py serve`.
 
 An AI investment committee inside a rule-based allocator. Two large-language-model personas give independent views on the macro picture, a CIO persona synthesises them, and Black-Litterman plus a constrained optimizer turn that into a stock/bond split. Every step is measurable, every input has full point-in-time history, and the public demo runs entirely in the browser with no API key anywhere.
 

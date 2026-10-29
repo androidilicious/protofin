@@ -1,47 +1,107 @@
-# Three-approach backtest (branch `backtest`)
+# Protofin backtest: does AI improve on a deterministic model?
 
-This branch adds a shared backtesting framework, native integrations of the Protofin approaches, and an interactive MVP dashboard. The existing Protofin app, the Stage 2 work and every earlier result are unchanged.
+Duke MIDS × BNY CIO Office capstone. This branch (`backtest`) adds a shared, point-in-time backtesting framework, native integrations of the Protofin approaches, and an interactive dashboard. The existing Protofin app, the Stage 2 work and every earlier result are unchanged.
 
-| Role | Approach | Status (2026-10-28) |
+**Live dashboard:** published as a Claude artifact (link in the project hand-off). Locally: `python mvp/run.py serve`.
+
+## Research design
+
+| Role | Approach | What it is |
 |---|---|---|
-| Primary | Deterministic Quantitative Model | Reproduced natively; development diagnostics |
-| Primary | Agentic Workflow, represented by JEV | Reproduced natively (replay of saved answers); development diagnostics |
-| Primary | Agentic Causal RAG | Built and tested without a model; **awaiting validation, results unavailable** |
-| Within-approach experiment | Agentic Workflow: Committee only | Implemented; development diagnostics, compared only with JEV |
-| Within-approach experiment | Agentic Workflow: Committee + JEV | Proposed; not built |
-| Secondary experiments | Signal ablations; market-regime experiments; Standard RAG vs Causal RAG | Proposed; not run |
+| **Research baseline** | Deterministic Quantitative Model | 8 economic-data surprises → walk-forward Ridge → 1-month forecasts → Black–Litterman (SPY/IEF/LQD) |
+| Primary | Agentic Workflow, represented by JEV | An AI decision model's saved monthly answers → capped tilt around 60/40 (SPY/TLT) |
+| Primary | Agentic Causal RAG | Knowledge graph → Hypothesis Agent → CauseTrace → Testing Agent → calibration → Black–Litterman (SPY/IEF/LQD) |
+| Within-approach experiment | Agent Committee (Agentic Workflow) | Three AI agents set 12-month views; compared only with JEV |
+| Secondary reference | Passive Portfolio Reference: 60% SPY / 40% IEF | Frozen; a passive investment reference, not the research baseline |
 
-| Start here | |
+- **Primary comparisons:** JEV − Deterministic, Causal RAG − Deterministic and Causal RAG − JEV. Each is a net-CER difference with a block bootstrap (6-month blocks, 5,000 draws), forming one Holm family of three.
+- **Primary metric:** Net CER, the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance). It is not a compound annual return.
+- **Supporting metrics:** Sharpe ratio, worst fall, volatility, cumulative return and turnover.
+- **Timeline:**
+  - training starts February 2015;
+  - development runs March 2019 – December 2022;
+  - the protected historical test (2023-01..2026-08) is **sealed**, with the primary test January 2024 – August 2026 and 2023 reported separately.
+
+## Status (2026-10-29)
+
+| | State |
 |---|---|
-| Run the dashboard | [`mvp/README.md`](mvp/README.md): `python mvp/run.py serve` |
-| Research design (roles, contrasts, metric) | [`native_backtest/config/framework_config_v1.json`](native_backtest/config/framework_config_v1.json) (`research_design`), [`native_backtest/config/system_manifest_v1.csv`](native_backtest/config/system_manifest_v1.csv) |
-| What each system's code actually does | [`native_backtest/docs/NATIVE_BEHAVIOUR_AUDIT.md`](native_backtest/docs/NATIVE_BEHAVIOUR_AUDIT.md) |
-| Engine, adapters, Causal RAG build | [`native_backtest/README.md`](native_backtest/README.md) |
-| Gate status and what blocks the protected historical test | [`native_backtest/docs/GO_NO_GO_2026-10-28.md`](native_backtest/docs/GO_NO_GO_2026-10-28.md) |
-| Causal RAG model hosting and cost (awaiting approval) | [`native_backtest/docs/AP3_MODEL_HOSTING_AND_COST.md`](native_backtest/docs/AP3_MODEL_HOSTING_AND_COST.md) |
+| Deterministic (baseline) | Reproduced byte-for-byte natively; development results |
+| JEV | Reproduced natively (272/272 saved answers); development results |
+| Agent Committee | Reproduced natively; development results, compared only with JEV |
+| Causal RAG — Reduced Evidence | Built; engineering-tested end to end on all 95 development months with mock responses (never shown as results). Real-model smoke test approved ($15 cap), waiting for Hugging Face access |
+| Causal RAG — With Historical Documents | Built. 474 Fed and Census documents validated; BLS documents (≤ 435) blocked from the cloud environment |
+| Policy-path proxy variant | Built as a separately documented sensitivity variant for the missing fed funds futures; engineering-tested |
+| Historical test | Sealed. `historical_evaluation.py` refuses to run without a signed GO record |
 
-**Primary metric.** Net CER, the certainty-equivalent return: 12 × (mean monthly net excess return − ½ × 2.5 × its variance), the guaranteed yearly return above cash a risk-averse investor would accept instead of the strategy. It is not a compound annual return.
+## Development results, March 2019 – December 2022 (46 months)
 
-**Primary comparison.** Net-CER differences among the three primary approaches, Holm-corrected as one family of three. Only Agentic Workflow (JEV) vs Deterministic exists so far; the two Causal RAG contrasts wait for genuine Causal RAG results. The Committee and the secondary experiments never enter this family.
+These are diagnostics on development months, not protected historical results.
 
-**Timeline.** The primary research timeline begins with the February 2015 macro-data training period. Months 2019-03..2022-12 are development diagnostics. The protected historical test, 2023-01..2026-08, is sealed (decision: NO-GO), so no protected historical results exist.
+| | Net CER | Sharpe | Worst fall | Volatility | Cumulative | Turnover |
+|---|---|---|---|---|---|---|
+| Deterministic (baseline) | 3.67% | 0.46 | −18.6% | 11.5% | 24.3% | 46% |
+| JEV | 4.67% | 0.51 | −23.8% | 13.7% | 31.2% | 33% |
+| Agent Committee (within-approach) | 5.11% | 0.56 | −23.6% | 13.0% | 32.7% | 113% |
+| Passive 60% SPY / 40% IEF (reference) | 4.98% | 0.55 | −18.8% | 12.9% | 32.0% | 28% |
+| Causal RAG | not run: real-model runs await approval | | | | | |
 
-**Development diagnostics so far:** neither the Deterministic model nor the Agentic Workflow (JEV) beat its own benchmark or the other by a statistically significant margin; nor did the Committee beat JEV. These are diagnostics, not protected historical results.
+- **JEV − Deterministic:** +1.01 pts net CER per year, 95% range −3.42 to +5.27, p = 0.63. Not statistically clear.
+- **Committee − JEV:** +0.44 pts, 95% range −1.85 to +2.90, p = 0.72. Not statistically clear.
 
-## Reproducing and verifying
+## Run it
 
 ```bash
-python mvp/run.py fetch    # restricted inputs, downloaded and hash-checked (not stored in git)
-python mvp/run.py build    # regenerates every result; native_backtest/out/ comes back byte-identical
-python mvp/run.py check    # project tests, Stage 2 tests, headless-browser dashboard check
-sha256sum -c RELEASE_MANIFEST.sha256   # committed results, configs, vendored code
+git clone -b backtest https://github.com/androidilicious/protofin.git && cd protofin
+pip install -r stage2/scoring/requirements-lock.txt pyarrow jsonschema playwright requests beautifulsoup4 pypdf huggingface_hub
+python mvp/run.py serve     # dashboard at http://127.0.0.1:8000 from the committed results
+python mvp/run.py fetch     # pinned inputs, SHA-256 verified (claims data: local research use only, never committed)
+python mvp/run.py build     # regenerates every result; native_backtest/out/ comes back byte-identical
+python mvp/run.py check     # all tests + headless-browser check of 40 views (desktop/phone, light/dark)
+sha256sum -c RELEASE_MANIFEST.sha256
 ```
 
-Some inputs are not stored in this repository. Each has a manifest with SHA-256 hashes that `fetch` checks:
+The rest of the procedures are in [`native_backtest/docs/RUNBOOK.md`](native_backtest/docs/RUNBOOK.md):
+- the Causal RAG engineering runs;
+- the cloud corpus download and validation;
+- the paid model steps (refused without an approval record, secrets and a cost cap);
+- the final historical backtest after GO.
+
+Environment variables are listed in [`.env.example`](.env.example). No secret is stored in the repository.
+
+## Deploying the dashboard
+
+The dashboard is a static site, `mvp/index.html` + `mvp/assets/` + `mvp/data/dashboard.json`. It needs no backend, since every number is precomputed by `python mvp/run.py build`. Any static host works:
+
+| Option | How | Notes |
+|---|---|---|
+| Claude artifact (current) | Published from the same three files | Shareable link; no account needed to view |
+| Cloudflare Pages | `npx wrangler pages deploy mvp --project-name protofin-backtest` | Needs a Cloudflare account token. Use a separate project: the existing `protofin` project serves `site/` from `main` |
+| GitHub Pages | Serve `mvp/` from a branch or Actions | Private repositories need a paid GitHub plan; do not make the repository public to use it |
+| Local | `python mvp/run.py serve` | |
+
+The dashboard contains development results, statuses and explanations only. It contains no pipeline code, licensed data, credentials or protected results.
+
+## Where things are
+
+| Path | Contents |
+|---|---|
+| [`native_backtest/`](native_backtest/README.md) | Shared evaluator, native adapters, Causal RAG (agents, evidence pools, corpus, reliability gates), scripts, tests |
+| [`native_backtest/docs/GO_NO_GO_2026-10-28.md`](native_backtest/docs/GO_NO_GO_2026-10-28.md) | Gate status and what blocks the protected test |
+| [`native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`](native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md) | The Causal RAG versions, reliability gates, cost of model runs |
+| [`native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md`](native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md) | Evidence corpus: counts, reconciliation, storage, BLS options |
+| [`mvp/`](mvp/README.md) | Dashboard frontend, data builder and its tests |
+| `stage2/` | The validated Stage 2 scorer the Deterministic model runs on |
+
+## Data and licensing
+
+Some inputs are not stored in this repository. `fetch` downloads them and checks their SHA-256:
 
 | Input | Manifest |
 |---|---|
 | Pinned prices and cash rate | `stage2/reproducibility/stage2_data_snapshot_manifest_v3_2026-10-27.json`; TLT in `native_backtest/config/native_data_manifest_v1.json` |
 | Garg & Fetzer claims (no published licence; local research use only) | `native_backtest/config/ap3_claims_manifest_v1.json` |
+| Official-document corpus (US government, public domain) | `native_backtest/data/ap3_corpus/fetch_manifest_v1.json`, re-fetched with `ap3_corpus_fetch` |
+| Bloomberg fed funds futures (licensed; not committed) | `native_backtest/config/bloomberg_ff_futures_request_v1.json` |
 
 `mvp/data/dashboard.json` is left out of the release manifest because it records its build time.

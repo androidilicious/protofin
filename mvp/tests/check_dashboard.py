@@ -31,7 +31,7 @@ VIEWS = {
     "committee": ["Within-approach variant of the Agentic Workflow", "Chief investment officer", "12-month views", "Versus JEV (within-approach)", "Sample reasoning"],
     "causal-rag": ["Awaiting validation", "Results unavailable", "Knowledge graph", "Hypothesis Agent", "CauseTrace", "Testing Agent",
                    "Validation progress", "Two versions", "Reduced evidence", "With historical documents", "Primary version: not yet chosen",
-                   "Evidence the Testing Agent can use", "Real model runs (approval needed)", "Inputs: research the agents can draw on", "No results yet", "Demo: one month, step by step", "Safeguards"],
+                   "Evidence the Testing Agent can use", "Real model smoke test: approved", "Inputs: research the agents can draw on", "No results yet", "Demo: one month, step by step", "Safeguards"],
     "experiments": ["Within-approach experiments", "None enters the primary comparison", "Tested", "Awaiting validation", "Planned", "Blocked", "Paused",
                     "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
                     "Committee + JEV", "Its primary version is chosen before the test opens", "Causal RAG — Reduced Evidence",

@@ -46,17 +46,38 @@ Every paid step refuses to run unless all of these exist:
 Without `--execute`, each command only prints its plan.
 
 ```bash
-# A: smoke test (3 months, Reduced Evidence). Approval record ap3_inference_approval_A.json
-python -m native_backtest.scripts.ap3_hf_endpoint --create        # dedicated endpoint, pinned revision; scales to zero
-python -m native_backtest.scripts.ap3_smoke_test --provider hf_endpoint --execute
+# A: smoke test (3 pre-specified months, Reduced Evidence). Approved 2026-10-29: hf_endpoint, $15 total.
+python -m native_backtest.scripts.ap3_hf_endpoint                       # plan: endpoint spec, deadlines, worst case of every failure mode
+AP3_ALLOW_PAID_INFERENCE=1 python -m native_backtest.scripts.ap3_smoke_test --provider hf_endpoint --execute
+python -m native_backtest.scripts.ap3_smoke_report                      # evidence report (redacted copy committed)
+python -m native_backtest.scripts.ap3_hf_endpoint --delete              # only if a run was killed: deletes the recorded endpoint
 
-# B: gates G3a/G3b and the 95-month development replay. Approval record ap3_inference_approval_B.json:
+# B: gates G3a/G3b and the 95-month development replay. Separate approval record ap3_inference_approval_B.json:
 #    {"stage": "B", "provider": "hf_endpoint", "variants": ["reduced_evidence"], "cap_usd": <cap>, "approved_by": ..., "date": ...}
 python -m native_backtest.scripts.ap3_g3b_fixtures --provider hf_endpoint --execute
 python -m native_backtest.scripts.ap3_dev_replay --variant reduced_evidence --provider hf_endpoint --months 2015-02,2016-01 --execute   # G3a
 python -m native_backtest.scripts.ap3_dev_replay --variant reduced_evidence --provider hf_endpoint --execute                          # G4a + calibration
-python -m native_backtest.scripts.ap3_hf_endpoint --pause
 ```
+
+The smoke test runs under one controller (`scripts/ap3_hf_endpoint.py`), which creates the endpoint and records the time just before creation. It then:
+1. Deletes the endpoint if the configuration Hugging Face echoes back lacks the pinned revision, image, instance or container arguments.
+2. Deletes it if it is not running after 40 minutes, or if it reports a failure.
+3. Sends requests only while the endpoint reports "running", with no wake-up of a scaled-to-zero endpoint.
+4. Stops new calls at 65 minutes and deletes the endpoint at 68 minutes.
+5. Deletes it when the run ends or is interrupted.
+
+At $10/hour, billed per minute, the bounds are:
+- $11.83 while the controller runs;
+- $14.17 if the controller process dies mid-run, because the endpoint scales to zero after 15 idle minutes.
+
+One case is not bounded by our code: the process dies during initialisation and Hugging Face never finishes initialising. Then `--delete` or the Hugging Face console stops it.
+
+Before the paid run, the environment needs:
+- `HF_TOKEN` as an environment secret, able to manage Inference Endpoints and read the gated repository;
+- the Llama 3.1 licence accepted;
+- billing enabled on the Hugging Face account;
+- network access to `huggingface.co`, `api.endpoints.huggingface.cloud` and the endpoint host (`*.endpoints.huggingface.cloud`).
+
 
 ## 5. The full-evidence version (after the corpus checks pass)
 

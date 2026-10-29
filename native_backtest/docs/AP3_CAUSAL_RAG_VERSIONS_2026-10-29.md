@@ -30,6 +30,18 @@ Every excerpt carries `available_at`. The pool builder refuses any excerpt at or
   - Asset returns are never included.
   - `FF_FUTURES_6M` has no data until the Bloomberg export arrives. It yields no note, and its mediator test reports it as unavailable. Nothing is substituted for it.
 
+## Sensitivity variant: policy-path proxy for the missing fed funds futures
+
+`FF_FUTURES_6M` needs a licensed Bloomberg export. In the frozen specification it stays **unavailable**, and nothing is substituted.
+
+A separately documented variant, `reduced_evidence_policy_proxy`, replaces it with a labelled proxy:
+- **Definition:** the 2-year Treasury yield minus the 4-week Treasury bill rate (DGS2 − DTB4WK, percentage points). Both series are already pinned and hash-checked.
+- **Availability:** each value is usable only once both inputs are published.
+- **Labelling:** the agents' packet and the data notes call it a proxy.
+- **What it measures:** the market-expected policy path, plus a term premium. It is not fed funds futures.
+
+The variant has been wiring-checked on 6 development months with mock responses. It is never the primary version unless explicitly approved.
+
 ## How the Testing Agent avoids fabricated support
 
 - The plan prompt, assessor prompt, schemas and rubric are unchanged.
