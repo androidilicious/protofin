@@ -1,0 +1,44 @@
+{
+ "_comment": "Pre-registration of the within-approach experiments resumed or completed on 2026-10-29. Written and pushed before any new result of these experiments was computed. Development window only (2019-03..2022-12); the protected window 2023-01..2026-08 stays sealed. None of these enters the primary Holm family of three.",
+ "version": "1.0",
+ "registered": "2026-10-29",
+ "decision": {
+  "what": "Resume the paused Stage 2 conventional-signal experiments (B1..B5, B-All) as within-approach experiments of the Deterministic Quantitative Model, and complete the planned Market Regimes and Committee + JEV experiments.",
+  "by": "project lead, written instruction of 2026-10-29 ('I do not want them to remain indefinitely marked as Paused or Planned')",
+  "resumption_conditions": "stage2/methodology/Stage2_Conventional_Signals_PAUSE_2026-10-27.md requires a written versioned decision (this record), a separate pre-registration (this record) and no exposure to historical-window results for these signals (none: the B systems have never been scored in 2023-01..2026-08)."
+ },
+ "AP1_financial_signals": {
+  "systems": {"B1": "A + credit spread level (FRED BAA10Y)", "B2": "A + 3-month change in the credit spread", "B3": "A + 10Y-3M Treasury slope (FRED T10Y3M)",
+              "B4": "A + VRP proxy (VIX^2/12 minus 22-day realized SPY variance)", "B5": "A + own-asset 12-month momentum", "B-All": "A + all five"},
+  "definitions": "Unchanged: stage2/config/stage2_frozen_config_v2.json (system_B_primary_signals, system_B_runs) and stage2_signal_manifest_v2.csv. Code unchanged: stage2/scoring/stage2_backtest.py and stage2_portfolio.py. Inputs: the pinned snapshot manifest v3 (all free public series; no Bloomberg input is needed).",
+  "run": "the canonical development spec stage2/scoring/stage2_run_spec_dev_v4.json, written to a new output folder; it must reproduce the archived development run before anything is reported",
+  "confirmatory": "B-All vs A (the predeclared confirmatory conventional system; frozen config selection_rule). Component runs B1..B5 are attribution diagnostics.",
+  "primary_metric": "normalized pooled squared-error improvement vs A (frozen evaluation.loss_normalization), paired circular block bootstrap, 6-month blocks, 5000 draws, seed 20261027",
+  "test": "two-sided bootstrap p = 2 x min(P(draw <= 0), P(draw >= 0)); significant at 5%. Components: Holm-corrected within the five-component family (frozen evaluation.multiple_testing).",
+  "secondary": ["per-asset OOS R2 and relative MSPE vs A", "directional accuracy (descriptive)",
+                "portfolio level through the same frozen Black-Litterman allocator: net CER and supporting metrics, paired net-CER bootstrap vs A (frozen settings), break-even cost (Stage 2 convention 14)",
+                "signal coverage: feature availability by month"],
+  "robustness": {"rule": "An improvement is called robust only if it is significant overall, has the same sign in both halves, and improves forecasts for at least 2 of the 3 assets.",
+                 "halves": [["2019-03", "2020-12"], ["2021-01", "2022-12"]]},
+  "not_resumed": "The B robustness items stay paused (10Y-2Y curve, IG OAS, alternative VRP); they are not part of this experiment.",
+  "disclosure": "Archived development results of these systems exist (2026-10-27) and their headline was noted in the pause record (B-All, B2 and B4 did not beat A). Re-running cannot change them; this record fixes how they are reported. No system is selected or relabelled after the results."
+ },
+ "REG_market_regimes": {
+  "applies_to": ["Deterministic (AP1)", "JEV (AP2B)", "Agent Committee (AP2A)", "Passive 60/40 SPY/IEF reference"],
+  "regimes": {
+   "R1_date": {"pre_2020": ["2019-03", "2019-12"], "from_2020": ["2020-01", "2022-12"]},
+   "R2_volatility": {"rule": "VIX close on the decision date (CBOE, pinned Stage 2 series) >= 20 is 'stressed', otherwise 'calm'; known at the 20:00 ET decision; threshold fixed here"}
+  },
+  "measures": ["months", "annualized mean net excess return", "annualized volatility", "net CER", "JEV - Deterministic and Committee - JEV net-CER contrasts within each regime with the frozen paired bootstrap"],
+  "status": "diagnostic only (frozen evaluation.event_regime_analysis): never used to select or tune anything",
+  "disclosure": "The signal value-added analysis (2026-10-29) reported active returns by a different, trailing-realized-volatility split; this registered VIX rule is not derived from it."
+ },
+ "AP2_committee_plus_jev": {
+  "rule": "Each month, the SPY weight is the equal-weight average of the Committee's and JEV's saved target SPY weights; TLT = 1 - SPY. No parameters.",
+  "why_this_rule": "Both systems decide on the same 272 month-end dates, for the same SPY/TLT universe and the same 12-month horizon, with information cutoffs (16:00 ET) before the 20:00 ET decision. Their forecasts are in different units (expected returns vs P(stocks beat bonds) and a tilt), so combining portfolios avoids inventing a conversion. The average of two weights inside 40-80% SPY stays inside it.",
+  "evaluation": "shared evaluator: same entry/exit closes, 5 bp per dollar traded, DTB4WK cash, start from cash; development months 2019-03..2022-12",
+  "comparisons": ["Committee + JEV vs JEV", "Committee + JEV vs Committee", "Committee + JEV vs its own 60/40 SPY/TLT benchmark"],
+  "test": "net CER difference, paired circular block bootstrap (6-month blocks, 5000 draws, seed 20261027), two-sided p; within-approach, outside the primary family",
+  "disclosure": "Both components' development results are already reported (Committee - JEV +0.44 pts, p 0.72); a combination of the two can be anticipated to lie near them. It is reported whatever it shows and is never scored in the protected window before a GO record."
+ }
+}
