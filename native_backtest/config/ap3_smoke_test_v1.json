@@ -86,7 +86,72 @@
    "revision_note": "Latest commit of meta-llama/Llama-3.1-70B-Instruct (last modified 2024-12-15), BF16, gated: manual licence acceptance; verified 2026-10-28",
    "instance": "AWS nvidia-h200 x2 (282 GB), $10/hour, billed per minute including start-up; alternative nvidia-a100 x2 (160 GB, $5/hour) leaves little KV-cache room for 141 GB of BF16 weights",
    "determinism": "vLLM is reproducible only on the same hardware and the same vLLM version, with a fixed seed and batch invariance enabled (vLLM reproducibility docs); hardware, image tag, seed and settings are recorded and never changed during a run",
-   "cap_usd": 15.0
+   "cap_usd": 15.0,
+   "endpoint_spec": {
+    "name": "protofin-ap3-llama31-70b",
+    "repository": "meta-llama/Llama-3.1-70B-Instruct",
+    "revision": "1605565b47bb9346c5515c34102e054115b4f98b",
+    "vendor": "aws",
+    "region": "us-east-1",
+    "instance_type": "nvidia-h200",
+    "instance_size": "x2",
+    "image": "vllm/vllm-openai:v0.30.0@sha256:8a69ffad015f138d7170c4ddc429e230a3bc1c1719f67e14324749df200a4b90",
+    "image_note": "vLLM v0.30.0 (released 2026-09-22), pinned by digest; not 'latest' and not a nightly",
+    "container_args": [
+     "--model",
+     "/repository",
+     "--served-model-name",
+     "meta-llama/Llama-3.1-70B-Instruct",
+     "--dtype",
+     "bfloat16",
+     "--tensor-parallel-size",
+     "2",
+     "--max-model-len",
+     "32768",
+     "--seed",
+     "0",
+     "--port",
+     "8000"
+    ],
+    "env": {
+     "VLLM_BATCH_INVARIANT": "1"
+    },
+    "min_replica": 0,
+    "max_replica": 1,
+    "scale_to_zero_timeout_minutes": 15,
+    "to_confirm_in_the_console_before_approval": [
+     "the container arguments field is applied to this custom image",
+     "the image digest shown matches the one above",
+     "the instance is listed as nvidia-h200 x2 in us-east-1"
+    ]
+   },
+   "cost_estimate": {
+    "rate_usd_per_hour": 10.0,
+    "billing": "per minute, including initialisation (Hugging Face pricing page)",
+    "assumptions": {
+     "startup_minutes": "15-30 (141 GB of BF16 weights to load; not published by Hugging Face; measured in the smoke test)",
+     "decode_tokens_per_second_per_stream": "15-25 with batch invariance on 2x H200 (assumption; measured in the smoke test)",
+     "parallelism": "the three smoke-test months run concurrently; the replay runs 8 months concurrently"
+    },
+    "smoke_test": {
+     "tokens_typical": "299k in / 66k out",
+     "tokens_upper": "1.18M in / 231k out",
+     "minutes_typical": "35-60",
+     "minutes_upper": "80-130",
+     "usd_typical": "6-10",
+     "usd_upper": "13-22",
+     "cap_usd": 15.0,
+     "if_cap_reached": "the guard stops before the next call, the watchdog pauses the endpoint, partial results and measured throughput are kept"
+    },
+    "development_programme_separate_approval": {
+     "what": "G3a 12-month run, G3b fixtures, 95-month replay",
+     "tokens_typical": "10.7M in / 2.36M out",
+     "tokens_upper": "41.8M in / 8.37M out",
+     "usd_typical": "40-75",
+     "usd_upper": "up to about 190",
+     "note": "estimated at 120-200 tokens per second across 8 concurrent months plus start-ups; replaced by the smoke test's measured throughput before approval B is requested"
+    }
+   }
   }
  },
  "not_recommended": {

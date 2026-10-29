@@ -36,25 +36,44 @@ vLLM is reproducible only on the same hardware and vLLM version ([vLLM reproduci
 - A future vLLM or hardware change would need a documented re-validation.
 - Llama 3.1's training data runs to December 2023, which is recorded in the contamination register. This is why 2023 is a secondary period.
 
-## Stage A (smoke test): prepared, not approved
+## Smoke test on the dedicated endpoint: the details for approval
 
-| Item | Setting |
+Nothing below has been run, and no endpoint exists.
+
+**Endpoint** (`ap3_smoke_test_v1.json` → `endpoint_spec`; created only by `ap3_hf_endpoint --create` after approval):
+
+| Item | Value |
 |---|---|
-| Cap | **$15 on the endpoint** (about 90 minutes of 2× H200, including start-up), or **$5 on Bedrock**. Enforced by `CostGuard` before every call; the ledger is append-only |
-| Steps | 5 fixed canary prompts (temperature 0), then 3 months: 2015-03, 2019-06 and 2020-03, from the hash-pinned inventory-v2 packets |
-| Evidence | The official-document corpus is being captured. Until it is imported, the Testing Agent's evidence step returns Insufficient |
-| Outputs | `native_backtest/out/ap3/smoke/<provider>/`. Real model outputs only; never scored |
-| Pass criteria | All canaries valid. At least 95% of agent replies valid against the schemas. Every cited pathway exists. Spend within the cap. The measured tokens or minutes set the budget for the development replay, which needs its own approval |
+| Model | `meta-llama/Llama-3.1-70B-Instruct`, revision `1605565b47bb9346c5515c34102e054115b4f98b`, BF16 |
+| Hardware | AWS us-east-1, `nvidia-h200` ×2 (282 GB), **$10 an hour, billed per minute including start-up** |
+| Engine | `vllm/vllm-openai:v0.30.0`, pinned by digest `sha256:8a69ffad…4a90`. Arguments: `--model /repository --served-model-name meta-llama/Llama-3.1-70B-Instruct --dtype bfloat16 --tensor-parallel-size 2 --max-model-len 32768 --seed 0`. Environment: `VLLM_BATCH_INVARIANT=1` |
+| Replicas | Minimum 0, maximum 1; scales to zero after 15 minutes idle |
+| To confirm in the console at creation | That the container arguments apply to the custom image, that the digest matches, and the instance and region |
 
-**Runner:** `python -m native_backtest.scripts.ap3_smoke_test --provider hf_endpoint`. It plans only. Adding `--execute` requires your approval record (`native_backtest/config/approvals/ap3_inference_approval_A.json`) and `AP3_ALLOW_PAID_INFERENCE=1`.
+**Expected time and cost.**
+- Hugging Face publishes no start-up time. I estimate 15–30 minutes to load 141 GB of weights.
+- Generation speed is an assumption: 15–25 tokens per second per stream with batch invariance on.
+- The three months run concurrently.
 
-**What I need from you for the endpoint:**
-1. Accept the Llama 3.1 licence on the Hugging Face account.
-2. Approve the $15 cap.
-3. Either create the endpoint yourself (2× H200, the commit above, a tagged vLLM image), or authorise me to create it with an inference-scoped `HF_TOKEN` added as an environment secret.
-4. Allow the endpoint host for this environment.
+| | Tokens (in / out) | Minutes | Cost |
+|---|---|---|---|
+| Smoke test, typical | 299k / 66k | 35–60 | **$6–10** |
+| Smoke test, upper | 1.18M / 231k | 80–130 | $13–22, so the $15 cap stops it early but the measured speed is kept |
+| Development programme, separate approval B (12-month G3a run, G3b fixtures, 95-month replay, 8 months concurrently) | 10.7M / 2.36M typical; 41.8M / 8.37M upper | — | **$40–75 typical, up to about $190 upper**. Re-estimated from the smoke test's measured speed before I ask |
 
-**For a Bedrock smoke test instead:**
-1. Confirm active access.
-2. Approve the $5 cap.
-3. Confirm that the present AWS credentials may be used, scoped to the IAM policy in `ap3_smoke_test_v1.json`.
+**Safeguards (all automatic):**
+1. **Billing starts at creation.** The cost guard counts every minute from the moment the endpoint is created, start-up included.
+2. **Before each call**, the guard checks that elapsed time × $10 an hour stays within the cap, and stops otherwise.
+3. **When the run ends** (finished, failed or capped), the runner pauses the endpoint. A watchdog thread also pauses it at the cap, even if a request hangs. Any failure to pause is printed as a warning, so it can be stopped by hand.
+4. **Idle backstop.** The endpoint scales to zero after 15 minutes without requests.
+5. **Outputs are real model results only.** They are never scored and never mixed with demo responses.
+
+**To approve:**
+1. Approve the $15 smoke-test cap.
+2. Accept the Llama 3.1 licence on the Hugging Face account.
+3. Add an inference-scoped `HF_TOKEN` as an environment secret.
+4. Allow `*.endpoints.huggingface.cloud` and `api.endpoints.huggingface.cloud` for this environment.
+
+I then write the approval record, create the endpoint, run the smoke test and pause the endpoint.
+
+**Bedrock alternative:** $5 cap, per token, about $0.26–1.02. Only possible if your account still has access, and the present AWS credentials remain unused until you say so.

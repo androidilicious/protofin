@@ -23,6 +23,7 @@ import dataclasses
 import hashlib
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple
@@ -194,10 +195,11 @@ class HFEndpointProvider:
         if req.seed is not None:
             body["seed"] = req.seed
         r = requests.post(os.environ["AP3_HF_ENDPOINT_URL"].rstrip("/") + "/v1/chat/completions", json=body, timeout=900,
-                          headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}"})
+                          headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}",
+                                   "X-Scale-Up-Timeout": "900"})   # hold the request while a scaled-to-zero endpoint starts
         r.raise_for_status()
         j = r.json()
-        if j.get("model") not in (None, self.model):
+        if j.get("model") not in (None, self.model, "/repository"):
             raise ModelOutputError(f"endpoint served {j.get('model')!r}, expected {self.model!r}")
         return j["choices"][0]["message"]["content"], {"request_id": j.get("id"), "usage": j.get("usage"), "model_returned": j.get("model"),
                                                        "revision": os.environ["AP3_MODEL_REVISION"]}
@@ -228,6 +230,7 @@ class LLMClient:
         self.calls = 0
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.call_log.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()   # several months may run in parallel threads; budget and logs stay serialised
 
     @property
     def is_mock(self) -> bool:
@@ -241,21 +244,23 @@ class LLMClient:
             text = json.loads(cpath.read_text())["text"]
             meta = json.loads(cpath.read_text())["meta"]
         else:
-            if self.max_calls is not None and self.calls >= self.max_calls:
-                raise RuntimeError(f"call budget {self.max_calls} exhausted")
-            if self.guard is not None:
-                self.guard.check(req)
-            self.calls += 1
+            with self._lock:
+                if self.max_calls is not None and self.calls >= self.max_calls:
+                    raise RuntimeError(f"call budget {self.max_calls} exhausted")
+                if self.guard is not None:
+                    self.guard.check(req)
+                self.calls += 1
             text, meta = self.provider.complete(req)
-            if self.guard is not None:
-                meta["usd"] = self.guard.record(req.step, meta.get("usage"))
-            cpath.write_text(_canon({"text": text, "meta": meta, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
+            with self._lock:
+                if self.guard is not None:
+                    meta["usd"] = self.guard.record(req.step, meta.get("usage"))
+                cpath.write_text(_canon({"text": text, "meta": meta, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
         obj = _extract_json(text)
         jsonschema.validate(obj, req.schema)
         log = {"run_tag": self.run_tag, "step": req.step, "provider": self.provider.name, "model": self.provider.model,
                "mock": self.is_mock, "cache_key": key, "cached": cached, "temperature": req.temperature, "seed": req.seed,
                "system_sha256": _sha(req.system), "user_sha256": _sha(req.user), "response_sha256": _sha(text),
                "request_id": meta.get("request_id"), "logged_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-        with self.call_log.open("a", encoding="utf-8") as f:
+        with self._lock, self.call_log.open("a", encoding="utf-8") as f:
             f.write(_canon(log) + "\n")
         return obj, {"cache_key": key, "cached": cached, "provider": self.provider.name, "model": self.provider.model, "mock": self.is_mock}

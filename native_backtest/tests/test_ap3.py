@@ -419,3 +419,22 @@ def test_corpus_import_verifies_page_side_hashes(tmp_path, monkeypatch):
     _corpus_zip(zips / "ap3_corpus_bls_cpi_v1.zip", [("bls_cpi/20150116.html", b"<pre>abc</pre>", meta)], tamper=True)
     with pytest.raises(SystemExit, match="page-side SHA-256"):
         imp.import_archives(zips)
+
+
+def test_smoke_runner_safeguards(tmp_path, monkeypatch):
+    from native_backtest.scripts import ap3_smoke_test as st
+    from native_backtest.scripts import ap3_hf_endpoint as ep
+    cfg = st.load_config()
+    assert st.cap(cfg, "hf_endpoint") == 15.0 and st.cap(cfg, "bedrock") == 5.0
+    spec = ep.spec()
+    assert spec["revision"] == "1605565b47bb9346c5515c34102e054115b4f98b" and "@sha256:" in spec["image"]
+    assert spec["min_replica"] == 0 and spec["scale_to_zero_timeout_minutes"] == 15 and spec["env"]["VLLM_BATCH_INVARIANT"] == "1"
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+    assert ep.approved() is False and ep.main([]) == 0          # plan only, nothing contacted
+    with pytest.raises(SystemExit, match="not approved"):
+        ep.main(["--create"])
+    # hourly guard: elapsed time beyond the cap stops the next call
+    from native_backtest.ap3 import llm_client as L
+    g = L.CostGuard(15.0, tmp_path / "l.jsonl", {"mode": "hourly", "usd_per_hour": 10.0, "started_utc": "2026-10-28T00:00:00Z"})
+    with pytest.raises(L.BudgetExceeded):
+        g.check(L.Request(step="x", system="s", user="u", schema={}, temperature=0.0, seed=0))

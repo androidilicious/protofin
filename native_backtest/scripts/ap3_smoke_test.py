@@ -41,7 +41,11 @@ class NotApproved(RuntimeError):
 
 
 def load_config() -> dict:
-    return json.loads(CONFIG.read_text())
+    cfg = json.loads(CONFIG.read_text())
+    state = OUT / "hf_endpoint" / "endpoint.json"   # written by ap3_hf_endpoint --create
+    if state.exists():   # billing starts at creation: initialisation time counts against the cap
+        cfg["providers"]["hf_endpoint"]["pricing_for_guard"]["started_utc"] = json.loads(state.read_text())["created_utc"]
+    return cfg
 
 
 def cap(cfg: dict, provider: str) -> float:
@@ -91,6 +95,34 @@ def estimate(cfg: dict, provider: str) -> dict:
     return out
 
 
+def shutdown(provider: str) -> None:
+    """Pause a dedicated endpoint after the run, whether it finished, failed or hit the cap (per-token providers: no-op)."""
+    if provider == "hf_endpoint":
+        from native_backtest.scripts import ap3_hf_endpoint
+        try:
+            print(ap3_hf_endpoint.pause())
+        except Exception as e:  # never hide a failed pause: the endpoint would keep billing
+            print(f"WARNING: could not pause the endpoint ({e}); pause or delete it in the Hugging Face console now")
+
+
+def watchdog(provider: str, cfg: dict):
+    """Pause an hourly-billed endpoint when elapsed time reaches the cap, even if a request is hanging."""
+    import threading
+    stop = threading.Event()
+    p = cfg["providers"][provider]["pricing_for_guard"]
+    if p["mode"] != "hourly":
+        return stop
+    guard = L.CostGuard(cap(cfg, provider), OUT / provider / "cost_ledger.jsonl", p)
+
+    def loop():
+        while not stop.wait(30):
+            if guard.spent() >= guard.cap:
+                shutdown(provider)
+                return
+    threading.Thread(target=loop, daemon=True).start()
+    return stop
+
+
 def run(provider: str, cfg: dict) -> dict:
     from native_backtest.ap3 import mediator_data, runner
     from native_backtest.ap3.graph_vintage import build_vintage, load_concepts
@@ -116,16 +148,22 @@ def run(provider: str, cfg: dict) -> dict:
     packets = {json.loads(l)["decision_month"]: json.loads(l) for l in (ROOT / cfg["packets"]["file"]).read_text().splitlines()}
     concepts, limits = load_concepts(), runner.load_limits()
     store, _ = mediator_data.load_store(include_pending_substitutes=True, inventory="v2")
-    recs = []
+
+    def one(m):
+        y = int(m[:4])
+        lib = json.loads((LIBS / f"library_v1.0_vintage{y - 1}.json").read_text())
+        rec = runner.run_month(client, packets[m], build_vintage(y - 1, concepts), lib, [], store, pd.Timestamp(m + "-01"), limits)
+        assert rec["engineering_mock"] is False
+        rec["record_kind"] = "smoke_test_not_a_decision_record"
+        return rec
+
+    # The months are independent, so they run concurrently (batch invariance keeps each reply unchanged by batching).
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=len(cfg["months"])) as pool:
+        recs = list(pool.map(one, cfg["months"]))
     with (out / "smoke_records.jsonl").open("w", encoding="utf-8") as f:
-        for m in cfg["months"]:
-            y = int(m[:4])
-            lib = json.loads((LIBS / f"library_v1.0_vintage{y - 1}.json").read_text())
-            rec = runner.run_month(client, packets[m], build_vintage(y - 1, concepts), lib, [], store, pd.Timestamp(m + "-01"), limits)
-            assert rec["engineering_mock"] is False
-            rec["record_kind"] = "smoke_test_not_a_decision_record"
+        for rec in recs:
             f.write(json.dumps(rec, sort_keys=True, default=str) + "\n")
-            recs.append(rec)
     summary = {"provider": provider, "model": prov.model, "calls": client.calls, "spent_usd": round(guard.spent(), 4), "cap_usd": cap(cfg, provider),
                "canary_ok": sum(c["ok"] for c in canary), "months": cfg["months"],
                "hypotheses": {r["decision_month"]: len(r["hypothesis_agent"]["hypotheses"]) for r in recs}}
@@ -147,7 +185,12 @@ def main(argv=None) -> int:
         return 0
     if missing:
         raise NotApproved("not running: " + "; ".join(missing))
-    print(json.dumps(run(a.provider, cfg), indent=1))
+    stop = watchdog(a.provider, cfg)
+    try:
+        print(json.dumps(run(a.provider, cfg), indent=1))
+    finally:
+        stop.set()
+        shutdown(a.provider)
     return 0
 
 
