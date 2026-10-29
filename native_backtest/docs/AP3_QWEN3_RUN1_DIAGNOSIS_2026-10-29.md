@@ -130,3 +130,45 @@ If G3b fails again, the choices belong to the project lead, made before any furt
 1. a larger free model on the same T4s, such as `qwen3:8b` or `qwen3:14b`;
 2. Qwen3's thinking mode, which means more tokens and slower runs;
 3. accepting that Causal RAG stays "awaiting validation".
+
+## 7. Run 2 outcome (branch `ap3-qwen3-runs`, commit `e327522`, written 2026-10-29T15:11Z)
+
+Run 2 executed the sample stage on repository commit `ccf0574` (the fixes of sections 1–5) under agent protocol
+1.1, fingerprint `983e4b398c4a09ac` — the fingerprint the current code still produces, so its months and gate
+verdicts are reusable. It is a genuine run: 426 month calls, 969,472 input and 256,266 output tokens, 15,786
+model-seconds, cost $0.
+
+**The G3a harness faults are resolved.**
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| Months with ≥1 final hypothesis | 0 of 12 | **12 of 12** |
+| Failed months | 12 | **0** |
+| Hypotheses / tests | 0 / 0 | **59 / 59** |
+| Final answer produced only by the forced turn | — | **0** |
+| Point-in-time violations | 0 | 0 |
+
+The Hypothesis and Testing Agents returned schema-valid output on every call (102/102 and 167/167). The
+duplicate-call detector fired 27 times and was recorded rather than silently retried.
+
+**Both gates still fail, for one reason each.**
+
+- **G3a** — `schema_valid_call_rate` 0.9771 against a 0.98 floor. The whole shortfall is the vendored
+  CauseTrace **assessor**: 157 valid of 167 calls (0.9401). The agents Protofin implements are at 1.0. The ten
+  invalid assessor responses are a finding about the 4B model on that vendored prompt, not a harness fault.
+- **G3b** — accuracy 0.5667 (threshold 0.80) with 2 opposite-direction errors (limit 1). By fixture category:
+  conflict 3/3, injection 3/3, theory-only 3/3, one-node 2/2, unrelated 1/1, supported 4/9,
+  **contradicted 1/9**. The model under-reports contradiction; the pipeline is sound (section 2's oracle
+  replay scored 30/30 on the same fixtures).
+
+Both verdicts keep their real failed values in every output. Run 2 did not start the development replay,
+because it ran on `ccf0574`, which predates the exploratory mode; the replay needs `--exploratory` on
+`6db314e` or later.
+
+**Resuming.** Because the fingerprint matches, a later session restores run 2's bundle from the branch and
+does not repeat its inference: the 12 sample months `2015-02..2016-01` are not reprocessed, G3a's verdict is
+reused, and — as of this commit — G3b's verdict is reused too, instead of rescoring 30 fixtures (~177 calls,
+~17 minutes) whose answer the branch already holds. A session that is explicitly asked to rescore G3b
+(`--stage g3b`) always does. Run 2's reliability report is now carried forward in
+`reliability_earlier_sessions` so that rewriting `summary.json` does not erase it. The remaining work is the
+83-month replay `2016-02..2022-12`.

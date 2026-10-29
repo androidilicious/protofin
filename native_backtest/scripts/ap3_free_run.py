@@ -162,6 +162,9 @@ def bundle(recs: dict, gates: dict, env: dict, downstream: dict | None, g3b_rows
                "tokens_this_session": {"months": tokens(), "g3b": tokens(_g3b_calls())},
                "environment": env, "cost_usd": 0.0, "downstream": downstream,
                "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    f = BUNDLE / "reliability_earlier.json"
+    if f.exists():      # reliability reports of the sessions this bundle was carried over from
+        summary["reliability_earlier_sessions"] = json.loads(f.read_text())
     if exploratory:
         from native_backtest.ap3 import exploratory as X
         summary = X.stamp(summary, gates, months=done, protected_start="2023-01")
@@ -264,6 +267,15 @@ def restore_from_branch() -> tuple:
         return 0, (f"results branch holds protocol {fp or '1.0'} results ({prev.get('n_months')} months, gates "
                    f"{ {g: v.get('pass') for g, v in prev.get('gates', {}).items()} }); not reused, starting again under {_fingerprint()}")
     subprocess.run(["cp", "-r", str(tmp / "qwen3_runs"), str(BUNDLE)])
+    # the restored summary is rewritten by this session, so its reliability report is kept beside the bundle
+    earlier = list(prev.get("reliability_earlier_sessions") or [])
+    if prev.get("reliability_this_session"):
+        earlier.append({"written_utc": prev.get("written_utc"), "n_months": prev.get("n_months"),
+                        "months_complete": prev.get("months_complete"),
+                        "gates": {g: v.get("pass") for g, v in (prev.get("gates") or {}).items()},
+                        "report": prev["reliability_this_session"]})
+    if earlier:
+        (BUNDLE / "reliability_earlier.json").write_text(json.dumps(earlier, indent=1, default=str) + "\n")
     return len(list((BUNDLE / "months").glob("*.json"))), None
 
 
@@ -297,16 +309,21 @@ def main(argv=None) -> int:
     print(json.dumps(log, indent=1))
     if a.stage == "check":
         print(json.dumps(env, indent=1, default=str)); return 0
+    prev = json.loads((BUNDLE / "summary.json").read_text()) if (BUNDLE / "summary.json").exists() else {}
     gates, g3b_rows = {}, None
     if a.stage in ("g3b", "all"):
-        full = g3b()
-        g3b_rows = full.get("rows")
-        gates["G3b"] = {k: v for k, v in full.items() if k != "rows"}
+        earlier_g3b = prev.get("gates", {}).get("G3b", {}) if a.stage == "all" else {}
+        if earlier_g3b.get("checks"):   # scored in an earlier session on the same fixtures under this protocol
+            gates["G3b"] = earlier_g3b
+            log["g3b"] = "reused from the restored bundle (same protocol fingerprint); the fixtures were not rescored"
+        else:
+            full = g3b()
+            g3b_rows = full.get("rows")
+            gates["G3b"] = {k: v for k, v in full.items() if k != "rows"}
         print(json.dumps({"G3b": gates["G3b"]["checks"], "pass": gates["G3b"]["pass"]}, indent=1))
     if a.stage == "g3b":
         return 0 if gates["G3b"]["pass"] else GATE_FAILED
     prior = bundle_months()
-    prev = json.loads((BUNDLE / "summary.json").read_text()) if (BUNDLE / "summary.json").exists() else {}
     if prev.get("gates", {}).get("G3a", {}).get("checks"):
         gates["G3a"] = prev["gates"]["G3a"]                # decided in an earlier session on the full sample records
         recs = {}
