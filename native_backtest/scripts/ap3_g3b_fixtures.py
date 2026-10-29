@@ -32,7 +32,7 @@ FIXTURES = ROOT / "native_backtest/ap3/fixtures/testing_agent_fixtures_v1.json"
 
 
 def out_dir(provider: str) -> Path:
-    base = "engineering_g3b" if provider == "engineering_mock" else "g3b"
+    base = "engineering_g3b" if provider == "engineering_mock" else "g3b"     # g3b/<provider>: genuine model outputs
     return ROOT / "native_backtest/out/ap3" / base / provider
 
 
@@ -79,11 +79,11 @@ def score(rows: list) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--provider", choices=["engineering_mock", *sorted(replay.PROVIDERS)], required=True)
+    ap.add_argument("--provider", choices=["engineering_mock", *sorted(replay.FREE_PROVIDERS), *sorted(replay.PROVIDERS)], required=True)
     ap.add_argument("--execute", action="store_true")
     a = ap.parse_args(argv)
     mock = a.provider == "engineering_mock"
-    if not mock:
+    if not mock and a.provider not in replay.FREE_PROVIDERS:
         missing = [m for m in replay.prerequisites_b(a.provider, "reduced_evidence") if "does not cover" not in m]
         print(json.dumps({"gate": "G3b", "provider": a.provider, "prerequisites_missing": missing,
                           "will_call_a_paid_model": bool(a.execute and not missing)}, indent=1))

@@ -37,6 +37,7 @@ import argparse
 import hashlib
 import json
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, List
@@ -65,6 +66,7 @@ SURPRISE_COLS = {"NFP": "nfp_z", "RETAIL_SALES": "retail_sales_z", "INDUSTRIAL_P
 AGENT_MONTHS = ("2015-02", "2022-12")
 SCORE_MONTHS = ("2019-03", "2022-12")
 PROVIDERS = {"hf_endpoint": L.HFEndpointProvider, "bedrock": L.BedrockProvider}
+FREE_PROVIDERS = {"ollama": L.OllamaProvider}     # free local inference (qwen3:4b, documented model substitution)
 ENV = {"bedrock": ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"), "hf_endpoint": ("HF_TOKEN", "AP3_HF_ENDPOINT_URL", "AP3_MODEL_REVISION")}
 
 
@@ -100,6 +102,8 @@ def load_corpus(allow_incomplete: bool) -> List[dict]:
 
 def prerequisites_b(provider: str, variant: str) -> List[str]:
     missing = []
+    if L.paid_budget_usd() <= 0:
+        missing.append("budget: the project budget for paid inference is $0 (config/budget_v1.json)")
     if not APPROVAL_B.exists():
         missing.append(f"approval record {APPROVAL_B.relative_to(ROOT)} (written only after explicit approval of stage B)")
     else:
@@ -120,6 +124,10 @@ def make_client(provider: str, variant: str, out: Path) -> L.LLMClient:
     if provider == "engineering_mock":
         return L.LLMClient(L.EngineeringMockProvider(engineering_mock.responder), out / "cache", out / "calls.jsonl",
                            f"ap3-dev-replay {variant} (ENGINEERING MOCK)")
+    if provider in FREE_PROVIDERS:
+        prov = FREE_PROVIDERS[provider]()
+        (out / "provenance.json").write_text(json.dumps(prov.verify(), indent=1, default=str) + "\n")
+        return L.LLMClient(prov, out / "cache", out / "calls.jsonl", f"ap3-dev-replay {variant} ({provider}, free)")
     a = json.loads(APPROVAL_B.read_text())
     smoke = json.loads(SMOKE.read_text())
     pricing = dict(smoke["providers"][provider]["pricing_for_guard"])
@@ -130,7 +138,10 @@ def make_client(provider: str, variant: str, out: Path) -> L.LLMClient:
     return L.LLMClient(PROVIDERS[provider](), out / "cache", out / "calls.jsonl", f"ap3-dev-replay {variant} ({provider})", guard=guard)
 
 
-def run_agents(variant: str, provider: str, months: List[str], workers: int, allow_incomplete_corpus: bool) -> Dict[str, dict]:
+def run_agents(variant: str, provider: str, months: List[str], workers: int, allow_incomplete_corpus: bool,
+               deadline: float | None = None, max_parallel_tests: int = 1) -> Dict[str, dict]:
+    """Runs (or resumes) the months. A month already recorded for the same packet, model and version is reused; with
+    a deadline (epoch seconds) no new month starts after it, and months not started are simply absent."""
     out = out_dir(variant, provider)
     (out / "records").mkdir(parents=True, exist_ok=True)
     client = make_client(provider, variant, out)
@@ -164,8 +175,11 @@ def run_agents(variant: str, provider: str, months: List[str], workers: int, all
             r = json.loads(f.read_text())
             if r.get("packet_sha256") == packet_sha(m) and r.get("model") == client.provider.model and r.get("variant") == variant:
                 return r
+        if deadline is not None and time.time() > deadline:
+            return None
         y = int(m[:4])
-        rec = runner.run_month(client, packets[m], vintages[y], libraries[y], [], store, pd.Timestamp(m + "-01"), limits, evidence=pool)
+        rec = runner.run_month(client, packets[m], vintages[y], libraries[y], [], store, pd.Timestamp(m + "-01"), limits, evidence=pool,
+                               max_parallel_tests=max_parallel_tests)
         rec["packet_sha256"] = packet_sha(m)
         rec["mediator_status"] = med_status
         f.write_text(json.dumps(rec, sort_keys=True, default=str) + "\n")
@@ -173,7 +187,7 @@ def run_agents(variant: str, provider: str, months: List[str], workers: int, all
 
     with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         recs = list(ex.map(one, months))
-    return {r["decision_month"]: r for r in recs}
+    return {r["decision_month"]: r for r in recs if r is not None}
 
 
 def features_frame(records: Dict[str, dict]) -> pd.DataFrame:
@@ -235,7 +249,7 @@ def downstream(records: Dict[str, dict], out: Path, mock: bool) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=sorted(evidence_pool.load_variants()["variants"]), required=True)
-    ap.add_argument("--provider", choices=["engineering_mock", *sorted(PROVIDERS)], required=True)
+    ap.add_argument("--provider", choices=["engineering_mock", *sorted(FREE_PROVIDERS), *sorted(PROVIDERS)], required=True)
     ap.add_argument("--execute", action="store_true", help="paid providers: run (default: plan only)")
     ap.add_argument("--months", default=",".join(AGENT_MONTHS), help="first,last agent month")
     ap.add_argument("--workers", type=int, default=None)
@@ -247,7 +261,7 @@ def main(argv=None) -> int:
     mock = a.provider == "engineering_mock"
     if a.allow_incomplete_corpus and not mock:
         raise SystemExit("--allow-incomplete-corpus is for engineering runs only")
-    if not mock:
+    if not mock and a.provider not in FREE_PROVIDERS:
         missing = prerequisites_b(a.provider, a.variant)
         print(json.dumps({"variant": a.variant, "provider": a.provider, "months": [months[0], months[-1], len(months)],
                           "prerequisites_missing": missing, "will_call_a_paid_model": bool(a.execute and not missing)}, indent=1))
@@ -256,7 +270,7 @@ def main(argv=None) -> int:
         if missing:
             raise NotApproved("not running: " + "; ".join(missing))
     out = out_dir(a.variant, a.provider)
-    recs = run_agents(a.variant, a.provider, months, a.workers or (1 if mock else 8), a.allow_incomplete_corpus)
+    recs = run_agents(a.variant, a.provider, months, a.workers or (1 if mock else 4), a.allow_incomplete_corpus)
     if any(r["engineering_mock"] != mock for r in recs.values()):
         raise SystemExit("record provenance does not match the provider")
     rel = reliability.report(list(recs.values()))

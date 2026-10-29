@@ -29,7 +29,19 @@ def test_paid_providers_refuse_without_approval(prov, monkeypatch):
         prov.complete(Request(step="x", system="s", user="u", schema={}, temperature=0.0, seed=0))
 
 
+def test_paid_providers_refuse_while_the_budget_is_zero(monkeypatch):
+    from native_backtest.ap3 import llm_client as Lc
+    assert Lc.paid_budget_usd() == 0.0                         # project budget set to $0 on 2026-10-29
+    monkeypatch.setenv("AP3_ALLOW_PAID_INFERENCE", "1")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "x"); monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "y")
+    for prov in (DeepInfraProvider(), BedrockProvider()):
+        with pytest.raises(PaidInferenceNotApproved, match=r"\$0"):
+            prov.complete(Request(step="x", system="s", user="u", schema={}, temperature=0.0, seed=0))
+
+
 def test_paid_providers_refuse_without_credentials(monkeypatch):
+    from native_backtest.ap3 import llm_client as Lc
+    monkeypatch.setattr(Lc, "paid_budget_usd", lambda: 1.0)   # only to reach the credential check
     monkeypatch.setenv("AP3_ALLOW_PAID_INFERENCE", "1")
     for v in ("DEEPINFRA_API_KEY", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"):
         monkeypatch.delenv(v, raising=False)
@@ -693,7 +705,7 @@ def test_safeguards_bound_every_failure_mode_within_the_authorization():
     with pytest.raises(SystemExit, match="above"):
         ep.spec_check({**s, "stop_new_calls_minute": 80, "delete_minute": 85})
     a = json.loads((ROOT / "native_backtest/config/approvals/ap3_inference_approval_A.json").read_text())
-    assert a["provider"] == "hf_endpoint" and a["cap_usd"] == 15.0 and a["stage"] == "A"
+    assert a["provider"] == "hf_endpoint" and a["cap_usd"] == 15.0 and a["stage"] == "A" and a["status"] == "withdrawn"
 
 
 def test_controller_deletes_when_the_pinned_configuration_is_not_echoed(tmp_path):
@@ -752,7 +764,8 @@ def test_smoke_plan_lists_missing_access_without_contacting_anyone(monkeypatch, 
     assert st.main(["--provider", "hf_endpoint"]) == 0
     plan = json.loads(capsys.readouterr().out)
     assert plan["will_call_a_paid_model"] is False and "worst_cases" in plan["estimate"]
-    assert any("HF_TOKEN" in m for m in plan["prerequisites_missing"]) and not any("approval record" in m for m in plan["prerequisites_missing"])
+    miss = plan["prerequisites_missing"]
+    assert any("HF_TOKEN" in m for m in miss) and any("withdrawn" in m for m in miss) and any("$0" in m for m in miss)
     with pytest.raises(st.NotApproved):
         st.main(["--provider", "hf_endpoint", "--execute"])
 

@@ -196,12 +196,15 @@ def markdown(r: dict) -> str:
               + (f"; **failure:** {m['hypothesis_agent']['failure']}" if m['hypothesis_agent']['failure'] else ""), ""]
         for h in m["hypotheses"]:
             a = h["predicted_assets"]
+            meds = ", ".join(f"{x['series']} {x['sign']:+d}" for x in h["predicted_mediators"]) or "none"
+            paths = ", ".join(f"{k} ({v})" for k, v in h["cited_pathways"].items()) or "none (literature unsupported)"
+            kinds = ", ".join(sorted({str(x["evidence_class"]) for x in h["research_records"]}))
             L += [f"### {h['id']} · {h['trigger']} · {h['channel']} → **{h['status']}** (seed agreement {h['seed_agreement']})", "",
                   f"- Mechanism (model): {h['mechanism']}",
-                  f"- Predicted: SPY {a['SPY']:+d}, IEF {a['IEF']:+d}, LQD {a['LQD']:+d}; mediators {', '.join(f'{x['series']} {x['sign']:+d}' for x in h['predicted_mediators']) or 'none'}",
+                  f"- Predicted: SPY {a['SPY']:+d}, IEF {a['IEF']:+d}, LQD {a['LQD']:+d}; mediators {meds}",
                   f"- Confidence {h['confidence_stated']} → {h['confidence_applied']} {h['confidence_caps'] or ''}",
-                  f"- Pathways cited: {', '.join(f'{k} ({v})' for k, v in h['cited_pathways'].items()) or 'none (literature unsupported)'}; invented IDs dropped: {len(h['invalid_path_ids_dropped'])}",
-                  f"- Research records: {len(h['research_records'])} ({', '.join(sorted({str(x['evidence_class']) for x in h['research_records']}))})",
+                  f"- Pathways cited: {paths}; invented IDs dropped: {len(h['invalid_path_ids_dropped'])}",
+                  f"- Research records: {len(h['research_records'])} ({kinds})",
                   f"- Evidence pool: {h['evidence_pool']['by_kind'] if h['evidence_pool'] else '—'}"]
             for run in h["testing_runs"][:1]:
                 L.append(f"- Testing Agent (seed {run['seed']}): rival {run['rival']['path_id'] or 'none'} — {run['rival']['mechanism']}")

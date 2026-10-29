@@ -133,7 +133,20 @@ class EngineeringMockProvider:
         return _canon(self.responder(req)), {"request_id": None}
 
 
+BUDGET = Path(__file__).resolve().parents[2] / "native_backtest/config/budget_v1.json"
+
+
+def paid_budget_usd() -> float:
+    """The project's additional budget for paid inference; missing file means no budget."""
+    try:
+        return float(json.loads(BUDGET.read_text())["additional_budget_usd"])
+    except (OSError, KeyError, ValueError):
+        return 0.0
+
+
 def _require_approval(provider: str, env_vars: Tuple[str, ...]) -> None:
+    if paid_budget_usd() <= 0:
+        raise PaidInferenceNotApproved(f"{provider}: the project budget for paid inference is $0 (config/budget_v1.json)")
     if os.environ.get("AP3_ALLOW_PAID_INFERENCE") != "1":
         raise PaidInferenceNotApproved(f"{provider}: paid inference is not approved (set AP3_ALLOW_PAID_INFERENCE=1 only after approval)")
     missing = [v for v in env_vars if not os.environ.get(v)]
@@ -211,6 +224,92 @@ class HFEndpointProvider:
                                                        "revision": os.environ["AP3_MODEL_REVISION"]}
 
 
+class ContextOverflow(ModelOutputError):
+    """The prompt would not fit the model's context window; refused instead of letting the server truncate it."""
+
+
+# Free local inference. The original CauseTrace project runs qwen3:4b through Ollama (causetrace/config.py);
+# AP3 uses the same tag, pinned to the official library digest. A DOCUMENTED MODEL SUBSTITUTION for the planned
+# Llama 3.1 70B Instruct: smaller (4.02B parameters, Q4_K_M), so results are not a reproduction of the 70B system.
+OLLAMA_MODEL = "qwen3:4b"
+OLLAMA_DIGEST_PREFIX = "359d7dd4bcda"      # ollama.com/library/qwen3:4b, checked 2026-10-29
+_LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+class OllamaProvider:
+    """A model served by Ollama on THIS machine (e.g. a free Kaggle GPU notebook). Costs nothing and refuses any
+    non-local address, so it can never reach a paid service. Thinking mode is off; replies are constrained to the
+    step's JSON schema (falls back to plain JSON mode if the server cannot compile the schema, and says so);
+    prompts that could exceed the context window are refused, never truncated."""
+    name = "ollama_local"
+    is_mock = False
+    is_free = True
+
+    def __init__(self, urls: Optional[str] = None, num_ctx: Optional[int] = None, structured: bool = True):
+        from urllib.parse import urlparse
+        raw = urls or os.environ.get("AP3_OLLAMA_URLS", "http://127.0.0.1:11434")
+        self.urls = [u.strip().rstrip("/") for u in raw.split(",") if u.strip()]
+        for u in self.urls:
+            if urlparse(u).hostname not in _LOCAL_HOSTS:
+                raise PaidInferenceNotApproved(f"OllamaProvider serves only from this machine, not {u}")
+        self.num_ctx = int(num_ctx or os.environ.get("AP3_OLLAMA_NUM_CTX", "32768"))   # Qwen3-4B native context
+        self.structured = structured
+        self.model = f"{OLLAMA_MODEL}@{OLLAMA_DIGEST_PREFIX}"
+        self.digest: Optional[str] = None
+        self._i = 0
+        self._lock = threading.Lock()
+
+    def verify(self) -> dict:
+        """Every server must serve the pinned model digest. Returns provenance."""
+        import requests
+        prov = []
+        for u in self.urls:
+            tags = requests.get(u + "/api/tags", timeout=30).json().get("models", [])
+            m = next((x for x in tags if x.get("name") in (OLLAMA_MODEL, OLLAMA_MODEL + ":latest") or x.get("model") == OLLAMA_MODEL), None)
+            if m is None:
+                raise PaidInferenceNotApproved(f"{u}: {OLLAMA_MODEL} is not pulled")
+            if not str(m.get("digest", "")).startswith(OLLAMA_DIGEST_PREFIX):
+                raise ModelOutputError(f"{u}: {OLLAMA_MODEL} digest {m.get('digest')} is not the pinned {OLLAMA_DIGEST_PREFIX}")
+            ver = requests.get(u + "/api/version", timeout=30).json().get("version")
+            prov.append({"url": u, "digest": m["digest"], "size": m.get("size"), "details": m.get("details"), "ollama_version": ver})
+        self.digest = prov[0]["digest"]
+        return {"model": OLLAMA_MODEL, "servers": prov, "num_ctx": self.num_ctx, "structured_output": self.structured}
+
+    def _url(self) -> str:
+        with self._lock:
+            u = self.urls[self._i % len(self.urls)]
+            self._i += 1
+            return u
+
+    def complete(self, req: Request) -> Tuple[str, dict]:
+        import requests
+        if self.digest is None:
+            self.verify()
+        est = (len(req.system) + len(req.user)) / 4.0      # pre-check for clear overflow; the server's own count is checked after
+        if est + req.max_tokens > self.num_ctx:
+            raise ContextOverflow(f"{req.step}: about {est:.0f} prompt tokens + {req.max_tokens} output exceed num_ctx {self.num_ctx}")
+        body = {"model": OLLAMA_MODEL, "stream": False, "think": False,
+                "messages": [{"role": "system", "content": req.system}, {"role": "user", "content": req.user}],
+                "format": req.schema if (self.structured and req.schema) else "json",
+                "options": {"temperature": req.temperature, "seed": req.seed if req.seed is not None else 0,
+                            "num_ctx": self.num_ctx, "num_predict": req.max_tokens}}
+        u = self._url()
+        r = requests.post(u + "/api/chat", json=body, timeout=900)
+        fallback = False
+        if r.status_code == 400 and self.structured:      # schema the server cannot compile: plain JSON mode, recorded
+            body["format"], fallback = "json", True
+            r = requests.post(u + "/api/chat", json=body, timeout=900)
+        r.raise_for_status()
+        j = r.json()
+        if (j.get("prompt_eval_count") or 0) >= self.num_ctx - 8:
+            raise ContextOverflow(f"{req.step}: prompt filled the context window ({j.get('prompt_eval_count')} tokens); possibly truncated")
+        return j["message"]["content"], {
+            "usage": {"prompt_tokens": j.get("prompt_eval_count"), "completion_tokens": j.get("eval_count")},
+            "durations_ns": {k: j.get(k) for k in ("total_duration", "load_duration", "prompt_eval_duration", "eval_duration")},
+            "done_reason": j.get("done_reason"), "server": u, "model_digest": self.digest, "schema_fallback": fallback,
+            "cost_usd": 0.0}
+
+
 def _extract_json(text: str) -> Any:
     text = text.strip()
     if text.startswith("```"):
@@ -227,7 +326,7 @@ class LLMClient:
                  guard: Optional[CostGuard] = None):
         self.provider = provider
         self.guard = guard
-        if not getattr(provider, "is_mock", False) and guard is None:
+        if not getattr(provider, "is_mock", False) and not getattr(provider, "is_free", False) and guard is None:
             raise PaidInferenceNotApproved("a paid provider needs a CostGuard (hard spending cap)")
         self.cache_dir = Path(cache_dir)
         self.call_log = Path(call_log)
@@ -274,7 +373,8 @@ class LLMClient:
         log = {"run_tag": self.run_tag, "step": req.step, "provider": self.provider.name, "model": self.provider.model,
                "mock": self.is_mock, "cache_key": key, "cached": cached, "temperature": req.temperature, "seed": req.seed,
                "system_sha256": _sha(req.system), "user_sha256": _sha(req.user), "response_sha256": _sha(text),
-               "request_id": meta.get("request_id"), "logged_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+               "request_id": meta.get("request_id"), "logged_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               **{k: meta[k] for k in ("usage", "done_reason", "schema_fallback", "durations_ns") if k in meta}}
         with self._lock, self.call_log.open("a", encoding="utf-8") as f:
             f.write(_canon(log) + "\n")
         return obj, {"cache_key": key, "cached": cached, "provider": self.provider.name, "model": self.provider.model, "mock": self.is_mock}
