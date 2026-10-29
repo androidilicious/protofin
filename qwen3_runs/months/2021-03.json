@@ -1,0 +1,2236 @@
+{
+ "month": "2021-03",
+ "decision_time": "2021-03-31T20:00:00-04:00",
+ "graph_vintage": 2020,
+ "event": [
+  {
+   "description": "Industrial production release",
+   "direction": "below consensus",
+   "surprise_z": -2.635,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "date": "2021-03-17",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 0.1,
+   "date": "2021-03-12",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.09
+  },
+  {
+   "change": 0.1,
+   "date": "2021-03-12",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.19
+  },
+  {
+   "change": -0.08,
+   "date": "2021-03-18",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.09
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.215,
+  "CORE_CPI": -0.487,
+  "CPI": -0.289,
+  "INDUSTRIAL_PRODUCTION": -2.635,
+  "ISM_MANUFACTURING": 0.169,
+  "NFP": -0.289,
+  "PPI": -0.018,
+  "RETAIL_SALES": -0.934
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "FOMC",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 10
+    },
+    "repeat_of": 3
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 1
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "fomc communication",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock prices",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "repeat_of": 9
+   }
+  ],
+  "turns": 12,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 2,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3095,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "FOMC",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3398,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3526,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3829,
+     "completion_tokens": 43
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3953,
+     "completion_tokens": 43
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "fomc communication",
+     "limit": 1
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4042,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "fomc communication",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4116,
+     "completion_tokens": 51
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4240,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock prices",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4561,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4854,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5187,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 11,
+    "action": "final",
+    "hypotheses": 3,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5276,
+     "completion_tokens": 574
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2021-03-H1",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "output growth -> money growth -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-72b38a98737a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 40,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 17
+    },
+    "sha256": "53a9c0a4ee88d30b11ecc7fabe36160c4211929cca765970ac6064dff4815059",
+    "latest_available_at": "2021-03-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-03-31",
+       "UST10Y < 0 in 2021-03-31",
+       "BEI5Y > 0 in 2021-03-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_VIX_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.14 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The IEF (7-10 year Treasury) price decrease is indicated by the credit spread falling, but 2-year Treasury yield rising suggests opposing effects. Both are relevant but conflict exists.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.14 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The LQD (investment-grade corporate bonds) price decrease is indicated by the credit spread falling, but 2-year Treasury yield rising suggests opposing effects. Both are relevant but conflict exists.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX fall indicates reduced volatility, which could signal equity price increase, but the broader VIX decline over the period also suggests market stress. Both are relevant but conflict exists.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_VIX_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a rise in 2-year Treasury yield (0.02%) after Industrial production release, which may indicate a decrease in long-term Treasury prices (IEF) as higher yields typically correlate with lower prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.14 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a decrease in the investment-grade credit spread (LQD) after Industrial production release, which may indicate a decrease in LQD prices as spreads typically move inversely with bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by 0.63 points after Industrial production release, suggesting reduced market volatility and potential equity price increases (SPY).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis that output growth leads to money growth and then inflation, which drives equity returns, is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis that output growth leads to money growth and then inflation, which drives equity returns, is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive change) instead of decreasing, the hypothesis that output growth leads to money growth and then inflation, which drives equity returns, is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2021-03-31 with positive trend",
+       "UST10Y in 2021-03-31 with negative trend",
+       "BEI5Y in 2021-03-31 with positive trend"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_VIX_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.14 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The IEF (7-10 year Treasury) price decrease is indicated by credit spread falls. Both excerpts show negative credit spread changes post-IP release, but one is from IP release (2021-03-16) and one from FOMC (2021-03-17).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.14 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The LQD (investment-grade corporate bonds) price decrease is indicated by credit spread falls. Both excerpts show negative credit spread changes post-IP release, but one is from IP release (2021-03-16) and one from FOMC (2021-03-17).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The SPY (equity) price decrease is indicated by VIX falls. Both excerpts show VIX falls, but one is from IP release (2021-03-16) and one is over the full period (2021-03-01 to 2021-03-31).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-03-H2",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-3d43afcc584e": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 31,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 17
+    },
+    "sha256": "e457cc0d65f703ebc64029fa456c2c37adb2f5cf705720586aa7f89c5d9af192",
+    "latest_available_at": "2021-03-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) after FOMC, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) after FOMC, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive) after FOMC, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) after FOMC, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) after FOMC, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M after FOMC in 2021-03",
+       "UST10Y after FOMC in 2021-03",
+       "BEI5Y after FOMC in 2021-03"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M increasing after FOMC in 2021-03",
+       "UST10Y decreasing after FOMC in 2021-03",
+       "BEI5Y increasing after FOMC in 2021-03"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_VIX_FOMC_2021-03-17#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+       "DN_UST2Y_2021-03-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000",
+       "DN_CORE_CPI_2021-03-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-03-01 and 2021-03-30 the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC communication on 2021-03-17 caused a decrease in the credit spread (Baa corporate yield minus 10-year Treasury yield) by -0.15 percentage points, suggesting a decline in risk premium. However, the credit spread fell less (-0.09) over the full period, indicating a weaker effect.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (US investment-grade corporate bond prices) in relation to FOMC communications. The available data focuses on credit spreads and Treasury yields, not corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention SPY (US equity prices) in response to FOMC communications. The data provided relates to Treasury yields, credit spreads, and industrial production, but not equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-03-01 and 2021-03-30 the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 18:00 ET."
+        }
+       ],
+       "explanation": "The FOMC communication on 2021-03-17 caused a decrease in the credit spread (Baa corporate yield minus 10-year Treasury yield) by -0.15 percentage points, suggesting a decline in risk premium. However, the credit spread fell less (-0.09) over the full period, indicating a weaker effect.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (US investment-grade corporate bond prices) in relation to FOMC communications. The available data focuses on credit spreads and Treasury yields, not corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, it contradicts the hypothesis that monetary policy shocks lead to a negative slope in 10-year Treasury yields."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) instead of decreasing, it contradicts the hypothesis that monetary policy shocks lead to a decrease in 10-year Treasury yields."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive change) instead of decreasing, it contradicts the hypothesis that monetary policy shocks lead to a decrease in 5-year breakeven inflation rates."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M from 2020-01 to 2021-03",
+       "UST10Y from 2020-01 to 2021-03",
+       "BEI5Y from 2020-01 to 2021-03"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-03",
+       "UST10Y > 0 in 2021-03",
+       "BEI5Y > 0 in 2021-03"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_VIX_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000",
+       "DN_CORE_CPI_2021-03-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -0.39 points after FOMC decision, indicating reduced equity volatility, which may correlate with decreased Treasury prices (IEF) as part of the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell by -0.15 percentage points after FOMC, suggesting lower corporate bond prices (LQD) as part of the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -3.95 points over the period, indicating reduced equity volatility, which may correlate with increased SPY prices as part of the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -0.39 points after FOMC, indicating potential decrease in IEF prices as part of the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy fell by -0.15 percentage points after FOMC, suggesting lower LQD prices as part of the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M from 2020-01 to 2021-03",
+       "UST10Y from 2020-01 to 2021-03",
+       "BEI5Y from 2020-01 to 2021-03"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M from 2020-01 to 2021-03 with positive trend",
+       "UST10Y from 2020-01 to 2021-03 with negative trend",
+       "BEI5Y from 2020-01 to 2021-03 with positive trend"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_VIX_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-03-31#c000",
+       "DN_PPI_2021-03-31#c000",
+       "DN_CORE_CPI_2021-03-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2021-03-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) fell by -0.15 points from FOMC decision on 2021-03-17 to decision time, supporting the link from FOMC communication to decrease in IEF (7-10 year Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-03-01 and 2021-03-30 the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy fell by -0.09 points from 2021-03-01 to 2021-03-30, supporting the link from FOMC communication to decrease in LQD (US investment-grade corporate bond prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address SPY (US equity prices) movements post-FOMC communication. Excerpts cover VIX, CPI, PPI, but not SPY.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -0.39 points from FOMC decision on 2021-03-17 to decision time, indicating reduced market stress which may support IEF (7-10 year Treasury prices) decrease.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -0.63 points from Industrial production release on 2021-03-16 to decision time, supporting LQD (US investment-grade corporate bond prices) decrease.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Contradicted",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-03-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 17
+    },
+    "sha256": "6886bd7638e9ee903b79724c36716a3051a6407ff0ad1f07df8a707ee0b67c47",
+    "latest_available_at": "2021-03-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1) by decision time"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign +1) instead of increasing (sign -1) by decision time"
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (sign +1) instead of decreasing (sign -1) by decision time"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31T20:00:00-04:00",
+       "UST10Y in 2021-03-31T20:00:00-04:00",
+       "BEI5Y in 2021-03-31T20:00:00-04:00"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-03-31T2000:00-04:00",
+       "UST10Y < 0 in 2021-03-31T20:00:00-04:00",
+       "BEI5Y > 0 in 2021-03-31T20:00:00-04:00"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_VIX_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2021-03-17#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by 0.63 points after industrial production release but overall fell by 3.95 points in the period. Both indicate volatility decrease but different timeframes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-03-01 and 2021-03-30 the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "Credit spread fell by 0.09 points over period but also fell by 0.15 points after FOMC. Both indicate decrease but different timeframes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention SPY or equity prices directly. Excerpts discuss VIX, credit spreads, and Treasury yields but not stock market movements.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_VIX_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.63 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 17:00 ET."
+        }
+       ],
+       "explanation": "The VIX fell by -0.63 points from Industrial production release to decision time, supporting the link. The VIX fell by -3.95 points over the month, contradicting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-03-01 and 2021-03-30 the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The credit spread fell by -0.09 points over the month, supporting the link. The credit spread fell by -0.15 points from FOMC to decision time, contradicting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-03-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-03-01 and 2021-03-31 the series fell by -3.95 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-03-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-31), the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell by -3.95 points over the month, but also fell by -0.39 points from FOMC to decision time, both supporting the link but not directly addressing SPY prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-03-31",
+       "UST10Y in 2021-03-31",
+       "BEI5Y in 2021-03-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-03-31",
+       "UST10Y < 0 in 2021-03-31",
+       "BEI5Y > 0 in 2021-03-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-03-31#c000",
+       "DN_UST2Y_2021-03-31#c000",
+       "DN_IG_SPREAD_2021-03-31#c000",
+       "DN_VIX_FOMC_2021-03-17#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_UST2Y_FOMC_2021-03-17#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+       "DN_IG_SPREAD_FOMC_2021-03-17#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-03-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2021-03-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2021-03-16 (09:15 ET) to the latest value published by the decision time (2021-03-30), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a rise in 2-year Treasury yield (IEF) over the period, aligning with the hypothesised link where large market moves cause decreases in IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-03-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-03-17 (14:00 ET) to the latest value published by the decision time (2021-03-30), the series fell by -0.15 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt indicates a fall in the investment-grade credit spread (LQD), supporting the link where large market moves cause decreases in LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address SPY price movements or market stress events in the specified period.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.31000000000000005,
+       "z": 1.4752289278838113,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.28,
+       "z": 1.4084645535812785,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-03-01",
+       "window_end": "2021-03-30",
+       "change": 0.1200000000000001,
+       "z": 0.515994530849247,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "91c5ff18e00674e023b3ce0a9ad329b02c19ae6b3257153d7efd32f5786f2e16",
+ "packet_sha256": "ac20df0f201d01f42f125a76d93c2853f228bae7095a4153f5015697e5d17ce1",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

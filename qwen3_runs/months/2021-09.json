@@ -1,0 +1,2487 @@
+{
+ "month": "2021-09",
+ "decision_time": "2021-09-30T20:00:00-04:00",
+ "graph_vintage": 2020,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.149,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.055,
+   "trigger": "CPI"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "below consensus",
+   "surprise_z": -1.656,
+   "trigger": "NFP"
+  },
+  {
+   "date": "2021-09-22",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": -0.08,
+   "date": "2021-09-20",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.03
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.51,
+  "CORE_CPI": -1.149,
+  "CPI": -1.055,
+  "INDUSTRIAL_PRODUCTION": 0.194,
+  "ISM_MANUFACTURING": 0.419,
+  "NFP": -1.656,
+  "PPI": -0.577,
+  "RETAIL_SALES": 0.561
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "paths",
+    "args": {
+     "source": "CORE_CPI",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 7,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 3,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "CORE_CPI",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2945,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3073,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3259,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3446,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3534,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3622,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "final",
+    "hypotheses": 5,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3710,
+     "completion_tokens": 934
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2021-09-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-7658a3d76299": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w26450",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP2246",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2848",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "simulation"
+    },
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4957",
+     "year": 2005,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 36,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 23
+    },
+    "sha256": "a15687148b8e616eb46d9a72332315d7fc63ca99b1aa2342fd2cca6af873791d",
+    "latest_available_at": "2021-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2021-09-H1_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-09-H2",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "inflation -> aggregate demand -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-34dc68cf1c0b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w0550",
+     "year": 1980,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 43,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 23
+    },
+    "sha256": "3eebf4c4c7f5ec93b7640f17d01ecc3a408308e88ba6250ccc7cb12f271224ec",
+    "latest_available_at": "2021-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases instead of decreases, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y > 0 in 2021-09-30",
+       "UST2Y > 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-09-30#c000",
+       "DN_CORE_CPI_2021-09-30#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_IG_SPREAD_CPI_2021-09-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after Core CPI release, indicating increased market stress which may reflect inflation concerns impacting equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after Core CPI release, indicating increased market stress which may reflect inflation concerns impacting Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-09-01 and 2021-09-29 the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy fell, indicating lower risk premiums which may reflect inflation concerns reducing corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after Core CPI release, indicating increased market stress which may reflect inflation concerns impacting equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after Core CPI release, indicating increased market stress which may reflect inflation concerns impacting Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-09-01 and 2021-09-29 the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread proxy fell, indicating lower risk premiums which may reflect inflation concerns reducing corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-09-30#c000",
+       "DN_CORE_CPI_2021-09-30#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_IG_SPREAD_CPI_2021-09-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_VIX_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show VIX rose significantly after CPI release, indicating increased market stress which could support the link. VIX is a volatility index, so higher values often correlate with lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address IEF (7-10 year Treasury prices) or their change post-CPI release. The data focuses on VIX and credit spreads, not Treasury yields.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention LQD (corporate bond prices) or their change post-CPI release. The data covers credit spreads but not LQD specifically.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_VIX_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after CPI release, indicating market stress which could support the link. Higher VIX often correlates with lower SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address IEF (7-10 year Treasury prices) or their change post-CPI release. The data focuses on VIX and credit spreads, not Treasury yields.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention LQD (corporate bond prices) or their change post-CPI release. The data covers credit spreads but not LQD specifically.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2021-09-30#c000",
+       "DN_CORE_CPI_2021-09-30#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_IG_SPREAD_CPI_2021-09-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose 3.77 points after CPI release, indicating market stress (likely due to inflation concerns) that could drive equity prices down, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link CPI release to IEF movements; all data is about VIX or credit spreads, not Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention LQD (corporate bonds) in relation to CPI releases; data focuses on VIX and credit spreads.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts connect CPI releases to monetary policy shifts that would affect SPY; VIX data shows volatility but not policy transmission.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts link CPI to Treasury prices via monetary policy; credit spread data shows a small decline but not IEF-specific movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (corporate bonds) in relation to CPI; credit spread data shows a decline but not LQD-specific movements.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-09-H3",
+   "trigger": "NFP",
+   "channel": "growth",
+   "mechanism": "unemployment -> inflation -> output growth -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-207126e33a7a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25512",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP15210",
+     "year": 2020,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    },
+    {
+     "paper_id": "w28005",
+     "year": 2020,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w1065",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 33,
+    "by_kind": {
+     "research_claim": 10,
+     "data_note": 23
+    },
+    "sha256": "6204f8251f211410bf7848faa2d3c42d64d89271694997b244ec751a0a3d321e",
+    "latest_available_at": "2021-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-9c7cd58d8f67",
+      "mechanism": "unemployment -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2021-09-30#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_NFP_2021-09-03#c000",
+       "DN_CPI_2021-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after NFP release, indicating market stress that could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after NFP release, suggesting lower risk premiums which could decrease IEF (Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after NFP release, indicating lower corporate bond yields which could decrease LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after NFP release, indicating market stress that could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after NFP release, indicating market stress that could drive Treasury prices up (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after NFP release, indicating market stress that could drive corporate bond prices up (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M (10-year Treasury yield curve slope)",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y (2-year US Treasury yield)",
+       "would_contradict": "If UST2Y increases (positive change) instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-9c7cd58d8f67",
+      "mechanism": "unemployment -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M from 2021-01-01 to 2021-09-30",
+       "UST10Y from 2021-01-01 to 2021-09-30",
+       "UST2Y from 2021-01-01 to 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M from 2021-01-01 to 2021-09-30: positive trend",
+       "UST10Y from 2021-01-01 to 2021-09-30: decreasing trend",
+       "UST2Y from 2021-01-01 to 2021-09-30: increasing trend"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2021-09-30#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_NFP_2021-09-03#c000",
+       "DN_CPI_2021-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after NFP release, indicating market stress that could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after NFP release, indicating market stress that could drive Treasury prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after NFP release, indicating lower corporate bond prices (LQD) as market stress increased.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after NFP release, indicating market stress that could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after NFP release, indicating market stress that could drive Treasury prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after NFP release, indicating lower corporate bond prices (LQD) as market stress increased.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (becomes less negative) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (becomes less negative) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (becomes less negative) instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-9c7cd58d8f67",
+      "mechanism": "unemployment -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M from 2021-01-01 to 2021-09-30",
+       "UST10Y from 2021-01-01 to 2021-09-30",
+       "UST2Y from 2021-01-01 to 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-01-01 to 2021-09-30",
+       "UST10Y > 0 in 2021-01-01 to 2021-09-30",
+       "UST2Y > 0 in 2021-01-01 to 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2021-09-30#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_NFP_2021-09-03#c000",
+       "DN_CPI_2021-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series rose by +0.05 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a rise in 5-year breakeven inflation rate after NFP release, supporting the link via inflation mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a fall in credit spread after NFP release, supporting the link via risk premia mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a fall in credit spread after NFP release, supporting the link via risk premia mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rise after NFP release indicates increased market stress, supporting the risk premia mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rise after NFP release indicates increased market stress, supporting the risk premia mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rise after NFP release indicates increased market stress, supporting the risk premia mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-09-H4",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 23
+    },
+    "sha256": "5116a1b2bed7ea68fb6119993b4e26eaa096fda2182565ef7c6edacef2935c34",
+    "latest_available_at": "2021-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2021-09-H4_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-09-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 44,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 23
+    },
+    "sha256": "10448a1bc3976e1079a9910121e36379178f012f032346e2e938a16f900a47e9",
+    "latest_available_at": "2021-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0 in 2021-09-30",
+       "UST10Y > 0 in 2021-09-30",
+       "UST2Y > 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_FOMC_2021-09-22#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-09-01 and 2021-09-30 the series rose by +7.03 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 7.03 points over the period, indicating increased market volatility. This supports the link where large market moves (volatility) lead to higher equity prices (SPY) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-09-01 and 2021-09-30 the series rose by +7.03 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 7.03 points over the period, indicating increased market volatility. This supports the link where large market moves (volatility) lead to lower Treasury prices (IEF) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-09-01 and 2021-09-30 the series rose by +7.03 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 7.03 points over the period, indicating increased market volatility. This supports the link where large market moves (volatility) lead to lower corporate bond prices (LQD) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-09-01 and 2021-09-30 the series rose by +7.03 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 7.03 points over the period, indicating increased market volatility. This supports the link where market uncertainty leads to higher equity prices (SPY) over the next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_FOMC_2021-09-22#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-09-22#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-09-22 (14:00 ET) to the latest value published by the decision time (2021-09-30), the series fell by -1.22 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -1.22 points from FOMC decision to decision time, indicating reduced volatility. This supports the link where large market moves (volatility) lead to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2021-09-22#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2021-09-22 (14:00 ET) to the latest value published by the decision time (2021-09-29), the series fell by -0.02 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.02 percentage points from FOMC decision to decision time, indicating decreased risk premia, supporting the link where volatility leads to lower IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-09-01 and 2021-09-29 the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.11 percentage points over the period, indicating decreased risk premia, supporting the link where volatility leads to lower LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_NFP_2021-09-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Nonfarm payrolls release on 2021-09-03 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +6.73 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose by +6.73 points from NFP release to decision time, indicating increased volatility that correlates with higher SPY prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-09-30",
+       "UST10Y in 2021-09-30",
+       "UST2Y in 2021-09-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-09-30",
+       "UST10Y < 0 in 2021-09-30",
+       "UST2Y < 0 in 2021-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-09-30#c000",
+       "DN_BEI5Y_2021-09-30#c000",
+       "DN_IG_SPREAD_2021-09-30#c000",
+       "DN_VIX_CPI_2021-09-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2021-09-14#c000",
+       "DN_VIX_NFP_2021-09-03#c000",
+       "DN_VIX_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CPI_2021-09-14#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-09-22#c000",
+       "DN_BEI5Y_CORE_CPI_2021-09-14#c000",
+       "DN_BEI5Y_NFP_2021-09-03#c000",
+       "DN_IG_SPREAD_FOMC_2021-09-22#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2021-09-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2021-09-14 (08:30 ET) to the latest value published by the decision time (2021-09-30), the series rose by +3.77 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after CPI release, indicating market stress that could drive equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-09-01 and 2021-09-29 the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premia, which aligns with market stress driving Treasury price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-09-01 and 2021-09-29 the series fell by -0.11 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premia, which aligns with market stress driving corporate bond price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-09-22#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-09-22 (14:00 ET) to the latest value published by the decision time (2021-09-30), the series fell by -1.22 (-0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell after FOMC, indicating reduced uncertainty that could drive equity price increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.25,
+       "z": 1.1696602323665386,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.24,
+       "z": 1.2075361136478058,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-09-01",
+       "window_end": "2021-09-29",
+       "change": 0.09999999999999998,
+       "z": 0.56866630174893,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 2,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 5.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -5.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -5.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "3889548649a09d8aebdbc4a58f01e611c2870d61e2cff65205fd21d31ee342b3",
+ "packet_sha256": "4b1b2e14ed51e7c09e6f035ea3954e8ee36e59247e7ec26d72d4770e4526173b",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

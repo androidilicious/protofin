@@ -1,0 +1,1261 @@
+{
+ "month": "2021-10",
+ "decision_time": "2021-10-29T20:00:00-04:00",
+ "graph_vintage": 2020,
+ "event": [
+  {
+   "description": "Industrial production release",
+   "direction": "below consensus",
+   "surprise_z": -1.233,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.305,
+   "trigger": "PPI"
+  },
+  {
+   "change": 0.17,
+   "date": "2021-10-21",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 4.3
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.203,
+  "CORE_CPI": -0.221,
+  "CPI": 0.04,
+  "INDUSTRIAL_PRODUCTION": -1.233,
+  "ISM_MANUFACTURING": 0.494,
+  "NFP": -0.686,
+  "PPI": -1.305,
+  "RETAIL_SALES": 0.235
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "paths",
+    "args": {
+     "source": "INDUSTRIAL_PRODUCTION",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    },
+    "repeat_of": 1
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production growth",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "repeat_of": 5
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "equity returns",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "stock market returns",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "output growth",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "output growth",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "repeat_of": 7
+   }
+  ],
+  "turns": 14,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 3,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "INDUSTRIAL_PRODUCTION",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2156,
+     "completion_tokens": 53
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2290,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2584,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production growth",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2672,
+     "completion_tokens": 43
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3018,
+     "completion_tokens": 51
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3142,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3475,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3563,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "equity returns",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3858,
+     "completion_tokens": 52
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "industrial production growth",
+     "target": "stock market returns",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3927,
+     "completion_tokens": 52
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "output growth",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3996,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 11,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "output growth",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4276,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 12,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4398,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 13,
+    "action": "final",
+    "hypotheses": 3,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4486,
+     "completion_tokens": 571
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2021-10-H1",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "output growth -> money growth -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-72b38a98737a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 40,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 17
+    },
+    "sha256": "f74c551570c0654e68feac0baadac4d40b8561b1b73eecfa66b63feb9f985992",
+    "latest_available_at": "2021-10-29T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2021-10-H1_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-10-H2",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 30,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 17
+    },
+    "sha256": "1f50bee67897a71cdcc2d78c629bed0b124b44baf739e0f2d1cb4218041f66eb",
+    "latest_available_at": "2021-10-29T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2021-10-H2_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-10-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 17
+    },
+    "sha256": "02c7498563857f49067b2bb983a61d6975d7e2ef394d4470df3546d7e00bef00",
+    "latest_available_at": "2021-10-29T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0",
+       "UST10Y < 0",
+       "UST2Y < 0"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0",
+       "UST10Y > 0",
+       "UST2Y > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_BEI5Y_2021-10-29#c000",
+       "DN_VIX_2021-10-29#c000",
+       "DN_IG_SPREAD_2021-10-29#c000",
+       "DN_BEI5Y_PPI_2021-10-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-10-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-10-01 and 2021-10-29 the series fell by -4.89 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-10-29 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 4.89 points, indicating reduced volatility, which aligns with the mechanism's volatility component for SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-10-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-10-01 and 2021-10-28 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-10-29 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premia, which supports IEF (Treasury prices) decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-10-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-10-01 and 2021-10-28 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-10-29 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premia, which supports LQD (corporate bond prices) increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or economic links for SPY under uncertainty mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or economic links for IEF under uncertainty mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or economic links for LQD under uncertainty mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.07000000000000006,
+       "z": 0.32720865516477987,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.09000000000000008,
+       "z": 0.45602266795086394,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.22999999999999998,
+       "z": 1.3193715065722482,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (negative change) instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2021-10-29",
+       "UST10Y in 2021-10-29",
+       "UST2Y in 2021-10-29"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2021-10-29",
+       "UST10Y < 0 in 2021-10-29",
+       "UST2Y < 0 in 2021-10-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-10-29#c000",
+       "DN_BEI5Y_2021-10-29#c000",
+       "DN_IG_SPREAD_2021-10-29#c000",
+       "DN_VIX_PPI_2021-10-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+       "DN_IG_SPREAD_PPI_2021-10-14#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+       "DN_BEI5Y_PPI_2021-10-14#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2021-10-18#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-10-18 (09:15 ET) to the latest value published by the decision time (2021-10-29), the series fell by -0.04 (-0.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -0.04 points from Industrial Production release to decision time, indicating reduced volatility. This supports the link where large market moves (volatility) lead to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2021-10-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2021-10-01 and 2021-10-28 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-10-29 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "IG spread fell by -0.16 percentage points, indicating decreased risk premium, supporting the link where large market moves lead to lower IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2021-10-18 (09:15 ET) to the latest value published by the decision time (2021-10-28), the series fell by -0.07 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "IG spread fell by -0.07 percentage points from Industrial Production release to decision time, supporting the link where large market moves lead to lower LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-10-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-10-01 and 2021-10-29 the series fell by -4.89 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-10-29 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -4.89 points over the period, indicating reduced volatility, which supports the link where uncertainty leads to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_PPI_2021-10-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the PPI release on 2021-10-14 (08:30 ET) to the latest value published by the decision time (2021-10-28), the series fell by -0.10 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "IG spread fell by -0.10 percentage points from PPI release to decision time, supporting the link where uncertainty leads to lower IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2021-10-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2021-10-14 (08:30 ET) to the latest value published by the decision time (2021-10-29), the series fell by -2.38 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -2.38 points from PPI release to decision time, indicating reduced volatility, which supports the link where uncertainty leads to lower LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.07000000000000006,
+       "z": 0.32720865516477987,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.09000000000000008,
+       "z": 0.45602266795086394,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.22999999999999998,
+       "z": 1.3193715065722482,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative change) instead of increasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0 in 2021-10-29",
+       "UST10Y < 0 in 2021-10-29",
+       "UST2Y < 0 in 2021-10-29"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0 in 2021-10-29",
+       "UST10Y > 0 in 2021-10-29",
+       "UST2Y > 0 in 2021-10-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-10-29#c000",
+       "DN_BEI5Y_2021-10-29#c000",
+       "DN_IG_SPREAD_2021-10-29#c000",
+       "DN_VIX_PPI_2021-10-14#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+       "DN_IG_SPREAD_PPI_2021-10-14#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+       "DN_BEI5Y_PPI_2021-10-14#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2021-10-18#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-10-18 (09:15 ET) to the latest value published by the decision time (2021-10-29), the series fell by -0.04 (-0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 0.04 points from pre-IP release to decision time, indicating reduced volatility. This aligns with the mechanism where large market moves (volatility) impact equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2021-10-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2021-10-14 (08:30 ET) to the latest value published by the decision time (2021-10-29), the series fell by -2.38 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly from PPI release to decision time, suggesting reduced volatility. This supports the link where large market moves affect Treasury prices via risk premia.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2021-10-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2021-10-14 (08:30 ET) to the latest value published by the decision time (2021-10-29), the series fell by -2.38 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 2.38 points from PPI release to decision time, indicating reduced volatility. This supports the link where large market moves decrease corporate bond prices via risk premia.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2021-10-18#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2021-10-18 (09:15 ET) to the latest value published by the decision time (2021-10-29), the series fell by -0.04 (-0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell slightly from IP release to decision time, indicating reduced volatility. This supports the mechanism where uncertainty affects stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.07000000000000006,
+       "z": 0.32720865516477987,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.09000000000000008,
+       "z": 0.45602266795086394,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-10-01",
+       "window_end": "2021-10-28",
+       "change": 0.22999999999999998,
+       "z": 1.3193715065722482,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 3.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "b58cde41db6beeb079c12fef5e7c98062aae211ec828c55e2789c459870425f3",
+ "packet_sha256": "2130ae2f2ed3c378df01930d08429639072295fc36e2e360a1fd1925f1a9642c",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}
