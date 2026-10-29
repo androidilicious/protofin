@@ -1,0 +1,2682 @@
+{
+ "month": "2019-10",
+ "decision_time": "2019-10-31T20:00:00-04:00",
+ "graph_vintage": 2018,
+ "event": [
+  {
+   "description": "Average hourly earnings release",
+   "direction": "below consensus",
+   "surprise_z": -1.443,
+   "trigger": "AHE"
+  },
+  {
+   "description": "CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.443,
+   "trigger": "CPI"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -2.553,
+   "trigger": "PPI"
+  },
+  {
+   "description": "Advance retail sales release",
+   "direction": "below consensus",
+   "surprise_z": -1.043,
+   "trigger": "RETAIL_SALES"
+  },
+  {
+   "date": "2019-10-11",
+   "description": "FOMC decision or communication",
+   "release": "unscheduled communication",
+   "trigger": "FOMC"
+  },
+  {
+   "date": "2019-10-30",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 0.09,
+   "date": "2019-10-10",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.2
+  },
+  {
+   "change": -0.05,
+   "date": "2019-10-11",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": -2.53
+  },
+  {
+   "change": 0.09,
+   "date": "2019-10-11",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.36
+  },
+  {
+   "change": 0.1,
+   "date": "2019-10-11",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 3.0
+  },
+  {
+   "change": 0.17,
+   "date": "2019-10-17",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 5.47
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -1.443,
+  "CORE_CPI": -0.998,
+  "CPI": -1.443,
+  "INDUSTRIAL_PRODUCTION": -0.3,
+  "ISM_MANUFACTURING": -0.929,
+  "NFP": -0.182,
+  "PPI": -2.553,
+  "RETAIL_SALES": -1.043
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "repeat_of": 4
+   }
+  ],
+  "turns": 7,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5548,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "market stress",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5852,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5974,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6023,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6300,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6598,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6686,
+     "completion_tokens": 838
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2019-10-H1",
+   "trigger": "AHE",
+   "channel": "inflation",
+   "mechanism": "Nominal wages -> inflation -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-152ed42a609b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP6429",
+     "year": 2007,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 64,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 43
+    },
+    "sha256": "48b53785d4bbef612462297863ce12b72b483ed987637ae6e2d3ddbe7457e501",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) increases",
+       "would_contradict": "IEF decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-41bde8eeef9f",
+      "mechanism": "wages -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.5",
+       "SPY > 0.5",
+       "IEF > 0.5"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.5",
+       "SPY < 0.5",
+       "IEF < 0.5"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_AHE_2019-10-31#c000",
+       "DN_UST2Y_AHE_2019-10-04#c000",
+       "DN_UST10Y_AHE_2019-10-04#c000",
+       "DN_VIX_AHE_2019-10-04#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.24 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The AHE release was below consensus (supporting link), but 10Y yield rose (contradicting link).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -5.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "AHE below consensus (supporting link), but VIX fell (contradicting link).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) increases",
+       "would_contradict": "IEF decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-41bde8eeef9f",
+      "mechanism": "wages -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01",
+       "SPY > 0.01",
+       "IEF > 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01",
+       "SPY < 0.01",
+       "IEF < 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_AHE_2019-10-31#c000",
+       "DN_UST2Y_AHE_2019-10-04#c000",
+       "DN_UST10Y_AHE_2019-10-04#c000",
+       "DN_VIX_AHE_2019-10-04#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.22 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The 2-year Treasury yield rose significantly (+1.6 std dev) after AHE release, suggesting positive link to equity prices. AHE release was below consensus, but this does not directly contradict the link to SPY.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.24 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -5.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10-year yield rose after AHE release, but VIX fell, indicating market calm. Neither directly supports or contradicts the link to SPY.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) does not change",
+       "would_contradict": "IEF increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-41bde8eeef9f",
+      "mechanism": "wages -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.5",
+       "SPY > 0.5",
+       "IEF < 0.5"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.5",
+       "SPY < 0.5",
+       "IEF > 0.5"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_AHE_2019-10-31#c000",
+       "DN_UST2Y_AHE_2019-10-04#c000",
+       "DN_UST10Y_AHE_2019-10-04#c000",
+       "DN_VIX_AHE_2019-10-04#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.06 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.24 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The retail sales yield spread rose slightly (+0.06) while the 10-year yield rose significantly (+0.24), suggesting a potential link but not directly confirming the hypothesised mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -5.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_AHE_2019-10-04#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Average hourly earnings release on 2019-10-04 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.22 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The VIX fell significantly (-5.90), indicating reduced volatility, while the 2-year yield rose, suggesting a potential link but not directly confirming the hypothesised mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-10-H2",
+   "trigger": "CPI",
+   "channel": "policy_rates",
+   "mechanism": "Inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 57,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 43
+    },
+    "sha256": "7d4cf232f769ed0dcb9d272d47bcb7c2a13db968a9d7d5526a3fb6078e4d81c3",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) decreases",
+       "would_contradict": "IEF increases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) decreases",
+       "would_contradict": "LQD increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01",
+       "SPY > 0.01",
+       "IEF < 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01",
+       "SPY < 0.01",
+       "IEF > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2019-10-31#c000",
+       "DN_CORE_CPI_2019-10-31#c000",
+       "DN_UST2Y_CPI_2019-10-10#c000",
+       "DN_UST10Y_CPI_2019-10-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.19 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "CPI release was below consensus (1.4 std dev), but 10Y Treasury yield rose significantly post-CPI (1.2 std dev).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.19 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10Y Treasury rose post-CPI (1.2 std dev) but only slightly post-retail sales (0.1 std dev).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "If BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "If SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury bond) decreases",
+       "would_contradict": "If IEF increases"
+      },
+      {
+       "observable": "LQD (10-year Treasury bond) decreases",
+       "would_contradict": "If LQD increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-34dc68cf1c0b",
+      "mechanism": "inflation -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.95 * (2019-09-30 BEI5Y)",
+       "SPY > 0.95 * (2019-09-30 SPY)",
+       "IEF < 1.05 * (2019-09-30 IEF)"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.95 * (2019-09-30 BEI5Y)",
+       "SPY < 0.95 * (2019-09-30 SPY)",
+       "IEF > 1.05 * (2019-09-30 IEF)"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_FOMC_2019-10-30#c000",
+       "DN_UST10Y_FOMC_2019-10-30#c000",
+       "DN_UST2Y_2019-10-31#c000",
+       "DN_UST2Y_CPI_2019-10-10#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2019-10-08#c000",
+       "DN_UST10Y_2019-10-31#c000",
+       "DN_UST10Y_CPI_2019-10-10#c000",
+       "DN_UST10Y_PPI_2019-10-08#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2019-10-31#c000",
+       "DN_CORE_CPI_2019-10-31#c000",
+       "DN_VIX_CPI_2019-10-10#c000",
+       "DN_SLOPE_10Y3M_CPI_2019-10-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.19 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-30 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series fell by -0.06 (-1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "CPI release (2019-10-10) caused 10Y Treasury yield to rise by +0.19 (1.2 std dev), supporting inflation mechanism. FOMC (2019-10-30) caused 10Y yield to fall by -0.06 (1.6 std dev), contradicting monetary policy impact.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -5.42 (-1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "VIX fell after CPI release, suggesting risk-off, but CPI was below consensus, indicating weak inflation. Neither directly supports or contradicts aggregate demand mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "SPY > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "SPY < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2019-10-31#c000",
+       "DN_CORE_CPI_2019-10-31#c000",
+       "DN_UST2Y_CPI_2019-10-10#c000",
+       "DN_UST10Y_CPI_2019-10-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.19 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "CPI release was below consensus (1.4 std dev), but 10Y yield rose significantly (1.2 std dev). Both are relevant to inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.4 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-10-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-10-10 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.19 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "CPI release below consensus (1.4 std dev) and 10Y yield rise (1.2 std dev) are both relevant but neither clearly indicates the link direction for the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-10-H3",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "Inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 56,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 43
+    },
+    "sha256": "e79e34f63f3a21208b73f0472f9fbb8b949fc100a645c91655e4ad4438eb570a",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) remains stable",
+       "would_contradict": "IEF decreases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) remains stable",
+       "would_contradict": "LQD decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01",
+       "SPY > 0.01",
+       "IEF < 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01",
+       "SPY < 0.01",
+       "IEF > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_PPI_2019-10-31#c000",
+       "DN_UST2Y_PPI_2019-10-08#c000",
+       "DN_UST10Y_PPI_2019-10-08#c000",
+       "DN_VIX_PPI_2019-10-08#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 2.6 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The PPI release was significantly below consensus, indicating strong negative surprise. This aligns with the mechanism where PPI (inflation) would affect monetary policy, leading to lower equity prices (SPY) over the next month.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "c000",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 2.6 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The PPI release was significantly below consensus, indicating strong negative surprise. This aligns with the mechanism where PPI (inflation) would affect monetary policy, leading to lower equity prices (SPY) over the next month.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) remains stable",
+       "would_contradict": "IEF decreases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) remains stable",
+       "would_contradict": "LQD decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.05",
+       "SPY > 0.05",
+       "IEF < 0.05"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.05",
+       "SPY < 0.05",
+       "IEF > 0.05"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-10-31#c000",
+       "DN_IG_SPREAD_2019-10-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2019-10-30#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_PPI_2019-10-31#c000",
+       "DN_UST2Y_PPI_2019-10-08#c000",
+       "DN_UST10Y_PPI_2019-10-08#c000",
+       "DN_VIX_PPI_2019-10-08#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_PPI_2019-10-08#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the PPI release on 2019-10-08 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.15 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.15 after PPI release, indicating positive market reaction to PPI data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_PPI_2019-10-08#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the PPI release on 2019-10-08 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.15 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.15 after PPI release, indicating positive market reaction to PPI data.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) remains stable",
+       "would_contradict": "IEF decreases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) remains stable",
+       "would_contradict": "LQD decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.5",
+       "SPY > 0.5",
+       "IEF < 0.5"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.5",
+       "SPY < 0.5",
+       "IEF > 0.5"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_PPI_2019-10-31#c000",
+       "DN_UST2Y_PPI_2019-10-08#c000",
+       "DN_UST10Y_PPI_2019-10-08#c000",
+       "DN_VIX_PPI_2019-10-08#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.06 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_PPI_2019-10-08#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the PPI release on 2019-10-08 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.22 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The retail sales yield spread rose slightly (+0.06) while the 10-year Treasury yield rose significantly (+0.22), suggesting a link between PPI and equity prices via yield changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-10-08#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-10-08 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -4.64 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 2.6 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "VIX fell indicating market calm, but PPI was below expectations, neither clearly indicating a link direction.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Insufficient",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-10-H4",
+   "trigger": "RETAIL_SALES",
+   "channel": "growth",
+   "mechanism": "Consumption -> aggregate demand -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-438f498a22dd": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w11578",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP13322",
+     "year": 2018,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 58,
+    "by_kind": {
+     "research_claim": 15,
+     "data_note": 43
+    },
+    "sha256": "b0473d17e01d54cb56ec846844db794664c0e0167796240add498ce164cb14dd",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) decreases",
+       "would_contradict": "IEF increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01 AND SPY > 0.01 AND IEF < 0.01",
+       "BEI5Y > 0.01 AND SPY < 0.01 AND IEF > 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01 AND SPY < 0.01 AND IEF > 0.01",
+       "BEI5Y > 0.01 AND SPY > 0.01 AND IEF > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_RETAIL_SALES_2019-10-31#c000",
+       "DN_UST2Y_RETAIL_SALES_2019-10-16#c000",
+       "DN_VIX_RETAIL_SALES_2019-10-16#c000",
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_RETAIL_SALES_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Advance retail sales release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -0.32 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The retail sales release was below consensus (1.0 std dev), but VIX fell slightly. Both are relevant to the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10Y yield rose slightly, 2Y unchanged; both are relevant to interest rate link but no clear direction.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) remains stable",
+       "would_contradict": "IEF decreases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) remains stable",
+       "would_contradict": "LQD decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01",
+       "SPY > 0.01",
+       "IEF < 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01",
+       "SPY < 0.01",
+       "IEF > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_RETAIL_SALES_2019-10-31#c000",
+       "DN_UST2Y_RETAIL_SALES_2019-10-16#c000",
+       "DN_VIX_RETAIL_SALES_2019-10-16#c000",
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_RETAIL_SALES_2019-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Advance retail sales release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The 2-year yield was unchanged, but retail sales were below expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-31), the series fell by -0.32 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10-year yield rose slightly, but VIX fell, indicating market calm.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury note) decreases",
+       "would_contradict": "IEF increases"
+      },
+      {
+       "observable": "LQD (10-year Treasury note) decreases",
+       "would_contradict": "LQD increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01",
+       "SPY > 0.01",
+       "IEF < 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01",
+       "SPY < 0.01",
+       "IEF > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_RETAIL_SALES_2019-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_RETAIL_SALES_2019-10-31#c000",
+       "DN_UST2Y_RETAIL_SALES_2019-10-16#c000",
+       "DN_VIX_RETAIL_SALES_2019-10-16#c000",
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by 0.01% after the retail sales release, indicating a positive reaction consistent with the consumption mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_RETAIL_SALES_2019-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Advance retail sales release on 2019-10-16 (08:30 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.06 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread increased, suggesting a stronger risk appetite consistent with the interest rates mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-10-H5",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "Monetary policy shocks -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 57,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 43
+    },
+    "sha256": "12a9b838de7e6338d606d693a255280555f547c1ea217402fa9bf3d59a4120fb",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-7f5b310a56a5",
+      "mechanism": "monetary policy shocks -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 2.5% in 2019-10",
+       "SPY > 3000 in 2019-10"
+      ],
+      "contradicting": [
+       "BEI5Y < 2.5% in 2019-10",
+       "SPY < 3000 in 2019-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_2019-10-31#c000",
+       "DN_SLOPE_10Y3M_2019-10-31#c000",
+       "DN_UST2Y_2019-10-31#c000",
+       "DN_VIX_2019-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2019-10-31#c000",
+       "DN_UST10Y_CPI_2019-10-10#c000",
+       "DN_SLOPE_10Y3M_CPI_2019-10-10#c000",
+       "DN_UST10Y_FOMC_2019-10-11#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-10-11#c000",
+       "DN_UST2Y_FOMC_2019-10-30#c000",
+       "DN_VIX_FOMC_2019-10-11#c000",
+       "DN_UST10Y_FOMC_2019-10-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-10-11",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-31), the series fell by -4.35 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 4.35 points after FOMC on 2019-10-11, indicating reduced market stress, which supports the link as per mechanism.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-10-11",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-31), the series fell by -4.35 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 4.35 points after FOMC on 2019-10-11, indicating reduced market stress, which supports the link as per mechanism.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.05",
+       "SPY > 0.05"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.05",
+       "SPY < 0.05"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-10-31#c000",
+       "DN_IG_SPREAD_2019-10-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2019-10-30#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-10-11#c000",
+       "DN_UST2Y_FOMC_2019-10-30#c000",
+       "DN_UST10Y_FOMC_2019-10-11#c000",
+       "DN_VIX_FOMC_2019-10-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-30 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series fell by -0.03 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 2-year yield fell (-0.03) post-FOMC 10/30 but 10-year yield rose (+0.11) post-FOMC 10/11, indicating mixed yield dynamics. Both are relevant to equity pricing mechanisms.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-31), the series fell by -4.35 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2019-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2019-10-30 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series fell by -0.05 (-1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell (-4.35) post-FOMC 10/11, signaling reduced volatility. 10Y-3M spread fell (-0.05), indicating potential easing, both relevant to equity returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "SPY > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "SPY < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-10-11#c000",
+       "DN_UST2Y_FOMC_2019-10-30#c000",
+       "DN_UST10Y_FOMC_2019-10-11#c000",
+       "DN_VIX_FOMC_2019-10-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.08 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-30 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series fell by -0.03 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 2-year Treasury yield rose after the 10/11 FOMC but fell after the 10/30 FOMC, showing inconsistent directional movement. Neither excerpt directly addresses SPY prices or the hypothesised mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-31), the series fell by -4.35 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-10-11 (14:00 ET) to the latest value published by the decision time (2019-10-30), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell after 10/11 FOMC, but 10-year Treasury rose. Neither excerpt directly addresses SPY prices or the hypothesised mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-10-01",
+       "window_end": "2019-10-30",
+       "change": 0.1399999999999999,
+       "z": 1.2189558207729214,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-10-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "inflation",
+   "mechanism": "Volatility -> inflation -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-6517235006e4": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 62,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 43
+    },
+    "sha256": "8a7be87a52f57e5bc6e804e4615786034898c9363cfbb29aef0281b93e9a6aa9",
+    "latest_available_at": "2019-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2019-10-H6_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 4.0,
+   "F_C": 0.0,
+   "F_I": 2.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "54f9b675107b37d025789bbcfef2259da2ae1056a246adfd69c82c066dc592af",
+ "packet_sha256": "2cc4bdf6b1dc68b17ae9ee8a465ca23e23a343582d72ce679a48aa1f30ab00ac",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

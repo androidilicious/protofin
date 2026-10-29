@@ -1,0 +1,3772 @@
+{
+ "month": "2019-12",
+ "decision_time": "2019-12-31T20:00:00-05:00",
+ "graph_vintage": 2018,
+ "event": [
+  {
+   "description": "CPI release",
+   "direction": "above consensus",
+   "surprise_z": 1.62,
+   "trigger": "CPI"
+  },
+  {
+   "description": "Industrial production release",
+   "direction": "above consensus",
+   "surprise_z": 1.187,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.018,
+   "trigger": "PPI"
+  },
+  {
+   "date": "2019-12-11",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": -0.11,
+   "date": "2019-12-03",
+   "days_at_or_above_threshold": 3,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.9
+  },
+  {
+   "change": -0.08,
+   "date": "2019-12-03",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.33
+  },
+  {
+   "change": -0.04,
+   "date": "2019-12-10",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": -2.05
+  },
+  {
+   "change": 0.12,
+   "date": "2019-12-12",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.95
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.336,
+  "CORE_CPI": 0.2,
+  "CPI": 1.62,
+  "INDUSTRIAL_PRODUCTION": 1.187,
+  "ISM_MANUFACTURING": -0.239,
+  "NFP": 0.864,
+  "PPI": -1.018,
+  "RETAIL_SALES": -0.418
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "cpi",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 2,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4325,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "cpi",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4608,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4730,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4780,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4867,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4954,
+     "completion_tokens": 1289
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2019-12-H1",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "Inflation drives monetary policy adjustments, which affect output and stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 36,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 23
+    },
+    "sha256": "a26e838fb0912b5f2c252a2103856989607f58048a5fa613e7f5918f5075046c",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y falls instead of rises"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M falls instead of rises"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD falls instead of rises"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M falls instead of rises"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 0.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        },
+        {
+         "chunk_id": "DN_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts indicate CPI and Core CPI releases were significantly above consensus expectations, suggesting strong inflation signals that could drive monetary policy adjustments and affect equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_UST2Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Treasury yields moved significantly in response to the CPI release, with 10-year yields rising and 2-year yields falling, indicating market reactions to inflation expectations that could influence stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y decreases instead of increasing"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "FF_FUTURES_6M decreases instead of increasing"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "IG_SPREAD decreases instead of increasing"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "SLOPE_10Y3M decreases instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 2-year yield fell (-0.07) while 10-year rose (+0.05) after CPI release, suggesting mixed market reactions but both are yield changes post-CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 0.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "Both CPI releases show surprise, but the magnitude differs (1.6 vs 0.2 std dev), without clear link to SPY movement.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign 1 expected)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign 1 expected)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign 1 expected)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign 1 expected)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "CPI release was above consensus (1.6 std dev), but 10Y yield rose (0.4 std dev) suggesting potential interest rate impact. Both are relevant to SPY but conflict in direction.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "CPI release was above consensus (1.6 std dev), but 10Y yield rose (0.4 std dev) suggesting potential interest rate impact. Neither clearly dominates for SPY link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-12-H2",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "Output growth influences inflation and nominal interest rates, affecting stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-72b38a98737a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 46,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 23
+    },
+    "sha256": "c08e517397e201a45e6959fcc482cac06a3656ff8a9444193e2641763ca9cc79",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "FF_FUTURES_6M (6-month futures rate) increases",
+       "would_contradict": "FF_FUTURES_6M decreases"
+      },
+      {
+       "observable": "IG_SPREAD (investment grade spread) increases",
+       "would_contradict": "IG_SPREAD decreases"
+      },
+      {
+       "observable": "SLOPE_10Y3M (10-year yield slope) increases",
+       "would_contradict": "SLOPE_10Y3M decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "2-year Treasury yield fell after IP release (supporting negative impact on SPY), VIX rose (supporting market stress, contradicting SPY increase).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "2-year Treasury yield fell after IP release (supporting negative impact on SPY), VIX rose (supporting market stress, contradicting SPY increase).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10-year Treasury yield rose after IP release (supporting negative impact on IEF), VIX rose (supporting market stress, contradicting IEF increase).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "10-year Treasury yield rose after IP release (supporting negative impact on LQD), VIX rose (supporting market stress, contradicting LQD increase).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign 1 expected)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign 1 expected)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign 1 expected)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign 1 expected)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpts show that after the Industrial production release on Dec 17, 2019, the 10-year Treasury yield rose slightly, the 2-year Treasury yield fell, and the VIX rose, indicating increased market volatility and potential risk aversion, which could support higher equity prices (SPY) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Industrial production release: the latest release before the decision time came in 1.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The Industrial production release exceeded expectations by 1.2 standard deviations, suggesting stronger output growth, which could influence inflation and nominal interest rates, potentially increasing risk premia and driving up equity prices (SPY).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) increases",
+       "would_contradict": "If BEI5Y decreases"
+      },
+      {
+       "observable": "FF_FUTURES_6M (6-month futures) increases",
+       "would_contradict": "If FF_FUTURES_6M decreases"
+      },
+      {
+       "observable": "IG_SPREAD (investment grade spread) increases",
+       "would_contradict": "If IG_SPREAD decreases"
+      },
+      {
+       "observable": "SLOPE_10Y3M (10-year yield slope) increases",
+       "would_contradict": "If SLOPE_10Y3M decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0.01 and FF_FUTURES_6M > 0.01 and IG_SPREAD > 0.01 and SLOPE_10Y3M > 0.01",
+       "BEI5Y > 0.01 and FF_FUTURES_6M > 0.01 and IG_SPREAD < 0.01 and SLOPE_10Y3M < 0.01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0.01 and FF_FUTURES_6M < 0.01 and IG_SPREAD < 0.01 and SLOPE_10Y3M < 0.01",
+       "BEI5Y < 0.01 and FF_FUTURES_6M < 0.01 and IG_SPREAD > 0.01 and SLOPE_10Y3M > 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_CPI_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield rose slightly (0.01%) after the IP release, while VIX rose significantly (1.64 points), indicating mixed market reactions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "Both the 10-year Treasury yield and VIX show reactions to IP release, but neither directly indicates SPY movement; the evidence is too indirect for the specific link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield and VIX show reactions to IP release, but neither directly indicates IEF movement; the evidence is too indirect for the specific link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.01 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield and VIX show reactions to IP release, but neither directly indicates LQD movement; the evidence is too indirect for the specific link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Contradicted",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-12-H3",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "PPI inflation impacts output gap and risk premia, affecting bond prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-3c8e49b060e8": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4588",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP6112",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w16522",
+     "year": 2010,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "w20613",
+     "year": 2014,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP13322",
+     "year": 2018,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    }
+   ],
+   "evidence_pool": {
+    "n": 43,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 23
+    },
+    "sha256": "327a1ed55d4b612638fd8cee035380868524c4b2c910ba05cca196a426901dcd",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y falls instead of rises"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M falls instead of rises"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD falls instead of rises"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M falls instead of rises"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-bb5b70086681",
+      "mechanism": "inflation -> output gap -> inflation dynamics -> bond yields",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 in 2019-12",
+       "FF_FUTURES_6M > 0 in 2019-12",
+       "IG_SPREAD > 0 in 2019-12"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 in 2019-12",
+       "FF_FUTURES_6M < 0 in 2019-12",
+       "IG_SPREAD < 0 in 2019-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_PPI_2019-12-12#c000",
+       "DN_VIX_PPI_2019-12-12#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2019-12-31#c000",
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.21 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 1.21 points after PPI release, indicating equity volatility decreased, supporting PPI's impact on SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.21 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 1.21 points after PPI release, indicating equity volatility decreased, supporting PPI's impact on SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y Treasury yield rose 0.11% after PPI release, indicating bond prices fell, supporting PPI's impact on IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.03 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2Y Treasury yield fell 0.03% after PPI release, indicating bond prices rose, supporting PPI's impact on LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y falls instead of rises"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "FF_FUTURES_6M falls instead of rises"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "IG_SPREAD falls instead of rises"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "SLOPE_10Y3M falls instead of rises"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-bb5b70086681",
+      "mechanism": "inflation -> output gap -> inflation dynamics -> bond yields",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 since 2019-12-01",
+       "FF_FUTURES_6M > 0 since 2019-12-01",
+       "IG_SPREAD > 0 since 2019-12-01"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 since 2019-12-01",
+       "FF_FUTURES_6M < 0 since 2019-12-01",
+       "IG_SPREAD < 0 since 2019-12-01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_PPI_2019-12-12#c000",
+       "DN_VIX_PPI_2019-12-12#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2019-12-31#c000",
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.03 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The PPI release on 2019-12-12 caused a 2-year Treasury yield decline (-0.03), supporting the mechanism. However, the FOMC decision on 2019-12-11 also caused a similar yield decline (-0.07), suggesting multiple factors.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "The PPI release on 2019-12-12 caused a 10-year Treasury yield increase (+0.11), supporting the mechanism. However, the 10-year yield rose by +0.12 over the period, indicating a broader trend.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.21 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The PPI release caused a 10-year yield rise (+0.11), but the VIX fell, suggesting market calm. LQD (corporate bonds) data is not directly provided.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y falls instead of rises, the hypothesis is contradicted."
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M falls instead of rises, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD falls instead of rises, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M falls instead of rises, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-bb5b70086681",
+      "mechanism": "inflation -> output gap -> inflation dynamics -> bond yields",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 in 2019-12",
+       "FF_FUTURES_6M > 0 in 2019-12",
+       "IG_SPREAD > 0 in 2019-12"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 in 2019-12",
+       "FF_FUTURES_6M < 0 in 2019-12",
+       "IG_SPREAD < 0 in 2019-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_PPI_2019-12-12#c000",
+       "DN_VIX_PPI_2019-12-12#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000"
+      ],
+      "neutral": [
+       "DN_PPI_2019-12-31#c000",
+       "DN_CPI_2019-12-31#c000",
+       "DN_CORE_CPI_2019-12-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.21 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The PPI release on 2019-12-12 caused a rise in 10-year Treasury yields (supporting link) but a fall in VIX (contradicting link). Both are market reactions to PPI, but VIX decline suggests reduced market stress, opposing the expected SPY increase.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_PPI_2019-12-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.03 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "PPI was below consensus (supporting link) but 2-year Treasury yields fell (contradicting link). Both are market reactions to PPI, but yield decline suggests reduced short-term interest rate sensitivity, opposing SPY increase.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-12-H4",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "FOMC decisions influence monetary policy, affecting output and inflation",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 23
+    },
+    "sha256": "ff8da1fe63516d846a5ea1f9357576836164524fde4d03dc1ef670dbe2c76e90",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (10-year bond yield) increases",
+       "would_contradict": "BEI5Y decreases"
+      },
+      {
+       "observable": "FF_FUTURES_6M (6-month futures rate) increases",
+       "would_contradict": "FF_FUTURES_6M decreases"
+      },
+      {
+       "observable": "IG_SPREAD (high yield spread) increases",
+       "would_contradict": "IG_SPREAD decreases"
+      },
+      {
+       "observable": "SLOPE_10Y3M (10-year vs 3-month yield slope) increases",
+       "would_contradict": "SLOPE_10Y3M decreases"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "SPY decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000",
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_CPI_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by +0.05 (0.4 std dev) post-FOMC, indicating potential market confidence. This supports FOMC communications influencing equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 1.90 points post-FOMC, indicating reduced market stress. This supports the mechanism where FOMC communications affect stock returns via volatility channels.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign 1 expected)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign 1 expected)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign 1 expected)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign 1 expected)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000",
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_CPI_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell (supporting potential market calm), but 10Y yield rose (contradicting risk-off), both post-FOMC.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell (supporting potential market calm), but 10Y yield rose (contradicting risk-off), both post-FOMC.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y falls instead of rises"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "FF_FUTURES_6M falls instead of rises"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "IG_SPREAD falls instead of rises"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "SLOPE_10Y3M falls instead of rises"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000",
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_CPI_2019-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 2-year yield fell (-0.07) but VIX fell (-1.90), suggesting mixed market reactions to FOMC communication.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series rose by +0.05 (+0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "10-year yield rose but CPI was above consensus, indicating mixed inflation signals.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Contradicted",
+   "run_statuses": [
+    "Insufficient",
+    "Contradicted",
+    "Contradicted"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-12-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia and lower bond prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2018-2915972f29bb": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP2071",
+     "year": 1999,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6524",
+     "year": 2007,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP7004",
+     "year": 2008,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4842",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 42,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 23
+    },
+    "sha256": "79523ba4e5bc63a1d6c5e5e40fa069465c175ac5b7fa4e82623de3b7aa92094c",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign: -1) instead of increasing (sign: 1)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign: -1) instead of increasing (sign: 1)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign: -1) instead of increasing (sign: 1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign: -1) instead of increasing (sign: 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-1804e584921a",
+      "mechanism": "volatility -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.16 points, indicating increased market volatility, which aligns with the mechanism of market stress increasing volatility leading to higher risk premia.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        },
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        },
+        {
+         "chunk_id": "DN_UST2Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Treasury yields show mixed movements but no clear link to inflation or interest rates that would support the volatility->inflation->interest rates mechanism for SPY increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "BEI5Y decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "FF_FUTURES_6M decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "IG_SPREAD decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "SLOPE_10Y3M decreases (sign: -1) instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 in 2019-12-01 to 2019-12-31",
+       "FF_FUTURES_6M > 0 in 2019-12-01 to 2019-12-31",
+       "IG_SPREAD > 0 in 2019-12-01 to 2019-12-31"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 in 2019-12-01 to 2019-12-31",
+       "FF_FUTURES_6M < 0 in 2019-12-01 to 2019-12-31",
+       "IG_SPREAD < 0 in 2019-12-01 to 2019-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_VIX_CPI_2019-12-11#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rose after Industrial production release (supporting) but fell after FOMC (contradicting).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rose overall but fell after FOMC; no clear link to SPY.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign = -1) instead of increasing"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign = -1) instead of increasing"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign = -1) instead of increasing"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign = -1) instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 in 2019-12-01 to 2019-12-31",
+       "FF_FUTURES_6M > 0 in 2019-12-01 to 2019-12-31",
+       "IG_SPREAD > 0 in 2019-12-01 to 2019-12-31"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 in 2019-12-01 to 2019-12-31",
+       "FF_FUTURES_6M < 0 in 2019-12-01 to 2019-12-31",
+       "IG_SPREAD < 0 in 2019-12-01 to 2019-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_VIX_CPI_2019-12-11#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell after FOMC (supporting market stress -> stock prices), but VIX rose overall (contradicting)",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2019-12-17#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2019-12-17 (09:15 ET) to the latest value published by the decision time (2019-12-31), the series rose by +1.64 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_PPI_2019-12-12#c000",
+         "citation_status": "doc_id_mismatch",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the PPI release on 2019-12-12 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.21 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose after Industrial production (supports mechanism), but VIX fell after PPI (contradicts mechanism)",
+       "rejected_quotes": 2
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2019-12-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia and lower bond prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": 1
+    },
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2018-3e9eb65b7228": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w2136",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w3702",
+     "year": 1991,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10847",
+     "year": 2015,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP1884",
+     "year": 1998,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 41,
+    "by_kind": {
+     "research_claim": 18,
+     "data_note": 23
+    },
+    "sha256": "2f7d36176c6fb3c7b5c5d69688ff4f76d83b2e3e96a8afc7f8bbef8fbbf98341",
+    "latest_available_at": "2019-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign -1) instead of increasing (sign 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-1804e584921a",
+      "mechanism": "volatility -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.16 points, indicating increased market volatility, which aligns with the mechanism of market stress increasing volatility leading to higher risk premia.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        },
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-30), the series fell by -0.07 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        },
+        {
+         "chunk_id": "DN_UST2Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Treasury yields show mixed movements but no clear link to inflation or interest rates that would support the volatility-inflation-interest rates mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0 in 2019-12",
+       "FF_FUTURES_6M > 0 in 2019-12",
+       "IG_SPREAD > 0 in 2019-12"
+      ],
+      "contradicting": [
+       "BEI5Y < 0 in 2019-12",
+       "FF_FUTURES_6M < 0 in 2019-12",
+       "IG_SPREAD < 0 in 2019-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_PPI_2019-12-12#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_PPI_2019-12-12#c000",
+       "DN_VIX_PPI_2019-12-12#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000",
+       "DN_UST10Y_FOMC_2019-12-11#c000"
+      ],
+      "neutral": [
+       "DN_VIX_FOMC_2019-12-11#c000",
+       "DN_UST2Y_CPI_2019-12-11#c000",
+       "DN_UST10Y_CPI_2019-12-11#c000",
+       "DN_VIX_CPI_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2019-12-11 (08:30 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 1.90 points from CPI release to decision time, indicating reduced market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2019-12-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2019-12-11 (14:00 ET) to the latest value published by the decision time (2019-12-31), the series fell by -1.90 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX rose 1.16 points over period but fell 1.90 points from FOMC to decision time, showing mixed market stress signals.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y",
+       "would_contradict": "If BEI5Y decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign: -1) instead of increasing"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M decreases (sign: -1) instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2018-1804e584921a",
+      "mechanism": "volatility -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y > 0",
+       "FF_FUTURES_6M > 0",
+       "IG_SPREAD > 0"
+      ],
+      "contradicting": [
+       "BEI5Y < 0",
+       "FF_FUTURES_6M < 0",
+       "IG_SPREAD < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2019-12-31#c000",
+       "DN_UST10Y_2019-12-31#c000",
+       "DN_VIX_2019-12-31#c000",
+       "DN_UST2Y_FOMC_2019-12-11#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.16 points, indicating increased market volatility, which aligns with the mechanism of market stress increasing volatility leading to higher risk premia and lower bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2019-12-01 and 2019-12-31 the series rose by +1.16 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2019-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2019-12-01 and 2019-12-30 the series rose by +0.12 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2019-12-31 18:00 ET."
+        }
+       ],
+       "explanation": "VIX rise suggests market stress, but 10-year yield increase contradicts the volatility->inflation->interest rates mechanism as it shows rising yields, not falling.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.15999999999999992,
+       "z": 1.3843414411830626,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      },
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": -0.1100000000000001,
+       "z": -1.0188230987356883,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": 1,
+       "window_start": "2019-12-01",
+       "window_end": "2019-12-30",
+       "change": 0.14,
+       "z": 0.8677633160808914,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 1.0,
+   "F_I": 5.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "b4e0a3abb91fc75ab780a1480dad40e7fe9f86634f84bcbf216a943106a5674c",
+ "packet_sha256": "5fe27f157c0fa71cca462941331055b9dd038c8b6842ed558d9ece2706fc9943",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}
