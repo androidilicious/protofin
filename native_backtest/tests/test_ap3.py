@@ -347,3 +347,40 @@ def test_ff_futures_importer_flags_gaps_and_unidentified_contracts(tmp_path):
     static.pop("FFM20 Comdty")
     _, checks = ff.build(hist, static, "2019-12-02", "2020-03-31")
     assert checks["contract_identification"]["pass"] is False
+
+
+# ------------------------------------------------------------------ paid-inference guards (no network, no credentials used)
+def test_cost_guard_stops_before_the_cap(tmp_path):
+    from native_backtest.ap3 import llm_client as L
+    g = L.CostGuard(0.01, tmp_path / "ledger.jsonl", {"mode": "tokens", "usd_per_m_input": 1.0, "usd_per_m_output": 1.0})
+    small = L.Request(step="s", system="x" * 300, user="y" * 300, schema={}, temperature=0.0, seed=0, max_tokens=100)
+    g.check(small)                                                    # ~300 tokens: fine
+    g.record("s", {"prompt_tokens": 9000, "completion_tokens": 900})  # $0.0099 spent
+    with pytest.raises(L.BudgetExceeded):
+        g.check(small)
+    g2 = L.CostGuard(5.0, tmp_path / "l2.jsonl", {"mode": "hourly", "usd_per_hour": 5.0, "started_utc": "2000-01-01T00:00:00Z"})
+    with pytest.raises(L.BudgetExceeded):                             # an endpoint running for years is far past $5
+        g2.check(small)
+
+
+def test_paid_provider_needs_a_guard_and_approval(tmp_path, monkeypatch):
+    from native_backtest.ap3 import llm_client as L
+    with pytest.raises(L.PaidInferenceNotApproved):
+        L.LLMClient(L.BedrockProvider(), tmp_path / "c", tmp_path / "log.jsonl", "t")      # no CostGuard
+    monkeypatch.delenv("AP3_ALLOW_PAID_INFERENCE", raising=False)
+    guard = L.CostGuard(5.0, tmp_path / "l.jsonl", {"mode": "tokens", "usd_per_m_input": 1.0, "usd_per_m_output": 1.0})
+    c = L.LLMClient(L.BedrockProvider(), tmp_path / "c", tmp_path / "log.jsonl", "t", guard=guard)
+    with pytest.raises(L.PaidInferenceNotApproved):
+        c.complete_json(L.Request(step="s", system="a", user="b", schema={}, temperature=0.0, seed=0))
+
+
+def test_smoke_runner_refuses_without_approval(monkeypatch):
+    from native_backtest.scripts import ap3_smoke_test as sm
+    monkeypatch.delenv("AP3_ALLOW_PAID_INFERENCE", raising=False)
+    cfg = sm.load_config()
+    assert cfg["cap_usd"] == 5.0 and cfg["months"] == ["2015-03", "2019-06", "2020-03"]
+    missing = sm.prerequisites(cfg, "bedrock")
+    assert any("approval record" in m for m in missing) and "AP3_ALLOW_PAID_INFERENCE=1" in missing
+    with pytest.raises(sm.NotApproved):
+        sm.main(["--provider", "bedrock", "--execute"])
+    assert not (sm.ROOT / cfg["approval_record"]).exists()

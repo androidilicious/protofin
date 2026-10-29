@@ -1,0 +1,198 @@
+{
+ "_comment": "AP3 approval stage A: connectivity, canary and a 3-month smoke test on real Llama 3.1 70B Instruct. PREPARED, NOT APPROVED: no paid call has been made. The runner (native_backtest/scripts/ap3_smoke_test.py) refuses to call a paid provider unless the approval record below exists, AP3_ALLOW_PAID_INFERENCE=1 is set and credentials are present; a CostGuard stops it before any call that could pass the cap.",
+ "version": "v1",
+ "created": "2026-10-28",
+ "status": "prepared; awaiting provider and spending approval",
+ "cap_usd": 5.0,
+ "approval_record": "native_backtest/config/approvals/ap3_inference_approval_A.json",
+ "approval_record_format": {
+  "stage": "A",
+  "provider": "bedrock | hf_endpoint",
+  "cap_usd": 5.0,
+  "approved_by": "<name>",
+  "approved_utc": "<timestamp>",
+  "note": "written only after the project lead's explicit approval in the chat"
+ },
+ "providers": {
+  "bedrock": {
+   "description": "Amazon Bedrock on-demand, Converse API, in-Region model ID (no cross-Region inference profile)",
+   "endpoint": "https://bedrock-runtime.us-west-2.amazonaws.com",
+   "api": "Converse (bedrock-runtime)",
+   "region": "us-west-2",
+   "model_id": "meta.llama3-1-70b-instruct-v1:0",
+   "version_guarantee": "Versioned model ID; AWS does not change the model behind an ID. Serving precision is not published.",
+   "lifecycle": "Legacy since 2026-09-30; end of life 2027-03-30. Legacy models cannot be enabled by new customers; existing customers lose access after 15 days of inactivity; public extended access (possibly higher prices) not yet announced.",
+   "usable_only_if": "the AWS account already has active access to this model ID",
+   "pricing_for_guard": {
+    "mode": "tokens",
+    "usd_per_m_input": 0.99,
+    "usd_per_m_output": 0.99
+   },
+   "pricing_note": "List on-demand price before Legacy: $0.72 per million input and output tokens. The guard counts at $0.99 to leave room for extended-access pricing; confirm the current price in the AWS console before approval.",
+   "credentials": {
+    "env": [
+     "AWS_ACCESS_KEY_ID",
+     "AWS_SECRET_ACCESS_KEY",
+     "AWS_REGION=us-west-2"
+    ],
+    "how": "Environment secrets of this environment only; never in chat or in git."
+   },
+   "iam_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+     {
+      "Sid": "AP3InvokeLlama31Only",
+      "Effect": "Allow",
+      "Action": [
+       "bedrock:InvokeModel"
+      ],
+      "Resource": "arn:aws:bedrock:us-west-2::foundation-model/meta.llama3-1-70b-instruct-v1:0"
+     }
+    ]
+   },
+   "network_allowlist": [
+    "bedrock-runtime.us-west-2.amazonaws.com"
+   ]
+  },
+  "hf_endpoint": {
+   "description": "Dedicated Hugging Face Inference Endpoint (AWS us-east-1) running vLLM's OpenAI-compatible server",
+   "model_repo": "meta-llama/Llama-3.1-70B-Instruct",
+   "revision": "<full commit SHA, recorded when the endpoint is created>",
+   "container_image": "vllm/vllm-openai:<pinned version tag, recorded at creation>",
+   "dtype": "bfloat16 (no quantisation)",
+   "hardware": "nvidia-a100 x2 (160 GB), tensor parallel 2, max model length 16384",
+   "endpoint": "<https://...endpoints.huggingface.cloud>/v1/chat/completions",
+   "version_guarantee": "Exact weights (repository commit) and exact serving engine (image tag); unaffected by provider model retirement.",
+   "lifecycle": "Open weights under the Llama 3.1 Community License; the license must be accepted on the Hugging Face account.",
+   "pricing_for_guard": {
+    "mode": "hourly",
+    "usd_per_hour": 5.0,
+    "started_utc": "<set when the endpoint is created>"
+   },
+   "pricing_note": "$5 per hour for nvidia-a100 x2 on AWS, billed per minute while initialising or running. The $5 cap therefore buys one hour including start-up (loading ~140 GB of weights); the endpoint is paused as soon as the run ends.",
+   "credentials": {
+    "env": [
+     "HF_TOKEN",
+     "AP3_HF_ENDPOINT_URL",
+     "AP3_MODEL_REVISION"
+    ],
+    "how": "Environment secrets of this environment only; token scoped to inference endpoints."
+   },
+   "network_allowlist": [
+    "<endpoint host>.endpoints.huggingface.cloud"
+   ]
+  }
+ },
+ "not_recommended": {
+  "deepinfra": "Serverless; after at least one week's notice, a retired model's requests are forwarded to a replacement model, which breaks the model-version guarantee. Kept in the client for reference only."
+ },
+ "sampling": {
+  "canary_temperature": 0.0,
+  "agents": "as locked in native_backtest/ap3/limits_v1.json"
+ },
+ "canary": [
+  {
+   "id": "c1",
+   "system": "Reply with one JSON object only.",
+   "user": "Return {\"ok\": true}.",
+   "schema": {
+    "type": "object",
+    "required": [
+     "ok"
+    ],
+    "properties": {
+     "ok": {
+      "const": true
+     }
+    }
+   }
+  },
+  {
+   "id": "c2",
+   "system": "Reply with one JSON object only.",
+   "user": "Add 17 and 25. Return {\"sum\": <number>}.",
+   "schema": {
+    "type": "object",
+    "required": [
+     "sum"
+    ],
+    "properties": {
+     "sum": {
+      "const": 42
+     }
+    }
+   }
+  },
+  {
+   "id": "c3",
+   "system": "Reply with one JSON object only.",
+   "user": "Which date is earlier, 2015-03-31 or 2014-12-31? Return {\"earlier\": \"YYYY-MM-DD\"}.",
+   "schema": {
+    "type": "object",
+    "required": [
+     "earlier"
+    ],
+    "properties": {
+     "earlier": {
+      "const": "2014-12-31"
+     }
+    }
+   }
+  },
+  {
+   "id": "c4",
+   "system": "Reply with one JSON object only.",
+   "user": "A data release came in above the consensus forecast. Return {\"direction\": \"above\" or \"below\"}.",
+   "schema": {
+    "type": "object",
+    "required": [
+     "direction"
+    ],
+    "properties": {
+     "direction": {
+      "const": "above"
+     }
+    }
+   }
+  },
+  {
+   "id": "c5",
+   "system": "Reply with one JSON object only.",
+   "user": "Sort these words alphabetically: pear, apple, fig. Return {\"sorted\": [...]}.",
+   "schema": {
+    "type": "object",
+    "required": [
+     "sorted"
+    ],
+    "properties": {
+     "sorted": {
+      "const": [
+       "apple",
+       "fig",
+       "pear"
+      ]
+     }
+    }
+   }
+  }
+ ],
+ "months": [
+  "2015-03",
+  "2019-06",
+  "2020-03"
+ ],
+ "packets": {
+  "file": "native_backtest/out/ap3/dev_readiness/ap3_packets_v2.jsonl",
+  "sha256": "0522bb07708a98f2ed9178f334d2e58576d8c89dcb7290a58d42da4d74070b5e",
+  "note": "inventory v2 packets (provisional until fed funds futures are supplied)"
+ },
+ "corpus": "not yet acquired: the Testing Agent's evidence step returns Insufficient; this stage tests connectivity, JSON validity, citation discipline and token counts only",
+ "max_calls": 200,
+ "outputs": "native_backtest/out/ap3/smoke/<provider>/ (real model outputs only; the runner refuses mock providers). Smoke records are never decision records and are never scored.",
+ "pass_criteria": [
+  "All five canary replies parse and match their schemas; their response hashes are recorded for later canary comparisons.",
+  "At least 95% of agent calls return JSON that validates against the locked schemas.",
+  "Every cited pathway ID exists in the library or in a tool result for that month.",
+  "Spend stays within the cap; measured input and output tokens per month are recorded and replace the assumptions in the budget for approval B."
+ ]
+}

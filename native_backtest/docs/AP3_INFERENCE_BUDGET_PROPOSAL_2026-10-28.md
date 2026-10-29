@@ -1,5 +1,7 @@
 # Agentic Causal RAG: hosted Llama 3.1 70B inference budget — proposal for approval (2026-10-28)
 
+> **Update (later on 2026-10-28):** Bedrock moved this model to Legacy on 2026-09-30 (end of life 2027-03-30; no access for new customers), and DeepInfra forwards retired models to replacements. Provider choice, endpoints, version guarantees and the $5 stage-A configuration are now in `AP3_INFERENCE_PROVIDER_SPEC_2026-10-28.md`, which supersedes the provider recommendation below. The token estimates are unchanged.
+
 **Request.** Two staged approvals, so no large spend happens before the pipeline is proven on real calls:
 
 | Approval | Stages | Estimate (typical – upper) | Requested cap |
