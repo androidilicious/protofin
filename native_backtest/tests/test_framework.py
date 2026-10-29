@@ -154,3 +154,60 @@ def test_bootstrap_is_seeded():
     b = a.assign(net_excess_return=a["net_excess_return"] * 0.5)
     r1, r2 = M.paired_cer_contrast(a, b, reps=200), M.paired_cer_contrast(a, b, reps=200)
     assert r1 == r2
+
+
+# ---------------------------------------------------------------- common benchmark (evaluation layer only)
+def _template(market, months):
+    return [_rec(system_id="SYS", decision_month=str(m), decision_time=decision_time_iso(market.decision_dates[m]),
+                 info_cutoff=decision_time_iso(market.decision_dates[m]), universe=["SPY", "IEF"],
+                 target_weights={"SPY": 0.5, "IEF": 0.5}) for m in months]
+
+
+def test_common_benchmark_spec_is_proposed_and_valid():
+    from native_backtest.framework import benchmark as B
+    cfg = load_config()
+    b = B.spec(cfg)
+    assert b["status"] == "proposed_not_frozen"
+    assert abs(sum(b["weights"].values()) - 1) < 1e-12
+    bad = json.loads(json.dumps(cfg))
+    bad["common_benchmark"]["weights"] = {"SPY": 0.7, "TLT": 0.4}
+    with pytest.raises(B.BenchmarkSpecError):
+        B.spec(bad)
+    bad["common_benchmark"]["weights"] = {"SPY": 0.6, "AGG": 0.4}
+    with pytest.raises(B.BenchmarkSpecError):
+        B.spec(bad)
+
+
+def test_common_benchmark_uses_shared_accounting_and_dates(market):
+    from native_backtest.framework import benchmark as B
+    from native_backtest.framework.accounting import static_portfolio_records
+    cfg = load_config()
+    months = [pd.Period(m, "M") for m in ("2019-03", "2019-04", "2019-05")]
+    tmpl = _template(market, months)
+    bench = B.simulate(cfg, market, months, tmpl)
+    direct = simulate_records(static_portfolio_records("X", cfg["common_benchmark"]["weights"], tmpl), market, months,
+                              cost_per_dollar=cfg["costs"]["cost_per_dollar_traded"])
+    assert list(bench["decision_month"]) == [str(m) for m in months]
+    assert np.allclose(bench["net_total_return"], direct["net_total_return"], rtol=0, atol=1e-15)
+    assert abs(B.cumulative_return(bench) - (np.prod(1 + bench["net_total_return"]) - 1)) < 1e-15
+
+
+def test_common_benchmark_decomposition_is_exact_and_cancels_between_systems(market):
+    from native_backtest.framework import benchmark as B
+    from native_backtest.framework.accounting import static_portfolio_records
+    cfg = load_config()
+    d = cfg["metrics"]["cer_delta"]
+    months = [pd.Period(f"2019-{i:02d}", "M") for i in range(3, 13)]
+    tmpl = _template(market, months)
+    cost = cfg["costs"]["cost_per_dollar_traded"]
+    sim = lambda w: simulate_records(static_portfolio_records("S", w, tmpl), market, months, cost_per_dollar=cost)
+    a, b, own = sim({"SPY": 0.7, "IEF": 0.3}), sim({"SPY": 0.4, "TLT": 0.6}), sim({"SPY": 0.5, "IEF": 0.5})
+    bench = B.simulate(cfg, market, months, tmpl)
+    dec = B.decomposition(a, own, bench, d)
+    assert abs(dec["system_minus_common"] - dec["system_minus_own_benchmark"] - dec["own_benchmark_minus_common"]) < 1e-15
+    # a common reference never changes the gap between two systems
+    ga = B.decomposition(a, own, bench, d)["system_minus_common"]
+    gb = B.decomposition(b, own, bench, d)["system_minus_common"]
+    assert abs((ga - gb) - (M.cer(a["net_excess_return"], d) - M.cer(b["net_excess_return"], d))) < 1e-12
+    rel = B.relative(a, bench, cfg)
+    assert rel["n_months"] == len(months) and rel["tracking_error_annualized"] > 0
