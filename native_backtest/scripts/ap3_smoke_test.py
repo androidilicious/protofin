@@ -60,11 +60,15 @@ def cap(cfg: dict, provider: str) -> float:
 def prerequisites(cfg: dict, provider: str) -> list:
     """Every reason the paid run may not start. Empty means it may."""
     missing = []
+    if L.paid_budget_usd() <= 0:
+        missing.append("budget: the project budget for paid inference is $0 (config/budget_v1.json)")
     ap = ROOT / cfg["approval_record"]
     if not ap.exists():
         missing.append(f"approval record {cfg['approval_record']} (written only after explicit approval)")
     else:
         a = json.loads(ap.read_text())
+        if a.get("status") == "withdrawn":
+            missing.append(f"approval record was withdrawn on {a.get('withdrawn_utc')}")
         if a.get("stage") != "A" or a.get("provider") != provider:
             missing.append(f"approval record is for stage {a.get('stage')} / provider {a.get('provider')}, not A / {provider}")
         if float(a.get("cap_usd", 1e9)) > cap(cfg, provider):
