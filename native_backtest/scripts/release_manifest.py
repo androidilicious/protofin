@@ -26,6 +26,8 @@ ADD = [
     "native_backtest/out/ap3/corpus_checks_v1.json",
     "native_backtest/out/ap3/engineering_replay/reduced_evidence/summary.json",
     "native_backtest/out/ap3/engineering_g3b/engineering_mock/summary.json",
+    "native_backtest/config/budget_v1.json",
+    "native_backtest/notebooks/ap3_qwen3_free_run.ipynb",
 ]
 NEVER = {"mvp/data/dashboard.json"}
 

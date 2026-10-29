@@ -38,6 +38,7 @@ The interactive dashboard is in `../mvp/` (`python mvp/run.py serve`).
 | `ap3/variants_v1.json`, `ap3/evidence_pool.py` | The two Causal RAG versions (Reduced Evidence; With Historical Documents) and their point-in-time evidence pools (`docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`) |
 | `scripts/ap3_dev_replay.py`, `ap3/reliability.py`, `config/ap3_reliability_gates_v1.json` | Development replay for either version (agents → status features → calibration → G4c → allocation), agent reliability report, pre-registered gates; paid providers refuse without approval |
 | `scripts/ap3_g3b_fixtures.py`, `ap3/fixtures/testing_agent_fixtures_v1.json` | Gate G3b: the Testing Agent on 30 labelled fixtures |
+| `scripts/ap3_free_run.py`, `scripts/ap3_free_import.py`, `notebooks/ap3_qwen3_free_run.ipynb`, `config/budget_v1.json` | Free real-model run: qwen3:4b served by Ollama on a free Kaggle GPU (documented substitution for Llama 3.1 70B), checkpointed, gated, results branch `ap3-qwen3-runs`; import, calibration and evaluation in the pinned environment; $0 budget enforced (`docs/AP3_FREE_QWEN3_RUN_2026-10-29.md`) |
 | `scripts/historical_evaluation.py` | The one-time final historical backtest; refuses without a signed GO record, the opening token, frozen decision hashes and the approved Causal RAG version |
 | `docs/RUNBOOK.md` | Reproduce the MVP; run Causal RAG; corpus; paid steps; final historical backtest after GO |
 | `scripts/ap3_dev_readiness.py`, `out/ap3/dev_readiness/` | 95-month dry run with the engineering mock; frozen packets; measured prompt sizes |

@@ -35,54 +35,27 @@ python -m native_backtest.scripts.ap3_corpus_import --from-fetch-log
 
 The fetch needs `www.federalreserve.gov`, `www.census.gov`, `www2.census.gov` and `www.bls.gov` reachable. BLS currently refuses this environment (`docs/AP3_CORPUS_STATUS_2026-10-29.md`).
 
-## 4. Real-model validation (paid; approvals A and B)
+## 4. Real-model validation, free (qwen3:4b on a free GPU, $0)
 
-Every paid step refuses to run unless all of these exist:
-- an approval record in `native_backtest/config/approvals/`;
-- `AP3_ALLOW_PAID_INFERENCE=1`;
-- the provider's secrets as environment secrets;
-- a hard spending cap enforced by `CostGuard`.
-
-Without `--execute`, each command only prints its plan.
+The project budget for paid inference is $0 (`config/budget_v1.json`), and every paid provider refuses. Real-model runs use **qwen3:4b**, the model the original CauseTrace uses, as a documented substitute for Llama 3.1 70B. It is served by Ollama on the notebook's own GPU. Details are in `docs/AP3_FREE_QWEN3_RUN_2026-10-29.md`.
 
 ```bash
-# A: smoke test (3 pre-specified months, Reduced Evidence). Approved 2026-10-29: hf_endpoint, $15 total.
-python -m native_backtest.scripts.ap3_hf_endpoint                       # plan: endpoint spec, deadlines, worst case of every failure mode
-AP3_ALLOW_PAID_INFERENCE=1 python -m native_backtest.scripts.ap3_smoke_test --provider hf_endpoint --execute
-python -m native_backtest.scripts.ap3_smoke_report                      # evidence report (redacted copy committed)
-python -m native_backtest.scripts.ap3_hf_endpoint --delete              # only if a run was killed: deletes the recorded endpoint
+# On a free Kaggle GPU (notebook native_backtest/notebooks/ap3_qwen3_free_run.ipynb does all of this):
+python -m native_backtest.scripts.ap3_free_run --stage all --hours 11 --push
+#   check -> G3b fixtures -> G3a sample (2015-02..2016-01) -> replay 2016-02..2022-12 only if both gates pass;
+#   resumable; a redacted results bundle is committed to branch ap3-qwen3-runs after every 12 months
 
-# B: gates G3a/G3b and the 95-month development replay. Separate approval record ap3_inference_approval_B.json:
-#    {"stage": "B", "provider": "hf_endpoint", "variants": ["reduced_evidence"], "cap_usd": <cap>, "approved_by": ..., "date": ...}
-python -m native_backtest.scripts.ap3_g3b_fixtures --provider hf_endpoint --execute
-python -m native_backtest.scripts.ap3_dev_replay --variant reduced_evidence --provider hf_endpoint --months 2015-02,2016-01 --execute   # G3a
-python -m native_backtest.scripts.ap3_dev_replay --variant reduced_evidence --provider hf_endpoint --execute                          # G4a + calibration
+# Here (pinned environment): import, validate, calibrate, allocate, evaluate, refresh the dashboard
+python -m native_backtest.scripts.ap3_free_import
+python mvp/build_dashboard_data.py
 ```
 
-The smoke test runs under one controller (`scripts/ap3_hf_endpoint.py`), which creates the endpoint and records the time just before creation. It then:
-1. Deletes the endpoint if the configuration Hugging Face echoes back lacks the pinned revision, image, instance or container arguments.
-2. Deletes it if it is not running after 40 minutes, or if it reports a failure.
-3. Sends requests only while the endpoint reports "running", with no wake-up of a scaled-to-zero endpoint.
-4. Stops new calls at 65 minutes and deletes the endpoint at 68 minutes.
-5. Deletes it when the run ends or is interrupted.
-
-At $10/hour, billed per minute, the bounds are:
-- $11.83 while the controller runs;
-- $14.17 if the controller process dies mid-run, because the endpoint scales to zero after 15 idle minutes.
-
-One case is not bounded by our code: the process dies during initialisation and Hugging Face never finishes initialising. Then `--delete` or the Hugging Face console stops it.
-
-Before the paid run, the environment needs:
-- `HF_TOKEN` as an environment secret, able to manage Inference Endpoints and read the gated repository;
-- the Llama 3.1 licence accepted;
-- billing enabled on the Hugging Face account;
-- network access to `huggingface.co`, `api.endpoints.huggingface.cloud` and the endpoint host (`*.endpoints.huggingface.cloud`).
-
+The paid path (`ap3_smoke_test`, `ap3_hf_endpoint`, approval records A/B) stays in the code for reference. It refuses to run while the budget is $0.
 
 ## 5. The full-evidence version (after the corpus checks pass)
 
 ```bash
-python -m native_backtest.scripts.ap3_dev_replay --variant historical_documents --provider hf_endpoint --execute   # approval B must list the variant
+python -m native_backtest.scripts.ap3_dev_replay --variant historical_documents --provider ollama   # free, on the GPU notebook, once the corpus is complete
 ```
 
 Then:

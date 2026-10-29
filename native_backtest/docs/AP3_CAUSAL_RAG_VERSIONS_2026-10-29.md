@@ -84,14 +84,8 @@ The project lead approves the choice before the protected window opens. It is re
 | Official-document corpus | Fed and Census: 474 documents validated. BLS: **blocked** (`AP3_CORPUS_STATUS_2026-10-29.md`) |
 | `FF_FUTURES_6M` mediator | **Blocked: Bloomberg export** (no proxy without approval) |
 
-## Cost of the model runs (not incurred)
+## Model and cost
 
-The estimates come from the measured inference budget (`out/ap3/inference_budget_v1.json`). Reduced-evidence excerpts (40–90 words) are shorter than the corpus excerpts the budget modelled (170–260 words), so these estimates are conservative for that version.
+The project budget for paid inference is **$0**, and the paid plan (a Hugging Face endpoint for Llama 3.1 70B) was withdrawn on 2026-10-29 before anything was created or billed.
 
-| Step | Approval | Dedicated HF endpoint (2× H200, $10/h, pinned weights, seed) | Amazon Bedrock (per token) |
-|---|---|---|---|
-| A: smoke test, 3 months, reduced evidence | A | $6–10 typical; cap $15 | ≈ $0.25; cap $5 |
-| B1: G3a + G3b + Reduced Evidence 95-month replay | B | $40–75 typical; up to ≈ $190 | ≈ $9 typical; ≈ $36 upper |
-| B2: With Historical Documents 95-month replay (after the corpus is complete) | separate | $33–62 typical; up to ≈ $160 | ≈ $8 typical; ≈ $31 upper |
-
-The recommended provider is the dedicated endpoint, because its weights and seed are pinned. Bedrock is much cheaper per run, but its Llama 3.1 70B is a legacy model (end of life 2027-03-30) with no seed control. The specification and safeguards are in `AP3_INFERENCE_PROVIDER_SPEC_2026-10-28.md`.
+Real-model runs use **qwen3:4b**, the model the original CauseTrace project uses, on a free Kaggle GPU. This is a documented model substitution: the architecture, evidence, prompts, limits, seeds and gates are unchanged, but the model is much smaller. The record, workflow and resource estimates are in `AP3_FREE_QWEN3_RUN_2026-10-29.md`.

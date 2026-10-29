@@ -29,7 +29,7 @@ Duke MIDS × BNY CIO Office capstone. This branch (`backtest`) adds a shared, po
 | Deterministic (baseline) | Reproduced byte-for-byte natively; development results |
 | JEV | Reproduced natively (272/272 saved answers); development results |
 | Agent Committee | Reproduced natively; development results, compared only with JEV |
-| Causal RAG — Reduced Evidence | Built; engineering-tested end to end on all 95 development months with mock responses (never shown as results). Real-model smoke test approved ($15 cap), waiting for Hugging Face access |
+| Causal RAG — Reduced Evidence | Built; engineering-tested end to end on all 95 development months with mock responses (never shown as results). Real-model run: **qwen3:4b on a free Kaggle GPU** ($0; documented substitution for Llama 3.1 70B), ready, not yet run |
 | Causal RAG — With Historical Documents | Built. 474 Fed and Census documents validated; BLS documents (≤ 435) blocked from the cloud environment |
 | Policy-path proxy variant | Built as a separately documented sensitivity variant for the missing fed funds futures; engineering-tested |
 | Historical test | Sealed. `historical_evaluation.py` refuses to run without a signed GO record |
@@ -44,7 +44,7 @@ These are diagnostics on development months, not protected historical results.
 | JEV | 4.67% | 0.51 | −23.8% | 13.7% | 31.2% | 33% |
 | Agent Committee (within-approach) | 5.11% | 0.56 | −23.6% | 13.0% | 32.7% | 113% |
 | Passive 60% SPY / 40% IEF (reference) | 4.98% | 0.55 | −18.8% | 12.9% | 32.0% | 28% |
-| Causal RAG | not run: real-model runs await approval | | | | | |
+| Causal RAG | not run yet: free real-model run pending | | | | | |
 
 - **JEV − Deterministic:** +1.01 pts net CER per year, 95% range −3.42 to +5.27, p = 0.63. Not statistically clear.
 - **Committee − JEV:** +0.44 pts, 95% range −1.85 to +2.90, p = 0.72. Not statistically clear.
@@ -64,7 +64,7 @@ sha256sum -c RELEASE_MANIFEST.sha256
 The rest of the procedures are in [`native_backtest/docs/RUNBOOK.md`](native_backtest/docs/RUNBOOK.md):
 - the Causal RAG engineering runs;
 - the cloud corpus download and validation;
-- the paid model steps (refused without an approval record, secrets and a cost cap);
+- the free real-model run on a Kaggle GPU (qwen3:4b; `docs/AP3_FREE_QWEN3_RUN_2026-10-29.md`); paid providers refuse while the budget is $0;
 - the final historical backtest after GO.
 
 Environment variables are listed in [`.env.example`](.env.example). No secret is stored in the repository.

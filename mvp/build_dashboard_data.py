@@ -77,7 +77,7 @@ SYSTEMS = {
                       "A calibration model turns tested hypotheses into forecasts; Black–Litterman sets the weights"],
             "signals": ["The same 8 data surprises", "Research knowledge graph (papers dated before each year)",
                         "Fed and official documents published before each decision", "Market-reaction data used as tests"],
-            "model": "Llama 3.1 70B Instruct (chosen; runs once approved)", "status_label": RAG_STATUS},
+            "model": "Qwen3 4B, free (stands in for Llama 3.1 70B)", "status_label": RAG_STATUS},
     "com": {"src": "AP2A", "role": "variant", "name": "Agentic Workflow — Agent Committee", "short": "Agent Committee", "color": "#f5a524",
             "universe": ["SPY", "TLT"], "neutral": {"SPY": 0.60, "TLT": 0.40},
             "horizon": "12-month views, rebalanced monthly", "assets_label": "US stocks, 20+ year Treasuries",
@@ -133,7 +133,7 @@ EXP_TEXT = {
     "AP3": ("Agentic Causal RAG", "rag",
             "Research graph, Hypothesis and Testing Agents, calibration. Its primary version is chosen before the test opens."),
     "AP3-RE": ("Causal RAG — Reduced Evidence", "rag",
-               "Same agents and steps; the Testing Agent weighs research findings and market and economic data known at each decision. Built and checked end to end; real model runs await approval."),
+               "Same agents and steps; the Testing Agent weighs research findings and market and economic data known at each decision. Built and checked end to end; its free real-model run (Qwen3 4B on a free GPU) is ready to start."),
     "AP3-HD": ("Causal RAG — With Historical Documents", "rag",
                "The reduced-evidence version plus official Fed, BLS and Census documents published before each decision. Built; waits for the BLS documents, which this cloud environment cannot download."),
     "AP3-RE-PROXY": ("Policy-path proxy variant", "rag",
@@ -161,6 +161,19 @@ def experiments_block(cfg: dict, within: list) -> dict:
     return {"groups": groups, "within_contrast": within[0] if within else None}
 
 
+def free_run_checks() -> list:
+    """Status of the free Qwen3 4B run, read from the imported results bundle (never from mock runs)."""
+    f = ROOT / "native_backtest" / "out" / "ap3" / "qwen3_runs" / "summary.json"
+    if not f.exists():
+        return [("Free real-model run (Qwen3 4B on a free GPU): ready, not yet run", False),
+                ("95-month run: starts only if the reliability checks pass", False)]
+    s = json.loads(f.read_text())
+    g = {k: v.get("pass") for k, v in s.get("gates", {}).items()}
+    gates_txt = ", ".join(f"{k} {'passed' if v else 'failed'}" for k, v in sorted(g.items())) or "pending"
+    return [(f"Free real-model run (Qwen3 4B): {s['n_months']} of 95 months; checks: {gates_txt}", s["n_months"] == 95 and all(g.values())),
+            ("Development results: " + ("available" if s.get("downstream") or (f.parent / "evaluation" / "evaluation.json").exists() else "after all 95 months"), False)]
+
+
 def ap3_versions() -> dict:
     """The two Causal RAG versions with their genuine status, read from the run and check outputs."""
     nb = ROOT / "native_backtest"
@@ -182,14 +195,13 @@ def ap3_versions() -> dict:
          "checks": [("Built: same agents, retrieval, testing, calibration and allocation", True),
                     (f"Checked end to end on {eng['months'] if eng else 0} development months with demo responses", eng_ok),
                     ("No information later than the decision time reached the agents", eng_ok),
-                    ("Real model smoke test: approved ($15 cap); waiting for Hugging Face access", False),
-                    ("95-month real-model run (approval needed)", False)]},
+                    *free_run_checks()]},
         {"key": "hd", "label": var["variants"]["historical_documents"]["label"], "short": "With historical documents", "status": "blocked",
          "evidence": base + ["Official Fed, BLS and Census documents published before each decision"],
          "checks": [("Built: the reduced-evidence version plus official documents", True),
                     (f"{docs} Fed and Census documents downloaded and validated", bool(chk and not chk["build_errors"] and chk["point_in_time_pass"])),
                     (f"BLS documents ({bls} release families) blocked from this cloud environment", False),
-                    ("Real model runs (approval needed)", False)]},
+                    ("Real model runs (after the BLS documents)", False)]},
     ]
     for it in items:
         it["checks"] = [{"text": t, "done": d} for t, d in it["checks"]]
@@ -399,7 +411,7 @@ def main() -> int:
                 "checks": ["All 272 saved JEV decisions reproduced exactly from the saved answers",
                            "Native accounting reproduced exactly before 2023",
                            "Can't be re-run: the model version, prompt and recording tool were not saved"]},
-        "rag": {"status": "not run", "checks": ["No results until the model run is approved and validated"]}}
+        "rag": {"status": "not run", "checks": ["No results until its real model run is done and validated"]}}
     steps = {}
     labels = ["As originally scored", "Verified price data", "Trade next trading day", "Shared trading costs", "Shared cash rate"]
     for key, src in (("com", "AP2A"), ("jev", "AP2B")):
@@ -446,7 +458,7 @@ def main() -> int:
                  f"On {n_dev} development months, JEV's difference from the Deterministic baseline is within what chance could produce.",
                  "Every approach is scored on the same months, trading costs and cash rate."],
         "not_yet": ["Whether AI improves on the baseline: the historical test (Jan 2024 – Aug 2026 primary) is still sealed.",
-                    "Anything about Causal RAG: its model runs await approval and validation.",
+                    "Anything about Causal RAG: its free real-model run has not been done yet.",
                     "A controlled comparison: assets, horizons and information differ by design."],
         "can": ["Each approach was run with its own original code, which reproduced its authors' saved results before any comparison.",
                 f"The approaches with results are scored on the same {n_dev} development months, with the same trading costs and cash rate.",
@@ -454,7 +466,7 @@ def main() -> int:
         "cannot": ["Which approach is better. Development months are where the approaches were built and checked, so these are diagnostics, not protected historical results.",
                    f"Small differences. With {n_dev} months, only large gaps could be told apart from chance.",
                    "A controlled comparison. The approaches hold different assets and use different horizons and information.",
-                   "Anything about Causal RAG yet. Its results are unavailable until its model run is approved and validated."]}
+                   "Anything about Causal RAG yet. Its results are unavailable until its real model run is done and validated."]}
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)
     out["flows"] = FLOWS

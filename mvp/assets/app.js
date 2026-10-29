@@ -45,11 +45,12 @@
     inventory: 'Research inventory: how much published research the approach can draw on. An input, not a result.',
     signals: 'Predicted directions (+1 up, −1 down) of hypotheses with each verdict, added up per asset.',
     variant: "Within-approach experiment: another version of the same approach, compared only with that approach's primary system.",
-    awaiting: 'Awaiting validation: built and tested without an AI model. Results stay unavailable until model runs are approved and pass their checks.',
+    awaiting: 'Awaiting validation: built and tested without an AI model. Results stay unavailable until its real model run is done and passes its checks.',
     frozen: 'Frozen: fixed before any protected month is scored; cannot change without a new version and a full rerun.',
     approval: 'Needs approval: implemented and used, but awaiting final team sign-off.',
     design: 'Differs by design: each approach keeps its own version of this.',
     versions: 'Two versions of Causal RAG with identical agents, model, rules and settings. Only the evidence the Testing Agent may use differs.',
+    substitution: 'Model substitution: the free Qwen3 4B model (the one CauseTrace uses) stands in for the planned Llama 3.1 70B. Same agents, evidence, rules and checks; a much smaller model, so results are labelled as the substitute.',
     insufficient: 'When the evidence available at the time cannot settle a hypothesis, it is marked Insufficient. It is never counted as support.',
   };
   const ROUTES = { deterministic: 'det', jev: 'jev', 'causal-rag': 'rag', committee: 'com' };
@@ -269,7 +270,7 @@
         ${ciBar(c, s.key)}${c.significant ? '' : NS}</div>` : '';
     const body = r ? `
       <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>${vs}`
-      : `<div class="unavail"><span><b>Not run yet.</b> No comparison with the baseline until its AI model runs are approved and validated.</span>
+      : `<div class="unavail"><span><b>Not run yet.</b> No comparison with the baseline until its real model run is done and validated.</span>
           <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
           <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
     return `<article class="acard${s.key === 'det' ? ' baseline' : ''}" style="--c:var(${VAR[s.key]})">
@@ -556,7 +557,7 @@
         <div class="row"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span>${dataChip('na')}</div>
         <h1>${esc(s.name)} ${tip('causalrag')}</h1>
         <p class="lede">${esc(s.tagline)}</p>
-        <div class="chips"><span class="chip plain">${icon('assets')}${esc(s.assets_label)}</span><span class="chip plain">${icon('calendar')}${esc(s.horizon)}</span><span class="chip plain">${icon('model')}${esc(s.model)}</span></div>
+        <div class="chips"><span class="chip plain">${icon('assets')}${esc(s.assets_label)}</span><span class="chip plain">${icon('calendar')}${esc(s.horizon)}</span><span class="chip plain">${icon('model')}${esc(s.model)} ${tip('substitution')}</span></div>
       </section>
       <section class="panel"><h2>How it works</h2>${flowDiagram('rag')}</section>
       ${versionsPanel()}
