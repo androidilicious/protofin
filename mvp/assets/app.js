@@ -336,6 +336,46 @@
       </section>`;
   }
 
+  // Optional diagnostic: why the JEV and Deterministic curves look alike (from the independent integrity audit).
+  const corrTxt = x => (x < 0 ? '−' : '') + Math.abs(x).toFixed(2);
+  function alikePanel() {
+    const A = D.audit;
+    if (!A || !S('det') || !S('jev')) return '';
+    const tile = (v, l, t) => `<div class="kpi"><div class="v num">${v}</div><div class="l">${esc(l)} ${tipText(t)}</div></div>`;
+    return `<details class="more" id="d-alike"><summary>Why do JEV and the Deterministic curves look alike?</summary><div>
+      <ul class="facts ok">
+        <li>${icon('check')}<span><b>No calculation error.</b> An independent rebuild from the raw prices matches every monthly return of both approaches.</span></li>
+        <li>${icon('check')}<span><b>Similar by design.</b> Both hold a balanced portfolio built on the same S&amp;P 500 fund, with bonds that move together. Their decisions shift those portfolios by only a few points.</span></li>
+      </ul>
+      <div class="kpis k4">
+        ${tile(corrTxt(A.corr_monthly_net), 'Monthly returns move together', 'Correlation of the two approaches’ monthly returns after costs. 1 would mean identical moves.')}
+        ${tile(corrTxt(A.corr_own_mixes), 'Their fixed mixes alone', 'Correlation of the two starting portfolios held unchanged, with no forecasting at all. The similarity is already there.')}
+        ${tile(corrTxt(A.corr_decisions), 'Their decisions', 'Correlation of each approach’s return minus its own fixed starting portfolio. The decisions themselves are unrelated.')}
+        ${tile(pct(A.same_direction, 0), 'Months moving the same way', 'Share of months in which both approaches gained, or both lost.')}
+      </div>
+      <h3>Monthly return gap: JEV minus Deterministic</h3>
+      <div class="chartbox sm"><canvas id="c-spread" aria-label="Monthly return of JEV minus the Deterministic baseline"></canvas></div>
+      <p class="sub">Above zero, JEV did better that month. The gap exceeded 1 point in ${A.months_gap_gt_1pt} of ${A.spread.length} months.</p>
+      <h3>Stock (S&amp;P 500) weight each month</h3>
+      <div class="legend" id="lg-spy"></div>
+      <div class="chartbox sm"><canvas id="c-spy" aria-label="Share of the portfolio in the S&amp;P 500 fund for each approach"></canvas></div>
+      <p class="sub">JEV always holds more stocks and longer-term bonds. About ${Math.round(A.share_from_mixes * 100)}% of the month-to-month gap comes from these different starting portfolios and ${Math.round(A.share_from_decisions * 100)}% from the decisions. Full audit report in the project repository.</p>
+    </div></details>`;
+  }
+  function drawAlike() {
+    const months = D.dev.months, A = D.audit;
+    killChart('c-spread');
+    chart(document.getElementById('c-spread'), { type: 'bar',
+      data: { labels: months, datasets: [{ label: 'JEV minus Deterministic', data: A.spread.map(v => v * 100),
+        backgroundColor: A.spread.map(v => v >= 0 ? color('jev') : color('det')), borderWidth: 0 }] },
+      options: { plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => monthLabel(months[it[0].dataIndex]), label: it => ` JEV minus Deterministic: ${pts(A.spread[it.dataIndex], 2)}` } } },
+        scales: { x: xTicks(months), y: { ticks: { callback: v => sgn(v, Math.abs(v) + ' pts') }, grid: { color: css('--border') } } } } });
+    lineChart('c-spy', 'lg-spy', months, [
+      { label: 'Deterministic (baseline)', data: S('det').weights.SPY.map(v => v * 100), color: color('det') },
+      { label: 'JEV', data: S('jev').weights.SPY.map(v => v * 100), color: color('jev') }],
+      { y: v => v.toFixed(0) + '%', tip: v => v.toFixed(1) + '%' });
+  }
+
   function viewOverview() {
     const months = D.dev.months;
     const res = D.systems.filter(s => S(s.key));
@@ -365,6 +405,7 @@
         <div class="legend" id="lg-growth"></div>
         <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results"></canvas></div>
         <p class="sub">The gaps are within what chance could produce. Causal RAG has no line: it has not run. ${esc(PASSIVE)}: optional dashed line ${tip('commonbench')}</p>
+        ${alikePanel()}
       </section>
       <section class="panel">
         <div class="phead"><h2>Key metrics</h2></div>
@@ -384,6 +425,8 @@
       document.querySelector('#g-title .tip span[role=tooltip]').textContent = GLOSSARY[mode === 'gap' ? 'gap' : 'growth'];
     };
     drawGrowth('abs');
+    const da = document.getElementById('d-alike');
+    if (da) da.addEventListener('toggle', () => { if (da.open) drawAlike(); });
     document.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
       document.querySelectorAll('[data-g]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawGrowth(b.dataset.g); }));
   }

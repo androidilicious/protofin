@@ -90,6 +90,7 @@ The dashboard contains development results, statuses and explanations only. It c
 | [`native_backtest/docs/GO_NO_GO_2026-10-28.md`](native_backtest/docs/GO_NO_GO_2026-10-28.md) | Gate status and what blocks the protected test |
 | [`native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`](native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md) | The Causal RAG versions, reliability gates, cost of model runs |
 | [`native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md`](native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md) | Evidence corpus: counts, reconciliation, storage, BLS options |
+| [`native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md`](native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md) | Independent rebuild of the Deterministic, JEV and passive returns; why the Deterministic and JEV curves look alike (no calculation error) |
 | [`mvp/`](mvp/README.md) | Dashboard frontend, data builder and its tests |
 | `stage2/` | The validated Stage 2 scorer the Deterministic model runs on |
 

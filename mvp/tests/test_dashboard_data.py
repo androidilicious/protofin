@@ -190,3 +190,17 @@ def test_deterministic_is_the_research_baseline_and_contrasts_are_unchanged():
     # the passive reference is not an approach and keeps its frozen numbers
     assert all(s["key"] != "passive" for s in D["systems"]) and CFG["common_benchmark"]["status"] == "frozen"
     assert "fourth approach" in CFG["research_design"]["passive_reference"]
+
+
+def test_similarity_diagnostic_comes_from_the_independent_audit():
+    """The optional 'why do the curves look alike' view: verdict and numbers from the integrity audit, spread from the dashboard's own returns."""
+    A = D["audit"]
+    audit = json.loads((ROOT / "native_backtest/out/audit/portfolio_integrity_v1.json").read_text())
+    assert A["verdict"] == audit["verdict"] == "no implementation error found" and A["findings"] == 0
+    assert A["max_abs_diff_net_return"] < 1e-12
+    assert A["corr_monthly_net"] == round(audit["similarity"]["corr_monthly_net"], 4)
+    assert abs(A["corr_decisions"]) < 0.1 < A["corr_own_mixes"]
+    det, jev = D["dev"]["series"]["det"]["monthly_net_return"], D["dev"]["series"]["jev"]["monthly_net_return"]
+    assert len(A["spread"]) == len(D["dev"]["months"]) == len(det)
+    assert all(abs(s - (j - d)) <= 2e-6 for s, j, d in zip(A["spread"], jev, det))
+    assert abs(A["share_from_mixes"] + A["share_from_decisions"] - 1) < 2e-3

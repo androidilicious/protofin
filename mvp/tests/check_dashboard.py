@@ -111,6 +111,18 @@ def main() -> int:
                                 problems.append(f"[{scheme}/{vp_name}] #{view} ({mode}): chart lines {ds}")
                         g = page.locator("[data-g=abs]")
                         g.tap() if vp_name == "phone" else g.click()
+                        # optional similarity diagnostic: closed by default; opening it draws the gap bars and the stock-weight lines
+                        if page.locator("#d-alike").get_attribute("open") is not None:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: similarity diagnostic open by default")
+                        sm = page.locator("#d-alike summary")
+                        sm.tap() if vp_name == "phone" else sm.click()
+                        page.wait_for_timeout(200)
+                        ad = page.evaluate("""() => { const a = Chart.getChart('c-spread'), b = Chart.getChart('c-spy');
+                            return a && b ? {bars: a.data.datasets[0].data.length, lines: b.data.datasets.map(d => d.label)} : null; }""")
+                        if not ad or ad["bars"] != 46 or ad["lines"] != ["Deterministic (baseline)", "JEV"] or "0.97" not in page.text_content("#d-alike"):
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: similarity diagnostic {ad}")
+                        if shots and scheme == "dark":
+                            page.locator("#d-alike").screenshot(path=str(shots / f"{scheme}-{vp_name}-similarity.png"))
                     if view in ("deterministic", "jev", "committee"):
                         ds = page.evaluate("""() => { const c = Chart.getChart('c-one'); return c.data.datasets.map((d, i) => ({l: d.label, shown: c.isDatasetVisible(i)})); }""")
                         cmp = {"deterministic": [], "jev": ["Deterministic baseline"], "committee": ["JEV"]}[view]

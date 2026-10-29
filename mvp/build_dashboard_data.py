@@ -40,6 +40,8 @@ OUT = ROOT / "mvp" / "data" / "dashboard.json"
 DEC = ROOT / "native_backtest" / "out" / "decisions"
 REPORTS = ROOT / "native_backtest" / "out"
 DEMO = ROOT / "mvp" / "data" / "ap3_engineering_demo.json"
+AUDIT = ROOT / "native_backtest" / "out" / "audit" / "portfolio_integrity_v1.json"
+AUDIT_REPORT = "native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md"
 
 RAG_STATUS = "Awaiting validation · results unavailable"
 
@@ -290,6 +292,25 @@ FLOWS = {
 }
 
 
+def audit_block(sims: dict) -> dict | None:
+    """Optional diagnostic: why the JEV and Deterministic curves look alike (independent integrity audit)."""
+    if not AUDIT.exists() or not {"det", "jev"} <= set(sims):
+        return None
+    a = json.loads(AUDIT.read_text())
+    det, jev = sims["det"]["net_total_return"].to_numpy(), sims["jev"]["net_total_return"].to_numpy()
+    S, X = a["similarity"], a["decomposition"]["spread_by_design_vs_decisions"]
+    # The audit rebuilt every return independently; the dashboard's own returns must give the same correlation.
+    assert len(a["monthly"]["months"]) == len(det) and max(abs(x - (j - d)) for x, j, d in zip(a["monthly"]["spread"], jev, det)) < 1e-12 and abs(float(np.corrcoef(det, jev)[0, 1]) - S["corr_monthly_net"]) < 1e-12, "audit and dashboard returns differ"
+    ev = a["reconciliation"]["vs_shared_evaluator"]
+    return {"verdict": a["verdict"], "findings": len(a["findings"]),
+            "max_abs_diff_net_return": max(ev[k]["max_abs_diff_net_return"] for k in ("AP1", "AP2B")),
+            "corr_monthly_net": _r(S["corr_monthly_net"], 4), "corr_own_mixes": _r(S["corr_own_benchmarks"], 4),
+            "corr_decisions": _r(S["corr_active_vs_own_benchmark"], 4), "same_direction": _r(S["direction_agreement_share"], 4),
+            "months_gap_gt_1pt": S["spread_jev_minus_det"]["months_abs_gt_1pp"], "tracking_error": _r(S["spread_jev_minus_det"]["tracking_error_annualised"], 4),
+            "share_from_mixes": _r(X["share_of_spread_variance_from_benchmarks"], 3), "share_from_decisions": _r(X["share_of_spread_variance_from_decisions"], 3),
+            "spread": [_r(j - d) for j, d in zip(jev, det)], "report": AUDIT_REPORT}
+
+
 def main() -> int:
     cfg = load_config()
     mk = load_market(cfg)
@@ -467,6 +488,7 @@ def main() -> int:
                    f"Small differences. With {n_dev} months, only large gaps could be told apart from chance.",
                    "A controlled comparison. The approaches hold different assets and use different horizons and information.",
                    "Anything about Causal RAG yet. Its results are unavailable until its real model run is done and validated."]}
+    out["audit"] = audit_block(sims)
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)
     out["flows"] = FLOWS
