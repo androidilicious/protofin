@@ -41,6 +41,8 @@ ADD = [
     "native_backtest/out/within_approach/committee_plus_jev_weights_v1.csv",
     "native_backtest/out/decisions/AP2_COMBO.jsonl",
     "native_backtest/config/within_approach_preregistration_v1.json",
+    "native_backtest/config/ap3_exploratory_mode_v1.json",
+    "native_backtest/config/ap3_reliability_followup_preregistration_v1.json",
 ]
 NEVER = {"mvp/data/dashboard.json"}
 

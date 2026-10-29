@@ -288,3 +288,30 @@ def test_signal_value_is_a_separate_top_level_tab():
     js = (ROOT / "mvp/assets/app.js").read_text()
     assert "view === 'signal-value') viewSignalValue()" in js and "function signalValuePanel" not in js    # not a section of Experiments
     assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]                                      # the three approaches are unchanged
+
+
+def test_exploratory_causal_rag_block_is_honest_about_its_state():
+    """The exploratory block must carry the failed gates, never claim validation, and show no curve it did not compute."""
+    X = D["ap3_exploratory"]
+    mode = json.loads((ROOT / "native_backtest/config/ap3_exploratory_mode_v1.json").read_text())
+    assert X["label"] == mode["labelling"]["label"] == "EXPLORATORY — RELIABILITY GATES FAILED"
+    assert X["identity"] == mode["baseline_identity"] and X["state"] in ("not_run", "partial", "complete_agents", "results")
+    assert X["gates_failed"], "the block exists only because gates failed; they must be listed"
+    assert set(X["gates_failed"]) <= {"G3a", "G3b"} and X["months_needed"] == 95
+    if X["state"] != "results":
+        assert X["results"] is None and "wealth" not in X        # no curve before the replay finishes
+        assert X["months_done"] < 95
+    else:
+        assert len(X["wealth"]) == len(X["months"]) == len(D["dev"]["months"])
+        assert X["coverage"]["months_scored"] is not None
+    # the exploratory results never enter the primary series or the approach cards
+    assert "rag" not in D["dev"]["series"] and [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]
+    assert D["ap3"]["status"] == "awaiting_validation"
+
+
+def test_no_experiment_or_approach_is_marked_validated_by_the_exploratory_run():
+    cfg = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())
+    st = {v["id"]: v["status"] for g in cfg["research_design"]["within_approach_experiments"]["groups"] for v in g["variants"]}
+    assert st["AP3-RE"] == "awaiting_validation"                 # the exploratory run does not promote it
+    gates = json.loads((ROOT / "native_backtest/config/ap3_reliability_gates_v1.json").read_text())
+    assert gates["G3b_testing_agent_fixtures"]["accuracy_min"] == 0.8 and gates["G3a_first_12_months"]["failed_months_max"] == 1

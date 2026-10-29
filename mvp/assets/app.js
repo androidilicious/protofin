@@ -596,6 +596,65 @@
   }
 
   // ---------------------------------------------------------------- Causal RAG
+  // ---------------------------------------------------------------- exploratory Causal RAG baseline (gate-failed)
+  function exploratoryPanel() {
+    const X = D.ap3_exploratory;
+    if (!X) return '';
+    const gates = Object.entries(X.gates_failed || {});
+    const GATE_LABEL = { accuracy: 'Testing Agent fixture accuracy', opposite_direction_errors: 'Opposite-direction errors',
+                         failed_months: 'Sample months without a final answer' };
+    const gateVal = (k, v) => k === 'accuracy' ? pct(v, 0) : String(v);
+    const head = `<div class="xhead"><span class="xtag">${icon('blocked')}${esc(X.label)}</span><span class="sub">${esc(X.identity)}</span></div>`;
+    const why = `<p class="sub">${esc(X.why)}</p>`;
+    const failed = gates.length ? `<ul class="xgates">${gates.map(([n, checks]) =>
+        `<li><b>${esc(n)}</b> failed${Object.entries(checks).map(([k, v]) => ` · ${esc(GATE_LABEL[k] || k)} ${esc(gateVal(k, v))}`).join('')}</li>`).join('')}</ul>` : '';
+    if (X.state !== 'results') {
+      const pctDone = Math.round((X.months_done / X.months_needed) * 100);
+      return `<section class="panel xpanel">
+        ${head}${why}${failed}
+        <div class="xprog"><div class="xbar"><span style="width:${pctDone}%"></span></div>
+          <span class="sub">${X.months_done} of ${X.months_needed} decision months have genuine agent output${X.run_date ? ` (last run ${esc(X.run_date)})` : ''}</span></div>
+        <p class="sub">No portfolio results are shown, because the replay has not finished. Nothing here is estimated or filled in: the
+        curve appears only once every month has been produced by the model itself.</p>
+      </section>`;
+    }
+    const m = X.metrics, c = X.coverage;
+    const tile = (v, l) => `<div class="kpi"><div class="v num">${v}</div><div class="l">${esc(l)}</div></div>`;
+    const vs = Object.entries(X.vs || {}).map(([k, v]) => {
+      const nm = k.replace('AP3-AP1', 'vs the Deterministic baseline').replace('AP3-AP2B', 'vs JEV');
+      return `<div class="prow"><span class="nw">${esc(nm)}: <b class="num">${pts(v.cer_difference)}</b></span><span class="sub">95% ${pts(v.ci95[0])} to ${pts(v.ci95[1])}, p = ${v.p.toFixed(2)}</span></div>`;
+    }).join('');
+    return `<section class="panel xpanel">
+      ${head}${why}${failed}
+      <div class="kpis k4">
+        ${tile(pct(m.cer, 2), 'Net CER')}${tile(num(m.sharpe, 2), 'Sharpe ratio')}
+        ${tile(pct(m.drawdown, 1), 'Worst fall')}${tile(pct(m.turnover, 0), 'Turnover a year')}
+      </div>
+      <div class="legend" id="lg-xrag"></div>
+      <div class="chartbox sm"><canvas id="c-xrag" aria-label="Growth of one dollar, exploratory Causal RAG against the Deterministic baseline and JEV"></canvas></div>
+      <h3>Coverage: what the agents actually produced</h3>
+      <div class="kpis k4">
+        ${tile(`${c.months_with_a_hypothesis} / ${c.months_scored}`, 'Scored months with a hypothesis')}
+        ${tile(String(c.agent_failures), 'Months the agent failed')}
+        ${tile(String(c.tests), 'Hypotheses tested')}
+        ${tile(String(c.failed_tests), 'Tests that failed')}
+      </div>
+      <p class="sub">Months where no hypothesis survived keep the system's own failure handling: no view, so the allocator falls back to its
+      starting mix. Those months are counted above and are not removed from the record.</p>
+      ${vs ? `<h3>Against the other approaches</h3><div class="prows">${vs}</div>
+      <p class="sub">The three approaches hold different assets and build portfolios differently, so a difference here cannot be put down to
+      the agents. These comparisons are diagnostics against unvalidated output.</p>` : ''}
+    </section>`;
+  }
+  function drawExploratory() {
+    const X = D.ap3_exploratory;
+    if (!X || X.state !== 'results') return;
+    lineChart('c-xrag', 'lg-xrag', X.months, [
+      { label: 'Causal RAG (exploratory)', data: X.wealth, color: color('rag'), dash: [5, 3] },
+      { label: 'Deterministic (baseline)', data: S('det').wealth, color: color('det') },
+      { label: 'Agentic Workflow (JEV)', data: S('jev').wealth, color: color('jev') }], FMT_WEALTH);
+  }
+
   function viewCausalRag(s) {
     const a = D.ap3, demo = a.demo, g = a.graph;
     const steps = D.validation.gates.filter(x => x.cells.rag.status !== 'na');
@@ -609,6 +668,7 @@
       </section>
       <section class="panel"><h2>How it works</h2>${flowDiagram('rag')}</section>
       ${versionsPanel()}
+      ${exploratoryPanel()}
       <section class="grid2">
         <div class="panel"><div class="phead"><h2>Validation progress</h2><span class="chip plain num">${steps.filter(x => x.cells.rag.status === 'pass').length} of ${steps.length} passed</span></div>
           <ol class="track-steps">${steps.map(x => { const c = x.cells.rag, [cls, ic, l] = GATE[c.status];
@@ -632,6 +692,7 @@
         <li>The graph rebuilds identically from the same data: ${a.graph_rebuild_identical ? 'checked' : 'not yet checked'}.</li></ul></div></details>
     </div>`;
     wireFlow('rag');
+    drawExploratory();
     chart(document.getElementById('c-kg'), { type: 'bar', data: { labels: g.map(x => x.decision_year), datasets: [{ label: 'Papers', data: g.map(x => x.papers), backgroundColor: css('--border-strong'), borderRadius: 4 }] },
       options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => ` ${it.parsed.y.toLocaleString()} papers · ${g[it.dataIndex].claims.toLocaleString()} claims` } } },
         scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => v === 0 ? '0' : (v / 1000) + 'k' }, grid: { color: css('--border') } } } } });

@@ -1,0 +1,122 @@
+{
+ "_comment": "Exploratory (gate-failed) development backtest mode for Agentic Causal RAG. Recorded 2026-10-29 on the project lead's written instruction: run the complete development backtest on the current qwen3:4b model and existing prompts first, and investigate reliability afterwards as a separate experiment.",
+ "version": "1.0",
+ "registered": "2026-10-29",
+ "decision": {
+  "what": "Permit the 95-month development replay and its downstream evaluation to run although pre-registered reliability gates failed.",
+  "by": "project lead, written instruction of 2026-10-29",
+  "purpose": "Establish a reproducible end-to-end baseline of the full pipeline with genuine LLM outputs. It is a diagnostic, not a validation."
+ },
+ "permits": [
+  "the development replay 2015-02..2022-12 and scoring on 2019-03..2022-12 after a gate failure, when explicitly requested",
+  "importing those genuine outputs and carrying them through calibration, allocation and the shared evaluator",
+  "reporting the resulting portfolio metrics, clearly labelled as exploratory and not validated"
+ ],
+ "never_permits": [
+  "changing gate definitions, thresholds, prompts, limits, the rubric or the fixtures",
+  "hiding or softening the failed gates: every output carries them with their real values",
+  "scoring any month of the protected window 2023-01..2026-08, with or without this mode",
+  "use as the confirmatory input: historical_evaluation refuses any Causal RAG input carrying the exploratory banner",
+  "treating engineering-mock output as a result, or filling in months that were never run",
+  "presenting these results as evidence that the agents are reliable or that AI adds investment value"
+ ],
+ "gates": {
+  "unchanged": true,
+  "source": "native_backtest/config/ap3_reliability_gates_v1.json",
+  "evaluated_and_reported_as_before": true,
+  "run_1_outcome": {
+   "G3b": "FAILED: accuracy 0.533 against 0.80 required; 2 opposite-direction errors against at most 1",
+   "G3a": "FAILED: 12 of 12 sample months with no final answer"
+  }
+ },
+ "labelling": {
+  "label": "EXPLORATORY — RELIABILITY GATES FAILED",
+  "status_line": "EXPLORATORY DIAGNOSTIC of a documented model substitution (qwen3:4b): the pre-registered reliability gates G3a and/or G3b did not pass, so these outputs are not validated agent results and are not evidence of investment performance. Development months only; the protected window stays sealed.",
+  "where": "the results bundle, the evaluation output, every decision record written, and the dashboard view"
+ },
+ "baseline_identity": "Approach 3 — Qwen3:4B Original Prompt Baseline",
+ "frozen_for_reproduction": {
+  "model": {
+   "name": "qwen3:4b",
+   "digest_prefix": "359d7dd4bcda",
+   "served": "Ollama on the run machine (localhost only); documented substitution for Llama 3.1 70B"
+  },
+  "prompts_sha256": {
+   "hypothesis_agent.SYSTEM": "46a377311306f34ef74f4342645e4dbbd43382c484b0c8473047fea0505f84fb",
+   "testing_agent.PLAN_SYSTEM": "d2b1a3d7f65e610b7564b1671be29899986aac25412320750c021c3465a951bd",
+   "assessor.SYSTEM (causal-rag-mvp, unchanged)": "b5f00bc9d13e8414880ed6412ec9cd1939c6f747c3e7b7635ad41ccf7b533089"
+  },
+  "prompts_unchanged_since_run_1": true,
+  "inference": {
+   "temperature_hypothesis": 0.0,
+   "seed_hypothesis": 0,
+   "temperature_testing": 0.3,
+   "seeds_testing": [
+    1,
+    2,
+    3
+   ],
+   "runs_testing": 3,
+   "thinking_mode": false,
+   "structured_output": "per-step JSON schema",
+   "num_ctx": 32768,
+   "max_tool_calls": 15,
+   "max_turns": 16
+  },
+  "limits_sha256": "114d9943ff75ae5b5667ec04cc275e0a674c34becff7d58d47f8c5b95c06dcbe",
+  "agent_protocol": {
+   "version": "1.1",
+   "fingerprint": "983e4b398c4a09ac",
+   "note": "1.1 fixes harness defects found in run 1 (the final-answer turn, the agent's own replies returned as assistant turns, whole-word graph search, rival-id validation). The agent prompts, schemas, limits, rubric, fixtures and gate thresholds are unchanged."
+  },
+  "evidence": {
+   "variant": "reduced_evidence",
+   "variants_sha256": "ec6010cd97a7ea0f6d4f3b63d7ce1b90c64b497e72df735c2ae3555b660a03fd",
+   "point_in_time": "evidence and mediators are filtered to the decision time for every month"
+  },
+  "graph": {
+   "vintages": [
+    "library_v1.0_vintage2014.json",
+    "library_v1.0_vintage2015.json",
+    "library_v1.0_vintage2016.json",
+    "library_v1.0_vintage2017.json",
+    "library_v1.0_vintage2018.json",
+    "library_v1.0_vintage2019.json",
+    "library_v1.0_vintage2020.json",
+    "library_v1.0_vintage2021.json",
+    "library_v1.0_vintage2022.json",
+    "library_v1.0_vintage2023.json",
+    "library_v1.0_vintage2024.json",
+    "library_v1.0_vintage2025.json"
+   ],
+   "libraries_sha256": {
+    "library_v1.0_vintage2014.json": "21d50a220f6ca8e9",
+    "library_v1.0_vintage2015.json": "0daaa219e8a0d45d",
+    "library_v1.0_vintage2016.json": "8832bcbcfd109c6b",
+    "library_v1.0_vintage2017.json": "6337ef962081d886",
+    "library_v1.0_vintage2018.json": "0c7f412a5232e7b7",
+    "library_v1.0_vintage2019.json": "43a4746a1d714088",
+    "library_v1.0_vintage2020.json": "8d3dfdd6e16c3a53",
+    "library_v1.0_vintage2021.json": "d9706fb4446504e9",
+    "library_v1.0_vintage2022.json": "bce43f13c6280ba4",
+    "library_v1.0_vintage2023.json": "5e788240e7131513",
+    "library_v1.0_vintage2024.json": "2bd30fee7ff44109",
+    "library_v1.0_vintage2025.json": "19a6b3f3a8ca222c"
+   }
+  },
+  "windows": {
+   "agent_months": [
+    "2015-02",
+    "2022-12"
+   ],
+   "scored_months": [
+    "2019-03",
+    "2022-12"
+   ],
+   "protected": "2023-01..2026-08, sealed"
+  },
+  "code_revision": "b8f42a3b24d0f6ed870f5918744b8cb230f9ce2a",
+  "cost_usd": 0.0
+ },
+ "follow_up": "Reliability improvement is a separate, later experiment with its own version and its own fixtures; the baseline recorded here is not modified after its results are seen (native_backtest/config/ap3_reliability_followup_preregistration_v1.json)."
+}

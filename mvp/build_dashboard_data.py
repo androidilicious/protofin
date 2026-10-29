@@ -216,6 +216,62 @@ def within_approach_results() -> dict:
     return out
 
 
+
+
+def ap3_exploratory_block(cfg: dict, mk, dev, cost: float) -> dict | None:
+    """The exploratory (gate-failed) Causal RAG baseline: its real state, and its results once they exist.
+
+    Nothing here is validated. Until the replay finishes the block reports what is still missing; it never shows a
+    curve that was not computed from genuine agent outputs."""
+    nb = ROOT / "native_backtest"
+    mode = json.loads((nb / "config" / "ap3_exploratory_mode_v1.json").read_text())
+    bundle = nb / "out" / "ap3" / "qwen3_runs" / "summary.json"
+    ev = nb / "out" / "ap3" / "qwen3_runs" / "evaluation" / "evaluation.json"
+    out = {"label": mode["labelling"]["label"], "identity": mode["baseline_identity"],
+           "why": ("The agents' own reliability checks did not pass, so these outputs are a diagnostic of the pipeline, "
+                   "not evidence that the agents are reliable or that AI adds investment value."),
+           "model": "Qwen3 4B, free local GPU (a documented stand-in for the planned 70B model)",
+           "state": "not_run", "months_done": 0, "months_needed": 95, "gates_failed": {}, "coverage": None, "results": None}
+    if bundle.exists():
+        b = json.loads(bundle.read_text())
+        out["months_done"] = b.get("n_months", 0)
+        out["run_date"] = (b.get("written_utc") or "")[:10]
+        g = b.get("gates") or {}
+        for name, v in g.items():
+            if not v.get("pass"):
+                out["gates_failed"][name] = {k: kv.get("value") for k, kv in (v.get("checks") or {}).items() if not kv.get("pass")}
+        out["state"] = "partial" if out["months_done"] < 95 else "complete_agents"
+    if not ev.exists():
+        return out
+    e = json.loads(ev.read_text())
+    if not e.get("exploratory"):                      # only a labelled exploratory evaluation is shown here
+        return out
+    sim = pd.read_csv(nb / "out" / "ap3" / "qwen3_runs" / "evaluation" / "AP3_common_matched_dev.csv", dtype={"decision_month": str})
+    months = sim["decision_month"].tolist()
+    assert months == D_MONTHS[:len(months)] if (D_MONTHS := [str(m) for m in dev]) else True
+    m = e["metrics"]["AP3"]
+    cov = e.get("coverage") or {}
+    weights = {a: [_r(v, 4) for v in sim[f"w_{a}"]] for a in ("SPY", "IEF", "LQD") if f"w_{a}" in sim.columns}
+    out.update({
+        "state": "results",
+        "months": months,
+        "wealth": wealth(sim),
+        "monthly_net_return": [_r(v) for v in sim["net_total_return"]],
+        "weights": weights,
+        "metrics": {"cer": _r(m["cer_delta_2_5"]), "sharpe": _r(m["net_sharpe"], 4), "volatility": _r(m["annualized_volatility"]),
+                    "drawdown": _r(m["max_drawdown"]), "turnover": _r(m["annualized_one_way_turnover"], 4),
+                    "total_cost": _r(m["total_cost"], 6), "excess": _r(m["net_annualized_excess_return"]),
+                    "cumulative": _r(m.get("cumulative_return"))},
+        "coverage": {"months_with_a_hypothesis": cov.get("scored_months_with_at_least_one_hypothesis"),
+                     "months_scored": cov.get("scored_months_present"), "agent_failures": cov.get("n_months_with_agent_failure"),
+                     "tests": cov.get("tests"), "failed_tests": cov.get("failed_tests"), "status_counts": cov.get("status_counts") or {}},
+        "vs": {k: {"cer_difference": _r(v["cer_difference"]), "ci95": [_r(x) for x in v["ci95"]],
+                   "p": _r(v["p_two_sided_bootstrap"], 4)} for k, v in (e.get("primary_contrasts_development") or {}).items()},
+    })
+    return out
+
+
+
 def experiments_block(cfg: dict, within: list) -> dict:
     results = within_approach_results()
     groups = []
@@ -281,9 +337,11 @@ def ap3_versions() -> dict:
     eng = json.loads(eng.read_text()) if eng.exists() else None
     chk = nb / "out" / "ap3" / "corpus_checks_v1.json"
     chk = json.loads(chk.read_text())["summary"] if chk.exists() else None
+    # Genuine AP3 results reach the dashboard only through the exploratory block below, which labels them; they are
+    # never shown as a validated approach result.
     real = [p for p in (nb / "out" / "ap3" / "dev_replay").glob("*/*/summary.json")] if (nb / "out" / "ap3" / "dev_replay").exists() else []
-    if real:
-        raise SystemExit("real AP3 development results exist: add them to the dashboard deliberately before rebuilding")
+    if real and not (nb / "out" / "ap3" / "qwen3_runs" / "evaluation" / "evaluation.json").exists():
+        raise SystemExit("real AP3 development results exist without an exploratory evaluation: add them deliberately before rebuilding")
     eng_ok = bool(eng and eng["months"] == 95 and not eng["testing_agent_reliability"]["point_in_time_violations"])
     docs = chk["documents"] if chk else 0
     bls = len(chk["families_missing"]) if chk else 3
@@ -646,6 +704,7 @@ def main() -> int:
                    "Anything about Causal RAG yet. Its results are unavailable until a real model run passes its reliability checks."]}
     out["audit"] = audit_block(sims)
     out["signal_value"] = signal_value_block(sims, neutral_sims)
+    out["ap3_exploratory"] = ap3_exploratory_block(cfg, mk, dev, cost)
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)
     out["flows"] = FLOWS

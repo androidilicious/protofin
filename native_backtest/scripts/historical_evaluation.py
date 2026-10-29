@@ -62,6 +62,11 @@ def missing_prerequisites(cfg: dict, go_record: Path | None) -> List[str]:
             miss.append(f"{s}: no decision records for {len(lacking)} protected months ({lacking[0]}..{lacking[-1]})")
         if any(r.generation.get("mode") == "engineering_mock" for r in recs):
             miss.append(f"{s}: engineering-mock records present")
+        # an exploratory (gate-failed) baseline is a diagnostic and can never become the confirmatory input,
+        # whatever the GO record says
+        if any(r.generation.get("exploratory") for r in recs):
+            miss.append(f"{s}: records come from the EXPLORATORY gate-failed mode; the confirmatory test needs "
+                        "decisions from a run that passed the reliability gates")
     if not PRIMARY_VERSION.exists():
         miss.append(f"approved Causal RAG primary version ({PRIMARY_VERSION.relative_to(ROOT)})")
     if go_record is None or not Path(go_record).exists():

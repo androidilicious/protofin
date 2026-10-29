@@ -1,0 +1,35 @@
+{
+ "_comment": "Pre-registration of the Causal RAG reliability investigation that FOLLOWS the exploratory baseline. Written 2026-10-29, before the exploratory replay produced any result, so its findings cannot shape this plan. The baseline is never modified after its results are seen.",
+ "version": "1.0",
+ "registered": "2026-10-29",
+ "order": {
+  "first": "Approach 3 — Qwen3:4B Original Prompt Baseline: the complete development backtest on the current model and prompts (config/ap3_exploratory_mode_v1.json). Frozen once produced.",
+  "then": "This investigation, as a separately versioned experiment.",
+  "rule": "The baseline's outputs, prompts, limits, rubric and fixtures are not edited afterwards. An improved agent is a new version with its own records, never an edit of the baseline."
+ },
+ "what_is_investigated": [
+  "Hypothesis Agent prompt quality: whether the instructions produce usable hypotheses from the graph and the packet",
+  "Testing Agent prompt design: whether the plan step yields queries that retrieve the evidence that exists",
+  "Supported versus Contradicted classification errors, from the per-fixture diagnostics the run now pushes",
+  "Evidence retrieval quality: whether BM25 over the point-in-time pool returns the excerpts the fixture contains",
+  "Prompt and rubric consistency: whether the rubric's thresholds match what the prompts ask the model to produce",
+  "Schema-valid response failures: invalid outputs, truncations and context overflows, from the call log",
+  "Structured prompting and stronger free models (for example qwen3:8b or 14b on the same free GPU)"
+ ],
+ "evaluation_discipline": {
+  "no_tuning_on_the_gate_fixtures": "The 30 pre-registered G3b fixtures are a held-out gate. Prompt work uses SEPARATE development fixtures, written for this purpose and kept apart from the gate set. The gate set is run at most once per candidate version, as the final check, never iteratively.",
+  "development_fixtures": "A new file, native_backtest/ap3/fixtures/testing_agent_devfixtures_v2.json, written before any tuning and never used as a gate.",
+  "holdout": "Candidate versions are compared on the development fixtures; the original G3a and G3b gates are the independent holdout.",
+  "versioning": "Each candidate is a new agent protocol version with its own fingerprint; records from different versions are never mixed.",
+  "promotion": "An improved version enters the primary study only after passing the ORIGINAL G3a and G3b gates at their original thresholds, unchanged."
+ },
+ "unchanged_by_this_plan": [
+  "gate definitions and thresholds",
+  "the 30 G3b fixtures",
+  "the assessor prompt, schema and quote validation",
+  "the rubric",
+  "the evaluation windows",
+  "the protected window, which stays sealed"
+ ],
+ "budget": "$0: free local inference on a free GPU only."
+}

@@ -18,7 +18,13 @@ import the results without anyone's computer. Full records stay in this machine'
 Costs nothing: the provider refuses any non-local address. The protected window is refused by the evaluator lock.
 
 Exit code: 0 when every requested stage ran and every gate checked passed; 3 when a pre-registered gate failed (the
-results are still bundled and pushed); any other non-zero value is an error.
+results are still bundled and pushed); any other non-zero value is an error. With --exploratory the replay runs
+despite a failed gate and the exit code stays 3, because the gate did fail.
+
+--exploratory (or AP3_EXPLORATORY=1) is the explicit request described in config/ap3_exploratory_mode_v1.json. It
+changes nothing about the gates: they are evaluated against the same thresholds, their real values are reported,
+and every output carries the failed gates. It only lets the development replay proceed so the full pipeline can be
+studied end to end. The protected window is refused in this mode exactly as in every other.
 
 Results made under a different agent protocol (native_backtest/ap3/protocol.py fingerprint) are never reused. A
 bundle or results branch from an earlier protocol is set aside, and the run starts again from G3b. The earlier
@@ -127,7 +133,7 @@ def g3a(recs: dict) -> dict:
             "reliability": rep, "call_validity": val}
 
 
-def bundle(recs: dict, gates: dict, env: dict, downstream: dict | None, g3b_rows: list | None = None) -> dict:
+def bundle(recs: dict, gates: dict, env: dict, downstream: dict | None, g3b_rows: list | None = None, exploratory: bool = False) -> dict:
     """Redacted, committable results: per-month evidence summaries (claims-data text replaced by identifiers),
     status features, record hashes, gates, reliability and provenance."""
     from native_backtest.ap3 import reliability
@@ -156,6 +162,11 @@ def bundle(recs: dict, gates: dict, env: dict, downstream: dict | None, g3b_rows
                "tokens_this_session": {"months": tokens(), "g3b": tokens(_g3b_calls())},
                "environment": env, "cost_usd": 0.0, "downstream": downstream,
                "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    if exploratory:
+        from native_backtest.ap3 import exploratory as X
+        summary = X.stamp(summary, gates, months=done, protected_start="2023-01")
+        summary["baseline_identity"] = X.load_mode()["baseline_identity"]
+        summary["frozen_for_reproduction"] = X.freeze()
     (BUNDLE / "summary.json").write_text(json.dumps(summary, indent=1, default=str) + "\n")
     return summary
 
@@ -266,11 +277,15 @@ def bundle_months() -> dict:
 
 
 def main(argv=None) -> int:
+    from native_backtest.ap3 import exploratory as X
+    globals()["X"] = X
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", choices=["check", "g3b", "sample", "replay", "all"], default="all")
     ap.add_argument("--hours", type=float, default=11.0, help="time budget for this session (Kaggle sessions end at 12 h)")
     ap.add_argument("--workers", type=int, default=int(os.environ.get("AP3_MONTH_WORKERS", "4")))
     ap.add_argument("--push", action="store_true")
+    ap.add_argument("--exploratory", action="store_true",
+                    help="run the development replay even if a reliability gate failed (diagnostic; gates and thresholds unchanged)")
     a = ap.parse_args(argv)
     t0 = time.time()
     deadline = t0 + a.hours * 3600
@@ -305,15 +320,22 @@ def main(argv=None) -> int:
         gates["G3a"] = {"pass": False, "note": f"sample incomplete in this session ({len(recs)} of 12 months); rerun to finish"}
     print(json.dumps({"G3a": gates["G3a"].get("checks"), "pass": gates["G3a"]["pass"]}, indent=1, default=str))
     all_recs = {**recs}
-    summary = bundle({**all_recs}, gates, env, None, g3b_rows)
+    sample_explor = X.enabled(a.exploratory) and not (gates.get("G3b", {}).get("pass") and gates["G3a"].get("pass"))
+    summary = bundle({**all_recs}, gates, env, None, g3b_rows, exploratory=sample_explor)
     log["push_sample"] = push(f"AP3 qwen3:4b: sample months ({len(recs)} new), gates G3b={gates.get('G3b', {}).get('pass')} G3a={gates['G3a']['pass']}") if a.push else "not requested"
     if a.stage == "sample":
         print(json.dumps(log)); return 0 if gates["G3a"]["pass"] else GATE_FAILED
     gates_pass = gates.get("G3b", {}).get("pass", False) and gates["G3a"]["pass"]
-    if not gates_pass:
+    explor = X.enabled(a.exploratory) and not gates_pass
+    if not gates_pass and not explor:
         log["replay"] = "not started: a pre-registered reliability gate failed (thresholds are not relaxed)"
         log["exit_code"] = GATE_FAILED
         print(json.dumps(log, indent=1)); return GATE_FAILED
+    if explor:     # explicit diagnostic request: the gates still failed and every output says so
+        log["replay"] = ("started under the EXPLORATORY mode: a pre-registered gate failed and the thresholds are "
+                         "unchanged; these are diagnostics, not validated results")
+        log["exploratory"] = {k: v["failed_checks"] for k, v in X.failed_gates(gates).items()}
+    X.assert_development_only(months(*REPLAY), protected_start="2023-01")
     todo = [m for m in months(*REPLAY) if m not in prior]
     batch = 12
     for i in range(0, len(todo), batch):                   # checkpoint and push every 12 months
@@ -321,18 +343,18 @@ def main(argv=None) -> int:
             break
         new = run_months(todo[i:i + batch], deadline, a.workers)
         all_recs.update(new)
-        bundle(all_recs, gates, env, None, g3b_rows)
+        bundle(all_recs, gates, env, None, g3b_rows, exploratory=explor)
         if a.push:
             log[f"push_{todo[i]}"] = push(f"AP3 qwen3:4b: development months {todo[i]}..{todo[min(i + batch, len(todo)) - 1]} ({len(new)} done)")
     done = set(all_recs) | set(prior)
     # Calibration, G4c checks and allocation are not run here: they run at import (ap3_free_import) in the pinned
     # environment, from the committed status features, so their numbers do not depend on this machine's libraries.
-    bundle(all_recs, gates, env, None, g3b_rows)
+    bundle(all_recs, gates, env, None, g3b_rows, exploratory=explor)
     if a.push:
         log["push_final"] = push(f"AP3 qwen3:4b: {len(done)} of 95 development months")
     log.update({"months_done": len(done), "hours_used": round((time.time() - t0) / 3600, 2)})
     print(json.dumps(log, indent=1, default=str))
-    return 0
+    return GATE_FAILED if explor else 0      # a gate did fail, and the exit code keeps saying so
 
 
 if __name__ == "__main__":
