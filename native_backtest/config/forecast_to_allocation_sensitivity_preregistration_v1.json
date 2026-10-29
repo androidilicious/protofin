@@ -1,0 +1,116 @@
+{
+  "_comment": "Pre-registration of the Forecast-to-Allocation Sensitivity Experiment. Written and committed before any scenario was run. Scenario definitions are fixed by this file and are not revised after results are seen.",
+  "version": "1.0",
+  "created": "2026-10-29",
+  "status": "PRE-REGISTERED",
+  "research_question": "How much does a change in each approach's forecast or investment view change its final portfolio allocation, returns, risk, turnover and economic performance, and where in each native pipeline is signal information attenuated?",
+  "design_note": "Signal transmission and signal predictive quality are separate questions. This experiment measures transmission. A strong response to an uninformative forecast is not value, and a weak response to an informative forecast is not absence of value.",
+  "window": {
+    "evaluation": {"start": "2019-03", "end": "2022-12", "n_months": 46, "name": "development"},
+    "training_burn_in": {"start": "2015-02", "end": "2019-02", "note": "unchanged; no scenario refits anything"},
+    "protected": {"start": "2023-01", "end": "2026-08", "note": "never opened, never scored, never used to choose a multiplier"},
+    "walk_forward": "unchanged native timing: decide at the decision close, trade at the entry close, hold to the exit close"
+  },
+  "scenarios": {
+    "lambda_values": [0.0, 0.5, 1.0, 2.0],
+    "labels": {"0.0": "Neutral", "0.5": "Weaker", "1.0": "Original", "2.0": "Stronger"},
+    "transformation": "Adjusted view = Prior view + lambda x (Original view - Prior view), applied per decision month at the single point where a numerical view enters the native allocator",
+    "lambda_2_note": "2x is a counterfactual diagnostic stress test, not a deployment recommendation",
+    "what_is_never_changed": ["macroeconomic observations", "agent responses and saved answers", "evidence", "prediction timestamps", "confidence levels", "covariance estimates", "position limits", "transaction costs", "accounting conventions", "the native prior or equilibrium portfolio"]
+  },
+  "approaches": {
+    "AP1": {
+      "name": "Deterministic Quantitative Model (Stage 2 System A)",
+      "role": "primary",
+      "universe": ["SPY", "IEF", "LQD"],
+      "native_allocator": "Black-Litterman with a bounded fully-invested mean-variance optimum",
+      "entry_point": "stage2/scoring/stage2_portfolio.py::bl_posterior(sigma, q, omega_diag), argument q",
+      "original_view": "stage2_predictions.csv prediction_excess_return, system A, per asset per decision month (archived run stage2/results/dev_rerun_v4_portfolio_2026-10-27)",
+      "prior_view": "pi_t = DELTA * Sigma_t @ PRIOR_WEIGHTS, computed inside bl_posterior from the native 45/35/20 equilibrium; archived per month as pi_* in stage2_portfolio_bl_diagnostics.csv",
+      "transformation": "q_t(lambda) = pi_t + lambda * (q_t - pi_t), per asset",
+      "intermediate_stage_exposed": "mu_BL(lambda) and the unconstrained bounded optimum; the optimizer's bound-enumeration states identify which bounds bind",
+      "constraints": {"lower": {"SPY": 0.20, "IEF": 0.15, "LQD": 0.10}, "upper": {"SPY": 0.70, "IEF": 0.60, "LQD": 0.40}, "fully_invested": true},
+      "fixed_constants": {"TAU": 0.05, "DELTA": 2.5, "COV_WINDOW": 36, "covariance": "Ledoit-Wolf on labels through t-2", "omega": "frozen diagonal from System A development OOS errors"},
+      "lambda_0_prediction": "mu_BL = pi_t exactly, so lambda=0 removes all incremental forecast information while preserving the native prior and the native allocation process. The resulting weights are NOT expected to equal the static 45/35/20 portfolio, because the optimizer uses Sigma_post = Sigma + M while pi was defined with Sigma. This difference is pre-declared as legitimate and will be measured, not corrected."
+    },
+    "AP2B": {
+      "name": "Agentic Workflow - JEV",
+      "role": "primary",
+      "universe": ["SPY", "TLT"],
+      "native_allocator": "capped tilt on the stock-minus-bond edge (NOT Black-Litterman on the Deterministic model's path)",
+      "entry_point": "native_backtest/vendor/protofin_feature-jev_7a70331/site/js/livebacktest.js: edge = baseEdge + confidence * offset",
+      "original_view": "the saved JEV answer's five-way tilt offset in points (TILT_OFFSET strong_equities 3, lean_equities 1.5, neutral 0, lean_bonds -1.5, strong_bonds -3) weighted by the saved confidence",
+      "prior_view": "baseEdge = (pi_0 - pi_1) * 100 from the native 60/40 equilibrium",
+      "transformation": "offset_t(lambda) = lambda * offset_t, which is exactly edge_t(lambda) = baseEdge_t + lambda * confidence_t * offset_t",
+      "intermediate_stage_exposed": "xRaw, the unclipped SPY weight, is recorded by the native engine before the clip",
+      "constraints": {"MIN_SPY": 0.40, "MAX_SPY": 0.80, "no_trade_band": "not active in this backtest: the engine calls allocate with previousSpy = null"},
+      "fixed_constants": {"DELTA": 2.5, "EQUILIBRIUM_SPY": 0.60},
+      "lambda_0_prediction": "edge = baseEdge gives xRaw exactly 0.60, so JEV's lambda=0 coincides exactly with its native 60/40 no-signal control. This is pre-declared and will be verified numerically."
+    },
+    "AP2A": {
+      "name": "Agentic Workflow - Agent Committee (saved gpt-4o views)",
+      "role": "secondary, clearly identified within-approach variant",
+      "universe": ["SPY", "TLT"],
+      "entry_point": "native_backtest/vendor/protofin_approach-2_ce063b8/site/js/allocation.js::allocate -> blPosterior(pi, sigma, q, confidence), where q = (viewsTotalPct - rf) / 100",
+      "original_view": "saved gpt-4o committee views spy_q and tlt_q in total-return percent, with the saved confidence level",
+      "prior_view": "pi = equilibriumPrior(sigma) from the native 60/40 equilibrium",
+      "transformation": "q_t(lambda) = pi_t + lambda * (q_t - pi_t), passed to the native allocator as viewsTotalPct(lambda) = 100 * q_t(lambda) + rf_t so that no native code is modified",
+      "intermediate_stage_exposed": "the allocator returns pi, er, unconstrained and target_spy",
+      "constraints": {"MIN_SPY": 0.40, "MAX_SPY": 0.80},
+      "confidence_treatment": "OMEGA_SCALE {High 0.5, Medium 1.0, Low 2.0} is a native uncertainty setting and is NOT scaled"
+    },
+    "AP3": {
+      "name": "Agentic Causal RAG",
+      "role": "primary",
+      "status": "PENDING GENUINE AGENT OUTPUTS",
+      "reason": "Genuine qwen3:4b outputs cover 12 of the 95 required months (2015-02..2016-01) and both pre-registered reliability gates failed (G3a schema-valid call rate 0.9771 < 0.98; G3b accuracy 0.5667 < 0.80 with 2 opposite-direction errors > 1). No calibrated numerical view series exists for the 46 development months, so no sensitivity scenario can be run.",
+      "planned_entry_point": "the calibrated numerical view produced after the Testing Agent's categorical assessments are encoded and calibrated, never the categorical labels themselves",
+      "explicit_prohibition": "Supported, Contradicted and Insufficient are categories, not magnitudes, and are never multiplied. Scaling applies only downstream of calibration.",
+      "designation_if_run_on_current_outputs": "EXPLORATORY - RELIABILITY GATES FAILED",
+      "machinery": "the same scenario, tracing and statistics machinery is prepared now and will be applied unchanged when genuine outputs for the development window exist"
+    }
+  },
+  "no_signal_controls": {
+    "definition": "Each approach's own native no-signal control, as frozen in framework_config_v1.json systems.<id>.native_neutral_weights and used by the Signal Value-Added study",
+    "AP1": {"weights": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}, "also_compared_to": "Stage 2's BENCH_HISTMEAN_ALLOCATOR, the same allocator fed historical-mean views"},
+    "AP2B": {"weights": {"SPY": 0.60, "TLT": 0.40}},
+    "AP2A": {"weights": {"SPY": 0.60, "TLT": 0.40}},
+    "policy": "lambda=0 and the native no-signal control are distinct constructs. They are compared, and any difference is documented and explained rather than assumed away."
+  },
+  "accounting": {
+    "evaluator": "native_backtest/framework/accounting.simulate_records, unchanged and shared by every approach and scenario",
+    "cost_per_dollar_traded": 0.0005,
+    "cost_basis": "0.0005 * sum |w - p| against the drifted pre-trade weights p",
+    "first_month": "starts from cash",
+    "drift": "p_next = w (1+r) / sum(w (1+r))"
+  },
+  "metrics": {
+    "primary": "net certainty-equivalent return (net CER), 12 * (mean(excess) - 1.25 * var(excess, ddof=1)), and its difference versus the same approach at lambda = 1",
+    "secondary": ["net annualized excess return", "annualized volatility (ddof=1)", "net Sharpe", "maximum drawdown", "cumulative net return", "annualized one-way turnover", "total and annualized transaction cost", "mean absolute active weight versus the native neutral portfolio", "mean and maximum absolute weight deviation from lambda=1", "share of months with a binding constraint, per bound", "correlation of monthly net returns between scenarios", "active return versus the approach's own native no-signal control"],
+    "transmission": ["view change versus lambda=1, in basis points of expected excess return (AP1, AP2A) or points of edge (AP2B)", "intermediate or unconstrained weight change", "final weight change after constraints", "constraint attenuation = 1 - (final weight change / intermediate weight change), reported only where the denominator clears the floor", "local finite-difference sensitivity around lambda=1, estimated as the symmetric slope between the 0.5x and 2x scenarios in weight per unit of view"],
+    "units": "weights in absolute portfolio weight and percentage points; views in basis points of monthly expected excess return or in edge points; CER in annualized percentage points"
+  },
+  "statistics": {
+    "method": "paired circular block bootstrap on the monthly net excess return series",
+    "block_months": 6,
+    "reps": 5000,
+    "seed": 20261027,
+    "cer_delta": 2.5,
+    "pairing": "every scenario and control is resampled on the same block draws, so scenario differences are paired",
+    "reported": ["point estimate", "90% and 95% percentile intervals", "two-sided bootstrap p-value"],
+    "limitations_declared_in_advance": ["46 months is a small sample and the intervals are wide", "four scenarios per approach are examined, so no single interval is a confirmatory test", "no multiplicity correction is applied and none of these comparisons is treated as confirmatory", "a bootstrap p-value is not a claim of significance and will not be described as one"]
+  },
+  "policies": {
+    "missing_data": "a decision month without a valid native view is excluded, counted and reported; no view, weight or return is ever imputed",
+    "constraint_binding": "recorded per month, per asset and per bound, from the native allocator's own output",
+    "tiny_denominators": "a transmission ratio is reported only where the absolute intermediate weight change is at least 1e-6; months below the floor are counted and flagged, never divided",
+    "failure_handling": "a scenario that cannot be computed for an approach is reported as not computed, with the reason; no substitution from another approach, no synthetic view, no fabricated result",
+    "reproduction_tolerance": {"lambda_1_vs_archived": 1e-10, "note": "lambda=1 must reproduce the archived allocation and net return series to this tolerance; a larger difference stops the experiment until it is explained"},
+    "frozen_artifacts": "no frozen configuration, decision record, archived run or previously reported result is modified; all scenario output is written to a new folder"
+  },
+  "outputs": {
+    "results": "native_backtest/out/sensitivity/",
+    "report": "native_backtest/docs/FORECAST_TO_ALLOCATION_SENSITIVITY_2026-10-29.md",
+    "independent_validation": "a framework-free rebuild of the headline numbers that imports neither the scenario script nor the evaluation framework"
+  }
+}
