@@ -150,6 +150,39 @@ def _same_year_december_minutes(fd: list, by_url: dict, y: int):
     return None
 
 
+def reconciliation() -> dict:
+    """Expected vs downloaded documents per family, reconciled against an independent record of release dates
+    (ALFRED vintage dates of each release's headline series; FOMC families against the Fed's own calendar pages).
+    ALFRED also records revision-only vintages (annual revisions), so its count is an upper bound on releases."""
+    fm = json.loads((ROOT / "native_backtest/data/ap3_corpus/fetch_manifest_v1.json").read_text())
+    man = json.loads(CORPUS_MANIFEST.read_text())
+    alfred = json.loads(ALFRED.read_text())["families"]
+    w0, w1 = corpus.load_sources()["window"]
+    out, tot = {}, collections.Counter()
+    for fam in FAMILIES:
+        x = fm["families"].get(fam, {})
+        docs = [d for d in man["documents"] if d["family"] == fam]
+        dates = {d["available_at_et"][:10] for d in docs}
+        row = {"listed_on_official_index": None if x.get("index_unreachable") else x.get("fetched", 0) + len(x.get("failed_documents", [])),
+               "downloaded": x.get("fetched", 0), "built_and_dated": len(docs), "failed_downloads": len(x.get("failed_documents", [])),
+               "index_unreachable": x.get("index_unreachable", [])}
+        if fam in alfred:
+            v = sorted(d for d in alfred[fam]["vintage_dates"] if w0 <= d <= w1)
+            row.update({"alfred_series": alfred[fam]["series"], "alfred_dates_in_window": len(v),
+                        "alfred_dates_without_document": sorted(set(v) - dates),
+                        "documents_not_on_an_alfred_date": sorted(dates - set(v))})
+        else:
+            row["independent_record"] = "Federal Reserve calendar pages (statement dates from the vendored FOMC index; minutes release dates)"
+        row["missing"] = (row.get("alfred_dates_without_document") if not docs else
+                          [] if row["listed_on_official_index"] == row["built_and_dated"] else ["see failed downloads"])
+        out[fam] = row
+        tot["downloaded"] += row["downloaded"]
+        tot["expected_upper"] += row["built_and_dated"] if docs else row.get("alfred_dates_in_window", 0)
+    return {"families": out, "totals": {"downloaded_and_validated": tot["downloaded"], "expected_upper_bound": tot["expected_upper"]},
+            "note": "For downloaded families the official index is the expected list; ALFRED dates without a document there are revision-only "
+                    "vintages (annual revisions), not missing releases. For unreachable families the ALFRED dates are the missing list (upper bound)."}
+
+
 def checks(imported: dict) -> dict:
     src = corpus.load_sources()
     man = json.loads(CORPUS_MANIFEST.read_text())
@@ -210,6 +243,8 @@ def checks(imported: dict) -> dict:
         "index_pages_unreachable": {f: x["index_unreachable"] for f, x in imported.get("families", {}).items() if x.get("index_unreachable")},
         "failed_documents": {f: len(x["failed_documents"]) for f, x in imported.get("families", {}).items() if x.get("failed_documents")}}
     s = res["summary"]
+    res["reconciliation"] = reconciliation()
+    s["reconciliation_totals"] = res["reconciliation"]["totals"]
     s["pass"] = bool(not s["build_errors"] and not unexplained and not s["date_mismatches"] and not s["alfred_mismatches"] and s["point_in_time_pass"])
     CHECKS.write_text(json.dumps(res, indent=1) + "\n")
     return res
@@ -220,7 +255,15 @@ def main() -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--zips", type=Path, help="folder of browser-captured archives")
     g.add_argument("--from-fetch-log", action="store_true", help="use the direct fetcher's raw store and log")
+    g.add_argument("--reconcile-only", action="store_true", help="refresh the reconciliation in the existing checks file")
     a = ap.parse_args()
+    if a.reconcile_only:
+        res = json.loads(CHECKS.read_text())
+        res["reconciliation"] = reconciliation()
+        res["summary"]["reconciliation_totals"] = res["reconciliation"]["totals"]
+        CHECKS.write_text(json.dumps(res, indent=1) + "\n")
+        print(json.dumps(res["reconciliation"]["totals"], indent=1))
+        return 0
     if a.from_fetch_log:
         imported = from_fetch_log()
         print(json.dumps({f: {"fetched": x["fetched"], "failed": len(x["failed_documents"]), "index_unreachable": x["index_unreachable"]}

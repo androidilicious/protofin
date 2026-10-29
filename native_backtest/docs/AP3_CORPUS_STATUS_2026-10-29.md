@@ -37,6 +37,23 @@ Records:
 - `out/ap3/corpus_manifest_v1.json`: per document, `available_at` and its source, plus the text hash.
 - `out/ap3/corpus_checks_v1.json`: all checks.
 
+## Reconciliation: expected vs downloaded
+
+The expected counts are checked against an independent record of release dates: the ALFRED vintage dates of each release's headline series, or the Fed's own calendar pages for the FOMC documents. The machine-readable version is the `reconciliation` block of `out/ap3/corpus_checks_v1.json`.
+
+| Family | On official index | Downloaded and dated | ALFRED release dates in window | Missing |
+|---|---|---|---|---|
+| FOMC statements | 99 | 99 | (calendar) | 0 |
+| FOMC minutes | 94 | 94 | (calendar) | 0 |
+| G.17 industrial production | 140 | 140 | 150 (INDPRO) | 0; the 10 extra ALFRED dates are annual-revision vintages |
+| Census advance retail sales | 141 | 141 | 148 (RSAFS) | 0; the 7 extra dates are annual-revision vintages (late April) |
+| BLS Employment Situation | unreachable | 0 | 141 (PAYEMS) | ≤ 141 |
+| BLS CPI | unreachable | 0 | 148 (CPIAUCSL) | ≤ 148 |
+| BLS PPI | unreachable | 0 | 146 (PPIFIS) | ≤ 146 |
+| **Total** | | **474** | | **≤ 435** (all BLS); expected corpus ≤ 909 documents |
+
+Every downloaded document's publication date is an ALFRED release date (0 exceptions). The BLS rows use ALFRED as an upper bound, because it also records revision-only vintages; there is about one release per month. The exact missing BLS dates are listed in the checks file. An earlier estimate of 855 documents is superseded by this count.
+
 ## Storage (outside the repository history)
 
 - The raw documents are packed into four deterministic ZIP archives (about 94 MB), listed with their SHA-256 in `data/ap3_corpus/archive_manifest_v1.json`. The round trip was verified: 474/474 documents identical.
