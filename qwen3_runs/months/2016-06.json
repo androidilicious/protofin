@@ -1,0 +1,3935 @@
+{
+ "month": "2016-06",
+ "decision_time": "2016-06-30T20:00:00-04:00",
+ "graph_vintage": 2015,
+ "event": [
+  {
+   "description": "CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.161,
+   "trigger": "CPI"
+  },
+  {
+   "description": "ISM manufacturing survey",
+   "direction": "above consensus",
+   "surprise_z": 1.392,
+   "trigger": "ISM_MANUFACTURING"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "below consensus",
+   "surprise_z": -2.536,
+   "trigger": "NFP"
+  },
+  {
+   "date": "2016-06-15",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": -0.11,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -3.0
+  },
+  {
+   "change": 0.12,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": 5.4
+  },
+  {
+   "change": -0.13,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 3,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.7
+  },
+  {
+   "change": -0.17,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 3,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -3.55
+  },
+  {
+   "change": -0.14,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -4.82
+  },
+  {
+   "change": 8.51,
+   "date": "2016-06-24",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": 6.08
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.098,
+  "CORE_CPI": 0.105,
+  "CPI": -1.161,
+  "INDUSTRIAL_PRODUCTION": -0.381,
+  "ISM_MANUFACTURING": 1.392,
+  "NFP": -2.536,
+  "PPI": 0.434,
+  "RETAIL_SALES": 0.985
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "cpi",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 2,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5233,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "cpi",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5516,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5638,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5688,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5775,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5862,
+     "completion_tokens": 1070
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2016-06-H1",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "Inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 33,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 20
+    },
+    "sha256": "17d332b6a18f5a6b74f99a32da50123771f6b05adc508b542cc13a1a9adfa09d",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1 predicted, so decrease expected)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign: -1 predicted, so decrease expected)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1 predicted, so increase expected)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign: 0 predicted, so no change expected)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign: -1 predicted, so decrease expected)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-06-30#c000",
+       "DN_CORE_CPI_2016-06-30#c000",
+       "DN_PPI_2016-06-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release on 2016-06-16 led to a decrease in 10Y-3M Treasury yield spread (negative change), supporting the link from CPI release to lower IEF (Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release on 2016-06-16 led to a decrease in 10Y-3M Treasury yield spread (negative change), supporting the link from CPI release to lower IEF (Treasury prices).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "if UST10Y increases (sign: -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "if UST2Y increases (sign: -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "if VIX decreases (sign: 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "if SPY increases (sign: 0)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "if IEF increases (sign: -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01 and UST2Y > 0.01 and VIX < 10 and SPY > 0 and IEF < 0",
+       "UST10Y > 0.01 and UST2Y > 0.01 and VIX > 10 and SPY < 0 and IEF > 0"
+      ],
+      "contradicting": [
+       "UST10Y < 0.01 and UST2Y < 0.01 and VIX > 10 and SPY < 0 and IEF > 0",
+       "UST10Y > 0.01 and UST2Y > 0.01 and VIX < 10 and SPY > 0 and IEF < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-06-30#c000",
+       "DN_CORE_CPI_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000",
+       "DN_PPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The CPI release on 2016-06-16 led to a decrease in the 10-year minus 3-month Treasury yield spread (IEF-related), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The CPI release on 2016-06-16 led to a decrease in the 10-year minus 3-month Treasury yield spread (IEF-related), supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of staying flat (sign 0)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-06-30#c000",
+       "DN_CORE_CPI_2016-06-30#c000",
+       "DN_PPI_2016-06-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The CPI release on 2016-06-16 led to a decrease in the 10-year minus 3-month Treasury yield spread, which is inversely related to Treasury prices. This suggests a decline in Treasury prices (as spreads widen) following CPI, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link CPI releases to IEF movements via money growth or output. Excerpts describe spreads and surprises but do not specify the mechanism's impact on stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-06-H2",
+   "trigger": "ISM_MANUFACTURING",
+   "channel": "growth",
+   "mechanism": "Economic growth -> government spending -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2015-a7aba33b0b6a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0949",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6541",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w13328",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    }
+   ],
+   "evidence_pool": {
+    "n": 39,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 20
+    },
+    "sha256": "f18c6ed2bb7ba3ae1eb5a6d4c3b75ada79fff506a07c5752ac72e7864c623f34",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign: 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY falls (sign: 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises (sign: -1) then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-d7c2d6d5a2b0",
+      "mechanism": "economic growth -> government spending -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06",
+       "UST2Y > 2.5% in 2016-06",
+       "VIX < 15 in 2016-06"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06",
+       "UST2Y < 2.5% in 2016-06",
+       "VIX > 15 in 2016-06"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000",
+       "DN_BEI5Y_NFP_2016-06-03#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The ISM manufacturing survey was 1.4 standard deviations above consensus, suggesting positive economic growth, which could support higher equity prices (SPY) via the mechanism. However, no direct evidence contradicts this link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey was positive, but no evidence directly links it to IEF (Treasury prices) movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey positive, but no evidence connects it to SPY movements via inflation mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey positive, but no evidence links it to IEF (Treasury prices) via inflation mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1 predicted), then the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign: -1 predicted), then the hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1 predicted), then the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign: 1 predicted), then the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign: -1 predicted), then the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-587a7806365e",
+      "mechanism": "output growth -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in last 30 days",
+       "UST2Y > 2.5% in last 30 days",
+       "VIX < 15 in last 30 days"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in last 30 days",
+       "UST2Y < 2.5% in last 30 days",
+       "VIX > 15 in last 30 days"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_NFP_2016-06-30#c000",
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_CPI_2016-06-16#c000",
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was above consensus, suggesting stronger economic activity which could drive equity prices (SPY) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to IEF (Treasury prices) movements in the specified period.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The falling 10Y-3M yield spread suggests lower risk premia, contradicting the mechanism's prediction of decreased equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The negative yield spread movement indicates rising Treasury prices (IEF), supporting the mechanism's prediction.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign: 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY falls (sign: 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises (sign: -1) then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-587a7806365e",
+      "mechanism": "output growth -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016",
+       "UST2Y > 2.5% in 2016",
+       "VIX < 15 in 2016"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016",
+       "UST2Y < 2.5% in 2016",
+       "VIX > 15 in 2016"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_NFP_2016-06-30#c000",
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "ISM manufacturing survey was 1.4 std above consensus, suggesting positive economic growth signal that could drive equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to IEF (7-10yr Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts connect ISM manufacturing to SPY via output growth -> inflation -> output gap -> risk premia mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts link ISM manufacturing to IEF via output growth -> inflation mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-06-H3",
+   "trigger": "NFP",
+   "channel": "inflation",
+   "mechanism": "Unemployment -> inflation -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2015-bac70b16a909": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 42,
+    "by_kind": {
+     "research_claim": 22,
+     "data_note": 20
+    },
+    "sha256": "8d7101518ba90244794c324fe62f7517faf0d1befe6c7864ffb92b2ce23881d0",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign -1 predicted)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign -1 predicted)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign 1 predicted)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign 0 predicted)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign -1 predicted)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06",
+       "UST2Y > 2.5% in 2016-06",
+       "VIX < 15 in 2016-06"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06",
+       "UST2Y < 2.5% in 2016-06",
+       "VIX > 15 in 2016-06"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000",
+       "DN_BEI5Y_NFP_2016-06-03#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000",
+       "DN_CPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-06-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10Y-3M spread fell by -0.31pp (1.7 std dev) from 2016-06-01 to 2016-06-29, supporting the link. The same spread fell by -0.28pp (1.5 std dev) from 2016-06-03 to 2016-06-29, also supporting the link. Both indicate a decline in the spread, which is consistent with the hypothesised link direction.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.2 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "NFP release was 2.5 std dev below consensus, but CPI release was 1.2 std dev below consensus. Neither directly addresses SPY price movements, so evidence is insufficient.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign: -1 predicted, so rise would contradict)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign: -1 predicted, so rise would contradict)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign: 1 predicted, so fall would contradict)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY rises (sign: 0 predicted, so rise would contradict)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises (sign: -1 predicted, so rise would contradict)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2016-06-30#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000",
+       "DN_CPI_2016-06-30#c000",
+       "DN_PPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the 10Y-3M Treasury yield spread fell by -0.28 after NFP release, consistent with the hypothesised link where NFP release leads to decrease in IEF (7-10Y Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.2 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "NFP release was below consensus, but CPI release was also below consensus; neither directly addresses SPY price movement after NFP.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign -1 predicted)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign -1 predicted)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign 1 predicted)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY rises (sign 0 predicted)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises (sign -1 predicted)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2016-06-30#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000",
+       "DN_CPI_2016-06-30#c000",
+       "DN_PPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 2,
+       "valid_contradicting": 2,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-06-01 and 2016-06-29 the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.07 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Both 5-year breakeven inflation rate fell (supporting) and credit spread rose (contradicting) after NFP release, but neither directly addresses IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_PPI_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, PPI release: the latest release before the decision time came in 0.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "NFP release was below consensus (supporting), but PPI was above consensus (contradicting), neither directly addresses SPY prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-06-H4",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "Monetary policy -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-6bc07854b46c": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP291",
+     "year": 1989,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 31,
+    "by_kind": {
+     "research_claim": 11,
+     "data_note": 20
+    },
+    "sha256": "3798e21093cf0d1822168735ae6ea070a9f36efc7ca90713a69108f9e49b9bb0",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_CPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "FOMC communication on 2016-06-15 led to a small rise in credit spreads, suggesting increased risk aversion, which could indicate equity price pressure.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "FOMC communication on 2016-06-15 led to a fall in the 10Y-3M spread, indicating a potential decrease in Treasury prices (as spreads fall when yields rise), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "FOMC communication on 2016-06-15 led to a small rise in credit spreads, suggesting increased risk aversion, which could indicate equity price pressure.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "FOMC communication on 2016-06-15 led to a fall in the 10Y-3M spread, indicating a potential decrease in Treasury prices (as spreads fall when yields rise), supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign should be -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_CPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a significant decline in the 10Y-3M Treasury yield spread (-0.28 pp) after NFP release, indicating potential market sensitivity to labor market data, which may support the link between FOMC communications and equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The decline in 10Y-3M yield spread suggests tighter financial conditions, which could indicate a decrease in Treasury prices (IEF) following FOMC communications, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The negative yield spread movement after NFP release may indicate market expectations of stronger economic activity, supporting the link between FOMC communications and equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The yield spread decline suggests tighter financial conditions, which could lead to decreased Treasury prices (IEF), supporting the link between FOMC communications and IEF movements.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign +1) instead of falling (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign +1) instead of falling (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign -1) instead of rising (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY falls (sign -1) instead of rising (sign +1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises (sign +1) instead of falling (sign -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-06-30",
+       "UST2Y in 2016-06-30",
+       "VIX in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_CPI_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)"
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The FOMC communication on 2016-06-15 increased the credit spread by +0.02, indicating tighter credit conditions, which may support higher equity prices via reduced risk.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)"
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The FOMC communication on 2016-06-15 increased the credit spread by +0.02, indicating tighter credit conditions, which may support higher Treasury prices (IEF) via reduced risk.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)"
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The FOMC communication on 2016-06-15 increased the credit spread by +0.02, indicating tighter credit conditions, which may support higher equity prices (SPY) via reduced risk.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)"
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The FOMC communication on 2016-06-15 increased the credit spread by +0.02, indicating tighter credit conditions, which may support higher Treasury prices (IEF) via reduced risk.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-06-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 39,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 20
+    },
+    "sha256": "c89a066f3161b5099b28775d9c6e13e2ae566ea1ca4fc1b157c45501c1211167",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign: -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06-30",
+       "UST2Y > 2.5% in 2016-06-30",
+       "VIX < 20 in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06-30",
+       "UST2Y < 2.5% in 2016-06-30",
+       "VIX > 20 in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.10 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-06-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Three excerpts show the 10Y-3M Treasury yield spread fell significantly over the period, indicating a downward trend in the spread (i.e., lower yields) which could support the link to IEF (Treasury prices rising).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-06-30 18:00 ET."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.07 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Three excerpts show the investment-grade credit spread proxy (Baa corporate yield minus 10Y Treasury yield) rose over the period, indicating higher credit spreads which could support the link to LQD (corporate bond prices falling).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address US equity prices (SPY) or market moves related to SPY. Excerpts focus on Treasury spreads and credit spreads, not equity markets.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 6,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign +1) instead of falling (sign -1) by decision time"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y rises (sign +1) instead of falling (sign -1) by decision time"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX falls (sign -1) instead of rising (sign +1) by decision time"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06-30",
+       "UST2Y > 2.5% in 2016-06-30",
+       "VIX > 25 in 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06-30",
+       "UST2Y < 2.5% in 2016-06-30",
+       "VIX < 25 in 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "All excerpts show the 10Y-3M Treasury yield spread fell significantly (negative) from pre-release to decision time, indicating a decrease in IEF prices (since yield spreads inversely relate to bond prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.07 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.02 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "All excerpts show the investment-grade credit spread (LQD proxy) rose, indicating higher risk premia and thus higher LQD prices (since spreads inversely relate to bond prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention SPY or equity market movements; all excerpts focus on bond spreads and inflation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 3,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "All excerpts show the 10Y-3M Treasury yield spread fell significantly, indicating a decrease in IEF prices (since yield spreads inversely relate to bond prices).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 6,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y trends in 2016-06-01 to 2016-06-30",
+       "UST2Y trends in 2016-06-01 to 2016-06-30",
+       "VIX trends in 2016-06-01 to 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y trends in 2016-06-01 to 2016-06-30 with sign +1",
+       "UST2Y trends in 2016-06-01 to 2016-06-30 with sign +1",
+       "VIX trends in 2016-06-01 to 2016-06-30 with sign -1"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The CPI-related credit spread proxy showed no change, while the 10Y-3M spread fell significantly. Both are market data notes on relevant spreads.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The CPI-related credit spread proxy showed no change, while the 10Y-3M spread fell significantly. Both are market data notes on relevant spreads.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "No direct evidence on SPY or market moves. Excerpts describe credit spreads and yield spreads but not equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2016-06-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2016-06-16 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series was unchanged by +0.00 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "No direct evidence on LQD or market moves. Excerpts describe credit spreads and yield spreads but not corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-06-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Volatility -> inflation -> capital accumulation -> risk premia",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2015-3e9eb65b7228": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w2136",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w3702",
+     "year": 1991,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10847",
+     "year": 2015,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP1884",
+     "year": 1998,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 18,
+     "data_note": 20
+    },
+    "sha256": "e485a0381c29578841a4a39313574fae2fffa5976cdb6e64692f7db73cace48b",
+    "latest_available_at": "2016-06-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) instead of decreasing"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign: -1) instead of decreasing"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) instead of increasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06-01 to 2016-06-30",
+       "UST2Y > 2.5% in 2016-06-01 to 2016-06-30",
+       "VIX > 25 in 2016-06-01 to 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06-01 to 2016-06-30",
+       "UST2Y < 2.5% in 2016-06-01 to 2016-06-30",
+       "VIX < 25 in 2016-06-01 to 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows the investment-grade credit spread proxy rose by +0.08 over the period, indicating higher risk premia which aligns with the mechanism of volatility leading to capital accumulation and risk premia increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The rise in the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) suggests increased risk premia, which would correlate with higher corporate bond prices (LQD) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The increase in the investment-grade credit spread proxy indicates higher risk premia, which would lead to decreased equity prices (SPY) as per the mechanism, but the question asks for an increase in SPY, so this is contradictory.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "if UST10Y increases (sign should be -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "if UST2Y increases (sign should be -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "if VIX decreases (sign should be 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2016-06-01 to 2016-06-30",
+       "UST2Y > 2.5% in 2016-06-01 to 2016-06-30",
+       "VIX < 20 in 2016-06-01 to 2016-06-30"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2016-06-01 to 2016-06-30",
+       "UST2Y < 2.5% in 2016-06-01 to 2016-06-30",
+       "VIX > 20 in 2016-06-01 to 2016-06-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_IG_SPREAD_2016-06-30#c000",
+       "DN_BEI5Y_CPI_2016-06-16#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_NFP_2016-06-03#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-06-16#c000",
+       "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+       "DN_IG_SPREAD_CPI_2016-06-16#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_NFP_2016-06-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.28 (-1.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-06-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-06-15 (14:00 ET) to the latest value published by the decision time (2016-06-29), the series fell by -0.11 (-0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts show 10Y-3M Treasury yield spreads fell significantly (0.28pp and 0.11pp) from pre-release to decision time, indicating a decline in IEF prices (as yield spreads rise when prices fall).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2016-06-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2016-06-03 (08:30 ET) to the latest value published by the decision time (2016-06-29), the series rose by +0.07 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-06-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts show investment-grade credit spreads (LQD) rose by 0.07pp and 0.08pp, indicating higher risk premia and thus lower LQD prices (as spreads rise when prices fall).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts mention SPY or equity prices directly; all excerpts describe bond spreads and inflation, not market movements in equities.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 4,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% and UST2Y > 2.5% and VIX < 25",
+       "UST10Y < 2.5% and UST2Y < 2.5% and VIX > 25"
+      ],
+      "contradicting": [
+       "UST10Y > 2.5% and UST2Y > 2.5% and VIX > 25",
+       "UST10Y < 2.5% and UST2Y < 2.5% and VIX < 25"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_NFP_2016-06-30#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_BEI5Y_2016-06-30#c000",
+       "DN_SLOPE_10Y3M_2016-06-30#c000",
+       "DN_BEI5Y_FOMC_2016-06-15#c000",
+       "DN_IG_SPREAD_2016-06-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell by -0.31, indicating a decrease in Treasury prices (IEF) over the period, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2016-06-01 and 2016-06-29 the series rose by +0.08 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy rose, indicating higher corporate bond prices (LQD) over the period, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address SPY or market moves in equities; all excerpts relate to fixed income or inflation data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-06-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-06-01 and 2016-06-29 the series fell by -0.31 (-1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell, indicating a decrease in Treasury prices (IEF) over the period, supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.3500000000000001,
+       "z": -1.9648814081065875,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-29",
+       "change": -0.29000000000000004,
+       "z": -2.7523953524830795,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-06-01",
+       "window_end": "2016-06-30",
+       "change": 1.4300000000000015,
+       "z": 0.33022818961917827,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "IEF": {
+   "F_S": -6.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "LQD": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "b35ac97a18c4fbd8173a38cbba6e4d518fa5a60782cdffac4f149731c9d881dd",
+ "packet_sha256": "56ff59f326e10e74f52f18ae740c7c0790552adbd4a77c00869c67f74b96efcb",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}
