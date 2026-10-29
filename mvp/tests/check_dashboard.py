@@ -21,7 +21,7 @@ VIEWS = {
                  "Research baseline", "Awaiting validation", "No clear answer yet", "not statistically clear", "Research comparisons", "Findings so far",
                  "What we know", "Not yet known", "Key metrics", "Net CER is the primary metric", "Growth of $1", "Versus baseline",
                  "vs Deterministic baseline", "Net CER vs baseline", "Cumulative return", "Passive investment comparison", "Passive 60/40 reference",
-                 "Development 2019–22", "Historical test", "Not run yet",
+                 "Development 2019–22", "Historical test", "No results yet",
                  "Within-approach experiments", "Methodology and validation"],
     "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Research baseline", "Versus the passive 60/40 reference", "Gap split", "accounting split", "Benchmark mix",
                    "Versus its own benchmark", "Secondary check",

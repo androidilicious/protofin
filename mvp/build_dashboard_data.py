@@ -137,7 +137,7 @@ EXP_TEXT = {
     "AP3": ("Agentic Causal RAG", "rag",
             "Research graph, Hypothesis and Testing Agents, calibration. Its primary version is chosen before the test opens."),
     "AP3-RE": ("Causal RAG — Reduced Evidence", "rag",
-               "Same agents and steps; the Testing Agent weighs research findings and market and economic data known at each decision. Built and checked end to end; its free real-model run (Qwen3 4B on a free GPU) is ready to start."),
+               "Same agents and steps; the Testing Agent weighs research findings and market and economic data known at each decision. Built and checked end to end. Its first free real-model run (Qwen3 4B) failed the reliability checks; a rerun with fixes is pending."),
     "AP3-HD": ("Causal RAG — With Historical Documents", "rag",
                "The reduced-evidence version plus official Fed, BLS and Census documents published before each decision. Built; waits for the BLS documents, which this cloud environment cannot download."),
     "AP3-RE-PROXY": ("Policy-path proxy variant", "rag",
@@ -171,11 +171,30 @@ def free_run_checks() -> list:
     if not f.exists():
         return [("Free real-model run (Qwen3 4B on a free GPU): ready, not yet run", False),
                 ("95-month run: starts only if the reliability checks pass", False)]
+    from native_backtest.ap3 import protocol
     s = json.loads(f.read_text())
-    g = {k: v.get("pass") for k, v in s.get("gates", {}).items()}
-    gates_txt = ", ".join(f"{k} {'passed' if v else 'failed'}" for k, v in sorted(g.items())) or "pending"
-    return [(f"Free real-model run (Qwen3 4B): {s['n_months']} of 95 months; checks: {gates_txt}", s["n_months"] == 95 and all(g.values())),
-            ("Development results: " + ("available" if s.get("downstream") or (f.parent / "evaluation" / "evaluation.json").exists() else "after all 95 months"), False)]
+    g = s.get("gates", {})
+    ok = {k: bool(v.get("pass")) for k, v in g.items()}
+    current = (s.get("protocol") or {}).get("fingerprint") == protocol.fingerprint()
+    day = s.get("written_utc", "")[:10]
+    if all(ok.values()) and ok:
+        head = f"Free real-model run (Qwen3 4B, {day}): reliability checks passed; {s['n_months']} of 95 months"
+    else:
+        why = []
+        acc = (g.get("G3b", {}).get("checks", {}).get("accuracy") or {}).get("value")
+        if acc is not None and not ok.get("G3b"):
+            why.append(f"Testing Agent fixture accuracy {acc:.0%} (80% needed)")
+        fm = (g.get("G3a", {}).get("checks", {}).get("failed_months") or {}).get("value")
+        if fm is not None and not ok.get("G3a"):
+            why.append(f"{fm} of 12 sample months without a final answer")
+        head = f"Free real-model run (Qwen3 4B, {day}): {s['n_months']} sample months; reliability checks failed: " + "; ".join(why)
+    out = [(head, bool(ok) and all(ok.values()) and s["n_months"] == 95)]
+    if not current:
+        out.append(("Fixed since that run: the agent never got its final-answer turn, plus graph-search and runner defects; "
+                    "rerun on the free GPU pending (same thresholds)", False))
+    out.append(("Development results: " + ("available" if s.get("downstream") or (f.parent / "evaluation" / "evaluation.json").exists()
+                                           else "after all 95 months, only if the reliability checks pass"), False))
+    return out
 
 
 def ap3_versions() -> dict:
@@ -476,7 +495,7 @@ def main() -> int:
                 "checks": ["All 272 saved JEV decisions reproduced exactly from the saved answers",
                            "Native accounting reproduced exactly before 2023",
                            "Can't be re-run: the model version, prompt and recording tool were not saved"]},
-        "rag": {"status": "not run", "checks": ["No results until its real model run is done and validated"]}}
+        "rag": {"status": "not run", "checks": ["No results until a real model run passes its reliability checks"]}}
     steps = {}
     labels = ["As originally scored", "Verified price data", "Trade next trading day", "Shared trading costs", "Shared cash rate"]
     for key, src in (("com", "AP2A"), ("jev", "AP2B")):
@@ -523,7 +542,7 @@ def main() -> int:
                  f"On {n_dev} development months, JEV's difference from the Deterministic baseline is within what chance could produce.",
                  "Every approach is scored on the same months, trading costs and cash rate."],
         "not_yet": ["Whether AI improves on the baseline: the historical test (Jan 2024 – Aug 2026 primary) is still sealed.",
-                    "Anything about Causal RAG: its free real-model run has not been done yet.",
+                    "Anything about Causal RAG: its first free real-model run failed the reliability checks; a rerun with fixes is pending.",
                     "A controlled comparison: assets, horizons and information differ by design."],
         "can": ["Each approach was run with its own original code, which reproduced its authors' saved results before any comparison.",
                 f"The approaches with results are scored on the same {n_dev} development months, with the same trading costs and cash rate.",
@@ -531,7 +550,7 @@ def main() -> int:
         "cannot": ["Which approach is better. Development months are where the approaches were built and checked, so these are diagnostics, not protected historical results.",
                    f"Small differences. With {n_dev} months, only large gaps could be told apart from chance.",
                    "A controlled comparison. The approaches hold different assets and use different horizons and information.",
-                   "Anything about Causal RAG yet. Its results are unavailable until its real model run is done and validated."]}
+                   "Anything about Causal RAG yet. Its results are unavailable until a real model run passes its reliability checks."]}
     out["audit"] = audit_block(sims)
     out["signal_value"] = signal_value_block(sims, neutral_sims)
     out["validation"] = validation_block()

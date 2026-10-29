@@ -45,7 +45,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
-from native_backtest.ap3 import calibration, engineering_mock, evidence_pool, mediator_data, reliability, runner
+from native_backtest.ap3 import calibration, engineering_mock, evidence_pool, mediator_data, protocol, reliability, runner
 from native_backtest.ap3 import llm_client as L
 from native_backtest.ap3.allocation import omega_from_development_errors, weights_for_months
 from native_backtest.ap3.encoder import ASSETS
@@ -169,11 +169,14 @@ def run_agents(variant: str, provider: str, months: List[str], workers: int, all
     def packet_sha(m):
         return hashlib.sha256(json.dumps(packets[m], sort_keys=True).encode()).hexdigest()
 
+    fp = protocol.fingerprint()
+
     def one(m):
         f = out / "records" / f"{m}.json"
-        if f.exists():
+        if f.exists():     # reused only if made from the same packet, model, variant and agent protocol
             r = json.loads(f.read_text())
-            if r.get("packet_sha256") == packet_sha(m) and r.get("model") == client.provider.model and r.get("variant") == variant:
+            if (r.get("packet_sha256") == packet_sha(m) and r.get("model") == client.provider.model and r.get("variant") == variant
+                    and r.get("protocol_fingerprint") == fp):
                 return r
         if deadline is not None and time.time() > deadline:
             return None
@@ -181,6 +184,7 @@ def run_agents(variant: str, provider: str, months: List[str], workers: int, all
         rec = runner.run_month(client, packets[m], vintages[y], libraries[y], [], store, pd.Timestamp(m + "-01"), limits, evidence=pool,
                                max_parallel_tests=max_parallel_tests)
         rec["packet_sha256"] = packet_sha(m)
+        rec["protocol_fingerprint"] = fp
         rec["mediator_status"] = med_status
         f.write_text(json.dumps(rec, sort_keys=True, default=str) + "\n")
         return rec

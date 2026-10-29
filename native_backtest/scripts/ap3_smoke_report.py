@@ -86,8 +86,18 @@ def month_report(r: dict, redact: bool) -> dict:
                      "conflict": t.get("conflict"), "test_failure": t.get("failure"), "causal_validation": t.get("causal_validation")})
     return {"month": r["decision_month"], "decision_time": pk["decision_time"], "graph_vintage": r["graph_vintage"],
             "event": pk["triggers"], "all_surprises_z": pk.get("all_surprises_z"),
-            "hypothesis_agent": {"tool_calls": [{"tool": c.get("tool"), "args": c.get("args")} for c in ha.get("tool_calls", [])],
-                                 "turns": len(ha.get("turns", [])), "failure": ha.get("failure")},
+            "hypothesis_agent": {"tool_calls": [{"tool": c.get("tool"), "args": c.get("args"), **({"repeat_of": c["duplicate_of"]} if "duplicate_of" in c else {})}
+                                                for c in ha.get("tool_calls", [])],
+                                 "turns": len(ha.get("turns", [])), "failure": ha.get("failure"),
+                                 "final_answer_forced": ha.get("final_answer_forced"), "repeated_tool_calls": ha.get("duplicate_tool_calls"),
+                                 "turn_protocol": ha.get("turn_protocol", "1.0"),
+                                 # the model's own reply each turn (tool results, which hold graph text, are not included)
+                                 "turn_log": [{"turn": t.get("turn"), "action": (t.get("output") or {}).get("action"),
+                                               **({"tool": t["output"].get("tool"), "args": t["output"].get("args")} if (t.get("output") or {}).get("action") == "tool"
+                                                  else {"hypotheses": len((t.get("output") or {}).get("hypotheses", []))}),
+                                               "final_answer_requested": t.get("final_answer_requested"),
+                                               "tokens": (t.get("meta") or {}).get("usage"), "done_reason": (t.get("meta") or {}).get("done_reason")}
+                                              for t in ha.get("turns", [])]},
             "hypotheses": hyps, "status_features": r["status_features"],
             "mediators_unavailable": sorted(k for k, v in (r.get("mediator_status") or {}).items() if str(v).startswith("unavailable"))}
 

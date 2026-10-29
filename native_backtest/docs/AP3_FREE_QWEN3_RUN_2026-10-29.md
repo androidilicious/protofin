@@ -55,12 +55,27 @@ Cost: $0.
 
 ## Status
 
+**Run 1 (2026-10-29, Kaggle 2× T4, results branch `ap3-qwen3-runs` @ `790a049`): both gates failed, so the replay did not start.**
+- G3b: 53% fixture accuracy, against 80% needed.
+- G3a: 12 of 12 sample months had no final answer.
+
+The diagnosis is in `AP3_QWEN3_RUN1_DIAGNOSIS_2026-10-29.md`:
+- **Pipeline defects:** the agent never got its final-answer turn; its own tool calls were pasted into the user message, which a small model copies; node search matched substrings; rival IDs were not checked; the runner exited 0; a rerun would have reused the failed attempt; the token was stored in a git URL in the saved output.
+- **Fixed in protocol 1.1.** Thresholds, limits, prompts' wording, the assessor and the fixtures are unchanged.
+- **G3b's pipeline is verified** by an oracle (30/30, the same 177 calls), so its errors are the model's.
+- **Next step:** re-run the notebook with a new token. It starts again from G3b, because results from protocol 1.0 are never reused.
+
 Implemented and tested:
 - the provider, the runner, the notebook and the import;
 - 6 tests for this path, using a fake local server for wiring only;
 - the 53 AP3 tests also pass on Python 3.11 with current libraries (the Kaggle setting).
 
-**Not yet run.** This development environment cannot reach Kaggle, Hugging Face or the Ollama registry, and has no GPU. The genuine run needs the steps below, done once by a team member.
+This development environment cannot reach Kaggle, Hugging Face or the Ollama registry, and has no GPU, so the genuine run is done by a team member with the steps below.
+
+**Exit code** (shown by the run cell, and enforced by the last cell):
+- **0:** every requested stage ran and every gate passed.
+- **3:** a pre-registered gate failed. Results and diagnostics are still pushed.
+- **Other:** an error.
 
 ## What a team member does (about 10 minutes, free)
 

@@ -4,6 +4,14 @@ The agent receives the month's event packet and, for each active trigger, the ch
 entries derived from the graph vintage. It may call CauseTrace tools (search, paths, neighbourhood,
 edge evidence) before proposing at most 6 signed hypotheses. Each hypothesis cites graph paths;
 one without a known path is flagged literature_unsupported and its confidence is capped at Low.
+
+Turn protocol (v1.1, 2026-10-29, after the first real-model run): the model's own earlier replies are sent back as
+"assistant" turns and each tool result as the next "user" turn. Version 1.0 pasted the whole exchange, including
+the model's own calls, into one user message, and a small model at temperature 0 copied its last call
+indefinitely. When the tool budget is used, or on the last turn, the model gets the "give your final answer now"
+turn the rules promise, and that reply is restricted to the final-answer schema. In version 1.0 that message was
+appended after the last turn, so the model never saw it. Whether the final answer was prompted this way is recorded.
+Prompts, limits, temperature and seed are unchanged.
 """
 from __future__ import annotations
 
@@ -32,7 +40,8 @@ Tools:
 {tools}"""
 
 
-def turn_schema(triggers: List[str], mediators: List[str], max_h: int) -> dict:
+def turn_schema(triggers: List[str], mediators: List[str], max_h: int, final_only: bool = False) -> dict:
+    triggers = list(dict.fromkeys(triggers))            # a packet can list one trigger several times (one MARKET_STRESS per series)
     sign = {"type": "integer", "enum": [-1, 0, 1]}
     hyp = {"type": "object", "additionalProperties": False,
            "required": ["trigger", "channel", "mechanism", "path_ids", "predicted_mediators", "predicted_assets", "confidence"],
@@ -43,10 +52,13 @@ def turn_schema(triggers: List[str], mediators: List[str], max_h: int) -> dict:
                                                                                          "properties": {"series": {"type": "string", "enum": mediators}, "sign": {"type": "integer", "enum": [-1, 1]}}}},
                           "predicted_assets": {"type": "object", "additionalProperties": False, "required": ["SPY", "IEF", "LQD"], "properties": {"SPY": sign, "IEF": sign, "LQD": sign}},
                           "confidence": {"type": "string", "enum": ["Low", "Medium", "High"]}}}
+    final = {"properties": {"action": {"const": "final"}, "hypotheses": {"type": "array", "maxItems": max_h, "items": hyp}}, "required": ["action", "hypotheses"]}
+    if final_only:
+        return {"type": "object", **final}
     return {"type": "object", "required": ["action"],
             "oneOf": [
                 {"properties": {"action": {"const": "tool"}, "tool": {"type": "string", "enum": list(TOOL_SPECS)}, "args": {"type": "object"}}, "required": ["action", "tool", "args"]},
-                {"properties": {"action": {"const": "final"}, "hypotheses": {"type": "array", "maxItems": max_h, "items": hyp}}, "required": ["action", "hypotheses"]},
+                final,
             ]}
 
 
@@ -77,22 +89,37 @@ def run(client: LLMClient, packet: dict, library: dict, tools: CauseTraceTools, 
     lib_text, shown = library_block(library, triggers, ha["library_entries_per_trigger"])
     system = SYSTEM.format(max_h=max_h, max_tools=ha["max_tool_calls"], tools="\n".join(f"- {v}" for v in TOOL_SPECS.values()))
     schema = turn_schema(triggers, limits["mediators"]["series"], max_h)
-    transcript = [f"EVENT PACKET\n{json.dumps(packet, indent=1)}", f"LIBRARY PATHWAYS (graph vintage {library['vintage_year']})\n{lib_text}"]
+    final_schema = turn_schema(triggers, limits["mediators"]["series"], max_h, final_only=True)
+    first = (f"EVENT PACKET\n{json.dumps(packet, indent=1)}\n\nLIBRARY PATHWAYS (graph vintage {library['vintage_year']})\n{lib_text}"
+             "\n\nYour next JSON object:")
+    history: List[Dict[str, str]] = []
     turns = []
+    forced = False
     for k in range(ha["max_turns"]):
-        user = "\n\n".join(transcript) + "\n\nYour next JSON object:"
-        out, meta = client.complete_json(Request(step=f"hypothesis_turn_{k}", system=system, user=user, schema=schema,
-                                                 temperature=ha["temperature"], seed=ha["seed"]))
-        turns.append({"turn": k, "output": out, "meta": meta})
+        force = tools.remaining <= 0 or k == ha["max_turns"] - 1
+        user, msgs = first, list(history)
+        if force:   # the rules promise a final answer after the tool budget; restricted to the final-answer schema
+            note = ("Tool budget used: no more tool calls." if tools.remaining <= 0 else "This is your last turn.") + \
+                   ' Give your final answer now: {"action": "final", "hypotheses": [...]}.'
+            if msgs:
+                msgs[-1] = {"role": "user", "content": msgs[-1]["content"] + "\n\n" + note}
+            else:
+                user = first + "\n\n" + note
+        out, meta = client.complete_json(Request(step=f"hypothesis_turn_{k}", system=system, user=user, schema=final_schema if force else schema,
+                                                 temperature=ha["temperature"], seed=ha["seed"], turns=tuple(msgs)))
+        turns.append({"turn": k, "output": out, "meta": meta, "final_answer_requested": force})
         if out["action"] == "final":
+            forced = force
             break
         try:
             result = tools.call(out["tool"], out.get("args", {}))
-        except ToolBudgetExceeded:
+        except ToolBudgetExceeded:     # not reached: a turn after the budget is used asks for the final answer
             result = {"error": "tool budget used; give your final answer now"}
-        transcript.append(f"YOUR TOOL CALL: {json.dumps(out)}\nTOOL RESULT: {json.dumps(result)[:6000]}")
+        history += [{"role": "assistant", "content": json.dumps(out)},
+                    {"role": "user", "content": f"TOOL RESULT: {json.dumps(result)[:6000]}\n\nYour next JSON object:"}]
     else:
-        return {"hypotheses": [], "turns": turns, "tool_calls": tools.calls, "failure": "no final answer within the turn limit"}
+        return {"hypotheses": [], "turns": turns, "tool_calls": tools.calls, "failure": "no final answer within the turn limit",
+                "duplicate_tool_calls": sum("duplicate_of" in c for c in tools.calls), "turn_protocol": "1.1"}
     known = dict(shown)
     known.update({pid: {"path": p} for pid, p in tools.paths_seen.items()})
     hyps = []
@@ -113,4 +140,5 @@ def run(client: LLMClient, packet: dict, library: dict, tools: CauseTraceTools, 
         hyps.append({"hypothesis_id": f"{packet['decision_month']}-H{i + 1}", **h, "path_ids": cited, "invalid_path_ids": invalid,
                      "literature_unsupported": unsupported, "confidence_applied": conf, "confidence_caps": caps,
                      "paths": {p: known[p]["path"] for p in cited}, "horizon": "1M", "graph_vintage": library["vintage_year"]})
-    return {"hypotheses": hyps, "turns": turns, "tool_calls": tools.calls}
+    return {"hypotheses": hyps, "turns": turns, "tool_calls": tools.calls, "final_answer_forced": forced,
+            "duplicate_tool_calls": sum("duplicate_of" in c for c in tools.calls), "turn_protocol": "1.1"}

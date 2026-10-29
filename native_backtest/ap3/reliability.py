@@ -32,8 +32,11 @@ def report(records: List[dict]) -> Dict:
     pit_violations = []
     lit_unsup, invalid_paths, n_hyp = 0, 0, 0
     failed_months = []
+    forced, repeats = 0, 0
     for r in recs:
         ha = r["hypothesis_agent"]
+        forced += bool(ha.get("final_answer_forced"))
+        repeats += ha.get("duplicate_tool_calls", 0)
         if ha.get("failure"):
             failed_months.append({"month": r["decision_month"], "failure": ha["failure"][:200]})
         for h in ha["hypotheses"]:
@@ -56,7 +59,7 @@ def report(records: List[dict]) -> Dict:
                 if pool["latest_available_at"] and pd.Timestamp(pool["latest_available_at"]) >= dt:
                     pit_violations.append({"month": r["decision_month"], "hypothesis": t["hypothesis_id"]})
             for run in t["runs"]:
-                rivals += bool(run["plan"]["rival"].get("rival_path_id"))
+                rivals += run.get("rival_valid", bool(run["plan"]["rival"].get("rival_path_id")))
                 assessor_calls += run.get("assess_meta") is not None
                 for it in run["assessments"]:
                     if it.get("label") in DIRECTIONAL:
@@ -69,6 +72,8 @@ def report(records: List[dict]) -> Dict:
         "months": len(recs),
         "months_with_hypotheses": sum(bool(r["hypothesis_agent"]["hypotheses"]) for r in recs),
         "failed_months": failed_months,
+        "months_final_answer_forced": forced,          # reported, not gated: the final answer came on the turn after the tool budget
+        "repeated_tool_calls": repeats,
         "hypotheses": n_hyp,
         "literature_unsupported_share": (lit_unsup / n_hyp) if n_hyp else None,
         "invalid_path_ids_dropped": invalid_paths,

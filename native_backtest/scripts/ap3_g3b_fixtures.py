@@ -21,7 +21,7 @@ import collections
 import json
 from pathlib import Path
 
-from native_backtest.ap3 import engineering_mock, reliability, runner, testing_agent
+from native_backtest.ap3 import engineering_mock, protocol, reliability, runner, testing_agent
 from native_backtest.ap3 import llm_client as L
 from native_backtest.ap3.graph_vintage import load_concepts
 from native_backtest.ap3.mediators import MediatorStore
@@ -51,12 +51,30 @@ def run(provider: str) -> dict:
         hyp = {"hypothesis_id": f"G3B-{f['id']}", **f["hypothesis"]}
         try:
             t = testing_agent.test_hypothesis(client, packet, hyp, [], [], f["excerpts"], empty, limits, f["decision_time"][:8] + "01")
-            got, fail = t["status"], None
+            got, fail, raw = t["status"], None, None
         except L.ModelOutputError as e:
-            t, got, fail = None, "Insufficient", str(e)[:200]
+            t, got, fail, raw = None, "Insufficient", str(e)[:200], getattr(e, "raw_text", None)
         rows.append({"id": f["id"], "category": f["category"], "expected": f["expected_status"], "got": got, "failure": fail,
-                     "run_statuses": t["run_statuses"] if t else [], "correct": got == f["expected_status"]})
+                     "run_statuses": t["run_statuses"] if t else [], "correct": got == f["expected_status"],
+                     "runs": [run_detail(r) for r in t["runs"]] if t else [], "invalid_reply": raw})
     return {"rows": rows, "calls": client.calls}
+
+
+def run_detail(run: dict) -> dict:
+    """Everything needed to see why a fixture got its status. Fixtures are synthetic, so nothing is redacted."""
+    plan = run["plan"]
+    return {"seed": run["seed"], "status": run["rubric"]["status"],
+            "plan": {"supporting_queries": plan["supporting_queries"], "contradicting_queries": plan["contradicting_queries"],
+                     "rival_path_id": plan["rival"]["rival_path_id"], "rival_valid": run.get("rival_valid"), "implications": plan["implications"]},
+            "retrieved": run["retrieved"], "assessor_called": run.get("assess_meta") is not None,
+            "assessments": [{"edge": i["edge_id"], "model_label": i.get("label"), "validated_label": i.get("validated_label"),
+                             "valid_supporting": i.get("n_valid_supporting"), "valid_contradicting": i.get("n_valid_contradicting"),
+                             "supporting": [{"chunk_id": q.get("chunk_id"), "quote": q.get("quote"), "citation": q.get("citation_status")} for q in i.get("supporting_evidence") or []],
+                             "contradicting": [{"chunk_id": q.get("chunk_id"), "quote": q.get("quote"), "citation": q.get("citation_status")} for q in i.get("contradicting_evidence") or []],
+                             "conflict_declared": i.get("conflict"), "explanation": i.get("explanation"), "error": i.get("error")} for i in run["assessments"]],
+            "rubric": run["rubric"],
+            "tokens": {k: (run.get(m) or {}).get("usage") for k, m in (("plan", "plan_meta"), ("assessor", "assess_meta"))},
+            "done_reason": {k: (run.get(m) or {}).get("done_reason") for k, m in (("plan", "plan_meta"), ("assessor", "assess_meta"))}}
 
 
 def score(rows: list) -> dict:
@@ -92,12 +110,13 @@ def main(argv=None) -> int:
         if missing:
             raise replay.NotApproved("not running: " + "; ".join(missing))
     res = run(a.provider)
-    summary = {"gate": "G3b", "provider": a.provider, "engineering_mock": mock,
+    summary = {"gate": "G3b", "provider": a.provider, "engineering_mock": mock, "protocol_version": protocol.PROTOCOL_VERSION,
+               "protocol_fingerprint": protocol.fingerprint(),
                "meaning": "WIRING CHECK ONLY: mock responses, the score carries no information" if mock else "real-model reliability gate",
                "fixtures": len(res["rows"]), "calls": res["calls"], **score(res["rows"]), "rows": res["rows"]}
     (out_dir(a.provider) / "summary.json").write_text(json.dumps(summary, indent=1) + "\n")
     print(json.dumps({k: v for k, v in summary.items() if k != "rows"}, indent=1))
-    return 0
+    return 0 if (mock or summary["pass"]) else 3      # a failed real-model gate is a non-zero exit
 
 
 if __name__ == "__main__":

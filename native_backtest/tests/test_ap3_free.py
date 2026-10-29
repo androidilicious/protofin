@@ -16,9 +16,9 @@ ROOT = Path(__file__).resolve().parents[2]
 HAS_CLAIMS = (ROOT / "native_backtest/data/_external/claims_part01.parquet").exists()
 
 
-def _step(system: str, user: str) -> str:
+def _step(system: str, user: str, n_assistant: int = 0) -> str:
     if system.startswith("You are the Hypothesis Agent"):
-        return f"hypothesis_turn_{user.count('YOUR TOOL CALL:')}"
+        return f"hypothesis_turn_{n_assistant}"          # turn protocol 1.1: the agent's own replies come back as assistant turns
     if system == testing_agent.PLAN_SYSTEM:
         return "testing_plan_x"
     if system == testing_agent.native_assess.SYSTEM:
@@ -48,7 +48,7 @@ class _Fake(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         _Fake.seen.append(body)
         sys_, usr = body["messages"][0]["content"], body["messages"][1]["content"]
-        st = _step(sys_, usr)
+        st = _step(sys_, usr, sum(m["role"] == "assistant" for m in body["messages"]))
         reply = {"ok": True} if st == "canary_x" else engineering_mock.responder(L.Request(step=st, system=sys_, user=usr, schema={}, temperature=0, seed=0))
         self._send({"message": {"content": json.dumps(reply)}, "prompt_eval_count": len(usr) // 4, "eval_count": 50,
                     "done_reason": "stop", "total_duration": 1_000_000})

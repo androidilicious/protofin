@@ -11,10 +11,16 @@ Around that core, the protocol adds (new code): falsifiable implications and a r
 from the graph, balanced retrieval with equal budgets for supporting, contradicting and neutral
 evidence using the assessor repo's own BM25 and time filter, mediator tests, and a written rubric.
 Every record states causal_validation = "not established".
+
+The rival must be one of the candidate rival pathways or none (protocol step 3). Since 2026-10-29 the plan schema
+lists only the candidates' path_ids (or null), so the server cannot produce anything else, and any other value is
+rejected as invalid output. Before, any non-empty string, including "none" or an invented id, created rival edges
+for the assessor to judge.
 """
 from __future__ import annotations
 
 import collections
+import copy
 import random
 import sys
 from pathlib import Path
@@ -55,6 +61,13 @@ PLAN_SCHEMA = {
         "contradicting_queries": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "string", "maxLength": 200}},
     },
 }
+
+
+def plan_schema(rival_ids: List[str]) -> dict:
+    """PLAN_SCHEMA with the rival limited to this hypothesis's candidate path_ids, or null."""
+    sch = copy.deepcopy(PLAN_SCHEMA)
+    sch["properties"]["rival"]["properties"]["rival_path_id"] = {"enum": [*rival_ids, None]}
+    return sch
 
 
 def _edges_for(prefix: str, trigger_label: str, mechanism: str, predicted: Dict[str, int]) -> List[dict]:
@@ -137,13 +150,15 @@ def test_hypothesis(client: LLMClient, packet: dict, hyp: dict, research_records
                      + "\n".join(f"- {r.get('title')} ({r.get('year')}; {r.get('evidence_class')})" for r in research_records)
                      + "\n\nCANDIDATE RIVAL PATHWAYS\n" + ("\n".join(f"- {r['path_id']} [{r['channel']}]: " + " -> ".join(r["path"]) for r in rival_candidates) or "(none)")
                      + f"\n\nDecision time: {packet['decision_time']}")
+        rival_ids = [r["path_id"] for r in rival_candidates]
         plan, plan_meta = client.complete_json(Request(step=f"testing_plan_{hyp['hypothesis_id']}_s{seed}", system=PLAN_SYSTEM, user=plan_user,
-                                                       schema=PLAN_SCHEMA, temperature=ta["temperature"], seed=seed))
+                                                       schema=plan_schema(rival_ids), temperature=ta["temperature"], seed=seed))
+        rival_ok = plan["rival"]["rival_path_id"] in rival_ids      # the schema admits only candidates or null
         ret = retrieve_balanced(eligible_chunks, plan, trigger_label, limits, seed)
         med = [mediator_test(mediators, m["series"], m["sign"], window_start, packet["decision_time"],
                              limits["mediators"]["z_reference_months"], limits["mediators"]["z_threshold_informative"]) for m in hyp["predicted_mediators"]]
         h_edges = _edges_for("H", trigger_label, hyp["mechanism"], hyp["predicted_assets"])
-        r_edges = _edges_for("R", trigger_label, plan["rival"]["mechanism"], plan["rival"]["predicted_assets"]) if plan["rival"]["rival_path_id"] else []
+        r_edges = _edges_for("R", trigger_label, plan["rival"]["mechanism"], plan["rival"]["predicted_assets"]) if rival_ok else []
         edges = h_edges + r_edges
         if not edges or not ret["ordered"]:
             items = [{"edge_id": e["id"], "validated_label": "insufficient_evidence", "n_valid_supporting": 0, "n_valid_contradicting": 0, "llm_called": False} for e in edges]
@@ -164,7 +179,7 @@ def test_hypothesis(client: LLMClient, packet: dict, hyp: dict, research_records
         h_items = [i for i in items if i["edge_id"].startswith("H:")]
         r_items = [i for i in items if i["edge_id"].startswith("R:")]
         rb = rubric(h_items, r_items, med)
-        runs.append({"seed": seed, "plan": plan, "plan_meta": plan_meta, "assess_meta": assess_meta,
+        runs.append({"seed": seed, "plan": plan, "plan_meta": plan_meta, "assess_meta": assess_meta, "rival_valid": rival_ok,
                      "retrieved": {k: [c["chunk_id"] for c in v] for k, v in ret.items() if k != "ordered"},
                      "assessments": items, "mediator_tests": med, "rubric": rb})
     statuses = [r["rubric"]["status"] for r in runs]

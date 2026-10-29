@@ -26,7 +26,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import jsonschema
 
@@ -42,6 +42,7 @@ class PaidInferenceNotApproved(RuntimeError):
 
 
 class ModelOutputError(RuntimeError):
+    raw_text: Optional[str] = None           # the model's reply, kept for diagnosis when it was not valid
     pass
 
 
@@ -113,10 +114,22 @@ class Request:
     temperature: float
     seed: Optional[int]
     max_tokens: int = 2000
+    # Later messages of a multi-turn exchange, after the first user message: the model's own earlier replies as
+    # "assistant" turns and what it was shown next as "user" turns (e.g. the Hypothesis Agent's tool loop).
+    turns: Tuple[Dict[str, str], ...] = ()
+
+    def messages(self) -> List[Dict[str, str]]:
+        return [{"role": "user", "content": self.user}] + [{"role": t["role"], "content": t["content"]} for t in self.turns]
+
+    def prompt_chars(self) -> int:
+        return len(self.system) + sum(len(m["content"]) for m in self.messages())
 
     def key(self, provider: str, model: str) -> str:
-        return _sha(_canon({"provider": provider, "model": model, "step": self.step, "system": self.system, "user": self.user,
-                            "schema": self.schema, "temperature": self.temperature, "seed": self.seed, "max_tokens": self.max_tokens}))
+        k = {"provider": provider, "model": model, "step": self.step, "system": self.system, "user": self.user,
+             "schema": self.schema, "temperature": self.temperature, "seed": self.seed, "max_tokens": self.max_tokens}
+        if self.turns:                       # single-message requests keep their earlier cache keys
+            k["turns"] = [dict(t) for t in self.turns]
+        return _sha(_canon(k))
 
 
 class EngineeringMockProvider:
@@ -165,7 +178,7 @@ class DeepInfraProvider:
         import requests
 
         body = {"model": self.model, "temperature": req.temperature, "max_tokens": req.max_tokens,
-                "messages": [{"role": "system", "content": req.system}, {"role": "user", "content": req.user}],
+                "messages": [{"role": "system", "content": req.system}] + req.messages(),
                 "response_format": {"type": "json_object"}}
         if req.seed is not None:
             body["seed"] = req.seed
@@ -188,7 +201,8 @@ class BedrockProvider:
 
         client = boto3.client("bedrock-runtime", region_name=os.environ.get("AWS_REGION", "us-west-2"))
         resp = client.converse(modelId=self.model, system=[{"text": req.system}],
-                               messages=[{"role": "user", "content": [{"text": req.user + "\n\nReturn JSON only."}]}],
+                               messages=[{"role": m["role"], "content": [{"text": m["content"] + ("\n\nReturn JSON only." if i == len(req.messages()) - 1 else "")}]}
+                                         for i, m in enumerate(req.messages())],
                                inferenceConfig={"temperature": req.temperature, "maxTokens": req.max_tokens})
         text = resp["output"]["message"]["content"][0]["text"]
         return text, {"request_id": resp.get("ResponseMetadata", {}).get("RequestId"), "usage": resp.get("usage"),
@@ -208,7 +222,7 @@ class HFEndpointProvider:
         import requests
 
         body = {"model": self.model, "temperature": req.temperature, "max_tokens": req.max_tokens,
-                "messages": [{"role": "system", "content": req.system}, {"role": "user", "content": req.user}],
+                "messages": [{"role": "system", "content": req.system}] + req.messages(),
                 "response_format": {"type": "json_object"}}
         if req.seed is not None:
             body["seed"] = req.seed
@@ -285,11 +299,11 @@ class OllamaProvider:
         import requests
         if self.digest is None:
             self.verify()
-        est = (len(req.system) + len(req.user)) / 4.0      # pre-check for clear overflow; the server's own count is checked after
+        est = req.prompt_chars() / 4.0                      # pre-check for clear overflow; the server's own count is checked after
         if est + req.max_tokens > self.num_ctx:
             raise ContextOverflow(f"{req.step}: about {est:.0f} prompt tokens + {req.max_tokens} output exceed num_ctx {self.num_ctx}")
         body = {"model": OLLAMA_MODEL, "stream": False, "think": False,
-                "messages": [{"role": "system", "content": req.system}, {"role": "user", "content": req.user}],
+                "messages": [{"role": "system", "content": req.system}] + req.messages(),
                 "format": req.schema if (self.structured and req.schema) else "json",
                 "options": {"temperature": req.temperature, "seed": req.seed if req.seed is not None else 0,
                             "num_ctx": self.num_ctx, "num_predict": req.max_tokens}}
@@ -369,7 +383,9 @@ class LLMClient:
                    "response_sha256": _sha(text), "logged_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
             with self._lock, self.call_log.open("a", encoding="utf-8") as f:
                 f.write(_canon(bad) + "\n")
-            raise ModelOutputError(f"{req.step}: invalid model output ({type(e).__name__})") from e
+            err = ModelOutputError(f"{req.step}: invalid model output ({type(e).__name__})")
+            err.raw_text = text[:4000]
+            raise err from e
         log = {"run_tag": self.run_tag, "step": req.step, "provider": self.provider.name, "model": self.provider.model,
                "mock": self.is_mock, "cache_key": key, "cached": cached, "temperature": req.temperature, "seed": req.seed,
                "system_sha256": _sha(req.system), "user_sha256": _sha(req.user), "response_sha256": _sha(text),
@@ -377,4 +393,5 @@ class LLMClient:
                **{k: meta[k] for k in ("usage", "done_reason", "schema_fallback", "durations_ns") if k in meta}}
         with self._lock, self.call_log.open("a", encoding="utf-8") as f:
             f.write(_canon(log) + "\n")
-        return obj, {"cache_key": key, "cached": cached, "provider": self.provider.name, "model": self.provider.model, "mock": self.is_mock}
+        return obj, {"cache_key": key, "cached": cached, "provider": self.provider.name, "model": self.provider.model, "mock": self.is_mock,
+                     **{k: meta[k] for k in ("usage", "done_reason") if k in meta}}

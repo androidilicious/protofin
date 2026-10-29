@@ -34,6 +34,8 @@ ADD = [
     "native_backtest/out/signal_value/monthly_v1.csv",
     "native_backtest/out/signal_value/independent_check_v1.json",
     "native_backtest/out/signal_value/jev_native_signal_on_off_engine.json",
+    "native_backtest/out/ap3/qwen3_runs/summary.json",
+    "native_backtest/out/ap3/qwen3_runs/import_report.json",
 ]
 NEVER = {"mvp/data/dashboard.json"}
 

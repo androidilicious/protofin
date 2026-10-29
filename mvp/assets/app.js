@@ -271,7 +271,7 @@
         ${ciBar(c, s.key)}${c.significant ? '' : NS}</div>` : '';
     const body = r ? `
       <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>${vs}`
-      : `<div class="unavail"><span><b>Not run yet.</b> No comparison with the baseline until its real model run is done and validated.</span>
+      : `<div class="unavail"><span><b>No results yet.</b> No comparison with the baseline until a real model run passes its reliability checks.</span>
           <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
           <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
     return `<article class="acard${s.key === 'det' ? ' baseline' : ''}" style="--c:var(${VAR[s.key]})">
@@ -390,7 +390,7 @@
       <section>
         <h1>Does AI improve on our Deterministic baseline?</h1>
         <p class="lede">Two AI approaches are compared with the Deterministic Quantitative Model, our research baseline, under the same rules.</p>
-        <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>In development (${devSpan()}) JEV is not statistically different from the baseline. Causal RAG has not run, and the historical test is sealed.</span></div></div>
+        <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>In development (${devSpan()}) JEV is not statistically different from the baseline. Causal RAG has no results yet, and the historical test is sealed.</span></div></div>
         ${phaseStrip(false)}
       </section>
       <section aria-label="The three primary approaches"><div class="grid3">${D.systems.map(approachCard).join('')}</div></section>
@@ -405,7 +405,7 @@
           <div class="seg" role="group" aria-label="Chart view"><button type="button" data-g="abs" aria-pressed="true">Growth of $1</button><button type="button" data-g="gap" aria-pressed="false">Versus baseline</button></div></div>
         <div class="legend" id="lg-growth"></div>
         <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results"></canvas></div>
-        <p class="sub">The gaps are within what chance could produce. Causal RAG has no line: it has not run. ${esc(PASSIVE)}: optional dashed line ${tip('commonbench')}</p>
+        <p class="sub">The gaps are within what chance could produce. Causal RAG has no line: no results yet. ${esc(PASSIVE)}: optional dashed line ${tip('commonbench')}</p>
         ${alikePanel()}
       </section>
       <section class="panel">
