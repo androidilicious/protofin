@@ -55,8 +55,9 @@ class CostGuard:
     pricing: {"mode": "tokens", "usd_per_m_input": x, "usd_per_m_output": y}
           or {"mode": "hourly", "usd_per_hour": z, "started_utc": "...Z"} (dedicated endpoint, billed while running)."""
 
-    def __init__(self, cap_usd: float, ledger: Path, pricing: dict):
-        self.cap, self.ledger, self.pricing = float(cap_usd), Path(ledger), dict(pricing)
+    def __init__(self, cap_usd: float, ledger: Path, pricing: dict, gate: Optional[Callable[[], Optional[str]]] = None):
+        """gate: returns a reason to refuse the next call (e.g. the endpoint is not running), or None."""
+        self.cap, self.ledger, self.pricing, self.gate = float(cap_usd), Path(ledger), dict(pricing), gate
         self.ledger.parent.mkdir(parents=True, exist_ok=True)
 
     def spent(self) -> float:
@@ -74,6 +75,10 @@ class CostGuard:
         return (tin * self.pricing["usd_per_m_input"] + req.max_tokens * self.pricing["usd_per_m_output"]) / 1e6
 
     def check(self, req: "Request") -> None:
+        if self.gate is not None:
+            why = self.gate()
+            if why:
+                raise BudgetExceeded(f"stopping before the call: {why}")
         s, w = self.spent(), self.worst_case(req)
         if s + w > self.cap:
             raise BudgetExceeded(f"cap ${self.cap:.2f}: spent ${s:.4f}, next call up to ${w:.4f}; stopping before the call")
@@ -194,9 +199,10 @@ class HFEndpointProvider:
                 "response_format": {"type": "json_object"}}
         if req.seed is not None:
             body["seed"] = req.seed
-        r = requests.post(os.environ["AP3_HF_ENDPOINT_URL"].rstrip("/") + "/v1/chat/completions", json=body, timeout=900,
-                          headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}",
-                                   "X-Scale-Up-Timeout": "900"})   # hold the request while a scaled-to-zero endpoint starts
+        # No scale-up header: a request must never wake a paused or scaled-to-zero endpoint (a new replica is billed).
+        r = requests.post(os.environ["AP3_HF_ENDPOINT_URL"].rstrip("/") + "/v1/chat/completions", json=body,
+                          timeout=float(os.environ.get("AP3_REQUEST_TIMEOUT_SECONDS", "300")),
+                          headers={"Authorization": f"Bearer {os.environ['HF_TOKEN']}"})
         r.raise_for_status()
         j = r.json()
         if j.get("model") not in (None, self.model, "/repository"):

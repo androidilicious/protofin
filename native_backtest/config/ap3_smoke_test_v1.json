@@ -2,12 +2,12 @@
  "_comment": "AP3 approval stage A: connectivity, canary and a 3-month smoke test on real Llama 3.1 70B Instruct. PREPARED, NOT APPROVED: no paid call has been made. The runner (native_backtest/scripts/ap3_smoke_test.py) refuses to call a paid provider unless the approval record below exists, AP3_ALLOW_PAID_INFERENCE=1 is set and credentials are present; a CostGuard stops it before any call that could pass the cap.",
  "version": "v1.1",
  "created": "2026-10-28",
- "status": "prepared; awaiting provider and spending approval",
- "cap_usd": 5.0,
+ "status": "approved 2026-10-29 for hf_endpoint, $15 total; waiting for HF_TOKEN, Hugging Face billing and licence, and network access",
+ "cap_usd": 15.0,
  "approval_record": "native_backtest/config/approvals/ap3_inference_approval_A.json",
  "approval_record_format": {
   "stage": "A",
-  "provider": "bedrock | hf_endpoint",
+  "provider": "hf_endpoint",
   "cap_usd": "<= providers.<provider>.cap_usd",
   "approved_by": "<name>",
   "approved_utc": "<timestamp>",
@@ -69,19 +69,19 @@
    "pricing_for_guard": {
     "mode": "hourly",
     "usd_per_hour": 10.0,
-    "started_utc": "<set when the endpoint is created>"
+    "started_utc": "<set by the controller at creation>"
    },
    "pricing_note": "$5 per hour for nvidia-a100 x2 on AWS, billed per minute while initialising or running. The $5 cap therefore buys one hour including start-up (loading ~140 GB of weights); the endpoint is paused as soon as the run ends.",
    "credentials": {
     "env": [
-     "HF_TOKEN",
-     "AP3_HF_ENDPOINT_URL",
-     "AP3_MODEL_REVISION"
+     "HF_TOKEN"
     ],
-    "how": "Environment secrets of this environment only; token scoped to inference endpoints."
+    "how": "Environment secret HF_TOKEN only: a fine-grained token that can manage Inference Endpoints and read the gated meta-llama repository. The endpoint URL and the pinned revision are set by the controller."
    },
    "network_allowlist": [
-    "<endpoint host>.endpoints.huggingface.cloud"
+    "huggingface.co",
+    "api.endpoints.huggingface.cloud",
+    "<endpoint host>.us-east-1.aws.endpoints.huggingface.cloud (or the endpoints.huggingface.cloud suffix)"
    ],
    "revision_note": "Latest commit of meta-llama/Llama-3.1-70B-Instruct (last modified 2024-12-15), BF16, gated: manual licence acceptance; verified 2026-10-28",
    "instance": "AWS nvidia-h200 x2 (282 GB), $10/hour, billed per minute including start-up; alternative nvidia-a100 x2 (160 GB, $5/hour) leaves little KV-cache room for 141 GB of BF16 weights",
@@ -151,6 +151,17 @@
      "usd_upper": "up to about 190",
      "note": "estimated at 120-200 tokens per second across 8 concurrent months plus start-ups; replaced by the smoke test's measured throughput before approval B is requested"
     }
+   },
+   "safeguards": {
+    "authorized_usd": 15.0,
+    "usd_per_hour": 10.0,
+    "init_deadline_minutes": 40,
+    "stop_new_calls_minute": 65,
+    "delete_minute": 68,
+    "request_timeout_seconds": 300,
+    "scale_to_zero_minutes": 15,
+    "poll_seconds": 20,
+    "note": "All deadlines run from just before the create call. Worst cases: python -m native_backtest.scripts.ap3_hf_endpoint"
    }
   }
  },
@@ -268,5 +279,6 @@
  ],
  "checked": "2026-10-28: provider availability, pricing and pinning re-verified from official pages (see AP3_INFERENCE_PROVIDER_SPEC_2026-10-28.md, 'Verified 2026-10-28')",
  "cap_note": "Each provider has its own stage-A cap (providers.<p>.cap_usd): $5 on Bedrock (per-token), $15 on a dedicated endpoint (about 90 minutes of 2x H200 including start-up). Either needs explicit approval.",
- "variant": "reduced_evidence"
+ "variant": "reduced_evidence",
+ "max_parallel_tests": 6
 }

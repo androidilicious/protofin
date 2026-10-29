@@ -78,7 +78,7 @@ def rival_candidates(library: dict, hyp: dict, k: int = 5) -> List[dict]:
 
 
 def run_month(client: LLMClient, packet: dict, vintage: Vintage, library: dict, chunks: List[dict], mediators: MediatorStore,
-              window_start, limits: Optional[dict] = None, evidence=None) -> Dict[str, Any]:
+              window_start, limits: Optional[dict] = None, evidence=None, max_parallel_tests: int = 1) -> Dict[str, Any]:
     """`evidence` is an evidence_pool.EvidencePool (one Causal RAG variant). Without it, `chunks` is the
     pool for every hypothesis (the original single-pool call, kept for the readiness dry run)."""
     limits = limits or load_limits()
@@ -89,9 +89,9 @@ def run_month(client: LLMClient, packet: dict, vintage: Vintage, library: dict, 
         ha = hypothesis_agent.run(client, packet, library, tools, limits)
     except ModelOutputError as e:   # invalid model output: the month has no hypotheses (status features 0), recorded as a failure
         ha = {"hypotheses": [], "turns": [], "tool_calls": tools.calls, "failure": f"hypothesis agent: {e}"}
-    tests = []
     n_rec = limits["causal_rag"]["max_research_records_per_hypothesis"]
-    for h in ha["hypotheses"]:
+
+    def test_one(h):
         recs = research_records(vintage, h, n_rec)
         h["research_records"] = recs
         rivals = rival_candidates(library, h)
@@ -111,7 +111,16 @@ def run_month(client: LLMClient, packet: dict, vintage: Vintage, library: dict, 
         if evidence is not None:
             from native_backtest.ap3.evidence_pool import pool_summary
             t["evidence_pool"] = pool_summary(pool)
-        tests.append(t)
+        return t
+
+    # Hypotheses are tested independently; with max_parallel_tests > 1 their calls overlap in time (served with
+    # batch invariance, so each reply is the same as when run alone). Order of the tests is preserved.
+    if max_parallel_tests > 1 and len(ha["hypotheses"]) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max_parallel_tests) as ex:
+            tests = list(ex.map(test_one, ha["hypotheses"]))
+    else:
+        tests = [test_one(h) for h in ha["hypotheses"]]
     feats = status_features(ha["hypotheses"], tests)
     record = {"decision_month": packet["decision_month"], "packet": packet, "graph_vintage": vintage.year,
               "library_sha256": library["library_sha256"], "hypothesis_agent": ha, "tests": tests, "status_features": feats,

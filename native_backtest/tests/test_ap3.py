@@ -378,12 +378,12 @@ def test_smoke_runner_refuses_without_approval(monkeypatch):
     from native_backtest.scripts import ap3_smoke_test as sm
     monkeypatch.delenv("AP3_ALLOW_PAID_INFERENCE", raising=False)
     cfg = sm.load_config()
-    assert cfg["cap_usd"] == 5.0 and cfg["months"] == ["2015-03", "2019-06", "2020-03"]
+    assert cfg["cap_usd"] == 15.0 and cfg["months"] == ["2015-03", "2019-06", "2020-03"]
+    # the 2026-10-29 approval covers the dedicated endpoint only: Bedrock (existing AWS credentials) stays refused
     missing = sm.prerequisites(cfg, "bedrock")
-    assert any("approval record" in m for m in missing) and "AP3_ALLOW_PAID_INFERENCE=1" in missing
+    assert any("not A / bedrock" in m for m in missing) and "AP3_ALLOW_PAID_INFERENCE=1" in missing
     with pytest.raises(sm.NotApproved):
         sm.main(["--provider", "bedrock", "--execute"])
-    assert not (sm.ROOT / cfg["approval_record"]).exists()
 
 
 # ---------------------------------------------------------------- browser-captured corpus import
@@ -431,8 +431,10 @@ def test_smoke_runner_safeguards(tmp_path, monkeypatch):
     assert spec["min_replica"] == 0 and spec["scale_to_zero_timeout_minutes"] == 15 and spec["env"]["VLLM_BATCH_INVARIANT"] == "1"
     monkeypatch.delenv("HF_TOKEN", raising=False)
     assert ep.approved() is False and ep.main([]) == 0          # plan only, nothing contacted
-    with pytest.raises(SystemExit, match="not approved"):
+    with pytest.raises(SystemExit):                              # creation exists only inside the managed smoke run
         ep.main(["--create"])
+    with pytest.raises(SystemExit, match="HF_TOKEN"):
+        ep.main(["--delete"])
     # hourly guard: elapsed time beyond the cap stops the next call
     from native_backtest.ap3 import llm_client as L
     g = L.CostGuard(15.0, tmp_path / "l.jsonl", {"mode": "hourly", "usd_per_hour": 10.0, "started_utc": "2026-10-28T00:00:00Z"})
@@ -642,3 +644,159 @@ def test_variants_differ_only_in_evidence():
     re_, hd = v["variants"]["reduced_evidence"], v["variants"]["historical_documents"]
     assert set(hd["evidence"]) - set(re_["evidence"]) == {"official_documents"} and set(re_["evidence"]) < set(hd["evidence"])
     assert v["primary_version"]["selected"] is None and "never used" in v["primary_version"]["rule"]
+
+
+# ------------------------------------------------------------------ dedicated-endpoint spending controller (fake API, fake clock)
+
+class _FakeHF:
+    def __init__(self, statuses, echo_args=True):
+        self.statuses, self.echo_args, self.calls, self.exists = list(statuses), echo_args, [], False
+
+    def create(self, e):
+        self.calls.append("create"); self.exists = True
+        model = {"repository": e["repository"], "revision": e["revision"], "image": {"custom": {"url": e["image"], **({"args": e["container_args"]} if self.echo_args else {})}}}
+        return {"status": "pending", "url": None, "raw": {"model": model, "compute": {"instanceType": e["instance_type"], "instanceSize": e["instance_size"]}}}
+
+    def get(self, name):
+        if not self.exists:
+            return None
+        st = self.statuses.pop(0) if len(self.statuses) > 1 else self.statuses[0]
+        return {"status": st, "url": "https://x.us-east-1.aws.endpoints.huggingface.cloud" if st == "running" else None, "raw": {}}
+
+    def delete(self, name):
+        self.calls.append("delete"); self.exists = False
+
+
+class _Clock:
+    def __init__(self):
+        self.t = 1_800_000_000.0
+
+    def __call__(self):
+        return self.t
+
+
+def _ctl(tmp_path, statuses, **kw):
+    from native_backtest.scripts import ap3_hf_endpoint as ep
+    monkey_state = tmp_path / "endpoint.json"
+    ep.STATE = monkey_state
+    clock = _Clock()
+    api = _FakeHF(statuses, **kw)
+    return ep, ep.EndpointController(api, "t", log=tmp_path / "log.jsonl", clock=clock), api, clock
+
+
+def test_safeguards_bound_every_failure_mode_within_the_authorization():
+    from native_backtest.scripts import ap3_hf_endpoint as ep
+    w = ep.worst_cases()
+    s = ep.safeguards()
+    assert s["authorized_usd"] == 15.0 and all(v["max_usd"] <= 15.0 for v in w.values() if v["max_usd"] is not None)
+    ep.spec_check()
+    with pytest.raises(SystemExit, match="above"):
+        ep.spec_check({**s, "stop_new_calls_minute": 80, "delete_minute": 85})
+    a = json.loads((ROOT / "native_backtest/config/approvals/ap3_inference_approval_A.json").read_text())
+    assert a["provider"] == "hf_endpoint" and a["cap_usd"] == 15.0 and a["stage"] == "A"
+
+
+def test_controller_deletes_when_the_pinned_configuration_is_not_echoed(tmp_path):
+    ep, c, api, clock = _ctl(tmp_path, ["pending"], echo_args=False)
+    with pytest.raises(SystemExit, match="container arguments"):
+        c.create()
+    assert api.calls == ["create", "delete"] and c.deleted["confirmed"]
+
+
+def test_controller_init_deadline_failure_and_spending_deadline(tmp_path):
+    ep, c, api, clock = _ctl(tmp_path, ["initializing"])
+    c.create()
+    clock.t += 39 * 60; c.poll_once(); assert not c.deleted
+    clock.t += 2 * 60; c.poll_once()
+    assert c.deleted and "not running after 40" in c.deleted["reason"] and c.cost_usd() <= 6.84
+    ep, c, api, clock = _ctl(tmp_path, ["failed"])
+    c.create(); c.poll_once()
+    assert "failed" in c.deleted["reason"]
+    ep, c, api, clock = _ctl(tmp_path, ["running"])
+    c.create(); c.poll_once()
+    assert c.stop_reason() is None
+    clock.t += 65 * 60
+    assert "time limit" in c.stop_reason()                       # no new calls from minute 65
+    clock.t += 3 * 60; c.poll_once()
+    assert "spending deadline" in c.deleted["reason"] and c.runtime_record()["cost_usd_upper"] <= 11.5
+
+
+def test_guard_gate_never_wakes_a_non_running_endpoint(tmp_path):
+    from native_backtest.ap3 import llm_client as Lc
+    ep, c, api, clock = _ctl(tmp_path, ["running", "scaledToZero"])
+    c.create(); c.poll_once()
+    g = Lc.CostGuard(10.0, tmp_path / "ledger.jsonl", {"mode": "hourly", "usd_per_hour": 10.0, "started_utc": "2027-01-15T08:00:00Z"}, gate=c.stop_reason)
+    req = Request(step="x", system="s", user="u", schema={}, temperature=0.0, seed=0)
+    c.poll_once()
+    with pytest.raises(Lc.BudgetExceeded, match="not running"):
+        g.check(req)
+    assert c.wait_running if True else None
+
+
+def test_wait_running_returns_url_and_runtime_is_recorded(tmp_path):
+    ep, c, api, clock = _ctl(tmp_path, ["initializing", "initializing", "running"])
+    c.create()
+    url = c.wait_running(sleep=lambda s: setattr(clock, "t", clock.t + s))
+    assert url.startswith("https://") and c.status == "running"
+    c.delete("done")
+    r = c.runtime_record()
+    assert r["deleted"]["confirmed"] and r["billable_minutes_upper"] >= 1 and api.calls[-1] == "delete"
+    log = [json.loads(l)["event"] for l in (tmp_path / "log.jsonl").read_text().splitlines()]
+    assert log[0] == "create_requested" and "ready" in log and log[-1] == "deleted"
+
+
+def test_smoke_plan_lists_missing_access_without_contacting_anyone(monkeypatch, capsys):
+    from native_backtest.scripts import ap3_smoke_test as st
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+    monkeypatch.delenv("AP3_ALLOW_PAID_INFERENCE", raising=False)
+    assert st.main(["--provider", "hf_endpoint"]) == 0
+    plan = json.loads(capsys.readouterr().out)
+    assert plan["will_call_a_paid_model"] is False and "worst_cases" in plan["estimate"]
+    assert any("HF_TOKEN" in m for m in plan["prerequisites_missing"]) and not any("approval record" in m for m in plan["prerequisites_missing"])
+    with pytest.raises(st.NotApproved):
+        st.main(["--provider", "hf_endpoint", "--execute"])
+
+
+@needs_claims
+def test_smoke_report_refuses_mock_records_and_redacts_claims_text(tmp_path, monkeypatch):
+    """Formatting check on a TEST-ONLY copy of a mock month; real smoke folders never receive mock records."""
+    from native_backtest.ap3 import engineering_mock, runner
+    from native_backtest.ap3.graph_vintage import build_vintage, load_concepts
+    from native_backtest.scripts import ap3_smoke_report as rp
+    concepts, limits = load_concepts(), runner.load_limits()
+    lib = json.loads((EXTERNAL / "ap3_libraries" / "library_v1.0_vintage2018.json").read_text())
+    packet = runner.build_packet("2019-06", "2019-06-28T20:00:00-04:00", {"CPI": 1.4}, [], [], concepts, limits)
+    client = LLMClient(EngineeringMockProvider(engineering_mock.responder), tmp_path / "c", tmp_path / "x" / "calls.jsonl", "t")
+    rec = runner.run_month(client, packet, build_vintage(2018, concepts), lib, [], _fixture_mediators(), pd.Timestamp("2019-06-01"), limits,
+                           evidence=_pool(), max_parallel_tests=3)
+    d = tmp_path / "x"
+    d.mkdir(exist_ok=True)
+    monkeypatch.setattr(rp, "SMOKE", tmp_path)
+    monkeypatch.setattr(rp, "DOC", tmp_path / "report.md")
+    (d / "smoke_records.jsonl").write_text(json.dumps(rec, default=str) + "\n")
+    with pytest.raises(SystemExit, match="engineering-mock"):
+        rp.build("x")
+    (d / "smoke_records.jsonl").write_text(json.dumps({**rec, "engineering_mock": False}, default=str) + "\n")
+    (d / "canary.json").write_text(json.dumps([{"id": "c1", "ok": True}]))
+    (d / "runtime.json").write_text(json.dumps({"billable_minutes_upper": 40, "cost_usd_upper": 6.67}))
+    r = rp.build("x")
+    h = r["months"][0]["hypotheses"][0]
+    assert all("links" in v for v in h["cited_pathways"].values()) and all("title" not in x for x in h["research_records"])
+    quotes = [q for run in h["testing_runs"] for it in run["assessments"] for q in it["supporting_quotes"] + it["contradicting_quotes"]]
+    assert all(q["quote"].startswith("[research-claim") for q in quotes if q["chunk_id"].startswith("RC_"))
+    assert r["checks"]["spend_within_authorization"]["pass"] and "Forecast and allocation" in (tmp_path / "report.md").read_text()
+    full = json.loads((d / "smoke_report_full.json").read_text())
+    assert full["months"][0]["hypotheses"][0]["research_records"] == [] or "title" in full["months"][0]["hypotheses"][0]["research_records"][0]
+
+
+def test_policy_path_proxy_is_a_separate_labelled_variant_and_point_in_time():
+    from native_backtest.ap3 import mediator_data as md, evidence_pool as ep
+    _, frozen = md.load_store(include_pending_substitutes=True, inventory="v2")
+    assert frozen["FF_FUTURES_6M"].startswith("unavailable")            # frozen specification unchanged: no silent proxy
+    f = md.load_series("FF_FUTURES_6M", "v2_policy_proxy")
+    two = md.load_series("UST2Y", "v2")
+    j = f.merge(two, on="date", suffixes=("", "_2y"))
+    assert (j["available_at"] >= j["available_at_2y"]).all()             # never earlier than its inputs
+    assert md.labels("v2_policy_proxy")["FF_FUTURES_6M"].startswith("PROXY")
+    v = ep.load_variants()["variants"]["reduced_evidence_policy_proxy"]
+    assert v["mediator_inventory"] == "v2_policy_proxy" and "not part of the frozen specification" in v["role"].lower()
