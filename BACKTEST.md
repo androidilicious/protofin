@@ -49,6 +49,13 @@ These are diagnostics on development months, not protected historical results.
 - **JEV − Deterministic:** +1.01 pts net CER per year, 95% range −3.42 to +5.27, p = 0.63. Not statistically clear.
 - **Committee − JEV:** +0.44 pts, 95% range −1.85 to +2.90, p = 0.72. Not statistically clear.
 
+**Within-approach experiments (completed 29 Oct 2026).** Pre-registered first, development months only, none in the primary family.
+- **Conventional financial signals (B1..B5, B-All):** resumed after a written decision and pre-registration. The pre-declared B-All contrast is **−0.046** normalised pooled squared-error improvement (95% −0.139 to +0.001, p = 0.47): no improvement. No component is significant after Holm correction, none passes the robustness rule, and all five lower net CER.
+- **Market regimes:** all four strategies earn far less from 2020 onward at two to three times the volatility; diagnostic only.
+- **Committee + JEV:** net CER 4.93%, between JEV (4.67%) and the Committee (5.11%); clear against neither.
+
+Report: [`native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md`](native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md).
+
 **Do the signals add value?** Each approach is compared with its own portfolio with the forecasts switched off. These are within-approach counterfactuals, not new approaches: same assets, starting mix, monthly rebalancing, costs and cash.
 - **Deterministic signals:** −0.11 pts net CER (95% range −0.31 to +0.03, p = 0.17).
 - **JEV signals:** +0.31 pts (−0.48 to +1.38, p = 0.59). The gain depends on one month, the February 2020 decision; without it the figure is −0.18 pts.
@@ -99,6 +106,7 @@ The dashboard contains development results, statuses and explanations only. It c
 | [`native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md`](native_backtest/docs/AP3_CAUSAL_RAG_VERSIONS_2026-10-29.md) | The Causal RAG versions, reliability gates, cost of model runs |
 | [`native_backtest/docs/AP3_QWEN3_RUN1_DIAGNOSIS_2026-10-29.md`](native_backtest/docs/AP3_QWEN3_RUN1_DIAGNOSIS_2026-10-29.md) | First free real-model run of Causal RAG: why both gates failed, which were pipeline defects (fixed) and which the model's, what to rerun |
 | [`native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md`](native_backtest/docs/AP3_CORPUS_STATUS_2026-10-29.md) | Evidence corpus: counts, reconciliation, storage, BLS options |
+| [`native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md`](native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md) | The within-approach experiments: why each was pending, the financial-signal results, market regimes, Committee + JEV, and what still blocks Causal RAG |
 | [`native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md`](native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md) | Signals vs each approach's own no-signal portfolio; reconciled breakdown of the JEV − Deterministic gap; independent rebuild |
 | [`native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md`](native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md) | Independent rebuild of the Deterministic, JEV and passive returns; why the Deterministic and JEV curves look alike (no calculation error) |
 | [`mvp/`](mvp/README.md) | Dashboard frontend, data builder and its tests |

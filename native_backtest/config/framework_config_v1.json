@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.7",
+  "version": "1.8",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -165,7 +165,7 @@
     "rule": "The shared evaluator refuses to score decision months before 2011-01."
   },
   "research_design": {
-    "updated": "2026-10-28",
+    "updated": "2026-10-29",
     "primary_approaches": [
       {
         "approach": "Deterministic Quantitative Model",
@@ -202,20 +202,23 @@
             {
               "id": "AP1+B1..B5",
               "name": "Add one financial signal at a time",
-              "status": "paused",
-              "note": "Stage 2 v2 B1-B5 (Baa-10Y level, its 3-month change, 10Y-3M slope, VRP proxy, 12-month momentum). Code and development runs exist; paused and archived 2026-10-27; not run, ranked or reported."
+              "status": "tested",
+              "note": "Resumed by the project lead's written decision of 2026-10-29 and pre-registered (config/within_approach_preregistration_v1.json) before any result was reported; the three pause conditions were met. The frozen Stage 2 scorer was re-run from the canonical development spec into stage2/results/dev_rerun_v5_within_approach_2026-10-29 and reproduces the archived 2026-10-27 run file-for-file. Development only. No component improves forecasts significantly after Holm correction within the five-component family.",
+              "results": "native_backtest/out/within_approach/within_approach_v1.json"
             },
             {
               "id": "AP1+B-All",
               "name": "All five financial signals together",
-              "status": "paused",
-              "note": "Stage 2 v2 B-All, the only defined signal set (8 macro surprises + 5 financial signals). Paused with B1-B5."
+              "status": "tested",
+              "note": "The predeclared confirmatory conventional contrast. Normalised pooled squared-error improvement vs A is negative (-0.046, 95% -0.139..+0.001, p 0.47): no improvement. Development only.",
+              "results": "native_backtest/out/within_approach/within_approach_v1.json"
             },
             {
               "id": "REG",
               "name": "Market regimes",
-              "status": "planned",
-              "note": "Regimes defined before scoring from information available at each decision; applicable to every approach's results."
+              "status": "tested",
+              "note": "Pre-registered 2026-10-29 with both splits fixed in advance: a date split and VIX >= 20 at the decision close, both known at the decision time. Diagnostic only; never used to select or tune anything.",
+              "results": "native_backtest/out/within_approach/within_approach_v1.json"
             }
           ]
         },
@@ -236,8 +239,9 @@
             {
               "id": "AP2-COMBO",
               "name": "Committee + JEV",
-              "status": "planned",
-              "note": "Combination rule to be pre-registered before any protected month is seen."
+              "status": "tested",
+              "note": "Equal-weight average of the Committee's and JEV's saved SPY target weights, with no parameters; the rule was pre-registered. Same dates, universe and horizon, with information cutoffs before the decision, so no look-ahead. It lies between its components and differs from neither significantly.",
+              "results": "native_backtest/out/within_approach/within_approach_v1.json"
             }
           ]
         },
@@ -362,6 +366,11 @@
       "version": "1.7",
       "date": "2026-10-29",
       "change": "Causal RAG versions: Reduced Evidence and With Historical Documents added as within-approach entries; the primary Causal RAG version is chosen and approved before the protected window opens (native_backtest/ap3/variants_v1.json). No frozen or fingerprinted field changed."
+    },
+    {
+      "version": "1.8",
+      "date": "2026-10-29",
+      "change": "Within-approach experiment statuses only: the Deterministic financial-signal experiments (B1..B5, B-All) are resumed per the project lead's written decision and pre-registration and are now tested; Market regimes and Committee + JEV are completed and tested. Results: native_backtest/out/within_approach/within_approach_v1.json. No frozen setting, window, cost, metric, contrast or fingerprint changed; no experiment definition changed."
     }
   ],
   "common_benchmark": {

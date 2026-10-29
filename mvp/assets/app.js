@@ -852,12 +852,23 @@
       </section>`;
   }
 
+  // what a completed within-approach experiment found; shown only for experiments that actually ran
+  function expResult(r) {
+    if (!r) return '';
+    return `<div class="exres">
+      <div class="exres-h"><b>${esc(r.headline)}</b><span class="chip dev">${icon('chart')}${esc(r.months)}</span></div>
+      <dl class="exres-rows">${r.rows.map(x => `<div><dt>${esc(x.label)}</dt><dd class="num">${esc(x.value)}</dd><small>${esc(x.note)}</small></div>`).join('')}</dl>
+      <p>${esc(r.learned)}</p>
+      ${r.caution ? `<p class="exres-caution">${icon('info')}<span>${esc(r.caution)}</span></p>` : ''}
+    </div>`;
+  }
+
   function viewExperiments() {
     const E = D.experiments, months = D.dev.months, w = E.within_contrast;
     const TITLES = { det: 'Deterministic Quantitative Model', jev: 'Agentic Workflow', rag: 'Agentic Causal RAG' };
     const branch = (v, gi, i) => `<div class="branch ${v.status}"><button type="button" aria-expanded="false" aria-controls="b-${gi}-${i}">
         <span class="nm">${esc(v.name)}</span>${statusChip(v.status)}${icon('chev', 'chev')}</button>
-        <div class="bd" id="b-${gi}-${i}" hidden><span>${esc(v.detail)}</span>${v.link ? `<a class="go" href="#${SLUG[v.link]}">${v.link === 'rag' ? 'How it works →' : 'See its results →'}</a>` : ''}</div></div>`;
+        <div class="bd" id="b-${gi}-${i}" hidden><span>${esc(v.detail)}</span>${expResult(v.result)}${v.link ? `<a class="go" href="#${SLUG[v.link]}">${v.link === 'rag' ? 'How it works →' : 'See its results →'}</a>` : ''}</div></div>`;
     const group = (g, gi) => `<section class="panel" style="--c:var(${VAR[g.approach]})">
         <div class="phead"><h2>${badge(g.approach)}${TITLES[g.approach]}</h2></div>
         <div class="tree">

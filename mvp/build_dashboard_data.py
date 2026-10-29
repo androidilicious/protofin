@@ -125,15 +125,18 @@ STATUS_ORDER = ("tested", "awaiting_validation", "planned", "blocked", "paused")
 EXP_TEXT = {
     "AP1": ("Base model: 8 economic-data surprises", "det", "The Deterministic model as it runs in the primary comparison."),
     "AP1+B1..B5": ("Add one financial signal at a time", None,
-                   "Credit spread, its 3-month change, yield-curve slope, a volatility premium, or 12-month momentum, each added on its own. "
-                   "Built and run on development months, then put on hold by a team decision on 27 Oct 2026; its results are archived and not reported."),
+                   "Credit spread, its 3-month change, yield-curve slope, a volatility premium, or 12-month momentum, each added on its own, "
+                   "on the development months. Resumed and completed on 29 Oct 2026 after a written decision and a pre-registration."),
     "AP1+B-All": ("All five financial signals together", None,
-                  "The only defined signal set: the 8 surprises plus all five financial signals. On hold with the single-signal runs."),
+                  "The only defined signal set: the 8 surprises plus all five financial signals. The pre-declared conventional-signal test."),
     "REG": ("Market regimes", None,
-            "Results split into calm and stressed periods. Regimes must be defined before scoring, using only information available at each decision."),
+            "Results split by period and by how volatile markets were at the decision date. Both splits were fixed before scoring and use only "
+            "information available at each decision."),
     "AP2B": ("JEV only", "jev", "JEV represents the Agentic Workflow in the primary comparison."),
     "AP2A": ("Agent Committee only", "com", "Three AI agents debate; a chief investment officer sets 12-month views. Compared only with JEV."),
-    "AP2-COMBO": ("Committee + JEV", None, "Combines the Committee's views with JEV's answer. The combination rule must be fixed before any test month is seen."),
+    "AP2-COMBO": ("Committee + JEV", None,
+                  "Holds the average of what the Committee and JEV each chose: same months, same two funds, no settings to tune. "
+                  "The rule was fixed in advance."),
     "AP3": ("Agentic Causal RAG", "rag",
             "Research graph, Hypothesis and Testing Agents, calibration. Its primary version is chosen before the test opens."),
     "AP3-RE": ("Causal RAG — Reduced Evidence", "rag",
@@ -153,16 +156,89 @@ EXP_TEXT = {
 GROUP_KEY = {"Deterministic Quantitative Model": "det", "Agentic Workflow": "jev", "Agentic Causal RAG": "rag"}
 
 
+def within_approach_results() -> dict:
+    """Headline result of each completed within-approach experiment, read from the verified analysis output."""
+    f = ROOT / "native_backtest" / "out" / "within_approach" / "within_approach_v1.json"
+    if not f.exists():
+        return {}
+    r = json.loads(f.read_text())
+    A, G, C = r["AP1_financial_signals"], r["REG_market_regimes"], r["AP2_committee_plus_jev"]
+    sig = lambda s: A["systems"][s]["forecast"]
+    best = max(("B1", "B2", "B3", "B4", "B5"), key=lambda s: sig(s)["normalized_pooled_se_improvement"])
+    ball = sig("B-All")
+    out = {
+        "AP1+B1..B5": {
+            "headline": "None of the five improves the forecasts",
+            "learned": ("Added one at a time to the 8 economic surprises, no financial signal makes the forecasts better by enough to rule out "
+                        "chance, and none passes the pre-set robustness rule. Every one of them lowers net CER."),
+            "rows": [{"label": f"Largest improvement of the five ({ {'B1': 'credit spread level', 'B2': 'credit spread change', 'B3': 'yield-curve slope', 'B4': 'volatility premium', 'B5': '12-month momentum'}[best] })",
+                      "value": _minus(f"{sig(best)['normalized_pooled_se_improvement']:+.4f}"), "note": f"p = {sig(best)['p_two_sided']:.2f}; {A['systems'][best]['holm_within_component_family']['holm_adjusted_p']:.2f} after correcting for the five"},
+                     {"label": "Signals that pass the robustness rule", "value": "0 of 5", "note": "needs significance, the same sign in both halves and 2 of 3 assets"},
+                     {"label": "Effect on net CER vs the baseline", "value": "all five lower it",
+                      "note": _minus(f"from {min(A['systems'][s]['portfolio']['vs_A']['net_cer_difference'] for s in ('B1','B2','B3','B4','B5'))*100:+.2f} to {max(A['systems'][s]['portfolio']['vs_A']['net_cer_difference'] for s in ('B1','B2','B3','B4','B5'))*100:+.2f} pts a year")}]},
+        "AP1+B-All": {
+            "headline": "The combined signal set does not beat the baseline",
+            "learned": ("All five financial signals together make the forecasts slightly worse than the 8 economic surprises alone, well within "
+                        "what chance could produce. This was the pre-declared test for conventional signals, and it fails."),
+            "rows": [{"label": "Forecast improvement vs the baseline", "value": _minus(f"{ball['normalized_pooled_se_improvement']:+.4f}"),
+                      "note": _minus(f"95% range {ball['ci95'][0]:+.4f} to {ball['ci95'][1]:+.4f}; p = {ball['p_two_sided']:.2f}")},
+                     {"label": "Net CER", "value": _pcts(A["systems"]["B-All"]["portfolio"]["net_cer"]),
+                      "note": _minus(f"{A['systems']['B-All']['portfolio']['vs_A']['net_cer_difference']*100:+.2f} pts vs the baseline's ") + _pcts(A['A_reference']['net_cer'])},
+                     {"label": "Signal coverage", "value": "100%", "note": "every signal available in all 46 months, for all three funds"}]},
+        "REG": {
+            "headline": "Everything earns less after 2019, and none of the approaches is more defensive",
+            "learned": ("Split by period and by market volatility at the decision date. All four strategies earn far less per year from 2020 "
+                        "onward at two to three times the volatility, and none of them holds up better than the passive portfolio when volatility is already high."),
+            "rows": [{"label": "Deterministic net CER, 2019 vs 2020-22",
+                      "value": f"{_pcts(G['systems']['det']['R1_date']['2019-03..2019-12']['net_cer'])} → {_pcts(G['systems']['det']['R1_date']['2020-01..2022-12']['net_cer'])}", "note": "10 months, then 36"},
+                     {"label": "JEV net CER, 2019 vs 2020-22",
+                      "value": f"{_pcts(G['systems']['jev']['R1_date']['2019-03..2019-12']['net_cer'])} → {_pcts(G['systems']['jev']['R1_date']['2020-01..2022-12']['net_cer'])}", "note": "same split"},
+                     {"label": "Highest net CER in stressed months", "value": "the passive portfolio",
+                      "note": f"{_pcts(G['systems']['passive']['R2_volatility']['stressed (VIX >= 20)']['net_cer'])} across 26 months with VIX at or above 20"}],
+            "caution": ("One cell stands out: JEV beats the Deterministic model by "
+                        + _minus(f"{G['contrasts']['JEV - Deterministic']['R1_date']['2019-03..2019-12']['net_cer_difference']*100:+.2f}")
+                        + " points in 2019 "
+                        + f"(p = {G['contrasts']['JEV - Deterministic']['R1_date']['2019-03..2019-12']['p_two_sided_bootstrap']:.2f}), but that is 10 months, "
+                        + "one of eight cells, with no correction for looking at several. These splits are diagnostics and never select anything.")},
+        "AP2-COMBO": {
+            "headline": "The combination lands between its two parts, and beats neither",
+            "learned": ("Holding the average of the Committee's and JEV's choices gives a slightly smoother ride than JEV alone, but it trades "
+                        "much more, and the extra cost cancels the benefit. Combining the two agentic systems is neither better nor worse than either alone."),
+            "rows": [{"label": "Net CER", "value": _pcts(C["metrics"]["combo"]["cer_delta_2_5"]),
+                      "note": f"JEV {_pcts(C['metrics']['jev']['cer_delta_2_5'])}, Committee {_pcts(C['metrics']['com']['cer_delta_2_5'])}"},
+                     {"label": "vs JEV", "value": _minus(f"{C['comparisons']['vs JEV']['net_cer_difference']*100:+.2f} pts"),
+                      "note": f"p = {C['comparisons']['vs JEV']['p_two_sided_bootstrap']:.2f}: not statistically clear"},
+                     {"label": "Trading per year", "value": _pcts(C["metrics"]["combo"]["annualized_one_way_turnover"], 0),
+                      "note": f"against JEV's {_pcts(C['metrics']['jev']['annualized_one_way_turnover'], 0)}"}]},
+    }
+    for v in out.values():
+        v["months"] = f"{r['months'][2]} development months"
+    return out
+
+
 def experiments_block(cfg: dict, within: list) -> dict:
+    results = within_approach_results()
     groups = []
     for g in cfg["research_design"]["within_approach_experiments"]["groups"]:
         def item(x):
             name, link, detail = EXP_TEXT[x["id"]]
             assert x["status"] in STATUS_ORDER, x
-            return {"name": name, "status": x["status"], "detail": detail, "link": link}
+            out = {"name": name, "status": x["status"], "detail": detail, "link": link}
+            if x["id"] in results:
+                assert x["status"] == "tested", x       # results are shown only for experiments that actually ran
+                out["result"] = results[x["id"]]
+            return out
         groups.append({"approach": GROUP_KEY[g["approach"]], "base": item(g["base"]), "variants": [item(v) for v in g["variants"]],
                        **({"blocked_by": g["base"]["blocked_by"]} if "blocked_by" in g["base"] else {})})
     return {"groups": groups, "within_contrast": within[0] if within else None}
+
+
+def _minus(t: str) -> str:
+    return t.replace("-", "\u2212")          # the display minus sign used everywhere else on the dashboard
+
+
+def _pcts(x, d=2):
+    return _minus(f"{x * 100:.{d}f}%")
 
 
 def free_run_checks() -> list:

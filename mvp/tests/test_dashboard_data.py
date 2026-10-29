@@ -30,7 +30,7 @@ def test_committee_is_a_within_approach_variant():
     assert list(groups) == ["det", "jev", "rag"]
     aw = groups["jev"]
     assert aw["base"]["name"] == "JEV only" and aw["base"]["status"] == "tested"
-    assert {v["name"]: v["status"] for v in aw["variants"]} == {"Agent Committee only": "tested", "Committee + JEV": "planned"}
+    assert {v["name"]: v["status"] for v in aw["variants"]} == {"Agent Committee only": "tested", "Committee + JEV": "tested"}
     # the Committee never enters the primary family
     fam = REPORT["primary_contrasts_matched_dev"]["family"]
     assert fam == ["AP2B-AP1", "AP3-AP1", "AP3-AP2B"] and not any("AP2A" in f for f in fam)
@@ -47,7 +47,9 @@ def test_experiment_statuses_match_the_research_design():
         assert [v["status"] for v in c["variants"]] == [v["status"] for v in g["variants"]]
         assert c["base"]["status"] == g["base"]["status"]
     det, rag = shown[0], shown[2]
-    assert {v["status"] for v in det["variants"]} == {"paused", "planned"}          # signal experiments are on hold
+    # the Deterministic experiments were resumed and completed on 2026-10-29 (pre-registered first)
+    assert {v["name"]: v["status"] for v in det["variants"]} == {"Add one financial signal at a time": "tested",
+                                                                 "All five financial signals together": "tested", "Market regimes": "tested"}
     assert rag["base"]["status"] == "awaiting_validation"
     versions = {v["name"]: v["status"] for v in rag["variants"][:2]}
     assert versions == {"Causal RAG — Reduced Evidence": "awaiting_validation", "Causal RAG — With Historical Documents": "blocked"}
@@ -55,6 +57,10 @@ def test_experiment_statuses_match_the_research_design():
     assert all(v["status"] == "planned" for v in rag["variants"][3:])
     # nothing untested links to results: the two Causal RAG versions link only to the explanation page, which shows none
     assert all(v["link"] in (None, "rag") for g in shown for v in g["variants"] if v["status"] != "tested")
+    # no Causal RAG experiment may be called tested, and results are attached only to experiments that ran
+    assert not any(v["status"] == "tested" for v in rag["variants"]) and rag["base"]["status"] != "tested"
+    assert all(v["status"] == "tested" for g in shown for v in g["variants"] if "result" in v)
+    assert sum("result" in v for g in shown for v in g["variants"]) == 4
     V = D["ap3"]["versions"]
     assert V["primary"] is None and [i["key"] for i in V["items"]] == ["re", "hd"]
     assert not any(c["done"] for i in V["items"] for c in i["checks"] if "real-model" in c["text"].lower() or "Real model" in c["text"])

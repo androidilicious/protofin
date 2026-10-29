@@ -36,7 +36,11 @@ VIEWS = {
                     "Base model: 8 economic-data surprises", "Add one financial signal at a time", "Market regimes", "JEV only", "Agent Committee only",
                     "Committee + JEV", "Its primary version is chosen before the test opens", "Causal RAG — Reduced Evidence",
                     "Causal RAG — With Historical Documents", "Do historical documents help?", "Standard RAG vs Causal RAG", "Ablations and placebo checks", "Model and calibration variants",
-                    "Agent Committee only vs JEV only", "Do the signals actually add value?", "See the Signal Value-Added tab"],
+                    "Agent Committee only vs JEV only", "Do the signals actually add value?", "See the Signal Value-Added tab",
+                    "None of the five improves the forecasts", "The combined signal set does not beat the baseline",
+                    "Everything earns less after 2019", "The combination lands between its two parts, and beats neither",
+                    "46 development months", "Signals that pass the robustness rule", "0 of 5", "Signal coverage", "100%",
+                    "These splits are diagnostics and never select anything."],
     "signal-value": ["Signal Value-Added", "Observation", "Experiments", "Results", "Explanation", "Takeaway",
                      "Two very different forecasting approaches, remarkably similar performance curves", "0.971", "0.983",
                      "no calculation or charting error", "Keep the investment framework fixed. Change only the forecasting signal.",
@@ -145,6 +149,31 @@ def main() -> int:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: detail chart lines {ds}")
                         if page.locator("main .attr .arow").count() != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: decomposition rows missing")
+                    if view == "experiments":
+                        # every experiment shows its real status; results appear only where one actually ran
+                        rows = page.evaluate("""() => [...document.querySelectorAll('.branch')].map(b => ({
+                            name: b.querySelector('.nm').textContent.trim(), status: [...b.classList].find(c => c !== 'branch'),
+                            chip: b.querySelector('.chip') ? b.querySelector('.chip').textContent.trim() : null,
+                            results: b.querySelectorAll('.exres').length}))""")
+                        want = {"Add one financial signal at a time": ("tested", 1), "All five financial signals together": ("tested", 1),
+                                "Market regimes": ("tested", 1), "Agent Committee only": ("tested", 0), "Committee + JEV": ("tested", 1),
+                                "Causal RAG — Reduced Evidence": ("awaiting_validation", 0), "Causal RAG — With Historical Documents": ("blocked", 0),
+                                "Policy-path proxy variant": ("awaiting_validation", 0), "Do historical documents help?": ("planned", 0),
+                                "Standard RAG vs Causal RAG": ("planned", 0), "Ablations and placebo checks": ("planned", 0),
+                                "Model and calibration variants": ("planned", 0)}
+                        got = {r["name"]: (r["status"], r["results"]) for r in rows}
+                        if got != want:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: experiment statuses {[(k, got.get(k), v) for k, v in want.items() if got.get(k) != v]}")
+                        if any(r["status"] in ("paused", "planned") and r["results"] for r in rows):
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: results shown for an experiment that did not run")
+                        for b_ in page.locator(".branch > button").all():
+                            b_.tap() if vp_name == "phone" else b_.click()
+                        page.wait_for_timeout(250)
+                        if page.locator(".exres").count() != 4 or page.locator("#app .exres-caution").count() != 1:
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: result blocks {page.locator('.exres').count()}")
+                        if shots and scheme == "dark":
+                            page.screenshot(path=str(shots / f"{scheme}-{vp_name}-experiments-open.png"), full_page=True)
+
                     if view == "signal-value":
                         # its own top-level tab: the right strategies, periods and series in every chart
                         if page.locator("header nav a[aria-current=page]").text_content() != "Signal Value-Added" or page.locator("header nav a").count() != 5:
