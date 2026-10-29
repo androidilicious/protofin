@@ -1,6 +1,6 @@
 # Bloomberg data request: fed funds futures for AP3's FF_FUTURES_6M mediator (2026-10-28)
 
-This is the last series missing from the AP3 mediator inventory (`MEDIATOR_INVENTORY_v2_2026-10-28.md`). The specification below can be run as is on a Bloomberg terminal or with the Excel add-in. A machine-readable copy, with every ticker listed, is in `native_backtest/config/bloomberg_ff_futures_request_v1.json`.
+This is the last series missing from the AP3 mediator inventory (`MEDIATOR_INVENTORY_v2_2026-10-28.md`). The specification below can be run as is on a Bloomberg terminal or with the Excel add-in. A machine-readable copy (v1.1), with all 186 contract tickers listed and checked against the CME month codes, is in `native_backtest/config/bloomberg_ff_futures_request_v1.json`.
 
 ## What the mediator measures
 
@@ -56,8 +56,12 @@ When the import passes:
 2. Development packets are rebuilt as v3, leaving v1 and v2 unchanged.
 3. Trigger counts stop being provisional.
 
-## If the data cannot be obtained
+## Delivery
 
-The team decides between two options, and records the decision in the GO record before any model run:
-- **Drop the mediator.** The Testing Agent then reports "unavailable" for predictions naming it.
-- **Use a pre-registered public proxy**, for example the 2-year Treasury yield, which the inventory already holds.
+- Two files: `ff_futures_history.csv` and `ff_futures_static.csv`. Dates are Bloomberg trade dates, which are the CME settlement dates.
+- Add a one-line note with the date of the export and the Bloomberg function or add-in used.
+- Attach the files in the chat, or place them in a folder connected to this session. They are stored only in the git-ignored licensed folder.
+
+## No substitution without approval
+
+FF_FUTURES_6M is a required input. It is not dropped, and no proxy is used in its place, without the project lead's explicit approval recorded before any model run. Until the export arrives, the mediator stays "pending" in the inventory and the readiness reports.
