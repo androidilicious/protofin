@@ -19,6 +19,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import time
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -596,6 +598,275 @@ def sensitivity_block() -> dict | None:
     return out
 
 
+
+# ---------------------------------------------------------------- interactive pipeline (genuine archived values)
+PIPE_AP1 = ROOT / "native_backtest/out/sensitivity/ap1_transmission_trace.csv"
+PIPE_AP2B = ROOT / "native_backtest/out/sensitivity/ap2b_transmission_trace.csv"
+PIPE_RET = ROOT / "native_backtest/out/sensitivity"
+STAGE2 = ROOT / "stage2/results/dev_rerun_v4_portfolio_2026-10-27"
+MACRO = ROOT / "stage2/data/model_scoring_panel_E4_meanrule.csv"
+MACRO_Z = ["nfp_z", "retail_sales_z", "industrial_production_z", "ism_manufacturing_z",
+           "cpi_z", "core_cpi_z", "ppi_z", "ahe_z"]
+MACRO_LABEL = {"nfp_z": "Payrolls", "retail_sales_z": "Retail sales", "industrial_production_z": "Industrial production",
+               "ism_manufacturing_z": "ISM manufacturing", "cpi_z": "CPI", "core_cpi_z": "Core CPI",
+               "ppi_z": "PPI", "ahe_z": "Average hourly earnings"}
+TILTS = ["strong_equities", "lean_equities", "neutral", "lean_bonds", "strong_bonds"]
+TILT_LABEL = {"strong_equities": "Strong equities", "lean_equities": "Lean equities", "neutral": "Neutral",
+              "lean_bonds": "Lean bonds", "strong_bonds": "Strong bonds"}
+
+
+def _row(df, month, **where):
+    d = df[df["decision_month"] == month]
+    for k, v in where.items():
+        d = d[d[k] == v]
+    return None if d.empty else d.iloc[0]
+
+
+def pipeline_block(sims: dict) -> dict | None:
+    """One stage-by-stage trace per development month, from the archived artifacts of each native pipeline.
+
+    Nothing here is recomputed or invented: every number is read from a committed artifact, and a stage an
+    architecture does not have (or has not run) is reported as absent rather than filled in."""
+    if not PIPE_AP1.exists() or not PIPE_AP2B.exists():
+        return None
+    a1 = pd.read_csv(PIPE_AP1); a1 = a1[a1["scenario"] == "1x"]
+    a2 = pd.read_csv(PIPE_AP2B); a2 = a2[a2["scenario"] == "1x"]
+    r1 = pd.read_csv(PIPE_RET / "ap1_scenario_returns.csv"); r1 = r1[r1["scenario"] == "1x"]
+    r2 = pd.read_csv(PIPE_RET / "ap2b_scenario_returns.csv"); r2 = r2[r2["scenario"] == "1x"]
+    pred = pd.read_csv(STAGE2 / "stage2_predictions.csv"); pred = pred[pred["system"] == "A"]
+    macro = pd.read_csv(MACRO); macro["month"] = macro["month"].astype(str)
+    jev = {d.decision_month: d for d in read_jsonl(DEC / "AP2B.jsonl")}
+    months = sorted(a1["decision_month"].astype(str).unique())
+
+    det, jv = {}, {}
+    for m in months:
+        t, rr = _row(a1, m), _row(r1, m)
+        pm = pred[pred["decision_month"] == m]
+        mz = macro[macro["month"] == m]
+        if t is None or rr is None or pm.empty or mz.empty:
+            continue
+        mz = mz.iloc[0]
+        by_asset = {a: pm[pm["asset"] == a].iloc[0] for a in ("SPY", "IEF", "LQD") if not pm[pm["asset"] == a].empty}
+        one = next(iter(by_asset.values()))
+        det[m] = {
+            "decision_date": str(one["decision_date"]), "entry": str(one["entry_date"]), "exit": str(one["exit_date"]),
+            "surprises": [{"k": k, "label": MACRO_LABEL[k], "z": _r(float(mz[k]), 4)} for k in MACRO_Z if pd.notna(mz[k])],
+            "n_macro_available": int(mz["n_macro_available"]),
+            "fit": {"n_train": int(one["n_train"]), "n_features": int(one["n_features"]),
+                    "alpha": str(one["alpha"]), "intercept_only": str(one["alpha"]) == "INTERCEPT_ONLY",
+                    "latest_train_month": str(one["latest_train_month"])},
+            "forecast": {a: _r(float(v["prediction_excess_return"]), 6) for a, v in by_asset.items()},
+            "prior": {a: _r(float(t[f"pi_{a}"]), 6) for a in ("SPY", "IEF", "LQD")},
+            "posterior": {a: _r(float(t[f"mu_bl_{a}"]), 6) for a in ("SPY", "IEF", "LQD")},
+            "w_unconstrained": {a: _r(float(t[f"w_unconstrained_{a}"]), 5) for a in ("SPY", "IEF", "LQD")},
+            "weights": {a: _r(float(t[f"w_{a}"]), 5) for a in ("SPY", "IEF", "LQD")},
+            "pretrade": {a: _r(float(rr[f"pretrade_w_{a}"]), 5) for a in ("SPY", "IEF", "LQD")},
+            "binding": ("" if pd.isna(t["bounds_binding"]) else str(t["bounds_binding"])),
+            "turnover": _r(float(rr["one_way_turnover"]), 5), "cost": _r(float(rr["cost"]), 6),
+            "gross": _r(float(rr["gross_excess_return"]), 6), "net": _r(float(rr["net_excess_return"]), 6),
+            "rf": _r(float(rr["rf_return"]), 6),
+            "realized": {a: _r(float(v["actual_excess_return"]), 6) for a, v in by_asset.items()}}
+    for m in months:
+        t, rr, d = _row(a2, m), _row(r2, m), jev.get(m)
+        if t is None or rr is None or d is None:
+            continue
+        f = d.forecast["values"]
+        jv[m] = {
+            "decision_date": str(d.decision_time)[:10], "info_cutoff": str(d.info_cutoff),
+            "entry": str(rr["entry_date"]), "exit": str(rr["exit_date"]),
+            "regime": ("" if pd.isna(t["regime"]) else str(t["regime"])),
+            "probs": [{"k": k, "label": TILT_LABEL[k], "p": _r(float(f["probs"].get(k, 0.0)), 4)} for k in TILTS],
+            "choice": str(f["choice"]), "choice_label": TILT_LABEL.get(str(f["choice"]), str(f["choice"])),
+            "p_stocks_beat_bonds": _r(float(f["p"]), 4),
+            "offset_original": _r(float(t["offset_original"]), 4), "weighted_offset": _r(float(t["weighted_offset"]), 4),
+            "confidence": _r(float(t["confidence"]), 4), "conf_applied": _r(float(t["conf_applied"]), 4),
+            "base_edge": _r(float(t["base_edge"]), 4), "edge": _r(float(t["edge"]), 4),
+            "w_unconstrained": {"SPY": _r(float(t["w_unconstrained_SPY"]), 5)},
+            "weights": {a: _r(float(t[f"w_{a}"]), 5) for a in ("SPY", "TLT")},
+            "pretrade": {a: _r(float(rr[f"pretrade_w_{a}"]), 5) for a in ("SPY", "TLT")},
+            "binding": ("" if pd.isna(t["bounds_binding"]) else str(t["bounds_binding"])),
+            "turnover": _r(float(rr["one_way_turnover"]), 5), "cost": _r(float(rr["cost"]), 6),
+            "gross": _r(float(rr["gross_excess_return"]), 6), "net": _r(float(rr["net_excess_return"]), 6),
+            "rf": _r(float(rr["rf_return"]), 6)}
+
+    ridge = pred.groupby("alpha").size().to_dict()
+    stages = {
+        "det": [
+            {"id": "data", "name": "Historical data", "what": "8 US macro releases against the forecasts that preceded them, plus credit spreads, the yield curve, a variance-risk proxy and 12-month momentum.",
+             "out": "A point-in-time panel ending at the decision date."},
+            {"id": "signal", "name": "Signal generation", "what": "Each release becomes a standardised surprise (z-score) using only data available before the decision.",
+             "out": "8 standardised surprises."},
+            {"id": "forecast", "name": "Forecasting", "what": "Ridge regression, refit every month on past months only, with the penalty chosen by inner cross-validation. It may choose the intercept alone.",
+             "out": "A one-month expected excess return per asset."},
+            {"id": "alloc", "name": "Portfolio allocation", "what": "Black\u2013Litterman: the forecast enters as the view q against the equilibrium prior \u03c0; the posterior \u03bc_BL feeds a bounded fully invested optimiser.",
+             "out": "Target weights for SPY, IEF and LQD."},
+            {"id": "trade", "name": "Trades & returns", "what": "Weights are traded at the entry close against the drifted pre-trade weights, at 5 bp per dollar traded, and held to the exit close.",
+             "out": "Turnover, cost and the month's realised return."},
+            {"id": "eval", "name": "Performance evaluation", "what": "Net of cost and the cash rate, the month joins the 46-month development series scored by the shared evaluator.",
+             "out": "Net excess return, and its place in net CER, volatility and drawdown."}],
+        "jev": [
+            {"id": "data", "name": "Historical data", "what": "The point-in-time market and macro context available at the decision cut-off.",
+             "out": "The month's context packet for the agent."},
+            {"id": "signal", "name": "Signal generation", "what": "The agent answers with a probability over five tilt choices, a probability that stocks beat bonds, and its own confidence.",
+             "out": "A five-way distribution, a choice and a confidence."},
+            {"id": "forecast", "name": "Forecasting", "what": "The distribution is averaged into one offset in points of edge, then multiplied by the agent's confidence.",
+             "out": "A signal-induced edge contribution."},
+            {"id": "alloc", "name": "Portfolio allocation", "what": "edge = baseEdge + confidence x offset drives the native capped tilt; the stock weight is clipped to 40-80%.",
+             "out": "Target weights for SPY and TLT."},
+            {"id": "trade", "name": "Trades & returns", "what": "The same shared evaluator: traded at the entry close against drifted weights at 5 bp per dollar traded.",
+             "out": "Turnover, cost and the month's realised return."},
+            {"id": "eval", "name": "Performance evaluation", "what": "Net of cost and the cash rate, scored on the same 46 development months as every other approach.",
+             "out": "Net excess return, and its place in net CER, volatility and drawdown."}],
+        "rag": [
+            {"id": "data", "name": "Historical data", "what": "Point-in-time evidence: the CauseTrace knowledge graph filtered to the decision year, and the research library.",
+             "out": "An evidence pool with no post-decision material."},
+            {"id": "signal", "name": "Hypothesis & testing agents", "what": "The Hypothesis Agent proposes causal pathways; the Testing Agent assesses each against retrieved evidence as Supported, Contradicted or Insufficient.",
+             "out": "Assessed hypotheses with citations."},
+            {"id": "forecast", "name": "Signal encoding & forecasting", "what": "Categorical assessments are encoded as status features and calibrated, walk-forward, into a numerical view.",
+             "out": "A calibrated numerical view."},
+            {"id": "alloc", "name": "Portfolio allocation", "what": "The native Causal RAG allocation over SPY, IEF and LQD.",
+             "out": "Target weights."},
+            {"id": "trade", "name": "Trades & returns", "what": "The same shared evaluator and costs as the other approaches.",
+             "out": "Turnover, cost and realised return."},
+            {"id": "eval", "name": "Performance evaluation", "what": "Scored on the same development months, once the reliability gates pass.",
+             "out": "Net excess return and the development metrics."}]}
+    return {
+        "months": months, "stages": stages, "det": det, "jev": jv,
+        "default_month": "2020-02" if "2020-02" in det else (months[0] if months else None),
+        "ridge_alpha_counts": {str(k): int(v) for k, v in ridge.items()},
+        "ridge_intercept_only_share": _r(ridge.get("INTERCEPT_ONLY", 0) / max(1, int(pred.shape[0])), 4),
+        "rag": {"available": False,
+                "reason": "No genuine Causal RAG outputs exist for the development window, so no stage values are shown.",
+                "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED"},
+        "sources": {
+            "det": ["stage2/data/model_scoring_panel_E4_meanrule.csv",
+                    "stage2/results/dev_rerun_v4_portfolio_2026-10-27/stage2_predictions.csv",
+                    "native_backtest/out/sensitivity/ap1_transmission_trace.csv",
+                    "native_backtest/out/sensitivity/ap1_scenario_returns.csv"],
+            "jev": ["native_backtest/out/decisions/AP2B.jsonl",
+                    "native_backtest/out/sensitivity/ap2b_transmission_trace.csv",
+                    "native_backtest/out/sensitivity/ap2b_scenario_returns.csv"]}}
+
+
+
+# ---------------------------------------------------------------- appendix index and build provenance
+DOCS = [
+    ("Portfolio Integrity Audit", "native_backtest/docs/PORTFOLIO_INTEGRITY_AUDIT_2026-10-29.md", "validation"),
+    ("Signal Value-Added", "native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md", "experiments"),
+    ("Forecast-to-Allocation Sensitivity", "native_backtest/docs/FORECAST_TO_ALLOCATION_SENSITIVITY_2026-10-29.md", "experiments"),
+    ("Within-Approach Experiments", "native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md", "experiments"),
+    ("Causal RAG run diagnosis", "native_backtest/docs/AP3_QWEN3_RUN1_DIAGNOSIS_2026-10-29.md", "causal-rag"),
+    ("Causal RAG exploratory baseline", "native_backtest/docs/AP3_EXPLORATORY_BASELINE_2026-10-29.md", "causal-rag"),
+    ("Dashboard redesign inventory", "native_backtest/docs/DASHBOARD_REDESIGN_INVENTORY_2026-10-29.md", "artifacts"),
+]
+CONFIGS = [
+    ("Framework configuration", "native_backtest/config/framework_config_v1.json", "methodology"),
+    ("Sensitivity pre-registration", "native_backtest/config/forecast_to_allocation_sensitivity_preregistration_v1.json", "experiments"),
+    ("Causal RAG exploratory mode", "native_backtest/config/ap3_exploratory_mode_v1.json", "causal-rag"),
+    ("Causal RAG reliability follow-up", "native_backtest/config/ap3_reliability_followup_preregistration_v1.json", "causal-rag"),
+]
+APPENDIX_CATS = [
+    ("methodology", "Methodology & formulas"),
+    ("data", "Data & sources"),
+    ("portfolio", "Portfolio & accounting"),
+    ("statistics", "Statistics & uncertainty"),
+    ("experiments", "Experiment configurations"),
+    ("validation", "Validation & reliability"),
+    ("causal-rag", "Causal RAG"),
+    ("artifacts", "Artifacts & reproducibility"),
+]
+
+
+def _sha(path: Path) -> str | None:
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+
+
+def build_block() -> dict:
+    """What this data build was made from. The git commit is the one the build ran against; the release-manifest
+    digest is content-addressed, so it identifies the repository state exactly whatever the commit turns out to be."""
+    def git(*a):
+        try:
+            r = subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, timeout=10)
+            return r.stdout.strip() if r.returncode == 0 else None
+        except Exception:
+            return None
+    return {"generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "repository": "androidilicious/protofin", "branch": git("rev-parse", "--abbrev-ref", "HEAD"),
+            "git_commit_at_build": git("rev-parse", "HEAD"),
+            "git_commit_note": "the commit this data was built against; the publishing commit is its child",
+            "release_manifest_sha256": _sha(ROOT / "RELEASE_MANIFEST.sha256"),
+            "dashboard_schema": "2.0 (redesigned information architecture)"}
+
+
+def appendix_block(out: dict) -> dict:
+    """A categorised index over the detail that the main sections link into. Entries point at data already in this
+    file, or at a committed document; nothing is duplicated here."""
+    e = []
+    add = lambda cat, title, what, where, **kw: e.append({"cat": cat, "title": title, "what": what, "where": where, **kw})
+    add("methodology", "Frozen rules and settings", f"{len(out['methodology']['settings'])} settings fixed before scoring: windows, costs, risk aversion, bootstrap, universes.", "methodology.settings")
+    add("methodology", "Research phases and windows", "Training/burn-in, development, the sealed historical test and the prospective window.", "methodology.phases")
+    add("methodology", "Pending methodology decisions", "Choices not yet made, and what each blocks.", "methodology.pending")
+    add("methodology", "Common benchmark specification", "The single SPY/IEF reference used to compare approaches with different universes.", "methodology.common_benchmark")
+    add("data", "Asset universes", "What each approach holds and why the universes are not interchangeable.", "assets")
+    add("data", "Pipeline input sources", "The committed artifacts every pipeline stage value is read from.", "pipeline.sources")
+    add("data", "Signals and features per approach", "The inputs each approach is allowed to use.", "systems[*].signals")
+    add("portfolio", "Accounting and transaction costs", "Target weights traded at the entry close against drifted pre-trade weights, 5 bp per dollar traded, first month from cash.", "methodology.settings")
+    add("portfolio", "Native vs common benchmark reconciliation", "How each approach's own benchmark relates to the shared one.", "native_vs_common")
+    add("portfolio", "Portfolio weights by month", "Target, pre-trade and realised weights for every development month.", "pipeline.det / pipeline.jev")
+    add("statistics", "Primary contrasts with intervals", "Point estimates, 95% intervals and bootstrap p-values for the headline comparisons.", "dev.primary_contrasts")
+    add("statistics", "Bootstrap methodology", "Paired circular block bootstrap, 6-month blocks, 5,000 replications, seed 20261027, delta 2.5.", "methodology.settings")
+    add("statistics", "Full performance metric table", "Net CER, annualised return, volatility, Sharpe, maximum drawdown, turnover and cost for every series.", "dev.series")
+    add("statistics", "Sensitivity scenario statistics", "Every scenario against 1x, with intervals and p-values.", "sensitivity.systems[*].by_scenario[*].vs_1x")
+    add("experiments", "Within-approach experiment results", "Each tested variation, its contrast and its interval.", "experiments")
+    add("experiments", "Signal Value-Added detail", "Counterfactuals, attribution, the influential month and the verification checks.", "signal_value")
+    add("experiments", "Forecast-to-allocation detail", "View pipelines, attenuation shares, binding constraints and the correlation decomposition.", "sensitivity")
+    add("validation", "Portfolio integrity audit", "An independent rebuild of every monthly return from raw prices.", "audit")
+    add("validation", "Validation gate matrix", f"{len(out['validation']['gates'])} gates across the approaches, with current status.", "validation.gates")
+    add("validation", "Signal Value verification checks", "The checks run before the signal-value results were read.", "signal_value.checks")
+    add("causal-rag", "Reliability gate specifications", "G3a and G3b thresholds, unchanged, and their current measured values.", "ap3_exploratory.gates_failed")
+    add("causal-rag", "Exploratory mode", "What the gate-failed diagnostic mode permits, and what it never permits.", "ap3_exploratory")
+    add("causal-rag", "Knowledge graph and triggers", "The CauseTrace graph vintage, its nodes and the trigger set.", "ap3.graph / ap3.triggers")
+    add("causal-rag", "Two candidate versions", "Reduced Evidence and Full Evidence, and what still separates them.", "ap3.versions")
+    add("artifacts", "Reproduction checks", "Each approach reproduced its authors' saved results before any comparison.", "reproduction")
+    add("artifacts", "Build provenance", "Branch, commit and the content-addressed release-manifest digest for this data build.", "build")
+    for t, f, c in DOCS:
+        add(c, t, "Full research report in the repository.", f, doc=True)
+    for t, f, c in CONFIGS:
+        add(c, t, "Committed configuration.", f, config=True)
+    return {"categories": [{"id": i, "label": l} for i, l in APPENDIX_CATS], "entries": e,
+            "docs": [{"title": t, "path": f, "cat": c} for t, f, c in DOCS],
+            "configs": [{"title": t, "path": f, "cat": c} for t, f, c in CONFIGS]}
+
+
+def export_block() -> dict:
+    """What the Download Content package contains, and what it deliberately leaves out."""
+    return {
+        "zip_name": "BNY_Capstone_Dashboard_Content.zip",
+        "report_format": "self-contained HTML",
+        "report_format_note": ("A browser page cannot reliably produce a PDF without a print dialog, so the report is "
+                               "a single self-contained HTML file that opens in any browser and prints to PDF."),
+        "contents": [
+            {"path": "README.txt", "what": "What the package is and how it was produced."},
+            {"path": "MANIFEST.json", "what": "Dashboard version, source commit, generation date, included experiments, validation status and exclusions."},
+            {"path": "report/Research_Report.html", "what": "The complete research report: overview, approaches, every experiment, results, detailed tables and the appendix."},
+            {"path": "data/dashboard.json", "what": "The full dashboard dataset, exactly as the page reads it."},
+            {"path": "data/performance_metrics.csv", "what": "Net CER, annualised return, volatility, Sharpe, maximum drawdown, turnover and cost per series."},
+            {"path": "data/monthly_returns.csv", "what": "Monthly net and gross excess returns for every development month and series."},
+            {"path": "data/portfolio_weights.csv", "what": "Target, pre-trade and realised weights per approach and month."},
+            {"path": "data/signals_and_forecasts.csv", "what": "Macro surprises, ridge forecasts, agent probabilities, offsets, confidence and edges by month."},
+            {"path": "data/sensitivity_scenarios.csv", "what": "Every approach and scenario: weights response, net CER, volatility, turnover, cost, binding months and intervals."},
+            {"path": "data/within_approach_experiments.csv", "what": "Each tested variation, its status, contrast and interval."},
+            {"path": "data/reliability_and_status.csv", "what": "Reliability gates, their thresholds, measured values and coverage."},
+            {"path": "appendix/appendix.html", "what": "The complete organised appendix."},
+            {"path": "appendix/appendix_index.csv", "what": "Every appendix entry with its category and where the underlying data lives."}],
+        "excluded": [
+            "The protected historical test window 2023-01..2026-08: never computed, never scored, never exported.",
+            "GitHub tokens and any credential: none exist in the dashboard data.",
+            "Raw claims-data text from the Causal RAG bundles: redacted at source before anything was committed.",
+            "Causal RAG development backtest results: they do not exist yet, so none are included.",
+            "Chart images: charts are redrawn in the HTML report from the same data rather than exported as pictures."]}
+
+
 def main() -> int:
     cfg = load_config()
     mk = load_market(cfg)
@@ -780,6 +1051,10 @@ def main() -> int:
     out["validation"] = validation_block()
     out["methodology"] = methodology_block(cfg)
     out["flows"] = FLOWS
+    out["pipeline"] = pipeline_block(sims)
+    out["build"] = build_block()
+    out["appendix"] = appendix_block(out)
+    out["export"] = export_block()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, separators=(",", ":"), ensure_ascii=False))
     print(f"wrote {OUT.relative_to(ROOT)} ({OUT.stat().st_size/1024:.0f} KB) sha256 {hashlib.sha256(OUT.read_bytes()).hexdigest()[:16]}")

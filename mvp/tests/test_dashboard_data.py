@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -84,9 +85,40 @@ def test_methodology_and_validation_blocks():
     assert not any(g["cells"]["rag"]["status"] == "pass" for g in v["gates"] if "smoke" in g["name"] or "replay" in g["name"])
 
 
+# Provenance is deliberately technical: these blocks name the committed artifacts a number came from, which is
+# the point of them. Everything else the dashboard puts in front of a reader stays free of internal system ids.
+PROVENANCE = {"pipeline": ["sources"], "appendix": ["entries", "docs", "configs"], "export": ["contents"], "build": None}
+
+
+def _display_only(d):
+    out = {}
+    for k, v in d.items():
+        if k == "dev":
+            continue
+        if k in PROVENANCE:
+            fields = PROVENANCE[k]
+            if fields is None:
+                continue
+            v = {kk: vv for kk, vv in v.items() if kk not in fields}
+        out[k] = v
+    return out
+
+
 def test_no_internal_labels_in_display_text():
-    shown = json.dumps({k: v for k, v in D.items() if k != "dev"}, ensure_ascii=False)
+    shown = json.dumps(_display_only(D), ensure_ascii=False)
     assert not re.search(r"\bAP[123]\b|AP2-?[AB]|engineering_mock|\.jsonl", shown)
+
+
+def test_provenance_blocks_name_real_committed_files():
+    """The exemption above is only safe if those blocks really are file paths that exist in the repository."""
+    paths = set(sum(D["pipeline"]["sources"].values(), []))
+    paths |= {d["path"] for d in D["appendix"]["docs"] + D["appendix"]["configs"]}
+    assert paths, "provenance blocks must not be empty"
+    for f in sorted(paths):
+        assert (ROOT / f).exists(), f"{f} is named as a source but is not in the repository"
+    # and the appendix 'where' pointers are data locations or file paths, never prose
+    for e in D["appendix"]["entries"]:
+        assert e["where"] and " " not in e["where"].replace(" / ", "/"), e["where"]
 
 
 def test_only_development_months_are_scored():
@@ -280,14 +312,32 @@ def test_signal_value_tab_series_come_from_the_analysis():
     assert V["systems"]["det"]["no_signal_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2} and V["systems"]["jev"]["no_signal_weights"] == {"SPY": 0.6, "TLT": 0.4}
 
 
-def test_signal_value_is_a_separate_top_level_tab():
+def test_the_information_architecture_is_the_eight_redesigned_sections():
     html = (ROOT / "mvp/index.html").read_text()
     nav = re.findall(r'<a href="#([a-z-]+)" data-route="[a-z-]+">([^<]+)</a>', html)
-    assert nav == [("overview", "Overview"), ("approaches", "Approaches"), ("experiments", "Experiments"),
-                   ("signal-value", "Signal Value-Added"), ("methodology", "Methodology")]
+    assert nav == [("overview", "Overview"), ("pipeline", "Pipeline"), ("comparison", "Comparison"),
+                   ("signal-value", "Signal Value"), ("sensitivity", "Sensitivity"), ("experiments", "Experiments"),
+                   ("causal-rag", "Causal RAG"), ("appendix", "Appendix")]
     js = (ROOT / "mvp/assets/app.js").read_text()
-    assert "view === 'signal-value') viewSignalValue()" in js and "function signalValuePanel" not in js    # not a section of Experiments
-    assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]                                      # the three approaches are unchanged
+    for v in ("viewOverview", "viewPipeline", "viewComparison", "viewSignalValue", "viewSensitivity",
+              "viewExperiments", "viewCausalRag", "viewAppendix"):
+        assert f"function {v}" in js, f"{v} is navigable but not defined"
+    assert [s["key"] for s in D["systems"]] == ["det", "jev", "rag"]          # the three approaches are unchanged
+    # the per-approach detail pages survive the redesign, reached from Comparison rather than a tab of their own
+    assert "if (key) viewApproach(key);" in js and "function viewApproach" in js
+
+
+def test_redesign_lost_no_section_of_the_previous_dashboard():
+    """Every data block the old dashboard displayed is still reachable in the new one."""
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    for fn in ("phaseStrip", "approachCard", "triangle", "compareTable", "passivePanel", "alikePanel",
+               "flowDiagram", "signalsBlock", "limitations", "decompositionBars", "exploratoryPanel",
+               "versionsPanel", "demoBlock", "sensitivitySections", "expResult", "methodologyBody"):
+        assert f"function {fn}" in js and js.count(fn) > 1, f"{fn} is defined but no longer rendered"
+    for key in ("windows", "systems", "variants", "dev", "reproduction", "native_vs_common", "experiments",
+                "ap3", "notes", "audit", "signal_value", "sensitivity", "ap3_exploratory", "validation",
+                "methodology", "flows", "pipeline", "appendix", "export", "build"):
+        assert key in D, f"dashboard.json lost the {key} block"
 
 
 def test_exploratory_causal_rag_block_is_honest_about_its_state():
@@ -353,14 +403,13 @@ def test_transmission_section_numbers_come_from_the_experiment():
     assert S["similarity"]["corr_signal_parts"] == pytest.approx(cp["monthly_signal_part_correlation"], abs=5e-7)
 
 
-def test_transmission_section_is_rendered_inside_the_signal_value_story():
+def test_transmission_section_is_rendered_as_its_own_section():
     js = (ROOT / "mvp/assets/app.js").read_text()
     css = (ROOT / "mvp/index.html").read_text()
     assert "${sensitivitySections()}" in js and "sensitivityCharts();" in js, "defined but never rendered"
-    # it is a step of the Signal Value-Added narrative, before the takeaway, not a new top-level tab
-    assert js.index("${sensitivitySections()}") < js.index('id="sva-takeaway"')
-    assert "['transmission', 'Transmission']" in js
-    assert re.search(r'data-route="[a-z-]+">Transmission<', css) is None
+    # in the redesign it is its own section, rendered by viewSensitivity and reachable from the nav
+    assert "function viewSensitivity" in js and js.index("function viewSensitivity") < js.index("${sensitivitySections()}")
+    assert re.search(r'data-route="sensitivity">Sensitivity<', css)
     for cls in ("fas-chain", "fas-where", "fas-funnel", "fas-keep", "fas-corr", "sva-read"):
         assert f".{cls} " in css, f"{cls} has no styling"
 
@@ -394,3 +443,98 @@ def test_transmission_keeps_each_approach_in_its_own_native_portfolio():
     assert all(jev["by_scenario"][s]["attenuation"] in (None, 0.0) for s in S["scenarios"])
     assert det["posterior_keeps"] < 0.10 and det["jev_stages"] is None
     assert com["posterior_keeps"] > 0.30 and com["by_scenario"]["2x"]["binding_months"] >= 20
+
+
+# ---------------------------------------------------------------- interactive pipeline
+PIPE = D["pipeline"]
+
+
+def test_pipeline_covers_every_development_month_with_real_values():
+    assert PIPE["months"] == D["dev"]["months"], "the pipeline must cover exactly the development window"
+    for k in ("det", "jev"):
+        assert set(PIPE[k]) == set(D["dev"]["months"]), f"{k} is missing months"
+    assert PIPE["default_month"] in PIPE["months"]
+
+
+def test_pipeline_stage_values_match_their_archived_sources():
+    """Spot-check the trace against the committed artifacts it was read from, not against itself."""
+    tr = pd.read_csv(ROOT / "native_backtest/out/sensitivity/ap1_transmission_trace.csv")
+    tr = tr[tr["scenario"] == "1x"].set_index("decision_month")
+    pred = pd.read_csv(ROOT / "stage2/results/dev_rerun_v4_portfolio_2026-10-27/stage2_predictions.csv")
+    pred = pred[pred["system"] == "A"]
+    for m in ("2019-03", "2020-02", "2022-12"):
+        v, t = PIPE["det"][m], tr.loc[m]
+        for a in ("SPY", "IEF", "LQD"):
+            assert v["prior"][a] == pytest.approx(t[f"pi_{a}"], abs=5e-7)
+            assert v["posterior"][a] == pytest.approx(t[f"mu_bl_{a}"], abs=5e-7)
+            assert v["weights"][a] == pytest.approx(t[f"w_{a}"], abs=5e-6)
+            p = pred[(pred.decision_month == m) & (pred.asset == a)].iloc[0]
+            assert v["forecast"][a] == pytest.approx(p["prediction_excess_return"], abs=5e-7)
+            assert v["realized"][a] == pytest.approx(p["actual_excess_return"], abs=5e-7)
+    jt = pd.read_csv(ROOT / "native_backtest/out/sensitivity/ap2b_transmission_trace.csv")
+    jt = jt[jt["scenario"] == "1x"].set_index("decision_month")
+    for m in ("2019-03", "2020-02", "2022-12"):
+        v, t = PIPE["jev"][m], jt.loc[m]
+        assert v["edge"] == pytest.approx(t["edge"], abs=5e-5)
+        assert v["base_edge"] == pytest.approx(t["base_edge"], abs=5e-5)
+        assert v["weights"]["SPY"] == pytest.approx(t["w_SPY"], abs=5e-6)
+        # the native mechanism holds: edge = baseEdge + confidence x offset
+        assert v["edge"] == pytest.approx(v["base_edge"] + v["weighted_offset"], abs=1e-3)
+        assert v["weighted_offset"] == pytest.approx(v["confidence"] * v["offset_original"], abs=1e-3)
+
+
+def test_pipeline_never_reads_the_future_or_invents_causal_rag():
+    for k in ("det", "jev"):
+        for m, v in PIPE[k].items():
+            assert v["decision_date"][:7] <= m[:7] or v["decision_date"][:7] == m, (k, m)
+            assert v["entry"] > v["decision_date"], "trading happens after the decision"
+            assert v["exit"] > v["entry"] and v["exit"] < "2023-03", (k, m)
+            # weights are stored rounded to 5 decimals for size, so fully invested within that rounding
+            assert abs(sum(v["weights"].values()) - 1) < 5e-5, "weights are fully invested"
+    # the Causal RAG entry is a notice, never month values
+    assert PIPE["rag"]["available"] is False
+    assert set(PIPE["rag"]) == {"available", "reason", "designation"}
+    assert not [k for k in PIPE["rag"] if re.fullmatch(r"\d{4}-\d{2}", k)]
+    assert "GATES FAILED" in PIPE["rag"]["designation"]
+    assert [s["id"] for s in PIPE["stages"]["rag"]] == [s["id"] for s in PIPE["stages"]["det"]]   # same six stages
+    assert "Hypothesis" in PIPE["stages"]["rag"][1]["name"]                                       # its own architecture
+
+
+def test_each_pipeline_keeps_its_native_architecture():
+    det, jev = PIPE["stages"]["det"], PIPE["stages"]["jev"]
+    assert "Black" in det[3]["what"] and "Black" not in jev[3]["what"], "JEV must not be routed through Black-Litterman"
+    assert "capped tilt" in jev[3]["what"]
+    assert set(PIPE["det"][PIPE["default_month"]]["weights"]) == {"SPY", "IEF", "LQD"}
+    assert set(PIPE["jev"][PIPE["default_month"]]["weights"]) == {"SPY", "TLT"}
+
+
+# ---------------------------------------------------------------- Download Content package
+def test_export_declares_a_working_package_and_its_exclusions():
+    X = D["export"]
+    assert X["zip_name"] == "BNY_Capstone_Dashboard_Content.zip"
+    paths = [c["path"] for c in X["contents"]]
+    for need in ("README.txt", "MANIFEST.json", "report/Research_Report.html", "appendix/appendix.html",
+                 "data/dashboard.json"):
+        assert need in paths, f"the package must contain {need}"
+    assert any(p.endswith(".csv") and "performance" in p for p in paths)
+    assert any(p.endswith(".csv") and "sensitivity" in p for p in paths)
+    assert len(X["excluded"]) >= 4 and any("2023" in e for e in X["excluded"]), "the sealed window must be disclosed"
+    assert any("credential" in e.lower() or "token" in e.lower() for e in X["excluded"])
+    assert X["report_format"] == "self-contained HTML" and X["report_format_note"]
+
+
+def test_export_is_built_in_the_page_without_a_network_call():
+    js = (ROOT / "mvp/assets/app.js").read_text()
+    assert "function makeZip" in js and "0x04034b50" in js, "the ZIP is written in the page"
+    assert "function downloadContent" in js and "id=\"dl\"" in (ROOT / "mvp/index.html").read_text()
+    assert "Download Content" in (ROOT / "mvp/index.html").read_text()
+    for forbidden in ("jszip", "cdn.", "fetch('http", "XMLHttpRequest"):
+        assert forbidden not in js.lower().replace("cdn.jsdelivr", ""), f"the export must not depend on {forbidden}"
+
+
+def test_build_provenance_is_recorded_for_the_manifest():
+    B = D["build"]
+    assert B["repository"] == "androidilicious/protofin" and B["branch"]
+    assert re.fullmatch(r"[0-9a-f]{40}", B["git_commit_at_build"] or "")
+    assert re.fullmatch(r"[0-9a-f]{64}", B["release_manifest_sha256"] or "")
+    assert "schema" in B["dashboard_schema"] or "2.0" in B["dashboard_schema"]

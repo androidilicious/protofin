@@ -381,48 +381,115 @@
       { y: v => v.toFixed(0) + '%', tip: v => v.toFixed(1) + '%' });
   }
 
+  // ---------------------------------------------------------------- A. Overview (landing page)
   function viewOverview() {
-    const months = D.dev.months;
+    const months = D.dev.months, base = S('det');
+    const c = (D.dev.primary_contrasts.items || []).find(x => x.a === 'jev' && x.b === 'det') || {};
+    const done = [
+      ['check', `Development backtest on ${months.length} months (${devSpan()}) for the Deterministic baseline and JEV`],
+      ['check', 'Portfolio integrity audit: every monthly return rebuilt independently from raw prices'],
+      ['check', 'Signal value-added: each approach against its own signal-free portfolio'],
+      ['check', 'Forecast-to-allocation sensitivity: four signal strengths through each native allocator'],
+      ['check', 'Within-approach experiments for the Deterministic model and the Agentic Workflow']];
+    const pending = [
+      ['hourglass', 'Causal RAG: 12 of 95 agent months run; both reliability gates still failing'],
+      ['lock', `Historical test ${testYears()} — sealed, never opened`],
+      ...(D.methodology.pending || []).slice(0, 2).map(x => ['review', String(x)])];
+    const kpi = (v, l, t) => `<div class="okpi"><span class="v num">${v}</span><span class="l">${l}${t ? ' ' + tip(t) : ''}</span></div>`;
+    app.innerHTML = `<div class="wrap ov">
+      <section class="hero">
+        <div>
+          <h1>Does AI improve on our Deterministic baseline?</h1>
+          <p class="lede">Three forecasting architectures, one shared evaluator, ${months.length} development months. The protected historical test is sealed.</p>
+          <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>JEV is not statistically different from the baseline, Causal RAG has no results, and nothing here is confirmatory.</span></div></div>
+        </div>
+        <div class="okpis">
+          ${kpi(pct(base.metrics.cer, 2), 'Baseline net CER', 'cer')}
+          ${kpi(pts(c.cer_difference, 2), 'JEV versus baseline', 'vsbase')}
+          ${kpi(NSIG_LABEL, 'Every primary contrast', 'significance')}
+        </div>
+      </section>
+
+      <section aria-label="The three primary approaches">
+        <div class="grid3">${D.systems.map(approachCard).join('')}</div>
+        <p class="sub">The Agent Committee is a variant of the Agentic Workflow, not a fourth approach. The approaches hold different assets, so differences cannot be attributed to the agents alone.</p>
+      </section>
+
+      <section class="panel">
+        <div class="phead"><h2>Growth of $1, after costs ${tip('growth')}</h2><a class="go" href="#comparison">Full comparison ${icon('arrow')}</a></div>
+        <div class="legend" id="lg-ov"></div>
+        <div class="chartbox sm"><canvas id="c-ov" aria-label="Growth of one dollar, Deterministic baseline and JEV, across the development months"></canvas></div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel"><h2>${icon('check')}Completed</h2><ul class="facts ok">${done.map(([i, t]) => `<li>${icon(i)}<span>${esc(t)}</span></li>`).join('')}</ul></div>
+        <div class="panel"><h2>${icon('hourglass')}Pending</h2><ul class="facts wait">${pending.filter(x => x[1]).map(([i, t]) => `<li>${icon(i)}<span>${esc(t)}</span></li>`).join('')}</ul></div>
+      </section>
+
+      <section class="panel">
+        <h2>What we have found</h2>
+        <div class="finds">
+          ${findCard('scale', 'The two working approaches behave almost identically', `Their monthly net returns correlate at ${corr3(D.audit.corr_monthly_net)} — but with both signals switched off they correlate at ${corr3(D.sensitivity.similarity.corr_0x)}, higher still. The similarity is their starting portfolios, not agreement between their forecasts.`, '#sensitivity')}
+          ${findCard('model', 'Neither approach’s signals demonstrably added value', `Against its own signal-free portfolio the Deterministic model is ${pts(D.signal_value.systems.det.value.cer_difference, 2)} and JEV ${pts(D.signal_value.systems.jev.value.cer_difference, 2)} a year. Neither interval excludes zero.`, '#signal-value')}
+          ${findCard('flow', 'Each architecture loses its signal somewhere different', `The Deterministic view is shrunk to ${(D.sensitivity.systems.det.posterior_keeps * 100).toFixed(1)}% inside Black–Litterman; JEV’s allocator passes its view through in full but the view is tiny before it arrives; only the Committee is attenuated by a position limit.`, '#sensitivity')}
+          ${findCard('hourglass', 'Causal RAG has not produced a usable result', `${D.ap3_exploratory.months_done} of ${D.ap3_exploratory.months_needed} agent months exist and both reliability gates fail, so no backtest is shown for it.`, '#causal-rag')}
+        </div>
+      </section>
+
+      <section aria-label="Explore"><div class="explore">
+        <a href="#pipeline"><span class="ic">${icon('flow')}</span><span><b>How a decision is made</b><span>Step through a real month, stage by stage</span></span></a>
+        <a href="#experiments"><span class="ic">${icon('layers')}</span><span><b>Experiments</b><span>Every variation tested, with status and result</span></span></a>
+        <a href="#appendix"><span class="ic">${icon('method')}</span><span><b>Appendix</b><span>Methods, formulas, full tables, artifacts</span></span></a>
+      </div></section>
+    </div>`;
+    lineChart('c-ov', 'lg-ov', months, D.systems.filter(x => S(x.key)).map(x => ({
+      label: x.key === 'det' ? 'Deterministic (baseline)' : x.short, data: S(x.key).wealth, color: color(x.key) })).concat([commonLine()]), FMT_WEALTH);
+  }
+
+  const NSIG_LABEL = 'Not statistically clear';
+  const findCard = (ic, title, body, href) => `<a class="find" href="${href}"><span class="ic">${icon(ic)}</span><span class="tx"><b>${esc(title)}</b><span>${esc(body)}</span></span>${icon('chev', 'chev')}</a>`;
+
+  // ---------------------------------------------------------------- C. Primary backtest comparison
+  function viewComparison() {
+    const months = D.dev.months, base = S('det').wealth;
     const res = D.systems.filter(s => S(s.key));
-    const base = S('det').wealth;
-    // Research view: the approaches, with the Deterministic baseline. The passive portfolio is an optional, hidden-by-default line.
     const growthLines = mode => mode === 'gap'
       ? res.filter(s => s.key !== 'det').map(s => ({ label: s.short, data: S(s.key).wealth.map((w, i) => (w / base[i] - 1) * 100), color: color(s.key) }))
           .concat([{ label: 'Deterministic baseline', data: months.map(() => 0), color: color('det'), dash: [6, 4] }])
       : res.map(s => ({ label: s.key === 'det' ? 'Deterministic (baseline)' : s.short, data: S(s.key).wealth, color: color(s.key) })).concat([commonLine()]);
+    const card = s => { const m = S(s.key) && S(s.key).metrics;
+      return `<div class="ccard" style="--c:var(${VAR[s.key]})">
+        <div class="cch">${badge(s.key)}<b>${esc(s.short)}</b>${s.key === 'det' ? '<span class="chip base">Research baseline</span>' : ''}</div>
+        <p class="sub">${esc((s.universe || []).map(a => PLAIN[a] || a).join(' · '))}</p>
+        ${m ? `<div class="cmetrics">
+            <div><span class="l">Net CER ${tip('cer')}</span><b class="num">${pct(m.cer, 2)}</b></div>
+            <div><span class="l">Sharpe ${tip('sharpe')}</span><b class="num">${num(m.sharpe, 2)}</b></div>
+            <div><span class="l">Volatility ${tip('volatility')}</span><b class="num">${pct(m.volatility, 1)}</b></div>
+            <div><span class="l">Worst fall ${tip('drawdown')}</span><b class="num">${pct(m.max_drawdown, 1)}</b></div>
+          </div>` : `<div class="unavail"><span>${esc(D.ap3_exploratory.label)}. ${D.ap3_exploratory.months_done} of ${D.ap3_exploratory.months_needed} agent months exist and both reliability gates fail, so no backtest curve or metric is shown.</span></div>`}
+        <a class="go" href="#${SLUG[s.key]}">How it works and full detail ${icon('arrow')}</a>
+      </div>`; };
     app.innerHTML = `<div class="wrap">
-      <section>
-        <h1>Does AI improve on our Deterministic baseline?</h1>
-        <p class="lede">Two AI approaches are compared with the Deterministic Quantitative Model, our research baseline, under the same rules.</p>
-        <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>In development (${devSpan()}) JEV is not statistically different from the baseline. Causal RAG has no results yet, and the historical test is sealed.</span></div></div>
-        ${phaseStrip(false)}
+      <section><div class="phead"><h1>Primary comparison</h1>${dataChip('dev')}</div>
+        <p class="lede">The three primary approaches on the same ${months.length} development months, the same trade timing, the same ${esc(costLabel())} cost and the same cash rate.</p>
+        <div class="callout">${icon('review')}<div><b>Different native universes.</b> The Deterministic model holds stocks, Treasuries and corporate bonds; JEV holds stocks and long Treasuries. Differences between them are not attributable to the forecasting method alone. ${tipw('A shared reference', 'commonbench')} is drawn for context.</div></div>
       </section>
-      <section aria-label="The three primary approaches"><div class="grid3">${D.systems.map(approachCard).join('')}</div></section>
-      <section class="grid2">
-        <div class="panel"><div class="phead"><h2>Research comparisons</h2></div><p class="sub">Each AI approach against the Deterministic baseline, and against each other.</p>${triangle()}</div>
-        <div class="panel"><div class="phead"><h2>Findings so far</h2><span class="chip plain">${esc(D.notes.finding)}</span></div>
-          <h3>What we know</h3><ul class="facts ok">${D.notes.know.map(t => `<li>${icon('check')}<span>${esc(t)}</span></li>`).join('')}</ul>
-          <h3>Not yet known</h3><ul class="facts wait">${D.notes.not_yet.map(t => `<li>${icon('hourglass')}<span>${esc(t)}</span></li>`).join('')}</ul></div>
-      </section>
+      <section aria-label="The approaches"><div class="grid3">${D.systems.map(card).join('')}</div></section>
       <section class="panel">
         <div class="phead"><h2 id="g-title"><span>Growth of $1, after costs</span> ${tip('growth')}</h2>
           <div class="seg" role="group" aria-label="Chart view"><button type="button" data-g="abs" aria-pressed="true">Growth of $1</button><button type="button" data-g="gap" aria-pressed="false">Versus baseline</button></div></div>
         <div class="legend" id="lg-growth"></div>
         <div class="chartbox"><canvas id="c-growth" aria-label="Growth of one dollar for each approach with results"></canvas></div>
         <p class="sub">The gaps are within what chance could produce. Causal RAG has no line: no results yet. ${esc(PASSIVE)}: optional dashed line ${tip('commonbench')}</p>
-        ${alikePanel()}
       </section>
       <section class="panel">
-        <div class="phead"><h2>Key metrics</h2></div>
+        <div class="phead"><h2>Headline metrics</h2><a class="go" href="#appendix?c=statistics">Full tables and intervals ${icon('arrow')}</a></div>
         ${compareTable(['det', 'jev', 'rag'], { bench: true, baseline: true })}
-        <p class="sub">Net CER is the primary metric; the others describe risk and trading. No difference from the baseline is statistically clear.</p>
+        <p class="sub">Net CER is the primary metric. No difference from the baseline is statistically clear.</p>
       </section>
+      <section class="panel"><h2>Research comparisons</h2><p class="sub">Each AI approach against the Deterministic baseline, and against each other.</p>${triangle()}</section>
       ${passivePanel(['det', 'jev', 'rag'])}
-      <section aria-label="Explore"><div class="explore">
-        <a href="#approaches"><span class="ic">${icon('flow')}</span><span><b>How each approach works</b><span>Workflows, forecasts and holdings</span></span></a>
-        <a href="#experiments"><span class="ic">${icon('layers')}</span><span><b>Within-approach experiments</b><span>Do the signals add value? Committee vs JEV and other tests</span></span></a>
-        <a href="#methodology"><span class="ic">${icon('method')}</span><span><b>Methodology and validation</b><span>Frozen rules, timeline, what is still pending</span></span></a>
-      </div></section>
+      ${alikePanel()}
     </div>`;
     const drawGrowth = mode => {
       lineChart('c-growth', 'lg-growth', months, growthLines(mode), mode === 'gap' ? FMT_GAP : FMT_WEALTH);
@@ -435,6 +502,8 @@
     document.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
       document.querySelectorAll('[data-g]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawGrowth(b.dataset.g); }));
   }
+
+  const costLabel = () => { const c = (D.methodology.settings || []).find(x => /cost/i.test(x.title || x.label || '')); return c ? (c.value || '5 bp per dollar traded') : '5 bp per dollar traded'; };
 
   // ---------------------------------------------------------------- flow diagram (approach pages)
   const KIND = { data: 'Input data', store: 'Knowledge base', agent: 'AI agent', tool: 'Tool', model: 'Model', output: 'Forecast', alloc: 'Allocation' };
@@ -780,7 +849,6 @@
     const sim = S.similarity;
     return `
       <section class="panel" id="sva-transmission">
-        <div class="sva-eyebrow"><span class="n">5</span>Transmission</div>
         <h2>Do the forecasts actually move the portfolios?</h2>
         <p class="sva-body">The experiments above compared each approach with its signals switched off. That answers whether the signals helped. It does not say whether they ever reached the portfolio. So we turned the dial: each model\u2019s own view was rescaled to nothing, to half, to as it was, and to double, at the one point where a number enters its allocator \u2014 and nothing else was changed.</p>
         <div class="fas-chain">${chain.map((c, i) => `<div class="fas-step"><span class="ic">${icon(c.i)}</span><b>${esc(c.t)}</b><p>${esc(c.d)}</p>${i < 2 ? '<i class="arw" aria-hidden="true"></i>' : ''}</div>`).join('')}</div>
@@ -904,7 +972,7 @@
         <p class="sva-take">${esc(TAKE[k](v))}</p>
       </div>`; };
     const share = v => Math.round(v / g.total.cer_difference * 100);
-    const steps = [['observe', 'Observation'], ['tests', 'Experiments'], ['results', 'Results'], ['explain', 'Explanation'], ['transmission', 'Transmission'], ['takeaway', 'Takeaway']];
+    const steps = [['observe', 'Observation'], ['tests', 'Experiments'], ['results', 'Results'], ['explain', 'Explanation'], ['takeaway', 'Takeaway']];
     const detail = [
       { l: 'Higher equity exposure', sub: '60% vs 45% stocks in the no-signal portfolios', v: P.stock, c: css('--c-bench') },
       { l: 'Different bond exposure', sub: 'long Treasuries vs Treasuries and corporate bonds', v: P.bond, c: css('--c-bench') },
@@ -916,7 +984,7 @@
       <section>
         <div class="phead"><h1>Signal Value-Added</h1>${dataChip('dev')}</div>
         <p class="lede">Two very different forecasting approaches produced remarkably similar results. Do their forecasting signals add value beyond the portfolio each one starts from?</p>
-        <ol class="sva-steps" aria-label="The story in six steps">${steps.map(([id, l], i) => `<li><button type="button" data-jump="sva-${id}"><span class="n">${i + 1}</span>${l}</button></li>`).join('')}</ol>
+        <ol class="sva-steps" aria-label="The story in five steps">${steps.map(([id, l], i) => `<li><button type="button" data-jump="sva-${id}"><span class="n">${i + 1}</span>${l}</button></li>`).join('')}</ol>
       </section>
 
       <section class="panel" id="sva-observe">
@@ -992,10 +1060,8 @@
         <p class="sva-caution">${icon('info')}<span>JEV's historical answers were recorded after the fact by a model whose training data and cutoff are unknown. This decision may reflect hindsight, so it is a research limitation, not proof of foresight.</span></p>
       </section>
 
-      ${sensitivitySections()}
-
       <section class="panel sva-final" id="sva-takeaway">
-        ${eyebrow(6, 'Takeaway')}
+        ${eyebrow(5, 'Takeaway')}
         <p class="sva-quote">Different forecasting architectures do not necessarily produce different investment outcomes, and neither system's signals demonstrated statistically significant incremental value in this development sample.</p>
         <ul class="sva-limits">
           <li>${icon('info')}<span>This does not prove the signals have zero value.</span></li>
@@ -1004,7 +1070,8 @@
           <li>${icon('hourglass')}<span>Agentic Causal RAG has not yet produced validated real-model backtest results.</span></li>
           <li>${icon('model')}<span>Turning each signal up or down moved the two primary portfolios very little, so their similarity is mostly the portfolios they start from rather than agreement between their forecasts.</span></li>
         </ul>
-        <p class="sub">Full reports in the project repository: Portfolio Integrity Audit, Signal Value-Added and Forecast-to-Allocation Sensitivity (29 Oct 2026).</p>
+        <p class="sub">Full reports in the project repository: Portfolio Integrity Audit and Signal Value-Added (29 Oct 2026). Detailed calculations and diagnostics are in the <a href="#appendix?c=experiments">Appendix</a>.</p>
+        <a class="go" href="#sensitivity">Next: did the forecasts ever reach the portfolios? ${icon('arrow')}</a>
       </section>
     </div>`;
     document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump).scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })));
@@ -1021,7 +1088,6 @@
         backgroundColor: act.map((v, i) => i === hi ? color('jev') : css('--c-bench')), borderWidth: 0 }] },
       options: { plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => `${monthLabel(months[it[0].dataIndex])} decision`, label: it => ` With minus without signals: ${pts(act[it.dataIndex], 2)}` } } },
         scales: { x: xTicks(months), y: { ticks: { callback: v => sgn(v, Math.abs(v).toFixed(1) + ' pts') }, grid: { color: css('--border') } } } } });
-    sensitivityCharts();
   }
 
   // ---------------------------------------------------------------- signal value (helpers shared with the tab)
@@ -1101,6 +1167,20 @@
     const pc = D.dev.primary_contrasts.items;
     app.innerHTML = `<div class="wrap">
       <section><h1>Methodology</h1><p class="lede">What is fixed, what is still open, and how far each approach has been validated.</p></section>
+      ${methodologyBody()}
+    </div>`;
+  }
+
+  // The methodology detail, as a fragment, so the Appendix can hold it without a second copy.
+  function methodologyBody() {
+    const M = D.methodology, V = D.validation;
+    const COLS = { det: ['Deterministic', ''], jev: ['Agentic Workflow (JEV)', ''], rag: ['Causal RAG', ''], com: ['Agent Committee (variant)', ''] };
+    const LETTER = { det: '1', jev: '2', rag: '3', com: 'C' };
+    const cell = (g, k) => { const c = g.cells[k], [cls, ic, l] = GATE[c.status];
+      return c.status === 'na' ? `<div class="cell na" aria-label="${esc(COLS[k][0])}: does not apply">–</div>`
+        : `<div class="cell ${cls}"><span class="tip"><button type="button" aria-label="${esc(COLS[k][0])}: ${l}${c.note ? '. ' + esc(c.note) : ''}">${icon(ic)}</button><span role="tooltip">${esc(l)}${c.note ? ': ' + esc(c.note) : ''}</span></span></div>`; };
+    const pc = D.dev.primary_contrasts.items;
+    return `
       <section class="panel"><div class="phead"><h2>Timeline</h2>${dataChip('sealed')}</div>
         ${phaseStrip(true)}
         <div class="olegend"><i></i>2023 overlaps the AI models' training data: secondary, reported separately ${tip('overlap')}</div>
@@ -1144,26 +1224,612 @@
         <li>Saved AI outputs are replayed exactly; nothing missing is filled in.</li>
         <li>The historical test opens once, only with a signed approval; the scoring software refuses it otherwise.</li>
         <li>Demo screens are labelled and can never enter results.</li>
-        <li>AI models may have seen past market history in training; this is disclosed, and only live months are free of it.</li></ul></div></details>
-    </div>`;
+        <li>AI models may have seen past market history in training; this is disclosed, and only live months are free of it.</li></ul></div></details>`;
   }
 
   // ---------------------------------------------------------------- router
+
+  // ---------------------------------------------------------------- B. Interactive backtest pipeline
+  // Every value shown is read from dashboard.json's pipeline block, which the builder reads from committed
+  // artifacts. Nothing is recomputed here, and an architecture with no genuine outputs shows no numbers.
+  const PIPE_ICON = { data: 'data', signal: 'target', forecast: 'model', alloc: 'alloc', trade: 'cost', eval: 'chart' };
+  const VKIND = { input: ['Input', 'Known before the decision'], forecast: ['Forecast', 'Made at the decision, about the future'],
+                  decision: ['Decision', 'The portfolio actually chosen'], realized: ['Realised', 'What the market did afterwards'] };
+  let pipeKey = 'det', pipeMonth = null, pipeStage = 'data';
+
+  const bp = (x, d = 2) => x == null ? '—' : sgn(+(x * 1e4).toFixed(d), Math.abs(x * 1e4).toFixed(d) + ' bp');
+  const ppw = (x, d = 2) => x == null ? '—' : (x * 100).toFixed(d) + '%';
+
+  function vrow(label, value, kind, note) {
+    return `<div class="prow"><span class="l">${label}</span><b class="num">${value}</b>${kind ? `<span class="k k-${kind}" title="${esc(VKIND[kind][1])}">${VKIND[kind][0]}</span>` : '<span class="k"></span>'}${note ? `<small>${note}</small>` : ''}</div>`;
+  }
+  const pbars = (rows, max, fmt) => `<div class="pbars">${rows.map(r => {
+      const w = max > 0 ? Math.min(100, Math.abs(r.v) / max * 50) : 0;
+      return `<div class="pbar"><span class="l">${esc(r.label)}</span><span class="t"><i style="${r.v >= 0 ? 'left:50%' : 'right:50%'};width:${w}%;background:${r.color || 'var(--accent)'}"></i><u></u></span><b class="num">${fmt(r.v)}</b></div>`;
+    }).join('')}</div>`;
+
+  function pipeStages(key) { return (D.pipeline && D.pipeline.stages[key]) || []; }
+
+  function pipeValues(key, m) {
+    const P = D.pipeline; if (!P) return null;
+    if (key === 'rag') return null;
+    return (P[key] || {})[m] || null;
+  }
+
+  function stagePanel(key, stage, m) {
+    const st = pipeStages(key).find(x => x.id === stage) || {};
+    const v = pipeValues(key, m);
+    const head = `<div class="pstage-h"><span class="ic">${icon(PIPE_ICON[stage])}</span><div><b>${esc(st.name || '')}</b><span class="sub">${esc(st.what || '')}</span></div></div>`;
+    if (!v) {
+      return `<div class="pstage">${head}
+        <div class="unavail"><span><b>No genuine values.</b> ${esc((D.pipeline.rag && D.pipeline.rag.reason) || '')} The stage above is the implemented design, not a result. Anything later built on the current gate-failed outputs keeps the label ${esc((D.pipeline.rag && D.pipeline.rag.designation) || '')}.</span></div>
+        <p class="sub">Produces: ${esc(st.out || '')}</p></div>`;
+    }
+    return `<div class="pstage">${head}<div class="pbody">${stageBody(key, stage, v)}</div>
+      <p class="sub">Produces: ${esc(st.out || '')} — used by the next stage.</p></div>`;
+  }
+
+  function stageBody(key, stage, v) {
+    const A = key === 'det' ? ['SPY', 'IEF', 'LQD'] : ['SPY', 'TLT'];
+    const ac = a => assetColor(a);
+    if (stage === 'data') {
+      return key === 'det'
+        ? `<div class="pgrid">${vrow('Decision date', esc(v.decision_date), 'input')}${vrow('Macro releases available', v.n_macro_available + ' of 8', 'input')}${vrow('Traded at the close of', esc(v.entry), 'input')}${vrow('Held until the close of', esc(v.exit), 'input')}</div>
+           <p class="sub">Only releases published before the decision date enter the panel.</p>`
+        : `<div class="pgrid">${vrow('Decision date', esc(v.decision_date), 'input')}${vrow('Information cut-off', esc(String(v.info_cutoff).replace('T', ' ')), 'input')}${vrow('Regime', esc(v.regime || '—'), 'input')}${vrow('Traded at the close of', esc(v.entry), 'input')}</div>
+           <p class="sub">The agent sees only the context packet built at the cut-off.</p>`;
+    }
+    if (stage === 'signal') {
+      if (key === 'det') {
+        const mx = Math.max(...v.surprises.map(x => Math.abs(x.z)), 1);
+        return pbars(v.surprises.map(x => ({ label: x.label, v: x.z, color: 'var(--accent)' })), mx, x => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(2) + ' σ')
+          + `<p class="sub">Standardised surprises: how far each release beat (right) or missed (left) the forecast that preceded it, in standard deviations.</p>`;
+      }
+      return pbars(v.probs.map(x => ({ label: x.label, v: x.p, color: x.k === v.choice ? color('jev') : 'var(--border-strong)' })), 1, x => (x * 100).toFixed(0) + '%')
+        + `<div class="pgrid">${vrow('Chosen tilt', esc(v.choice_label), 'forecast')}${vrow('Probability stocks beat bonds', ppw(v.p_stocks_beat_bonds, 0), 'forecast')}${vrow('Agent confidence', num(v.confidence, 2), 'forecast')}</div>
+           <p class="sub">The agent's own distribution over the five tilt choices, replayed exactly as recorded.</p>`;
+    }
+    if (stage === 'forecast') {
+      if (key === 'det') {
+        const mx = Math.max(...A.map(a => Math.abs(v.forecast[a] || 0)), 1e-4);
+        return `<div class="pgrid">${vrow('Training months used', v.fit.n_train, 'input')}${vrow('Features', v.fit.n_features, 'input')}${vrow('Penalty chosen', v.fit.intercept_only ? 'Intercept only' : esc(v.fit.alpha), 'input', v.fit.intercept_only ? 'the macro features were not used this month' : '')}${vrow('Latest training month', esc(v.fit.latest_train_month), 'input')}</div>
+          ${pbars(A.map(a => ({ label: PLAIN[a] || a, v: v.forecast[a], color: ac(a) })), mx, x => bp(x, 1))}
+          <p class="sub">Expected return above cash over the next month. ${v.fit.intercept_only ? 'This month the inner cross-validation preferred the intercept alone, so the forecast is the training-sample mean rather than a reading of the surprises.' : ''}</p>`;
+      }
+      const mx = Math.max(Math.abs(v.offset_original), Math.abs(v.weighted_offset), 0.1);
+      return `<div class="pfunnel">
+          <div><span class="l">Probability-weighted offset</span><b class="num">${num(v.offset_original, 2)} pts</b><small>the five-way distribution averaged into one number</small></div>
+          <i aria-hidden="true"></i>
+          <div><span class="l">× agent confidence ${num(v.confidence, 2)}</span><b class="num">${num(v.weighted_offset, 2)} pts</b><small>the signal-induced contribution to the edge</small></div>
+        </div>
+        ${pbars([{ label: 'Before confidence', v: v.offset_original, color: 'var(--border-strong)' }, { label: 'After confidence', v: v.weighted_offset, color: color('jev') }], mx, x => num(x, 2) + ' pts')}
+        <p class="sub">Negative points lean toward bonds, positive toward stocks.</p>`;
+    }
+    if (stage === 'alloc') {
+      if (key === 'det') {
+        const mx = Math.max(...A.flatMap(a => [Math.abs(v.forecast[a]), Math.abs(v.prior[a]), Math.abs(v.posterior[a])]), 1e-4);
+        return `<div class="pcols">
+            <div><h4>The view against the prior</h4>
+              ${A.map(a => `<div class="vgrp"><h5>${esc(PLAIN[a] || a)}</h5>${pbars([
+                  { label: 'View (q)', v: v.forecast[a], color: ac(a) },
+                  { label: 'Prior (π)', v: v.prior[a], color: 'var(--border-strong)' },
+                  { label: 'Posterior (μ_BL)', v: v.posterior[a], color: 'var(--accent)' }], mx, x => bp(x, 1))}</div>`).join('')}
+              <p class="sub">${tipw('Black–Litterman', 'bl')} blends the view q with the equilibrium prior π. The posterior μ_BL is what the optimiser actually maximises against — here it sits far closer to the prior than to the view.</p></div>
+            <div><h4>Weights before and after the limits</h4>
+              ${weightCompare(A, v.w_unconstrained, v.weights)}
+              ${vrow('Position limits binding', v.binding ? esc(v.binding) : 'none', 'decision')}
+              <p class="sub">The unconstrained optimum is the fully invested optimum with the bounds ignored; the final weights add the 20–70 / 15–60 / 10–40 bounds.</p></div>
+          </div>`;
+      }
+      return `<div class="pcols">
+          <div><h4>The edge</h4>
+            <div class="pgrid">${vrow('Equilibrium edge', num(v.base_edge, 2) + ' pts', 'input')}${vrow('Signal contribution', num(v.weighted_offset, 2) + ' pts', 'forecast')}${vrow('Edge used', num(v.edge, 2) + ' pts', 'forecast')}</div>
+            <p class="sub">edge = baseEdge + confidence × offset. This is JEV's own mechanism; it is not Black–Litterman.</p></div>
+          <div><h4>Weights before and after the cap</h4>
+            ${weightCompare(A, { SPY: v.w_unconstrained.SPY, TLT: 1 - v.w_unconstrained.SPY }, v.weights)}
+            ${vrow('Cap binding (40–80% stocks)', v.binding ? esc(v.binding) : 'none', 'decision')}
+            <p class="sub">The unclipped fully invested stock weight, then the native 40–80% clip.</p></div>
+        </div>`;
+    }
+    if (stage === 'trade') {
+      return `<div class="pcols">
+          <div><h4>From the drifted holdings to the target</h4>${weightCompare(A, v.pretrade, v.weights, 'Pre-trade (drifted)', 'Target')}</div>
+          <div><h4>What the trade cost</h4>
+            <div class="pgrid">${vrow('One-way turnover', ppw(v.turnover, 2), 'decision')}${vrow('Transaction cost', bp(v.cost, 2), 'decision')}${vrow('Traded at the close of', esc(v.entry), 'decision')}${vrow('Held until', esc(v.exit), 'decision')}</div>
+            <p class="sub">Cost is ${esc(costLabel())} against the drifted pre-trade weights. The first month starts from cash.</p></div>
+        </div>`;
+    }
+    const rows = key === 'det' && v.realized
+      ? A.map(a => ({ label: PLAIN[a] || a, v: v.realized[a], color: ac(a) })) : [];
+    return `<div class="pcols">
+        <div><h4>What the month returned</h4>
+          <div class="pgrid">${vrow('Gross return above cash', pct(v.gross, 2), 'realized')}${vrow('Transaction cost', bp(v.cost, 2), 'decision')}${vrow('Net return above cash', pct(v.net, 2), 'realized')}${vrow('Cash rate that month', pct(v.rf, 2), 'realized')}</div></div>
+        <div>${rows.length ? `<h4>What each asset did</h4>${pbars(rows, Math.max(...rows.map(r => Math.abs(r.v)), 0.01), x => pct(x, 1))}` : ''}
+          <p class="sub">This month joins the ${D.dev.months.length}-month development series scored by the shared evaluator. It is one month: the metrics are built from all of them.</p></div>
+      </div>`;
+  }
+
+  function weightCompare(A, from, to, lf, lt) {
+    const bar = w => `<span class="wbar">${A.map(a => `<span class="b" style="background:${assetColor(a)};flex:${Math.max(0.0001, w[a] || 0)} 1 0">${((w[a] || 0) * 100).toFixed(0)}</span>`).join('')}</span>`;
+    return `<div class="wcmp">
+      <div class="wrow"><span class="l">${esc(lf || 'Unconstrained')}</span>${bar(from)}</div>
+      <div class="warr" aria-hidden="true">${icon('arrow')}</div>
+      <div class="wrow"><span class="l">${esc(lt || 'Final weights')}</span>${bar(to)}</div>
+      <div class="wkey">${A.map(a => `<span><i style="background:${assetColor(a)}"></i>${esc(PLAIN[a] || a)}</span>`).join('')}<span class="sub">percent of the portfolio</span></div>
+      <div class="wdelta">${A.map(a => `<span>${esc(PLAIN[a] || a)} <b class="num">${sgn(+(((to[a] || 0) - (from[a] || 0)) * 100).toFixed(2), Math.abs(((to[a] || 0) - (from[a] || 0)) * 100).toFixed(2) + ' pp')}</b></span>`).join('')}</div>
+    </div>`;
+  }
+
+  function viewPipeline() {
+    const P = D.pipeline;
+    if (!P) { app.innerHTML = '<div class="wrap"><p class="sub">The pipeline trace is not in this data build.</p></div>'; return; }
+    if (!pipeMonth || !P.months.includes(pipeMonth)) pipeMonth = P.default_month || P.months[0];
+    const stages = pipeStages(pipeKey);
+    if (!stages.find(x => x.id === pipeStage)) pipeStage = stages[0].id;
+    const idx = stages.findIndex(x => x.id === pipeStage);
+    const has = pipeKey !== 'rag';
+    app.innerHTML = `<div class="wrap pipe">
+      <section><div class="phead"><h1>How a decision is made</h1>${has ? dataChip('dev') : dataChip('na')}</div>
+        <p class="lede">One real month, followed from the data that existed on the decision date to the return it earned. Every number is read from a committed artifact.</p>
+        <div class="pctl">
+          <div class="seg" role="group" aria-label="Approach">${D.systems.map(x => `<button type="button" data-pk="${x.key}" aria-pressed="${x.key === pipeKey}">${badge(x.key)}${esc(SHORT[x.key])}</button>`).join('')}</div>
+          ${has ? `<label class="pmonth">Decision month
+            <select id="pm">${P.months.map(m => `<option value="${m}"${m === pipeMonth ? ' selected' : ''}>${monthLabel(m)}</option>`).join('')}</select>
+          </label>` : ''}
+        </div>
+      </section>
+      <section class="panel">
+        <ol class="prail" aria-label="Pipeline stages">${stages.map((x, i) => `<li><button type="button" data-ps="${x.id}" aria-current="${x.id === pipeStage ? 'step' : 'false'}" class="${i < idx ? 'done' : ''}"><span class="n">${i + 1}</span><span class="ic">${icon(PIPE_ICON[x.id])}</span><span class="t">${esc(x.name)}</span></button>${i < stages.length - 1 ? '<i class="parr" aria-hidden="true"></i>' : ''}</li>`).join('')}</ol>
+        ${stagePanel(pipeKey, pipeStage, pipeMonth)}
+        <div class="pnav">
+          <button type="button" class="pbtn" data-step="-1"${idx === 0 ? ' disabled' : ''}>${icon('chev', 'flip')}Previous stage</button>
+          <span class="sub">Stage ${idx + 1} of ${stages.length}${has ? ` · ${monthLabel(pipeMonth)} decision` : ''}</span>
+          <button type="button" class="pbtn" data-step="1"${idx === stages.length - 1 ? ' disabled' : ''}>Next stage${icon('chev')}</button>
+        </div>
+      </section>
+      ${has ? `<section class="panel"><h2>Where these numbers come from</h2>
+        <ul class="srcs">${(P.sources[pipeKey] || []).map(f => `<li>${icon('data')}<code>${esc(f)}</code></li>`).join('')}</ul>
+        ${pipeKey === 'det' ? `<p class="sub">Across all ${D.dev.months.length} development months the ridge penalty resolved to the intercept alone in ${(P.ridge_intercept_only_share * 100).toFixed(0)}% of asset-months, so for most months the forecast is the training mean rather than a reading of the surprises. That is a property of the frozen model, reported here rather than adjusted.</p>` : ''}
+      </section>` : `<section class="panel"><h2>Why there are no numbers yet</h2>
+        <div class="unavail"><span>${esc(P.rag.reason)}</span>
+          <ul class="sub">${(D.sensitivity.ap3.blockers || []).map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+          <span class="sub">Progress and reliability detail: <a href="#causal-rag">Causal RAG status</a>.</span></div></section>`}
+    </div>`;
+    document.querySelectorAll('[data-pk]').forEach(b => b.addEventListener('click', () => { pipeKey = b.dataset.pk; pipeStage = 'data'; killCharts(); viewPipeline(); }));
+    document.querySelectorAll('[data-ps]').forEach(b => b.addEventListener('click', () => { pipeStage = b.dataset.ps; killCharts(); viewPipeline(); }));
+    document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
+      const n = idx + (+b.dataset.step); if (n >= 0 && n < stages.length) { pipeStage = stages[n].id; killCharts(); viewPipeline(); } }));
+    const sel = document.getElementById('pm');
+    if (sel) sel.addEventListener('change', () => { pipeMonth = sel.value; killCharts(); viewPipeline(); });
+  }
+
+
+
+  // ---------------------------------------------------------------- E. Forecast-to-allocation sensitivity
+  function viewSensitivity() {
+    const S2 = D.sensitivity;
+    if (!S2) { app.innerHTML = '<div class="wrap"><p class="sub">This analysis is not in the current data build.</p></div>'; return; }
+    app.innerHTML = `<div class="wrap sva">
+      <section><div class="phead"><h1>Forecast-to-allocation sensitivity</h1>${dataChip('dev')}</div>
+        <p class="lede">Each approach's own view was rescaled — to nothing, to half, to as it was, to double — at the single point where a number enters its allocator. Nothing else changed.</p>
+      </section>
+      ${sensitivitySections()}
+    </div>`;
+    sensitivityCharts();
+  }
+
+  // ---------------------------------------------------------------- H. Appendix
+  let apxCat = 'all', apxQuery = '';
+  function viewAppendix() {
+    const A = D.appendix;
+    const cats = [{ id: 'all', label: 'Everything' }].concat(A.categories);
+    const q = apxQuery.trim().toLowerCase();
+    const hit = e => (apxCat === 'all' || e.cat === apxCat) &&
+      (!q || (e.title + ' ' + e.what + ' ' + e.where).toLowerCase().includes(q));
+    const shown = A.entries.filter(hit);
+    const label = id => (A.categories.find(c => c.id === id) || {}).label || id;
+    const entry = e => `<div class="apx"><div class="apx-h"><b>${esc(e.title)}</b><span class="chip plain">${esc(label(e.cat))}</span></div>
+        <p class="sub">${esc(e.what)}</p>
+        <code class="apx-w">${esc(e.where)}</code>${e.doc ? '<span class="chip plain">Report</span>' : ''}${e.config ? '<span class="chip plain">Configuration</span>' : ''}</div>`;
+    app.innerHTML = `<div class="wrap apxwrap">
+      <section><div class="phead"><h1>Appendix</h1><span class="chip plain">${A.entries.length} entries</span></div>
+        <p class="lede">Every supporting detail behind the main sections: methods and formulas, data sources, full metric tables, intervals and p-values, experiment configurations, reliability specifications and the artifacts each result came from.</p>
+        <div class="apx-ctl">
+          <label class="apx-search"><span class="sr">Search the appendix</span>${icon('tool')}<input type="search" id="apxq" placeholder="Search methods, data, statistics…" value="${esc(apxQuery)}"></label>
+          <div class="apx-cats" role="group" aria-label="Category">${cats.map(c => `<button type="button" data-ac="${c.id}" aria-pressed="${c.id === apxCat}">${esc(c.label)}</button>`).join('')}</div>
+        </div>
+      </section>
+      <section aria-label="Appendix entries">
+        ${shown.length ? `<div class="apxs">${shown.map(entry).join('')}</div>` : '<p class="sub">Nothing matches that search.</p>'}
+      </section>
+      <section class="panel"><h2>Methodology in full</h2>${methodologyBody()}</section>
+      <section class="panel"><h2>Build provenance</h2>
+        <div class="pgrid">
+          ${vrow('Repository', esc(D.build.repository), 'input')}
+          ${vrow('Branch', esc(D.build.branch || '—'), 'input')}
+          ${vrow('Commit this data was built against', `<code>${esc((D.build.git_commit_at_build || '').slice(0, 12))}</code>`, 'input')}
+          ${vrow('Release manifest digest', `<code>${esc((D.build.release_manifest_sha256 || '').slice(0, 16))}</code>`, 'input')}
+          ${vrow('Data generated', esc(D.build.generated_at_utc), 'input')}
+          ${vrow('Dashboard schema', esc(D.build.dashboard_schema), 'input')}
+        </div>
+        <p class="sub">${esc(D.build.git_commit_note)}. The release-manifest digest is content-addressed, so it identifies the repository state exactly.</p>
+      </section>
+      <section class="panel"><h2>Reports and configurations in the repository</h2>
+        <ul class="srcs">${A.docs.concat(A.configs).map(d => `<li>${icon('method')}<span><b>${esc(d.title)}</b><code>${esc(d.path)}</code></span></li>`).join('')}</ul>
+      </section>
+      <section class="panel"><h2>Glossary</h2>
+        <dl class="gloss">${Object.keys(GLOSSARY).sort().map(k => { const t = GLOSSARY[k]; const i = t.indexOf(':');
+          return `<div><dt>${esc(i > 0 && i < 48 ? t.slice(0, i) : k)}</dt><dd>${esc(i > 0 && i < 48 ? t.slice(i + 1).trim() : t)}</dd></div>`; }).join('')}</dl>
+      </section>
+    </div>`;
+    const inp = document.getElementById('apxq');
+    if (inp) inp.addEventListener('input', () => { apxQuery = inp.value; const at = document.activeElement === inp;
+      viewAppendix(); if (at) { const n = document.getElementById('apxq'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); } });
+    document.querySelectorAll('[data-ac]').forEach(b => b.addEventListener('click', () => { apxCat = b.dataset.ac; viewAppendix(); }));
+  }
+
+
+
+  // ---------------------------------------------------------------- Download Content
+  // A real ZIP, written here: central-directory format, deflate where the browser offers CompressionStream and
+  // stored otherwise. No library and no network call, so the download works wherever the page loads.
+  const CRC = (() => { const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+    return b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = t[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  })();
+
+  async function deflateRaw(bytes) {
+    if (typeof CompressionStream !== 'function') return null;
+    try {
+      const cs = new CompressionStream('deflate-raw');
+      const buf = await new Response(new Blob([bytes]).stream().pipeThrough(cs)).arrayBuffer();
+      return new Uint8Array(buf);
+    } catch (_) { return null; }
+  }
+
+  async function makeZip(files) {
+    const enc = new TextEncoder(), parts = [], central = [];
+    let offset = 0;
+    const d = new Date(), dosTime = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF;
+    const dosDate = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+    const u8 = v => typeof v === 'string' ? enc.encode(v) : v;
+    for (const f of files) {
+      const raw = u8(f.data), name = enc.encode(f.path), crc = CRC(raw);
+      const def = await deflateRaw(raw);
+      const use = def && def.length < raw.length ? def : null;
+      const body = use || raw, method = use ? 8 : 0;
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(8, method, true); lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, body.length, true); lh.setUint32(22, raw.length, true);
+      lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, body);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+      ch.setUint16(10, method, true); ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true);
+      ch.setUint32(16, crc, true); ch.setUint32(20, body.length, true); ch.setUint32(24, raw.length, true);
+      ch.setUint16(28, name.length, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + body.length;
+    }
+    const cdSize = central.reduce((n, x) => n + x.length, 0);
+    const eo = new DataView(new ArrayBuffer(22));
+    eo.setUint32(0, 0x06054b50, true); eo.setUint16(8, files.length, true); eo.setUint16(10, files.length, true);
+    eo.setUint32(12, cdSize, true); eo.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, new Uint8Array(eo.buffer)], { type: 'application/zip' });
+  }
+
+  const csvCell = v => { const t = v == null ? '' : String(v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const toCsv = (cols, rows) => [cols.join(','), ...rows.map(r => cols.map(c => csvCell(r[c])).join(','))].join('\n') + '\n';
+
+  function exportTables() {
+    const t = {}, months = D.dev.months;
+    // performance metrics, every series the dashboard shows
+    const perf = [];
+    const pushMetrics = (id, label, kind, m) => { if (!m) return;
+      perf.push({ series_id: id, label, kind, months: m.months == null ? months.length : m.months,
+        net_cer: m.cer, annualized_excess_return: m.ann_excess_return, annualized_volatility: m.volatility,
+        net_sharpe: m.sharpe, max_drawdown: m.max_drawdown, cumulative_net_return: m.cumulative_return,
+        annualized_one_way_turnover: m.turnover == null ? '' : m.turnover }); };
+    D.systems.concat(D.variants).forEach(x => S(x.key) && pushMetrics(x.key, x.short, x.role === 'primary' ? 'approach' : 'variant', S(x.key).metrics));
+    Object.entries(D.dev.benchmarks || {}).forEach(([k, b]) => pushMetrics(k, b.label || k, 'benchmark', b.metrics));
+    if (CB() && CB().metrics) pushMetrics('common', CB().label, 'reference', CB().metrics);
+    t['data/performance_metrics.csv'] = toCsv(['series_id', 'label', 'kind', 'months', 'net_cer',
+      'annualized_excess_return', 'annualized_volatility', 'net_sharpe', 'max_drawdown',
+      'cumulative_net_return', 'annualized_one_way_turnover'], perf);
+
+    // monthly returns for every series with a monthly net series
+    const mr = [];
+    const addMonthly = (id, label, kind, ser) => { if (!ser || !(ser.monthly_net_return || ser.wealth)) return;
+      months.forEach((m, i) => mr.push({ decision_month: m, series_id: id, label, kind,
+        net_excess_return: ser.monthly_net_return ? ser.monthly_net_return[i] : '',
+        wealth_index: ser.wealth ? ser.wealth[i] : '' })); };
+    D.systems.concat(D.variants).forEach(x => addMonthly(x.key, x.short, 'approach', S(x.key)));
+    Object.entries(D.dev.benchmarks || {}).forEach(([k, b]) => addMonthly(k, b.label || k, 'benchmark', b));
+    if (CB()) addMonthly('common', CB().label, 'reference', CB());
+    t['data/monthly_returns.csv'] = toCsv(['decision_month', 'series_id', 'label', 'kind', 'net_excess_return', 'wealth_index'], mr);
+
+    // portfolio weights and the trade, per approach and month
+    const w = [], P = D.pipeline;
+    if (P) ['det', 'jev'].forEach(k => Object.entries(P[k] || {}).forEach(([m, v]) => {
+      Object.keys(v.weights).forEach(a => w.push({ decision_month: m, approach: SHORT[k], asset: a,
+        target_weight: v.weights[a], pretrade_weight: v.pretrade[a],
+        unconstrained_weight: v.w_unconstrained[a] == null ? '' : v.w_unconstrained[a],
+        entry_date: v.entry, exit_date: v.exit, one_way_turnover: v.turnover, cost: v.cost,
+        binding_bounds: v.binding || '', net_excess_return: v.net, gross_excess_return: v.gross })); }));
+    t['data/portfolio_weights.csv'] = toCsv(['decision_month', 'approach', 'asset', 'target_weight', 'pretrade_weight',
+      'unconstrained_weight', 'entry_date', 'exit_date', 'one_way_turnover', 'cost', 'binding_bounds',
+      'net_excess_return', 'gross_excess_return'], w);
+
+    // signals and forecasts, per approach and month
+    const sf = [];
+    if (P) {
+      Object.entries(P.det || {}).forEach(([m, v]) => {
+        v.surprises.forEach(x => sf.push({ decision_month: m, approach: 'Deterministic', kind: 'macro_surprise_z', item: x.label, value: x.z, units: 'standard deviations' }));
+        Object.entries(v.forecast).forEach(([a, x]) => sf.push({ decision_month: m, approach: 'Deterministic', kind: 'ridge_forecast', item: a, value: x, units: 'expected excess return, decimal' }));
+        Object.entries(v.prior).forEach(([a, x]) => sf.push({ decision_month: m, approach: 'Deterministic', kind: 'bl_prior_pi', item: a, value: x, units: 'expected excess return, decimal' }));
+        Object.entries(v.posterior).forEach(([a, x]) => sf.push({ decision_month: m, approach: 'Deterministic', kind: 'bl_posterior_mu', item: a, value: x, units: 'expected excess return, decimal' }));
+        sf.push({ decision_month: m, approach: 'Deterministic', kind: 'ridge_penalty', item: 'alpha', value: v.fit.alpha, units: '' });
+      });
+      Object.entries(P.jev || {}).forEach(([m, v]) => {
+        v.probs.forEach(x => sf.push({ decision_month: m, approach: 'JEV', kind: 'tilt_probability', item: x.label, value: x.p, units: 'probability' }));
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'chosen_tilt', item: 'choice', value: v.choice, units: '' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'p_stocks_beat_bonds', item: 'p', value: v.p_stocks_beat_bonds, units: 'probability' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'probability_weighted_offset', item: 'offset', value: v.offset_original, units: 'points of edge' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'confidence', item: 'confidence', value: v.confidence, units: '' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'confidence_weighted_offset', item: 'offset', value: v.weighted_offset, units: 'points of edge' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'equilibrium_edge', item: 'base_edge', value: v.base_edge, units: 'points of edge' });
+        sf.push({ decision_month: m, approach: 'JEV', kind: 'edge_used', item: 'edge', value: v.edge, units: 'points of edge' });
+      });
+    }
+    t['data/signals_and_forecasts.csv'] = toCsv(['decision_month', 'approach', 'kind', 'item', 'value', 'units'], sf);
+
+    // sensitivity scenarios
+    const sc = [], SN = D.sensitivity;
+    if (SN) Object.entries(SN.systems).forEach(([k, sy]) => SN.scenarios.forEach(x => { const r = sy.by_scenario[x];
+      sc.push({ approach: SHORT[k], scenario: x, label: SN.labels[x], active_weight: r.active_weight, net_cer: r.net_cer,
+        annualized_volatility: r.vol, net_sharpe: r.sharpe, max_drawdown: r.max_dd, annualized_turnover: r.turnover,
+        annualized_cost_bp: r.cost_bp, months_with_binding_bound: r.binding_months,
+        mean_abs_final_weight_change_vs_1x: r.final_change, constraint_attenuation_share: r.attenuation,
+        net_cer_minus_1x: r.vs_1x ? r.vs_1x.cer_difference : '', ci95_low: r.vs_1x ? r.vs_1x.ci95[0] : '',
+        ci95_high: r.vs_1x ? r.vs_1x.ci95[1] : '', p_two_sided_bootstrap: r.vs_1x ? r.vs_1x.p : '' }); }));
+    t['data/sensitivity_scenarios.csv'] = toCsv(['approach', 'scenario', 'label', 'active_weight', 'net_cer',
+      'annualized_volatility', 'net_sharpe', 'max_drawdown', 'annualized_turnover', 'annualized_cost_bp',
+      'months_with_binding_bound', 'mean_abs_final_weight_change_vs_1x', 'constraint_attenuation_share',
+      'net_cer_minus_1x', 'ci95_low', 'ci95_high', 'p_two_sided_bootstrap'], sc);
+
+    // within-approach experiments
+    const ex = [];
+    (D.experiments.groups || []).forEach(g => [].concat(g.base ? [{ ...g.base, is_base: true }] : [], g.variants || []).forEach(x => {
+      const r = x.result || {}, cc = r.contrast || {};
+      ex.push({ approach: SHORT[g.approach] || g.approach, experiment: x.name, kind: x.is_base ? 'base' : 'variant',
+        detail: x.detail || '', status: x.status, headline: r.headline || '',
+        cer_difference: cc.cer_difference == null ? '' : cc.cer_difference,
+        ci95_low: cc.ci95 ? cc.ci95[0] : '', ci95_high: cc.ci95 ? cc.ci95[1] : '', p_value: cc.p == null ? '' : cc.p,
+        statistically_clear: cc.clear == null ? '' : (cc.clear ? 'yes' : 'no'),
+        takeaway: r.learned || '' }); }));
+    t['data/within_approach_experiments.csv'] = toCsv(['approach', 'experiment', 'kind', 'detail', 'status',
+      'headline', 'cer_difference', 'ci95_low', 'ci95_high', 'p_value', 'statistically_clear', 'takeaway'], ex);
+
+    // reliability gates, coverage and status
+    const rel = [];
+    Object.entries(D.ap3_exploratory.gates_failed || {}).forEach(([g, v]) => (v.failed_checks || v.checks || []).forEach
+      ? (v.failed_checks || v.checks || []).forEach(c => rel.push({ area: 'Causal RAG reliability', gate: g, check: c.name || c.check || '',
+          measured: c.value == null ? '' : c.value, threshold: c.threshold == null ? '' : c.threshold, passed: c.pass === true ? 'yes' : 'no' }))
+      : null);
+    rel.push({ area: 'Causal RAG coverage', gate: '', check: 'agent months completed', measured: D.ap3_exploratory.months_done, threshold: D.ap3_exploratory.months_needed, passed: 'no' });
+    (D.validation.gates || []).forEach(g => D.validation.columns.forEach(k => { const c = g.cells[k];
+      if (c && c.status !== 'na') rel.push({ area: 'Validation gate', gate: SHORT[k], check: g.name, measured: c.status, threshold: '', passed: c.status === 'pass' ? 'yes' : 'no' }); }));
+    t['data/reliability_and_status.csv'] = toCsv(['area', 'gate', 'check', 'measured', 'threshold', 'passed'], rel);
+
+    t['appendix/appendix_index.csv'] = toCsv(['category', 'title', 'what', 'where'],
+      D.appendix.entries.map(e => ({ category: (D.appendix.categories.find(c => c.id === e.cat) || {}).label || e.cat, title: e.title, what: e.what, where: e.where })));
+    return t;
+  }
+
+  function reportHtml(appendixOnly) {
+    const M = D.sensitivity, SV = D.signal_value, months = D.dev.months;
+    const tbl = (cols, rows) => `<table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'n' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    const metricRows = D.systems.concat(D.variants).filter(x => S(x.key)).map(x => { const m = S(x.key).metrics;
+      return [esc(x.short), pct(m.cer, 2), pct(m.ann_excess_return, 2), pct(m.volatility, 1), num(m.sharpe, 2), pct(m.max_drawdown, 1), pct(m.cumulative_return, 1), m.turnover == null ? '—' : num(m.turnover, 2) + '×']; });
+    const senRows = M ? Object.entries(M.systems).flatMap(([k, sy]) => M.scenarios.map(x => { const r = sy.by_scenario[x];
+      return [esc(SHORT[k] + ' · ' + M.labels[x]), pct(r.active_weight, 2), pct(r.net_cer, 2), pct(r.vol, 1), num(r.turnover, 2) + '×', r.cost_bp.toFixed(1) + ' bp', String(r.binding_months), r.vs_1x ? `${pts(r.vs_1x.cer_difference, 2)} [${pts(r.vs_1x.ci95[0], 2)}, ${pts(r.vs_1x.ci95[1], 2)}]` : '—']; })) : [];
+    const apx = D.appendix.categories.map(c => `<h3>${esc(c.label)}</h3><ul>${D.appendix.entries.filter(e => e.cat === c.id).map(e => `<li><b>${esc(e.title)}</b> — ${esc(e.what)} <code>${esc(e.where)}</code></li>`).join('')}</ul>`).join('');
+    const head = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(appendixOnly ? 'Appendix — Protofin Backtest' : 'Protofin Backtest — Research Report')}</title>
+<style>
+:root{--fg:#15202e;--mut:#5b6678;--line:#dde3ec;--bg:#fff;--accent:#2563eb}
+*{box-sizing:border-box}body{margin:0 auto;padding:40px 24px 80px;max-width:900px;background:var(--bg);color:var(--fg);
+font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+h1{font-size:30px;line-height:1.2;margin:0 0 6px}h2{font-size:21px;margin:38px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+h3{font-size:16px;margin:22px 0 6px}p{margin:0 0 10px}ul{margin:0 0 12px;padding-left:20px}li{margin:3px 0}
+.lede{color:var(--mut);font-size:17px}code{font:12.5px ui-monospace,Menlo,monospace;background:#f3f5f9;padding:1px 5px;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:10px 0 16px;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}th{color:var(--mut);font-weight:600;font-size:12.5px}
+td.n,th+th{text-align:right}.note{background:#f7f9fc;border-left:3px solid var(--accent);padding:10px 14px;margin:14px 0;border-radius:0 8px 8px 0}
+.warn{border-left-color:#b45309}.meta{color:var(--mut);font-size:13px}@media print{body{padding:0}h2{break-before:auto}}
+</style></head><body>`;
+    if (appendixOnly) return head + `<h1>Appendix</h1><p class="lede">Every supporting detail behind the Protofin backtest dashboard.</p>
+<p class="meta">Generated ${esc(new Date().toISOString().slice(0, 19))}Z · branch ${esc(D.build.branch || '')} · commit ${esc((D.build.git_commit_at_build || '').slice(0, 12))}</p>
+${apx}<h2>Methodology settings</h2>${tbl(['Setting', 'Value', 'Status'], (D.methodology.settings || []).map(x => [esc(x.name), esc(x.value), esc(SETTING[x.status][2])]))}
+<h2>Validation gates</h2>${tbl(['Check'].concat(D.validation.columns.map(k => SHORT[k])), (D.validation.gates || []).map(g => [esc(g.name)].concat(D.validation.columns.map(k => esc(GATE[g.cells[k].status][2])))))}
+<h2>Glossary</h2><ul>${Object.keys(GLOSSARY).sort().map(k => `<li>${esc(GLOSSARY[k])}</li>`).join('')}</ul></body></html>`;
+    return head + `<h1>Protofin — research backtest</h1>
+<p class="lede">Does AI improve on our Deterministic baseline? Three forecasting architectures on ${months.length} development months (${esc(devSpan())}), one shared evaluator.</p>
+<p class="meta">Generated ${esc(new Date().toISOString().slice(0, 19))}Z · ${esc(D.build.repository)} · branch ${esc(D.build.branch || '')} · commit ${esc((D.build.git_commit_at_build || '').slice(0, 12))} · dashboard schema ${esc(D.build.dashboard_schema)}</p>
+<div class="note warn"><b>Status: development diagnostics only.</b> The protected historical test window ${esc(D.windows.historical_test.join(' to '))} is sealed: it has never been opened or scored. Nothing in this report is confirmatory, and no difference reported here is statistically clear.</div>
+
+<h2>1. The approaches</h2>
+<ul>${D.systems.map(x => `<li><b>${esc(x.name)}</b> — ${esc((x.universe || []).join(', '))}. ${esc(x.summary || x.what || '')}</li>`).join('')}</ul>
+<p>The Agent Committee is a within-approach variant of the Agentic Workflow, not a fourth approach. The approaches hold different assets with different neutral portfolios, so differences between them cannot be attributed to the forecasting method alone.</p>
+
+<h2>2. Headline results</h2>
+${tbl(['Series', 'Net CER', 'Ann. excess', 'Volatility', 'Sharpe', 'Worst fall', 'Cumulative', 'Turnover'], metricRows)}
+<p>Net CER is the primary metric: the guaranteed yearly return above cash a risk-averse investor would accept instead of the strategy, after costs. ${esc(D.notes.finding || '')}</p>
+<h3>Primary contrasts</h3>
+${tbl(['Comparison', 'Net CER difference', '95% interval', 'p'], (D.dev.primary_contrasts.items || []).map(c => [esc(`${SHORT[c.a]} vs ${SHORT[c.b]}`), c.computed ? pts(c.cer_difference, 2) : 'not computed', c.ci95 ? `[${pts(c.ci95[0], 2)}, ${pts(c.ci95[1], 2)}]` : '—', c.p == null ? '—' : num(c.p, 3)]))}
+
+<h2>3. How a decision is made</h2>
+<p>Each approach keeps its own native pipeline. Historical data → signal generation → forecasting → portfolio allocation → trades and returns → performance evaluation.</p>
+<ul>${['det', 'jev', 'rag'].map(k => `<li><b>${esc(SHORT[k])}</b>: ${(D.pipeline ? D.pipeline.stages[k] : []).map(x => esc(x.name)).join(' → ')}</li>`).join('')}</ul>
+<p>The dashboard steps through every development month with the genuine archived values at each stage. Those values are exported in <code>data/signals_and_forecasts.csv</code> and <code>data/portfolio_weights.csv</code>. Causal RAG has no genuine development outputs, so no values are shown for it.</p>
+
+<h2>4. Portfolio integrity audit</h2>
+<p>${esc(D.audit.verdict)} Every monthly return was rebuilt independently from the raw prices; the largest absolute difference was ${D.audit.max_abs_diff_net_return.toExponential(2)}. The two working approaches' monthly net returns correlate at ${corr3(D.audit.corr_monthly_net)}, and their signal-free portfolios at ${corr3(D.audit.corr_own_mixes)}.</p>
+
+<h2>5. Signal value-added</h2>
+<p>Each approach was run again with its forecasting signal switched off and everything else — assets, starting weights, dates, prices, costs — held fixed.</p>
+${tbl(['Approach', 'With signals', 'Without signals', 'Difference', '95% interval', 'p'], Object.entries(SV.systems).map(([k, v]) =>
+  [esc(SHORT[k]), pct(v.with.cer, 2), pct(v.without.cer, 2), pts(v.value.cer_difference, 2), `[${pts(v.value.ci95[0], 2)}, ${pts(v.value.ci95[1], 2)}]`, num(v.value.p, 3)]))}
+<p>Neither interval excludes zero. ${SV.influential_month ? esc(`One month, ${monthLabel(SV.influential_month.decision_month)}, carries most of JEV's signal contribution; removing it moves JEV's incremental net CER from `) + pts(SV.influential_month.value_with, 2) + ' to ' + pts(SV.influential_month.value_without, 2) + '.' : ''}</p>
+
+<h2>6. Forecast-to-allocation sensitivity</h2>
+<p>Each approach's view was rescaled at the single point where a number enters its allocator, adjusted = prior + λ × (original − prior), for λ in 0, 0.5, 1 and 2. Nothing else changed.</p>
+${tbl(['Approach · scenario', 'Position change', 'Net CER', 'Volatility', 'Turnover', 'Cost', 'Limit binds', 'Net CER vs 1×'], senRows)}
+<p>Where each signal is lost: the Deterministic view is shrunk inside Black–Litterman, whose posterior keeps ${M ? (M.systems.det.posterior_keeps * 100).toFixed(1) : ''}% of it; JEV's allocator passes its view through in full and its cap never binds, but the view is already small when it arrives; the Agent Committee is the one architecture where the position limit does the attenuating.</p>
+<p>The ${M ? corr3(M.similarity.corr_1x) : ''} correlation between the Deterministic model and JEV is baseline exposure rather than forecast agreement: with both signals switched off they correlate at ${M ? corr3(M.similarity.corr_0x) : ''}, while the parts their signals contribute correlate at ${M ? corr3(M.similarity.corr_signal_parts) : ''}.</p>
+
+<h2>7. Within-approach experiments</h2>
+${tbl(['Approach', 'Experiment', 'Status', 'Result'], (D.experiments.groups || []).flatMap(g => [].concat(g.base ? [g.base] : [], g.variants || []).map(x =>
+  [esc(SHORT[g.approach] || g.approach), esc(x.name), esc(STATUS[x.status] ? STATUS[x.status][2] : x.status), esc((x.result && x.result.headline) || '—')])))}
+
+<h2>8. Causal RAG status</h2>
+<p><b>${esc(D.ap3_exploratory.label)}.</b> ${D.ap3_exploratory.months_done} of ${D.ap3_exploratory.months_needed} agent months have been run. Both pre-registered reliability gates fail, so no backtest result exists and none is shown or exported. ${esc(D.ap3_exploratory.why || '')}</p>
+<ul>${(D.sensitivity.ap3.blockers || []).map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+
+<h2>9. Limitations</h2>
+<ul>${(D.notes.cannot || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+${(M && M.limitations ? '' : '')}
+
+<h2>10. Appendix</h2>
+${apx}
+<h3>Methodology settings</h3>
+${tbl(['Setting', 'Value', 'Status'], (D.methodology.settings || []).map(x => [esc(x.name), esc(x.value), esc(SETTING[x.status][2])]))}
+<h3>Validation gates</h3>
+${tbl(['Check'].concat(D.validation.columns.map(k => SHORT[k])), (D.validation.gates || []).map(g => [esc(g.name)].concat(D.validation.columns.map(k => esc(GATE[g.cells[k].status][2])))))}
+<h3>Glossary</h3><ul>${Object.keys(GLOSSARY).sort().map(k => `<li>${esc(GLOSSARY[k])}</li>`).join('')}</ul>
+</body></html>`;
+  }
+
+  function manifest(tables) {
+    const X = D.export;
+    return JSON.stringify({
+      package: X.zip_name,
+      generated_at_utc: new Date().toISOString(),
+      dashboard: { schema: D.build.dashboard_schema, data_generated_at_utc: D.build.generated_at_utc },
+      source: { repository: D.build.repository, branch: D.build.branch, commit_at_build: D.build.git_commit_at_build,
+                commit_note: D.build.git_commit_note, release_manifest_sha256: D.build.release_manifest_sha256 },
+      windows: { training: D.windows.training, development: D.windows.development,
+                 historical_test: D.windows.historical_test, historical_test_status: D.windows.historical_test_status },
+      approaches: D.systems.map(s => ({ key: s.key, name: s.name, universe: s.universe, role: s.role,
+        has_development_results: !!S(s.key) })),
+      variants: D.variants.map(s => ({ key: s.key, name: s.name, role: s.role, has_development_results: !!S(s.key) })),
+      included_experiments: (D.experiments.groups || []).flatMap(g => [].concat(g.base ? [g.base] : [], g.variants || []).map(x => ({ approach: SHORT[g.approach] || g.approach, experiment: x.name, status: x.status }))),
+      analyses_included: ['Portfolio integrity audit', 'Signal value-added', 'Forecast-to-allocation sensitivity',
+                          'Within-approach experiments', 'Causal RAG status'],
+      validation_status: { decision: D.validation.decision,
+        causal_rag: { label: D.ap3_exploratory.label, months_done: D.ap3_exploratory.months_done,
+                      months_needed: D.ap3_exploratory.months_needed, gates_failed: Object.keys(D.ap3_exploratory.gates_failed || {}) },
+        statistical_note: 'No difference reported in this package is statistically clear. Every interval includes zero.' },
+      report_format: X.report_format, report_format_note: X.report_format_note,
+      files: Object.keys(tables).concat(['README.txt', 'MANIFEST.json', 'report/Research_Report.html', 'appendix/appendix.html', 'data/dashboard.json']).sort(),
+      unavailable_or_excluded: X.excluded,
+      limitations: D.notes.cannot || [],
+    }, null, 1);
+  }
+
+  const readme = () => `Protofin — BNY Capstone dashboard content export
+================================================
+
+Package: ${D.export.zip_name}
+Generated: ${new Date().toISOString()}
+Source: ${D.build.repository}, branch ${D.build.branch}, commit ${D.build.git_commit_at_build}
+
+What is in here
+---------------
+report/Research_Report.html   The complete research report. Open it in any browser; print to PDF if you need one.
+appendix/appendix.html        The full appendix on its own.
+appendix/appendix_index.csv   Every appendix entry, its category, and where the underlying data lives.
+data/dashboard.json           The entire dashboard dataset, exactly as the page reads it.
+data/*.csv                    Performance metrics, monthly returns, portfolio weights, signals and forecasts,
+                              sensitivity scenarios, within-approach experiments, reliability and status.
+MANIFEST.json                 Versions, source commit, included experiments, validation status and exclusions.
+
+Why HTML and not PDF
+--------------------
+${D.export.report_format_note}
+
+What is NOT in here
+-------------------
+${D.export.excluded.map(x => '- ' + x).join('\n')}
+
+Reading the numbers
+-------------------
+These are development-window diagnostics (${devSpan()}), not confirmatory results. No difference in this
+package is statistically clear: every interval includes zero. The approaches hold different assets with
+different neutral portfolios, so differences between them are not attributable to the forecasting method alone.
+`;
+
+  let downloading = false;
+  async function downloadContent(btn) {
+    if (downloading || !D) return;
+    downloading = true;
+    const label = btn ? btn.querySelector('.dl-t') : null;
+    const was = label ? label.textContent : '';
+    if (label) label.textContent = 'Preparing…';
+    if (btn) btn.disabled = true;
+    try {
+      const tables = exportTables();
+      const files = [
+        { path: 'README.txt', data: readme() },
+        { path: 'report/Research_Report.html', data: reportHtml(false) },
+        { path: 'appendix/appendix.html', data: reportHtml(true) },
+        { path: 'data/dashboard.json', data: JSON.stringify(D) },
+        ...Object.entries(tables).map(([path, data]) => ({ path, data })),
+      ];
+      files.push({ path: 'MANIFEST.json', data: manifest(tables) });
+      files.sort((a, b) => a.path.localeCompare(b.path));
+      const blob = await makeZip(files);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = D.export.zip_name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      if (label) label.textContent = 'Downloaded';
+      window.__protofinLastExport = { files: files.map(f => f.path), bytes: blob.size };
+      setTimeout(() => { if (label) label.textContent = was; }, 2500);
+    } catch (e) {
+      console.error(e);
+      if (label) label.textContent = 'Download failed';
+      setTimeout(() => { if (label) label.textContent = was; }, 3000);
+    } finally { downloading = false; if (btn) btn.disabled = false; }
+  }
+
+
   function route() {
     if (!D) return;
     killCharts();
     chartDefaults();
     let h = (location.hash || '#overview').slice(1);
-    if (h === 'method' || h === 'timeline') h = 'methodology';
+    const qi = h.indexOf('?');
+    const query = qi >= 0 ? new URLSearchParams(h.slice(qi + 1)) : null;
+    if (qi >= 0) h = h.slice(0, qi);
+    if (h === 'method' || h === 'timeline' || h === 'methodology') h = 'appendix';
     if (h === 'approaches') h = 'deterministic';
     const key = ROUTES[h];
-    const view = key ? (key === 'com' ? 'experiments' : 'approaches') : (['overview', 'experiments', 'signal-value', 'methodology'].includes(h) ? h : 'overview');
+    const TOP = ['overview', 'pipeline', 'comparison', 'signal-value', 'sensitivity', 'experiments', 'causal-rag', 'appendix'];
+    // the per-approach detail pages are reached from Comparison; they light its tab
+    const view = key ? (key === 'com' ? 'experiments' : key === 'rag' ? 'causal-rag' : 'comparison')
+                     : (TOP.includes(h) ? h : 'overview');
+    if (query && query.get('c')) apxCat = query.get('c');
     document.querySelectorAll('header nav a').forEach(a => { if (a.dataset.route === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     try {
       if (key) viewApproach(key);
+      else if (view === 'pipeline') viewPipeline();
+      else if (view === 'comparison') viewComparison();
       else if (view === 'experiments') viewExperiments();
       else if (view === 'signal-value') viewSignalValue();
-      else if (view === 'methodology') viewMethodology();
+      else if (view === 'sensitivity') viewSensitivity();
+      else if (view === 'appendix') viewAppendix();
       else viewOverview();
     } catch (e) {
       console.error(e);
@@ -1195,6 +1861,8 @@
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.tip.show').forEach(hide); });
   window.addEventListener('scroll', () => document.querySelectorAll('.tip.show').forEach(hide), { passive: true });
+  const dlBtn = document.getElementById('dl');
+  if (dlBtn) dlBtn.addEventListener('click', () => downloadContent(dlBtn));
   window.addEventListener('hashchange', route);
   try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', route); } catch (_) { /* older browsers */ }
   new MutationObserver(route).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
