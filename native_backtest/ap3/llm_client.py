@@ -255,8 +255,16 @@ class LLMClient:
                 if self.guard is not None:
                     meta["usd"] = self.guard.record(req.step, meta.get("usage"))
                 cpath.write_text(_canon({"text": text, "meta": meta, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
-        obj = _extract_json(text)
-        jsonschema.validate(obj, req.schema)
+        try:
+            obj = _extract_json(text)
+            jsonschema.validate(obj, req.schema)
+        except (ModelOutputError, json.JSONDecodeError, jsonschema.ValidationError) as e:
+            bad = {"run_tag": self.run_tag, "step": req.step, "provider": self.provider.name, "model": self.provider.model,
+                   "mock": self.is_mock, "cache_key": key, "cached": cached, "invalid": True, "error": f"{type(e).__name__}: {str(e)[:300]}",
+                   "response_sha256": _sha(text), "logged_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+            with self._lock, self.call_log.open("a", encoding="utf-8") as f:
+                f.write(_canon(bad) + "\n")
+            raise ModelOutputError(f"{req.step}: invalid model output ({type(e).__name__})") from e
         log = {"run_tag": self.run_tag, "step": req.step, "provider": self.provider.name, "model": self.provider.model,
                "mock": self.is_mock, "cache_key": key, "cached": cached, "temperature": req.temperature, "seed": req.seed,
                "system_sha256": _sha(req.system), "user_sha256": _sha(req.user), "response_sha256": _sha(text),

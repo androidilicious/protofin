@@ -1,0 +1,26 @@
+{
+ "_comment": "Causal RAG versions. Both run the same Hypothesis Agent, Causal RAG retrieval over the year-filtered CauseTrace graph, Testing Agent (plan, balanced BM25 retrieval, native causal-rag-mvp assessor with verbatim-quote validation, mediator tests, written rubric), status encoder, calibration and allocation, with the same model, limits and seeds. Only the Testing Agent's evidence pool differs (native_backtest/ap3/evidence_pool.py).",
+ "version": "1.0",
+ "variants": {
+  "reduced_evidence": {
+   "label": "Causal RAG — Reduced Evidence",
+   "short": "Reduced evidence",
+   "evidence": ["research_claims", "data_notes"],
+   "description": "Research claims from the year-filtered knowledge graph plus point-in-time numerical data notes (mediator moves, macro surprises). No historical text documents.",
+   "role": "Built because the full-evidence corpus is not yet complete. Not a silent substitute for the originally specified full-evidence system."
+  },
+  "historical_documents": {
+   "label": "Causal RAG — With Historical Documents",
+   "short": "With historical documents",
+   "evidence": ["research_claims", "data_notes", "official_documents"],
+   "description": "The reduced-evidence pool plus official Federal Reserve, BLS and Census documents published before each decision (the originally specified evidence corpus).",
+   "role": "The originally specified full-evidence system. Runs once the official-document corpus is complete and validated."
+  }
+ },
+ "secondary_comparison": "Historical documents minus reduced evidence on development months: does adding historical textual evidence improve Causal RAG? Development data only; reported as a within-approach experiment.",
+ "primary_version": {
+  "selected": null,
+  "status": "pending approval",
+  "rule": "Before the protected 2023-2026 window is opened, the project lead records which version represents Agentic Causal RAG in the three primary contrasts (native_backtest/config/approvals/ap3_primary_version.json). The choice uses development results and readiness only; protected results are never used to select or tune a version. The GO record must name the selected version."
+ }
+}

@@ -78,19 +78,46 @@ def rival_candidates(library: dict, hyp: dict, k: int = 5) -> List[dict]:
 
 
 def run_month(client: LLMClient, packet: dict, vintage: Vintage, library: dict, chunks: List[dict], mediators: MediatorStore,
-              window_start, limits: Optional[dict] = None) -> Dict[str, Any]:
+              window_start, limits: Optional[dict] = None, evidence=None) -> Dict[str, Any]:
+    """`evidence` is an evidence_pool.EvidencePool (one Causal RAG variant). Without it, `chunks` is the
+    pool for every hypothesis (the original single-pool call, kept for the readiness dry run)."""
     limits = limits or load_limits()
     concepts = load_concepts()
     tools = CauseTraceTools(vintage, concepts, budget=limits["hypothesis_agent"]["max_tool_calls"])
-    ha = hypothesis_agent.run(client, packet, library, tools, limits)
+    from native_backtest.ap3.llm_client import ModelOutputError
+    try:
+        ha = hypothesis_agent.run(client, packet, library, tools, limits)
+    except ModelOutputError as e:   # invalid model output: the month has no hypotheses (status features 0), recorded as a failure
+        ha = {"hypotheses": [], "turns": [], "tool_calls": tools.calls, "failure": f"hypothesis agent: {e}"}
     tests = []
+    n_rec = limits["causal_rag"]["max_research_records_per_hypothesis"]
     for h in ha["hypotheses"]:
-        recs = research_records(vintage, h, limits["causal_rag"]["max_research_records_per_hypothesis"])
+        recs = research_records(vintage, h, n_rec)
         h["research_records"] = recs
-        tests.append(testing_agent.test_hypothesis(client, packet, h, recs, rival_candidates(library, h), chunks, mediators, limits, window_start))
+        rivals = rival_candidates(library, h)
+        if evidence is not None:
+            rival_recs = [r for c in rivals[: limits["testing_agent"]["max_rivals"]]
+                          for r in research_records(vintage, {"paths": {c["path_id"]: c["path"]}}, n_rec)]
+            pool = evidence.for_hypothesis(packet, h, rival_recs, window_start)
+        else:
+            pool = chunks
+        try:
+            t = testing_agent.test_hypothesis(client, packet, h, recs, rivals, pool, mediators, limits, window_start)
+        except ModelOutputError as e:
+            # No valid evaluation exists, so nothing supports or contradicts the hypothesis: Insufficient, flagged as a failure.
+            t = {"hypothesis_id": h["hypothesis_id"], "status": "Insufficient", "failure": f"testing agent: {e}", "runs": [],
+                 "run_statuses": [], "run_agreement": None, "conflict": False, "confidence": h["confidence_applied"],
+                 "confidence_caps": h["confidence_caps"], "causal_validation": "not established"}
+        if evidence is not None:
+            from native_backtest.ap3.evidence_pool import pool_summary
+            t["evidence_pool"] = pool_summary(pool)
+        tests.append(t)
     feats = status_features(ha["hypotheses"], tests)
     record = {"decision_month": packet["decision_month"], "packet": packet, "graph_vintage": vintage.year,
               "library_sha256": library["library_sha256"], "hypothesis_agent": ha, "tests": tests, "status_features": feats,
               "provider": client.provider.name, "model": client.provider.model, "engineering_mock": client.is_mock}
+    if evidence is not None:
+        record["variant"] = evidence.variant
+        record["variant_label"] = evidence.spec["label"]
     record["record_sha256"] = hashlib.sha256(json.dumps(record, sort_keys=True, default=str).encode()).hexdigest()
     return record

@@ -148,11 +148,16 @@ def run(provider: str, cfg: dict) -> dict:
     packets = {json.loads(l)["decision_month"]: json.loads(l) for l in (ROOT / cfg["packets"]["file"]).read_text().splitlines()}
     concepts, limits = load_concepts(), runner.load_limits()
     store, _ = mediator_data.load_store(include_pending_substitutes=True, inventory="v2")
+    from native_backtest.ap3 import evidence_pool
+    # The smoke test runs the reduced-evidence version, so the Testing Agent's assessor is exercised on real
+    # point-in-time evidence (research claims and data notes); the historical-documents version needs the full corpus.
+    pool = evidence_pool.EvidencePool(cfg.get("variant", "reduced_evidence"), store, mediator_data.labels("v2"),
+                                      {k: v["label"] for k, v in concepts["triggers"].items()}, limits)
 
     def one(m):
         y = int(m[:4])
         lib = json.loads((LIBS / f"library_v1.0_vintage{y - 1}.json").read_text())
-        rec = runner.run_month(client, packets[m], build_vintage(y - 1, concepts), lib, [], store, pd.Timestamp(m + "-01"), limits)
+        rec = runner.run_month(client, packets[m], build_vintage(y - 1, concepts), lib, [], store, pd.Timestamp(m + "-01"), limits, evidence=pool)
         assert rec["engineering_mock"] is False
         rec["record_kind"] = "smoke_test_not_a_decision_record"
         return rec

@@ -453,3 +453,192 @@ def test_corpus_fetch_is_resumable(tmp_path, monkeypatch):
             {"url": "u3", "status": 404}]
     (tmp_path / "raw" / "fetch_log.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
     assert fe.already_fetched() == {"u1"}
+
+
+def test_corpus_fetch_manifest_lists_fetched_and_missing(tmp_path, monkeypatch):
+    import hashlib as _h
+    import pytest
+    from native_backtest.scripts import ap3_corpus_import as imp
+    monkeypatch.setattr(imp, "ROOT", tmp_path)
+    monkeypatch.setattr(imp, "RAW", tmp_path / "raw")
+    monkeypatch.setattr(imp, "FETCH_MANIFEST", tmp_path / "fetch_manifest.json")
+    (tmp_path / "raw" / "fomc_minutes").mkdir(parents=True)
+    (tmp_path / "raw/fomc_minutes/20150128.html").write_bytes(b"minutes")
+    rows = [{"family": "bls_cpi", "kind": "index", "url": "https://www.bls.gov/bls/news-release/cpi.htm", "status": 403, "sha256": "x", "bytes": 1, "retrieved_utc": "t"},
+            {"family": "fomc_minutes", "url": "m1", "status": 404, "sha256": "x", "bytes": 0, "retrieved_utc": "t0"},
+            {"family": "fomc_minutes", "url": "m1", "status": 200, "file": "raw/fomc_minutes/20150128.html", "bytes": 7,
+             "sha256": _h.sha256(b"minutes").hexdigest(), "retrieved_utc": "t1", "url_date": "2015-01-28", "release_date": "2015-02-18"},
+            {"family": "fomc_minutes", "url": "m2", "status": 500, "sha256": "x", "bytes": 0, "retrieved_utc": "t2"}]
+    (tmp_path / "raw" / "fetch_log.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    out = imp.from_fetch_log()
+    f = out["families"]
+    assert f["fomc_minutes"]["fetched"] == 1 and [d["url"] for d in f["fomc_minutes"]["failed_documents"]] == ["m2"]
+    assert f["bls_cpi"]["fetched"] == 0 and f["bls_cpi"]["index_unreachable"] == ["https://www.bls.gov/bls/news-release/cpi.htm"]
+    assert out["documents"][0]["release_date"] == "2015-02-18" and out["documents"][0]["via"] == "direct_fetch"
+    (tmp_path / "raw/fomc_minutes/20150128.html").write_bytes(b"altered")
+    with pytest.raises(SystemExit, match="logged SHA-256"):
+        imp.from_fetch_log()
+
+
+# ------------------------------------------------------------------ Causal RAG versions: evidence pools, failures, reliability
+
+def _pool(variant="reduced_evidence", corpus_chunks=None):
+    from native_backtest.ap3 import evidence_pool as ep, runner
+    from native_backtest.ap3.graph_vintage import load_concepts
+    concepts = load_concepts()
+    return ep.EvidencePool(variant, _fixture_mediators(), {"UST2Y": "2-year yield"}, {k: v["label"] for k, v in concepts["triggers"].items()},
+                           runner.load_limits(), corpus_chunks)
+
+
+def _packet(month="2019-06", dt="2019-06-28T20:00:00-04:00", triggers=None):
+    return {"decision_month": month, "decision_time": dt, "triggers": triggers or [{"trigger": "CPI", "description": "CPI release", "surprise_z": 1.4}],
+            "all_surprises_z": {"CPI": 1.4, "NFP": -0.2, "PPI": None}}
+
+
+REC = {"edge": "inflation -> interest rates", "paper_id": "w123", "title": "A paper", "year": 2016, "evidence_class": "theoretical", "causal_inference_method": None}
+
+
+def test_reduced_evidence_pool_is_point_in_time_and_excludes_judged_mediators():
+    from native_backtest.ap3 import evidence_pool as ep
+    pool = _pool()
+    hyp = {"predicted_mediators": [], "research_records": [REC]}
+    c = pool.for_hypothesis(_packet(), hyp, [REC], pd.Timestamp("2019-06-01"))
+    kinds = ep.pool_summary(c)["by_kind"]
+    assert kinds["research_claim"] == 1                      # the record behind hypothesis and rival appears once
+    assert kinds["data_note"] >= 3                           # month-to-date, release window, surprises
+    assert all(pd.Timestamp(x["available_at_et"]) < pd.Timestamp("2019-06-28T20:00:00-04:00") for x in c)
+    assert not any(x.get("series") in ("SPY", "IEF", "LQD") for x in c)          # never asset returns
+    assert any(x.get("window") == "release_to_decision" for x in c)              # CPI release 2019-06-12 from ALFRED
+    # a series the hypothesis predicts is judged by the mediator test, so its notes leave that hypothesis's pool
+    c2 = pool.for_hypothesis(_packet(), {"predicted_mediators": [{"series": "UST2Y", "sign": 1}], "research_records": []}, [], pd.Timestamp("2019-06-01"))
+    assert not any(x.get("series") == "UST2Y" for x in c2)
+    # PPI has no value this month: no note is invented
+    assert not any(x.get("series") == "PPI" for x in c)
+
+
+def test_evidence_pool_refuses_late_chunks_canaries_and_missing_corpus():
+    import pytest
+    from native_backtest.ap3 import corpus, evidence_pool as ep
+    with pytest.raises(ep.EvidenceError, match="unknown"):
+        _pool("full")
+    with pytest.raises(ep.EvidenceError, match="corpus"):
+        _pool("historical_documents", None)
+    late = {"doc_id": "d", "chunk_id": "d#c000", "text": "x", "available_at_et": "2019-06-28T20:00:00-04:00"}
+    with pytest.raises(ep.EvidenceError, match="point-in-time"):
+        ep.check_point_in_time([late], "2019-06-28T20:00:00-04:00")
+    can = corpus.canaries("2026-09-30", 1)
+    with pytest.raises(ep.EvidenceError, match="point-in-time"):
+        ep.check_point_in_time([{**can[0], "available_at_et": "2019-01-01T00:00:00-05:00"}], "2019-06-28T20:00:00-04:00")
+    # historical-documents pool = reduced-evidence pool + documents eligible at the decision time (canaries never)
+    docs = FIXTURE_CHUNKS + corpus.canaries("2026-09-30", 2)
+    hd = _pool("historical_documents", docs).for_hypothesis(_packet(), {"predicted_mediators": [], "research_records": [REC]}, [], pd.Timestamp("2019-06-01"))
+    re_ = _pool().for_hypothesis(_packet(), {"predicted_mediators": [], "research_records": [REC]}, [], pd.Timestamp("2019-06-01"))
+    assert {x["chunk_id"] for x in re_} < {x["chunk_id"] for x in hd}
+    assert {x["chunk_id"] for x in hd} - {x["chunk_id"] for x in re_} == {x["chunk_id"] for x in FIXTURE_CHUNKS}
+
+
+def test_release_dates_come_from_the_official_record():
+    from native_backtest.ap3 import evidence_pool as ep
+    d = ep.release_dates()
+    r = ep.trigger_release({"trigger": "CPI"}, "2019-06-28T20:00:00-04:00", d)
+    assert r[0] == pd.Timestamp("2019-06-12 08:30", tz="America/New_York")
+    assert ep.trigger_release({"trigger": "FOMC", "date": "2019-06-19"}, "2019-06-28T20:00:00-04:00", d)[0].hour == 14
+    assert ep.trigger_release({"trigger": "ISM_MANUFACTURING"}, "2019-06-28T20:00:00-04:00", d) is None   # no official-source record
+    assert ep.trigger_release({"trigger": "CPI"}, "2019-06-12T08:00:00-04:00", d) is None   # released after the decision time
+
+
+class _BadProvider:
+    name, model, is_mock = "engineering_mock", "bad", True
+
+    def __init__(self, bad_step):
+        self.bad = bad_step
+
+    def complete(self, req):
+        from native_backtest.ap3 import engineering_mock
+        if req.step.startswith(self.bad):
+            return "I cannot answer in JSON.", {}
+        return json.dumps(engineering_mock.responder(req)), {}
+
+
+@needs_claims
+def test_invalid_model_output_is_logged_and_never_fabricated(tmp_path):
+    from native_backtest.ap3 import runner
+    from native_backtest.ap3.graph_vintage import build_vintage, load_concepts
+    concepts, limits = load_concepts(), runner.load_limits()
+    vintage = build_vintage(2018, concepts)
+    lib = json.loads((EXTERNAL / "ap3_libraries" / "library_v1.0_vintage2018.json").read_text())
+    packet = runner.build_packet("2019-06", "2019-06-28T20:00:00-04:00", {"CPI": 1.4}, [], [], concepts, limits)
+    # a failed Testing Agent: status Insufficient, flagged as a failure
+    client = LLMClient(_BadProvider("assessor_"), tmp_path / "c1", tmp_path / "l1.jsonl", "t")
+    rec = runner.run_month(client, packet, vintage, lib, [], _fixture_mediators(), pd.Timestamp("2019-06-01"), limits, evidence=_pool())
+    t = rec["tests"][0]
+    assert t["status"] == "Insufficient" and t["failure"].startswith("testing agent") and rec["variant"] == "reduced_evidence"
+    assert any(json.loads(l).get("invalid") for l in (tmp_path / "l1.jsonl").read_text().splitlines())
+    # a failed Hypothesis Agent: no hypotheses, status features zero, recorded
+    client = LLMClient(_BadProvider("hypothesis_turn_"), tmp_path / "c2", tmp_path / "l2.jsonl", "t")
+    rec = runner.run_month(client, packet, vintage, lib, [], _fixture_mediators(), pd.Timestamp("2019-06-01"), limits, evidence=_pool())
+    assert rec["hypothesis_agent"]["failure"] and rec["tests"] == []
+    assert all(v == 0.0 for a in rec["status_features"].values() for v in a.values())
+    from native_backtest.ap3 import reliability
+    rep = reliability.report([rec])
+    assert rep["failed_months"] and reliability.gate_g4a(rep)["pass"] is False
+
+
+@needs_claims
+def test_reduced_evidence_month_end_to_end_with_mock(tmp_path):
+    from native_backtest.ap3 import engineering_mock, reliability, runner
+    from native_backtest.ap3.graph_vintage import build_vintage, load_concepts
+    concepts, limits = load_concepts(), runner.load_limits()
+    vintage = build_vintage(2018, concepts)
+    lib = json.loads((EXTERNAL / "ap3_libraries" / "library_v1.0_vintage2018.json").read_text())
+    packet = runner.build_packet("2019-06", "2019-06-28T20:00:00-04:00", {"CPI": 1.4}, [], [], concepts, limits)
+    client = LLMClient(EngineeringMockProvider(engineering_mock.responder), tmp_path / "cache", tmp_path / "calls.jsonl", "engineering-test")
+    rec = runner.run_month(client, packet, vintage, lib, [], _fixture_mediators(), pd.Timestamp("2019-06-01"), limits, evidence=_pool())
+    t = rec["tests"][0]
+    assert rec["variant_label"] == "Causal RAG — Reduced Evidence" and t["evidence_pool"]["by_kind"]["data_note"] > 0
+    assert t["runs"][0]["assess_meta"] is not None                # the assessor really ran on the pool
+    rep = reliability.report([rec])
+    assert rep["point_in_time_violations"] == [] and rep["directional_labels_downgraded_by_quote_validation"] >= 1
+
+
+def test_g3b_fixtures_are_well_formed():
+    from native_backtest.scripts import ap3_g3b_fixtures as g
+    fx = json.loads(g.FIXTURES.read_text())["fixtures"]
+    assert len(fx) == 30 and len({f["id"] for f in fx}) == 30
+    assert {f["expected_status"] for f in fx} == {"Supported", "Contradicted", "Insufficient"}
+    ids = [e["chunk_id"] for f in fx for e in f["excerpts"]]
+    assert len(ids) == len(set(ids))
+    for f in fx:
+        assert all(pd.Timestamp(e["available_at_et"]) < pd.Timestamp(f["decision_time"]) for e in f["excerpts"])
+    rows = [{"category": f["category"], "expected": f["expected_status"], "got": f["expected_status"], "correct": True} for f in fx]
+    assert g.score(rows)["pass"] is True
+    rows[0] = {**rows[0], "got": "Contradicted", "correct": False}
+    rows[1] = {**rows[1], "got": "Contradicted", "correct": False}
+    assert g.score(rows)["checks"]["opposite_direction_errors"]["pass"] is False
+
+
+def test_replay_and_g3b_refuse_paid_runs_without_approval(monkeypatch, capsys):
+    import pytest
+    from native_backtest.scripts import ap3_dev_replay as rp, ap3_g3b_fixtures as g
+    monkeypatch.delenv("AP3_ALLOW_PAID_INFERENCE", raising=False)
+    missing = rp.prerequisites_b("hf_endpoint", "reduced_evidence")
+    assert any("approval record" in m for m in missing) and any("AP3_ALLOW_PAID_INFERENCE" in m for m in missing)
+    assert rp.main(["--variant", "reduced_evidence", "--provider", "hf_endpoint"]) == 0          # plan only
+    assert '"will_call_a_paid_model": false' in capsys.readouterr().out
+    with pytest.raises(rp.NotApproved):
+        rp.main(["--variant", "reduced_evidence", "--provider", "bedrock", "--execute"])
+    with pytest.raises(rp.NotApproved):
+        g.main(["--provider", "hf_endpoint", "--execute"])
+    with pytest.raises(SystemExit, match="engineering"):
+        rp.main(["--variant", "historical_documents", "--provider", "hf_endpoint", "--allow-incomplete-corpus"])
+    # the protected window is refused before anything runs
+    with pytest.raises(Exception):
+        rp.main(["--variant", "reduced_evidence", "--provider", "engineering_mock", "--months", "2022-12,2023-02"])
+
+
+def test_variants_differ_only_in_evidence():
+    from native_backtest.ap3 import evidence_pool as ep
+    v = ep.load_variants()
+    re_, hd = v["variants"]["reduced_evidence"], v["variants"]["historical_documents"]
+    assert set(hd["evidence"]) - set(re_["evidence"]) == {"official_documents"} and set(re_["evidence"]) < set(hd["evidence"])
+    assert v["primary_version"]["selected"] is None and "never used" in v["primary_version"]["rule"]

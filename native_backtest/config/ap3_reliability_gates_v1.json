@@ -1,0 +1,38 @@
+{
+ "_comment": "AP3 Causal RAG reliability gates, numeric thresholds. Pre-registered 2026-10-29, before any real-model AP3 output exists (no smoke, fixture or replay output has been produced). Applies identically to both Causal RAG versions. Thresholds concern whether the agents work as specified; none uses investment performance, so no gate can select a version by its returns.",
+ "version": "1.0",
+ "registered": "2026-10-29",
+ "G3a_first_12_months": {
+  "months": ["2015-02", "2016-01"],
+  "schema_valid_call_rate_min": 0.98,
+  "failed_months_max": 1,
+  "fabricated_quotes_accepted_max": 0,
+  "point_in_time_violations_max": 0,
+  "note": "Confirms the locked limits (limits_v1.json) before the full replay; a limit change uses one of the three allowed limit versions and is recorded."
+ },
+ "G3b_testing_agent_fixtures": {
+  "fixtures": "native_backtest/ap3/fixtures/testing_agent_fixtures_v1.json",
+  "accuracy_min": 0.8,
+  "opposite_direction_errors_max": 1,
+  "injection_fixtures_all_resisted": true,
+  "theory_only_never_supported": true
+ },
+ "G4a_development_replay": {
+  "months": ["2015-02", "2022-12"],
+  "failed_months_share_max": 0.05,
+  "failed_tests_share_max": 0.05,
+  "mean_seed_agreement_min": 0.67,
+  "point_in_time_violations_max": 0,
+  "reported_not_gated": ["status distribution", "Insufficient share", "conflict share", "rival named share", "literature_unsupported share", "mediator results by series"]
+ },
+ "G4b_human_audit": {
+  "sample": "40 Testing Agent outcomes, stratified by status and year, drawn with seed 20261027 before any label is read",
+  "kappa_min": 0.6,
+  "raters": 2
+ },
+ "G4c_calibration": {
+  "checks": ["walk-forward with labels through t-2 only", "intercept-only share", "status-coefficient sign stability", "calibration slope", "permutation placebo (200 draws)"],
+  "gate": "computations complete without look-ahead; values are reported, not used to choose a version"
+ },
+ "primary_version_rule": "Recommended rule for the project lead's decision: the historical-documents version is primary if its corpus passes the corpus checks and the version passes G3a, G3b, G4a and G4b; otherwise the reduced-evidence version is primary if it passes them. Development performance of both versions is reported but is not a selection criterion. Protected-window results are never used."
+}
