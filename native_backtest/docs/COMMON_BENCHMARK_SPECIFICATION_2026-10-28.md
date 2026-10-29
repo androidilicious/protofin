@@ -1,15 +1,15 @@
-# Common benchmark: specification, rationale and freeze request (2026-10-28)
+# Common benchmark: specification, rationale and freeze record (2026-10-28)
 
 **Benchmark:** 60% US Equities / 40% Intermediate-Term Treasuries (SPY/IEF), rebalanced monthly. ID `COMMON_60_40_SPY_IEF`.
 
-**Status:** specified and checked; **awaiting freeze approval** (`framework_config_v1.json` → `common_benchmark.status = specified_awaiting_freeze_approval`).
+**Status: FROZEN** on 2026-10-28 on the project lead's approval (`framework_config_v1.json` v1.4 → `common_benchmark.status = frozen`; approval record `native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json`). The approval covers this specification and its reporting rules only. It does not open the protected window, approve paid inference or bypass any Causal RAG gate.
 
 **Protected window:** sealed. Nothing below uses a month at or after 2023-01. The benchmark was chosen before the window was opened. It will not be optimised or changed on the basis of protected-window results; once the window opens it cannot change at all.
 
-**Specification fingerprint (SHA-256):** `2fecfe0f21c177fe969f0f5bc50d12cbae68b3b240c30bf161ba57b02e64c848`
-- The fingerprint covers the benchmark's own fields (ID, weights, rebalancing, rules, role, attribution) plus the shared settings it inherits (calendar, timing, costs, metrics).
-- It ignores status and notes, so approval does not change it, but any change that would move a number does.
-- Computed by `framework/benchmark.fingerprint`.
+**Frozen specification hashes (SHA-256):**
+- Fingerprint: `fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed`. It covers the benchmark's own fields (ID, weights, rebalancing, rules, role, decomposition) plus the shared settings it inherits (calendar, timing, costs, metrics), and ignores status and notes. The evaluator refuses to use the benchmark if the fingerprint no longer matches the approval record (`framework/benchmark.spec`).
+- Complete frozen `common_benchmark` block: `7312e1881b208bf7d4420c6be1ebef65e3db1a0f4f7015698f2ef27cd6263642`.
+- The proposal's fingerprint was `2fecfe0f…c848`. At the freeze only the wording of the role and of the decomposition field changed, as the approval required ("common passive reference"; "accounting decomposition, not a causal attribution"). Weights, rules and every inherited setting are identical, so no number changed.
 
 ## 1. What it is for
 
@@ -18,7 +18,7 @@
 - **It does not change the primary analysis.** It is not in the primary hypothesis family, which stays the three pairwise net-CER contrasts with Holm correction, and it does not redefine the primary endpoint (net CER).
 - **Comparisons with it are secondary and descriptive.**
 - **It leaves every difference between approaches unchanged.** For any two approaches A and B, (A − common) − (B − common) = A − B. This is checked numerically for every computed primary contrast (§5, check 8).
-- **It is not a neutral, broad-market or policy benchmark.** It holds no corporate credit, no long-duration Treasuries and no cash.
+- **It is a common passive reference, not a fully neutral portfolio and not a direct measure of model skill.** It holds no corporate credit, no long-duration Treasuries and no cash.
 
 ## 2. Exact rules
 
@@ -34,10 +34,10 @@
 | Return calculation | Monthly net total return = Σ wᵢ·(Pᵢ,exit / Pᵢ,entry − 1) − cost. Excess return = net total return − DTB4WK accrued over the same holding period |
 | Metrics | The shared evaluator's: net CER (δ = 2.5), Sharpe, maximum drawdown, volatility and turnover, plus cumulative return |
 | Relative statistics (descriptive) | Paired net-CER difference with the shared block bootstrap (6-month blocks, 5,000 replications, seed 20261027); differences in annualised excess return and Sharpe; cumulative-return difference; tracking error |
-| Attribution | CER(approach) − CER(common) = [CER(approach) − CER(own native benchmark)] **active allocation decisions** + [CER(own native benchmark) − CER(common)] **benchmark mix difference**. Exact by construction |
+| Accounting decomposition (not a causal attribution) | CER(approach) − CER(common) = [CER(approach) − CER(own native benchmark)], labelled **decisions**, + [CER(own native benchmark) − CER(common)], labelled **benchmark mix**. An exact identity |
 
 **Implementation:**
-- `native_backtest/framework/benchmark.py`: specification check, simulation through the shared `accounting.simulate_records`, relative statistics, attribution and fingerprint.
+- `native_backtest/framework/benchmark.py`: specification check, simulation through the shared `accounting.simulate_records`, relative statistics, the accounting decomposition, the fingerprint and the freeze guard.
 - `scripts/development_evaluation.py`: section `common_benchmark_matched_dev`.
 - `scripts/common_benchmark_checks.py`: the accounting checks in §5.
 
@@ -52,7 +52,7 @@
 **Why no fixed mix can be neutral.** The approaches hold different assets:
 - Deterministic and Causal RAG trade SPY/IEF/LQD.
 - JEV and its Committee variant trade SPY/TLT.
-- This benchmark overlaps the first universe. The attribution makes the resulting asset-mix effect visible rather than hiding it.
+- This benchmark overlaps the first universe. The decomposition shows the size of the resulting mix term rather than hiding it.
 
 ## 4. Development results (2019-03..2022-12, 46 months; diagnostics, not protected historical results)
 
@@ -69,8 +69,8 @@
 
 **Reading:**
 - No approach differs from the common benchmark by a statistically clear margin.
-- For the Deterministic model, 92% of the gap (−1.21 of −1.31 pts) comes from its benchmark mix (45/35/20 SPY/IEF/LQD against 60/40 SPY/IEF), not from its decisions.
-- For JEV, the mix term (−0.61 pts) is the difference between long and intermediate Treasuries over 2019–22.
+- For the Deterministic model, the benchmark-mix term (45/35/20 SPY/IEF/LQD against 60/40 SPY/IEF) is −1.21 of the −1.31 pts gap; the decisions term is −0.11. This is an accounting split, not a statement of cause.
+- For JEV, the benchmark-mix term is −0.61 pts: the difference between its own 60/40 SPY/TLT mix and 60/40 SPY/IEF over 2019–22.
 - The primary contrast is unchanged: JEV − Deterministic = +1.01 pts (95% range −3.42 to +5.27; p 0.63), with the same value whichever benchmark is subtracted.
 
 **Sensitivity to the cost rate** (information only): the benchmark's net CER is 5.01% at 0 bp, 4.98% at 5 bp and 4.95% at 10 bp.
@@ -79,7 +79,7 @@
 
 | # | Check | Result |
 |---|---|---|
-| 1 | Specification is valid: long-only, sums to 1, assets on the evaluation calendar, monthly rebalancing at the shared entry close, not yet frozen | Pass |
+| 1 | Specification is valid: long-only, sums to 1, assets on the evaluation calendar, monthly rebalancing at the shared entry close; after the freeze, its fingerprint matches the approval record | Pass (re-run after the freeze) |
 | 2 | SPY and IEF passed Stage 2 gate 5, C1–C6 (price data to 2023-02-01) | Pass |
 | 3 | Pinned SPY, IEF and DTB4WK inputs match their recorded SHA-256 | Pass |
 | 4 | Decision months, entry dates and exit dates are identical to every approach's (first 2019-03: 2019-04-01 → 2019-05-01; last 2022-12: 2023-01-03 → 2023-02-01) | Pass |
@@ -87,14 +87,14 @@
 | 6 | An independent re-implementation from raw prices (dollar holdings, not the shared simulator) reproduces every monthly return, cost and turnover | Pass (max difference 3.5e-18) |
 | 7 | First month starts from cash: 1.0 traded; cost 5 bp | Pass |
 | 8 | Subtracting the benchmark leaves every primary contrast unchanged | Pass (difference 0) |
-| 9 | vs-common = decisions + benchmark mix, exactly, for every approach | Pass |
+| 9 | vs-common = decisions + benchmark mix, exactly, for every approach (accounting identity) | Pass |
 | 10 | No month at or after the protected window is read; the evaluator lock is enforced | Pass |
 
-**Tests:** spec validation, shared-accounting equivalence, independent re-implementation, exact attribution, fingerprint behaviour (`native_backtest/tests/test_framework.py`), plus the dashboard data contract (`mvp/tests/test_dashboard_data.py`).
+**Tests:** spec validation, shared-accounting equivalence, independent re-implementation, exact decomposition, fingerprint and freeze-guard behaviour (`native_backtest/tests/test_framework.py`), plus the dashboard data contract (`mvp/tests/test_dashboard_data.py`).
 
 ## 6. Methodological implications
 
-1. **Not a measure of skill on its own.** A gap to the common benchmark mixes decisions with asset mix. Only the "decisions" part, each approach against its own native benchmark, measures what the approach's allocation added. That comparison is kept for every approach as a secondary diagnostic.
+1. **Not a direct measure of model skill.** A gap to the common benchmark combines two accounting terms: the approach against its own native benchmark ("decisions") and its native benchmark against the common one ("benchmark mix"). The comparison with each approach's own native benchmark is kept in its details as a secondary diagnostic.
 2. **Not neutral.**
    - Deterministic and Causal RAG can hold both benchmark assets.
    - JEV cannot hold IEF.
@@ -102,22 +102,27 @@
 3. **Universe and horizon differences remain.** One reference line does not remove differences in assets, horizons or information. The comparability statement in the development report still applies.
 4. **No change to the primary analysis.**
    - The primary endpoint, the three pairwise contrasts, the Holm family, windows, costs and metrics are unchanged.
-   - The development report's existing sections hold identical values; only the configuration-driven `research_design` changes, because it now lists this pending decision.
+   - The development report's existing sections hold identical values; only the configuration-driven `research_design` changed while the decision was pending.
 5. **Data validation for the test window.**
    - Gate 5 covered prices to 2023-02-01.
    - The pinned prices extend to 2026-10-21, but the distribution check has not been run on test-window prices for any asset. This applies to SPY, IEF, LQD and TLT alike, so to every approach, not only the benchmark.
    - The "Verified prices and cash rate" item in the validation status refers to the development period.
-   - **Proposal:** add, as a precondition for opening the window, the same gate 5 criteria run on test-window prices. This is a data check that computes no strategy or benchmark returns. It is listed here for decision; the freeze conditions have not been changed.
+   - **Approved on 2026-10-28** as an isolated data-quality audit before opening: pre-registration `TEST_WINDOW_DISTRIBUTION_AUDIT_PREREGISTRATION_2026-10-28.md`; results in `TEST_WINDOW_DISTRIBUTION_AUDIT_2026-10-28.md`.
 
-## 7. Approval requested
+## 7. Approval (2026-10-28, 21:01 ET)
 
-Please approve or amend:
+The project lead approved:
 
-1. **Freeze the specification** in §2, with fingerprint `2fecfe0f…c848`, as the single common benchmark for the three primary approaches. Its role is in §1, and the primary analysis is unchanged.
-2. **Reporting rule:** the common benchmark is shown as one dashed line and as a descriptive vs-common comparison with the decisions / benchmark-mix attribution. Native-benchmark comparisons stay in each approach's details. Results against the benchmark are reported whatever they show.
-3. **Optional, separate decision:** add the gate 5 check on test-window prices (§6.5) to the conditions for opening the window.
+1. **The frozen specification** in §2 as the single common benchmark for the three primary approaches: a common passive reference, not a fully neutral portfolio or a direct measure of model skill. All original strategies, native benchmarks and pre-registered primary pairwise comparisons are preserved.
+2. **The reporting rules:**
+   - one common-benchmark line on the main dashboard;
+   - native-benchmark comparisons in the detailed views;
+   - the decisions / benchmark-mix split shown and described as an accounting decomposition, not a causal attribution;
+   - results against the benchmark reported whatever they show;
+   - the clean, visual-first design kept.
+3. **The test-window distribution audit** (§6.5), as a strictly isolated data-quality check.
 
-**On approval:**
-- `common_benchmark.status` becomes `frozen`, with the approver, date and fingerprint recorded in `native_backtest/config/approvals/common_benchmark_freeze.json`.
-- The fingerprint is added to the freeze hash set for the GO record.
-- After that, any change needs a new configuration version and a documented reason, and none is allowed once the protected window has been opened.
+**Recorded:**
+- Approver, time, conditions, rationale, full specification, inherited settings and both hashes are in `native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json`.
+- The accounting checks were re-run under the frozen specification; all pass.
+- Any change now needs a new configuration version, a documented reason and a new approval. None is allowed once the protected window has been opened.

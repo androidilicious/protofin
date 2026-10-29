@@ -15,8 +15,8 @@ the Agentic Workflow.
 - Within-approach contrast: Committee only vs JEV only, reported separately.
 - Common benchmark (framework_config "common_benchmark"; evaluation layer only, secondary and
   descriptive): every system against the same fixed reference portfolio on the same dates, with the
-  exact split into active allocation decisions (vs its own native benchmark) and the benchmark mix
-  difference (own native benchmark vs the common one). It never enters the primary family.
+  exact accounting decomposition (not a causal attribution) into decisions (vs its own native benchmark)
+  and benchmark mix (own native benchmark vs the common one). It never enters the primary family.
 - Consistency: the common-rule variant V4 must equal the shared evaluator's own result.
 
 The protected window is enforced: every scored month is checked by framework.lock before use.
@@ -95,12 +95,12 @@ def main() -> int:
                         "native_benchmark": {"weights": cfg["systems"][s]["native_neutral_weights"],
                                              "cumulative_return": B.cumulative_return(sims[f"{s}_NEUTRAL"])},
                         "vs_common": B.relative(sims[s], bench, cfg),
-                        "attribution": B.decomposition(sims[s], sims[f"{s}_NEUTRAL"], bench, delta)})
+                        "decomposition": B.decomposition(sims[s], sims[f"{s}_NEUTRAL"], bench, delta)})
     cb_rows.append({"system": "AP3", "role": cfg["systems"]["AP3"]["role"] if "AP3" in cfg["systems"] else "primary",
                     "status": "pending: no genuine model decisions yet; nothing is simulated"})
     report["common_benchmark_matched_dev"] = {
         "status": spec["status"], "id": spec["id"], "label": spec["label"], "weights": spec["weights"], "rules": spec["rules"],
-        "role": spec["role"], "attribution_rule": spec["attribution"],
+        "role": spec["role"], "decomposition_rule": spec["decomposition"],
         "benchmark": {**M.metrics(bench), "cumulative_return": B.cumulative_return(bench)},
         "systems": cb_rows,
         "note": "Secondary and descriptive. Subtracting one common benchmark leaves every difference between approaches unchanged; "
@@ -150,8 +150,8 @@ def main() -> int:
               "vs neutral ΔCER", round(r["vs_own_neutral"]["cer_difference"], 4), [round(x, 4) for x in r["vs_own_neutral"]["ci90"]])
     gaps = report["common_benchmark_matched_dev"]["check_primary_gaps_unchanged"]
     for r in cb_rows:
-        if "attribution" in r:
-            a = r["attribution"]
+        if "decomposition" in r:
+            a = r["decomposition"]
             print(r["system"], "vs common ΔCER", round(a["total_vs_common"], 4), "= decisions", round(a["active_decisions"], 4),
                   "+ benchmark mix", round(a["benchmark_mix_difference"], 4))
     return 0 if max(cons.values()) < 1e-12 and max(gaps.values(), default=0) < 1e-12 else 1

@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.3",
+  "version": "1.4",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -264,8 +264,7 @@
     "pending_methodology_decisions": [
       "Protected window: frozen as 2023-01..2026-08; proposal to treat 2023 as a secondary period and 2024-01..2026-08 as the primary test awaits approval.",
       "Primary metric: net CER for the three-approach comparison vs forecast accuracy in the Stage 2 freeze.",
-      "Whether to resume the paused signal experiments as Deterministic within-approach experiments.",
-      "Common benchmark: 60% US Equities / 40% Intermediate-Term Treasuries (SPY/IEF) specified; freeze approval pending."
+      "Whether to resume the paused signal experiments as Deterministic within-approach experiments."
     ]
   },
   "within_approach_contrasts": [
@@ -285,11 +284,16 @@
       "version": "1.3",
       "date": "2026-10-28",
       "change": "common_benchmark added: 60% US Equities / 40% Intermediate-Term Treasuries (SPY/IEF), monthly rebalancing at the shared entry close, shared costs and accounting; status specified, awaiting freeze approval; evaluation and display layer only. Primary contrasts, windows, costs and metrics unchanged. (Replaces the 60/40 SPY/TLT draft committed the same day in 08580a2, on the project lead's decision: TLT's gate 5 disposition is pending and IEF's duration is closer to a conventional 60/40 bond sleeve. No result against the draft was reported.)"
+    },
+    {
+      "version": "1.4",
+      "date": "2026-10-28",
+      "change": "common_benchmark frozen on the project lead's approval (fingerprint fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed; record native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json). Wording of its role and of the decisions / benchmark-mix split finalised as approved ('common passive reference'; 'accounting decomposition'); weights, rules, timing, costs and metrics unchanged from the proposal. Primary contrasts, windows, costs and metrics unchanged."
     }
   ],
   "common_benchmark": {
-    "status": "specified_awaiting_freeze_approval",
-    "status_note": "Selected by the project lead on 2026-10-28, before the protected window was opened. Not frozen until the project lead approves the specification in native_backtest/docs/COMMON_BENCHMARK_SPECIFICATION_2026-10-28.md. After the protected window opens it may not be changed, and results against it are reported whatever they show.",
+    "status": "frozen",
+    "status_note": "Frozen on 2026-10-28 by the project lead's approval, before the protected window was opened. It may not change after the protected window opens; results against it are reported whatever they show.",
     "id": "COMMON_60_40_SPY_IEF",
     "label": "60% US Equities / 40% Intermediate-Term Treasuries",
     "short_label": "60/40 equities / intermediate Treasuries",
@@ -311,8 +315,14 @@
       "return_calculation": "monthly net total return over the exact holding period; excess return over DTB4WK accrued over the same dates; all metrics by the shared evaluator",
       "cash": "none held (fully invested)"
     },
-    "role": "evaluation and display only: one reference line for all three primary approaches and secondary, descriptive comparisons. It never enters the primary Holm family, never redefines the primary endpoint and is never an input to any system.",
-    "attribution": "CER(system) - CER(common) = [CER(system) - CER(own native benchmark)] (active allocation decisions) + [CER(own native benchmark) - CER(common)] (benchmark mix difference); exact by construction.",
+    "role": "A common passive reference for evaluation and display only: one reference line for all three primary approaches and secondary, descriptive comparisons. It is not a fully neutral portfolio and not a direct measure of model skill. It never enters the primary Holm family, never redefines the primary endpoint and is never an input to any system.",
+    "decomposition": "Accounting decomposition, not a causal attribution: CER(system) - CER(common) = [CER(system) - CER(own native benchmark)] (labelled 'decisions') + [CER(own native benchmark) - CER(common)] (labelled 'benchmark mix'). Exact by construction.",
+    "reporting": [
+      "One common-benchmark line on the main dashboard chart.",
+      "Comparisons with each approach's native benchmark in the approach's detail view.",
+      "The decisions / benchmark-mix split shown and described as an accounting decomposition, not a causal attribution.",
+      "Results against the common benchmark reported whatever they show."
+    ],
     "selection_rationale": [
       "Both instruments passed Stage 2 gate 5 (distribution adjustment, C1-C6) over 2014-02..2023-02-01; TLT's gate 5 result (FAIL on C2 preserved) is still awaiting team sign-off, so the reference line does not depend on it.",
       "IEF's interest-rate sensitivity (7-10 year Treasuries) is closer to the bond sleeve of a conventional 60/40 than TLT's (20+ year Treasuries).",
@@ -322,6 +332,11 @@
     "data_gates": {
       "SPY": "gate 5 PASS (Stage 2)",
       "IEF": "gate 5 PASS (Stage 2)"
+    },
+    "frozen": {
+      "on": "2026-10-28",
+      "approval_record": "native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json",
+      "fingerprint_sha256": "fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed"
     }
   }
 }

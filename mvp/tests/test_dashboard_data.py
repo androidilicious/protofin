@@ -136,19 +136,19 @@ def test_common_benchmark_is_one_spy_ief_reference_awaiting_freeze():
     cb = D["dev"]["common_benchmark"]
     assert cb["weights"] == {"SPY": 0.6, "IEF": 0.4} == CFG["common_benchmark"]["weights"]
     assert cb["label"] == "60% US Equities / 40% Intermediate-Term Treasuries"
-    assert cb["status"] != "frozen" and cb["status_label"] == "Awaiting freeze approval"
+    assert cb["status"] == "frozen" and cb["status_label"] == "Frozen"
     assert len(cb["wealth"]) == len(D["dev"]["months"])
     rep = REPORT["common_benchmark_matched_dev"]["benchmark"]
     assert abs(cb["metrics"]["cer"] - rep["cer_delta_2_5"]) < 1e-6
-    assert "neutral" in cb["not_neutral"] and len(cb["rules"]) == 5
+    assert "not a neutral portfolio" in cb["not_neutral"] and "skill" in cb["not_neutral"] and len(cb["rules"]) == 5
 
 
 @pytest.mark.parametrize("key", ["det", "jev", "com"])
-def test_vs_common_and_attribution_match_the_report(key):
+def test_vs_common_and_decomposition_match_the_report(key):
     s = D["dev"]["series"][key]
     row = {r["system"]: r for r in REPORT["common_benchmark_matched_dev"]["systems"]}[SRC[key]]
     assert abs(s["vs_common"]["cer_difference"] - row["vs_common"]["cer_difference"]) < 1e-6
-    a = s["attribution"]
+    a = s["decomposition"]
     assert abs(a["total"] - a["decisions"] - a["mix"]) < 2e-6           # exact up to display rounding
     assert abs(a["decisions"] - s["vs_neutral"]["cer_difference"]) < 2e-6   # decisions part = vs own benchmark
     assert "cumulative_return" in s["metrics"]

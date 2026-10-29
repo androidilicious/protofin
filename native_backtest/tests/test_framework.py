@@ -167,7 +167,7 @@ def test_common_benchmark_spec_is_proposed_and_valid():
     from native_backtest.framework import benchmark as B
     cfg = load_config()
     b = B.spec(cfg)
-    assert b["status"] == "specified_awaiting_freeze_approval" and b["weights"] == {"SPY": 0.6, "IEF": 0.4}
+    assert b["status"] == "frozen" and b["weights"] == {"SPY": 0.6, "IEF": 0.4}
     assert abs(sum(b["weights"].values()) - 1) < 1e-12
     bad = json.loads(json.dumps(cfg))
     bad["common_benchmark"]["weights"] = {"SPY": 0.7, "TLT": 0.4}
@@ -229,11 +229,20 @@ def test_common_benchmark_fingerprint_tracks_numbers_not_status():
     from native_backtest.framework import benchmark as B
     cfg = load_config()
     f0 = B.fingerprint(cfg)
+    assert f0 == cfg["common_benchmark"]["frozen"]["fingerprint_sha256"]
+    rec = json.loads((ROOT / cfg["common_benchmark"]["frozen"]["approval_record"]).read_text())
+    assert rec["fingerprint_sha256"] == f0 and rec["decision"] == "APPROVED AND FROZEN"
     c = json.loads(json.dumps(cfg))
-    c["common_benchmark"]["status"], c["common_benchmark"]["status_note"] = "frozen", "approved"
-    assert B.fingerprint(c) == f0
-    c["common_benchmark"]["weights"] = {"SPY": 0.55, "IEF": 0.45}
-    assert B.fingerprint(c) != f0
+    c["common_benchmark"]["status_note"] = "reworded note"
+    assert B.fingerprint(c) == f0                      # notes are outside the fingerprint
+    for change in ({"weights": {"SPY": 0.55, "IEF": 0.45}}, {"role": "x"}):
+        c = json.loads(json.dumps(cfg))
+        c["common_benchmark"].update(change)
+        with pytest.raises(B.BenchmarkSpecError, match="frozen common benchmark changed"):
+            B.spec(c)
     c = json.loads(json.dumps(cfg))
-    c["costs"]["cost_per_dollar_traded"] = 0.001
+    c["costs"]["cost_per_dollar_traded"] = 0.001       # an inherited shared setting
+    with pytest.raises(B.BenchmarkSpecError, match="frozen common benchmark changed"):
+        B.spec(c)
+    c["common_benchmark"]["status"] = "draft"          # an unfrozen copy may differ, and its fingerprint does
     assert B.fingerprint(c) != f0

@@ -32,7 +32,18 @@ class BenchmarkSpecError(ValueError):
     pass
 
 
+FINGERPRINT_FIELDS = ("id", "weights", "rebalance", "rules", "role", "decomposition")
+INHERITED = ("calendar_assets", "timing", "costs", "metrics")
+
+
+def _fingerprint(b: dict, cfg: dict) -> str:
+    payload = {"common_benchmark": {k: b[k] for k in FINGERPRINT_FIELDS}, "inherited": {k: cfg[k] for k in INHERITED}}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
 def spec(cfg: dict) -> dict:
+    """The validated specification. A frozen specification must still match the fingerprint recorded at approval;
+    any later change to the benchmark or to the shared settings it inherits stops every use of it."""
     b = cfg.get("common_benchmark")
     if not b:
         raise BenchmarkSpecError("framework config has no common_benchmark")
@@ -44,20 +55,18 @@ def spec(cfg: dict) -> dict:
         raise BenchmarkSpecError(f"common benchmark assets outside the evaluation calendar: {missing}")
     if b.get("rebalance") != "monthly_to_target_at_entry_close":
         raise BenchmarkSpecError("only monthly rebalancing at the shared entry close is implemented")
+    if b.get("status") == "frozen":
+        got, want = _fingerprint(b, cfg), b.get("frozen", {}).get("fingerprint_sha256")
+        if got != want:
+            raise BenchmarkSpecError(f"frozen common benchmark changed: fingerprint {got} != approved {want}")
     return b
-
-
-FINGERPRINT_FIELDS = ("id", "weights", "rebalance", "rules", "role", "attribution")
 
 
 def fingerprint(cfg: dict) -> str:
     """SHA-256 of everything that defines the benchmark's returns and role: its own specification fields plus the
-    shared settings it inherits (calendar assets, timing, costs, metrics). Status and notes are excluded, so the
-    fingerprint is unchanged by approval and changes if anything that affects a number changes."""
-    b = spec(cfg)
-    payload = {"common_benchmark": {k: b[k] for k in FINGERPRINT_FIELDS},
-               "inherited": {k: cfg[k] for k in ("calendar_assets", "timing", "costs", "metrics")}}
-    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    shared settings it inherits (calendar assets, timing, costs, metrics). Status, notes and the freeze record are
+    excluded, so approval does not change it, while any change that would move a number or the role does."""
+    return _fingerprint(spec(cfg), cfg)
 
 
 def records(cfg: dict, template: Sequence[DecisionRecord]) -> list:
@@ -91,10 +100,11 @@ def relative(sim: pd.DataFrame, bench: pd.DataFrame, cfg: dict) -> Dict:
 
 
 def decomposition(sim: pd.DataFrame, own_neutral: pd.DataFrame, bench: pd.DataFrame, delta: float) -> Dict[str, float]:
-    """Exact split of CER(system) - CER(common benchmark):
-    active_decisions          = CER(system) - CER(its own native benchmark): what the system's allocation decisions added;
-    benchmark_mix_difference  = CER(own native benchmark) - CER(common benchmark): a pure asset-mix effect that
-                                no decision of the system caused (different universes and starting mixes)."""
+    """Accounting decomposition (an identity, not a causal attribution) of CER(system) - CER(common benchmark):
+    active_decisions          = CER(system) - CER(its own native benchmark), labelled "decisions";
+    benchmark_mix_difference  = CER(own native benchmark) - CER(common benchmark), labelled "benchmark mix": the
+                                difference between two fixed mixes, which involves no decision of the system.
+    CER is not additive across portfolios in a causal sense; the split is exact arithmetic only."""
     cs, cn, cb = (M.cer(x["net_excess_return"], delta) for x in (sim, own_neutral, bench))
     return {"total_vs_common": cs - cb, "active_decisions": cs - cn, "benchmark_mix_difference": cn - cb}
 

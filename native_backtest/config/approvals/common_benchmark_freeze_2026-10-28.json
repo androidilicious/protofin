@@ -1,0 +1,119 @@
+{
+  "record": "Common benchmark freeze approval",
+  "benchmark_id": "COMMON_60_40_SPY_IEF",
+  "label": "60% US Equities / 40% Intermediate-Term Treasuries",
+  "decision": "APPROVED AND FROZEN",
+  "approved_by": "Project lead",
+  "approved_at": "2026-10-28T21:01:00-04:00",
+  "recorded_at_utc": "2026-10-29T01:04:14Z",
+  "approval_scope": "The benchmark specification and its reporting rules only. Not an approval to open the protected historical backtest, to incur paid model-inference costs, or to bypass the remaining Causal RAG validation gates.",
+  "approval_conditions": [
+    "Freeze the 60% SPY / 40% IEF definition, monthly rebalancing, execution timing, costs and return-accounting rules.",
+    "Preserve all original strategies, native benchmarks and pre-registered primary pairwise comparisons.",
+    "The benchmark is a common passive reference, not a fully neutral portfolio or a direct measure of model skill.",
+    "One common-benchmark line on the main dashboard; native-benchmark comparisons in the detailed views.",
+    "Show the decisions-versus-benchmark-mix decomposition as an accounting decomposition, not a causal attribution of performance.",
+    "Preserve the clean, visual-first MVP design."
+  ],
+  "rationale": [
+    "Both instruments passed Stage 2 gate 5 (distribution adjustment, C1-C6) over 2014-02..2023-02-01; TLT's gate 5 result (FAIL on C2 preserved) is still awaiting team sign-off, so the reference line does not depend on it.",
+    "IEF's interest-rate sensitivity (7-10 year Treasuries) is closer to the bond sleeve of a conventional 60/40 than TLT's (20+ year Treasuries).",
+    "No single fixed mix is neutral across the approaches' universes; this one overlaps the Deterministic and Causal RAG universes, and the attribution makes that visible.",
+    "Approved as the single common reference for the three primary approaches; the pre-registered primary pairwise net-CER contrasts and their Holm family are unchanged, and subtracting one common benchmark leaves every difference between approaches unchanged (checked)."
+  ],
+  "specification": {
+    "status": "frozen",
+    "status_note": "Frozen on 2026-10-28 by the project lead's approval, before the protected window was opened. It may not change after the protected window opens; results against it are reported whatever they show.",
+    "id": "COMMON_60_40_SPY_IEF",
+    "label": "60% US Equities / 40% Intermediate-Term Treasuries",
+    "short_label": "60/40 equities / intermediate Treasuries",
+    "instruments": {
+      "SPY": "SPDR S&P 500 ETF Trust (US large-cap equities)",
+      "IEF": "iShares 7-10 Year Treasury Bond ETF (intermediate-term US Treasuries)"
+    },
+    "weights": {
+      "SPY": 0.6,
+      "IEF": 0.4
+    },
+    "not_a_market_portfolio": "A fixed reference mix of two of the evaluation assets. It is not a neutral, broad-market or policy benchmark: it holds no corporate credit, no long-duration Treasuries and no cash, and it is closer to the Deterministic and Causal RAG universes (SPY/IEF/LQD) than to JEV's (SPY/TLT).",
+    "rebalance": "monthly_to_target_at_entry_close",
+    "rules": {
+      "evaluation_dates": "identical to the systems': decision at 20:00 ET on the last common trading day of each month (SPY, IEF, LQD, TLT calendars)",
+      "execution": "back to 60/40 at the close of the first common trading day after month-end; held to the next such close; weights drift with returns in between",
+      "transaction_costs": "the shared 5 bp per dollar traded against the drifted weights; the first month starts from cash",
+      "dividends": "distribution-adjusted closing prices from the pinned, hash-verified inputs (total return)",
+      "return_calculation": "monthly net total return over the exact holding period; excess return over DTB4WK accrued over the same dates; all metrics by the shared evaluator",
+      "cash": "none held (fully invested)"
+    },
+    "role": "A common passive reference for evaluation and display only: one reference line for all three primary approaches and secondary, descriptive comparisons. It is not a fully neutral portfolio and not a direct measure of model skill. It never enters the primary Holm family, never redefines the primary endpoint and is never an input to any system.",
+    "decomposition": "Accounting decomposition, not a causal attribution: CER(system) - CER(common) = [CER(system) - CER(own native benchmark)] (labelled 'decisions') + [CER(own native benchmark) - CER(common)] (labelled 'benchmark mix'). Exact by construction.",
+    "reporting": [
+      "One common-benchmark line on the main dashboard chart.",
+      "Comparisons with each approach's native benchmark in the approach's detail view.",
+      "The decisions / benchmark-mix split shown and described as an accounting decomposition, not a causal attribution.",
+      "Results against the common benchmark reported whatever they show."
+    ],
+    "selection_rationale": [
+      "Both instruments passed Stage 2 gate 5 (distribution adjustment, C1-C6) over 2014-02..2023-02-01; TLT's gate 5 result (FAIL on C2 preserved) is still awaiting team sign-off, so the reference line does not depend on it.",
+      "IEF's interest-rate sensitivity (7-10 year Treasuries) is closer to the bond sleeve of a conventional 60/40 than TLT's (20+ year Treasuries).",
+      "No single fixed mix is neutral across the approaches' universes; this one overlaps the Deterministic and Causal RAG universes, and the attribution makes that visible."
+    ],
+    "information_seen_before_selection": "Development-period (2019-03..2022-12) figures for 60/40 SPY/TLT, 60/40 SPY/IEF and 45/35/20 SPY/IEF/LQD were reviewed. No protected-window data were seen.",
+    "data_gates": {
+      "SPY": "gate 5 PASS (Stage 2)",
+      "IEF": "gate 5 PASS (Stage 2)"
+    }
+  },
+  "inherited_shared_settings": {
+    "calendar_assets": [
+      "SPY",
+      "IEF",
+      "LQD",
+      "TLT"
+    ],
+    "timing": {
+      "decision_time_et": "20:00",
+      "decision_day": "last common trading day of the calendar month",
+      "execution": "close of the first common trading day after month-end",
+      "holding": "to the close of the first common trading day after the next month-end",
+      "cash": "DTB4WK quote at entry accrued over exact calendar days (Stage 2 rule)"
+    },
+    "costs": {
+      "cost_per_dollar_traded": 0.0005,
+      "start_from": "cash",
+      "drift_aware": true
+    },
+    "metrics": {
+      "cer_delta": 2.5,
+      "bootstrap_block_months": 6,
+      "bootstrap_reps": 5000,
+      "bootstrap_seed": 20261027,
+      "multiplicity": "Holm"
+    }
+  },
+  "fingerprint_sha256": "fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed",
+  "fingerprint_definition": "SHA-256 of canonical JSON of common_benchmark fields id, weights, rebalance, rules, role, decomposition plus inherited calendar_assets, timing, costs, metrics (framework/benchmark.py _fingerprint). The evaluator refuses a frozen benchmark whose fingerprint differs.",
+  "specification_block_sha256": "7312e1881b208bf7d4420c6be1ebef65e3db1a0f4f7015698f2ef27cd6263642",
+  "specification_block_definition": "SHA-256 of canonical JSON (sorted keys, no whitespace) of the complete common_benchmark block as frozen, including its freeze entry.",
+  "proposal": {
+    "fingerprint_sha256": "2fecfe0f21c177fe969f0f5bc50d12cbae68b3b240c30bf161ba57b02e64c848",
+    "document": "native_backtest/docs/COMMON_BENCHMARK_SPECIFICATION_2026-10-28.md",
+    "commit": "3b1e89a",
+    "changes_at_freeze": "Only the wording of 'role' and of the decomposition field (renamed from 'attribution') changed, as required by the approval conditions; 'reporting' was added (outside the fingerprint). Weights, rebalancing, rules and every inherited shared setting are identical, so no number changes."
+  },
+  "accounting_checks": {
+    "file": "native_backtest/out/development/common_benchmark_checks.json",
+    "all_pass": true,
+    "sha256": "20aedf6c4b0287534a07b5a51d16671205f683edff7a505ad925c99ba5d58d12",
+    "rerun_after_freeze": true
+  },
+  "unchanged": [
+    "All original strategies and their decision records",
+    "Each approach's native benchmark",
+    "The three pre-registered primary pairwise net-CER contrasts and their Holm family",
+    "Windows, costs, cash rate and metrics",
+    "The protected window (still sealed)"
+  ],
+  "change_policy": "Any change requires a new framework-config version, a documented reason and a new approval; none is permitted once the protected window has been opened.",
+  "repository_head_at_freeze": "3b1e89a9dc5a64d60014cac6110ea0ad049aad78"
+}

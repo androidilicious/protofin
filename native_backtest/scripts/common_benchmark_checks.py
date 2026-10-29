@@ -3,7 +3,8 @@
 
 Every check must pass before the benchmark is put forward for freeze approval:
   1. spec          the configured benchmark is valid (long-only, sums to 1, assets on the evaluation calendar,
-                   monthly rebalancing at the shared entry close) and is not frozen yet;
+                   monthly rebalancing at the shared entry close) and, once frozen, still matches the fingerprint in
+                   its approval record;
   2. data_gates    each benchmark asset passed Stage 2 gate 5 (distribution adjustment);
   3. inputs        the pinned price and cash inputs match their recorded SHA-256;
   4. dates         decision months, entry dates and exit dates are identical to every system's;
@@ -12,7 +13,7 @@ Every check must pass before the benchmark is put forward for freeze approval:
                    shared simulator) reproduces every monthly return, cost and turnover to 1e-12;
   7. first_month   the first month starts from cash: dollars traded = 1, cost = the shared cost rate;
   8. gaps          subtracting the common benchmark leaves every pairwise primary CER difference unchanged;
-  9. attribution   vs-common = active decisions + benchmark mix difference, exactly, for every system;
+  9. decomposition vs-common = decisions + benchmark mix, exactly, for every system (accounting identity);
  10. protected     no month at or after the protected window start is read.
 Sensitivity to the cost rate (0 and 10 bp) is reported for information; it is not a pass criterion.
 
@@ -75,9 +76,12 @@ def main() -> int:
 
     # 1. specification
     spec = B.spec(cfg)
-    checks["spec"] = {"pass": spec["status"] != "frozen" and spec["rebalance"] == "monthly_to_target_at_entry_close",
+    fp = B.fingerprint(cfg)
+    rec = ROOT / spec.get("frozen", {}).get("approval_record", "-")
+    frozen_ok = spec["status"] != "frozen" or (rec.is_file() and json.loads(rec.read_text())["fingerprint_sha256"] == fp)
+    checks["spec"] = {"pass": frozen_ok and spec["rebalance"] == "monthly_to_target_at_entry_close",
                       "id": spec["id"], "label": spec["label"], "weights": spec["weights"], "status": spec["status"],
-                      "fingerprint_sha256": B.fingerprint(cfg)}
+                      "fingerprint_sha256": fp, "approval_record": str(rec.relative_to(ROOT)) if rec.is_file() else None}
 
     # 2. data gates
     gate = json.loads(GATE.read_text())
@@ -117,7 +121,7 @@ def main() -> int:
     checks["first_month"] = {"pass": abs(b["traded_notional"].iloc[0] - 1.0) < TOL and abs(b["cost"].iloc[0] - cost) < TOL,
                              "traded_notional": float(b["traded_notional"].iloc[0]), "cost": float(b["cost"].iloc[0])}
 
-    # 8. pairwise gaps unchanged; 9. exact attribution
+    # 8. pairwise gaps unchanged; 9. exact accounting decomposition
     vc = {s: B.relative(sims[s], b, cfg)["cer_difference"] for s in sims}
     gaps = {}
     for x, y in cfg["primary_contrasts"]:
@@ -129,11 +133,12 @@ def main() -> int:
         own = simulate_records(static_portfolio_records("own", cfg["systems"][s]["native_neutral_weights"], recs[s]), mk, months, cost_per_dollar=cost)
         d = B.decomposition(sims[s], own, b, delta)
         attr[s] = {**d, "residual": d["total_vs_common"] - d["active_decisions"] - d["benchmark_mix_difference"]}
-    checks["attribution"] = {"pass": all(abs(v["residual"]) < TOL for v in attr.values()), "by_system": attr}
+    checks["decomposition"] = {"pass": all(abs(v["residual"]) < TOL for v in attr.values()), "by_system": attr}
 
     # information: cost sensitivity of the benchmark
     for c in (0.0, 0.0010):
-        s = B.simulate({**cfg, "costs": {**cfg["costs"], "cost_per_dollar_traded": c}}, mk, months, recs["AP1"])
+        # a sensitivity variant, not the frozen benchmark: same weights and dates at another cost rate
+        s = simulate_records(static_portfolio_records("SENS", spec["weights"], recs["AP1"]), mk, months, cost_per_dollar=c)
         info[f"cer_at_{c * 1e4:.0f}bp"] = M.cer(s["net_excess_return"], delta)
     info[f"cer_at_{cost * 1e4:.0f}bp"] = M.cer(b["net_excess_return"], delta)
     info["annualized_one_way_turnover"] = M.metrics(b)["annualized_one_way_turnover"]

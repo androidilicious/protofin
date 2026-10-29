@@ -20,11 +20,11 @@ VIEWS = {
     "overview": ["Three ways to build a portfolio", "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG",
                  "Awaiting validation", "No clear winner yet", "not statistically clear", "What the primary backtest compares", "Findings so far",
                  "What we know", "Not yet known", "Key metrics", "Net CER is the primary metric", "Growth of $1", "Versus common benchmark",
-                 "Common benchmark", "60% US Equities / 40% Intermediate-Term Treasuries", "Awaiting freeze approval", "Cumulative return",
+                 "Common benchmark", "60% US Equities / 40% Intermediate-Term Treasuries", "Frozen", "Cumulative return",
                  "Net CER vs common benchmark", "own benchmark is in its details",
                  "Development 2019–22", "Historical test", "Not run yet",
                  "Within-approach experiments", "Methodology and validation"],
-    "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Versus the common benchmark", "Where the gap comes from", "Benchmark mix",
+    "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Versus the common benchmark", "Gap to the common benchmark, split", "Accounting split", "Benchmark mix",
                    "Versus its own benchmark", "Secondary check",
                    "Monthly return forecasts", "Holdings over time", "Reproduction check", "Historical test 2023–26: sealed"],
     "deterministic": ["How it works", "Results", "Monthly return forecasts", "Reproduction check", "Limitations"],
@@ -40,12 +40,12 @@ VIEWS = {
                     "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
                     "How net CER is calculated", "not a compound annual return",
                     "Common benchmark", "Own benchmarks", "Same dates", "Monthly rebalancing", "Same trading cost", "Dividends included",
-                    "Same return accounting", "Awaiting freeze approval", "not a neutral or broad-market benchmark"],
+                    "Same return accounting", "not a neutral portfolio or a measure of model skill"],
     "timeline": ["Timeline", "Feb 2015"],
     "method": ["Rules and settings"],
 }
 # Wording the usability review flagged as jargon or as overstating the results.
-JARGON = re.compile(r"\b(best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% SPY|% TLT|% IEF|% LQD", re.I)
+JARGON = re.compile(r"\b(attribution|Awaiting freeze approval|best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% SPY|% TLT|% IEF|% LQD", re.I)
 FORBIDDEN = re.compile(r"\b(AP1|AP2A|AP2B|AP2-A|AP2-B|AP3|engineering_mock|saved_native_replay|\.jsonl|\.py\b)")
 
 
@@ -114,7 +114,7 @@ def main() -> int:
                         if len(ds) != 3 or ds[1] != "Common benchmark" or not ds[2].startswith("Own benchmark"):
                             problems.append(f"[{scheme}/{vp_name}] #{view}: detail chart lines {ds}")
                         if page.locator("main .attr .arow").count() != 3:
-                            problems.append(f"[{scheme}/{vp_name}] #{view}: attribution rows missing")
+                            problems.append(f"[{scheme}/{vp_name}] #{view}: decomposition rows missing")
                     if view in ("approaches", "deterministic", "jev", "causal-rag"):
                         n_tabs = page.locator("main .atabs a").count()
                         if n_tabs != 3:

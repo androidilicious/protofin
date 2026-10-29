@@ -17,12 +17,12 @@
     turnover: 'Turnover: share of the portfolio traded in a year. More trading costs more.',
     growth: 'What $1 invested at the start would be worth each month, after trading costs.',
     gap: 'How far ahead (or behind) $1 in the approach is compared with $1 in the common benchmark.',
-    commonbench: 'Common benchmark: one reference portfolio for all three approaches, 60% US equities (SPY) and 40% intermediate-term Treasuries (IEF), rebalanced monthly on the same dates, costs and accounting. A reference point, not a neutral or broad-market benchmark.',
+    commonbench: 'Common benchmark: a passive reference portfolio for all three approaches, 60% US equities (SPY) and 40% intermediate-term Treasuries (IEF), rebalanced monthly on the same dates, costs and accounting. Not a neutral portfolio and not a measure of model skill.',
     benchmark: "Own benchmark: each approach's own fixed starting mix, rebalanced monthly. Beating it means the approach's decisions added value. It differs by approach, so it is not used to compare approaches.",
-    attribution: "The gap to the common benchmark splits exactly into two parts: the approach's decisions (versus its own starting mix) and the benchmark mix (its own starting mix versus the common benchmark), which comes from the assets it may hold, not from its decisions.",
+    decomposition: "An accounting split, not a cause: the gap to the common benchmark equals the approach versus its own starting mix (decisions) plus its own starting mix versus the common benchmark (benchmark mix).",
     cumulative: 'Cumulative return: total growth over the period after trading costs, including dividends. Not adjusted for risk.',
     vscommon: 'Net CER of the approach minus net CER of the common benchmark, in percentage points per year.',
-    freeze: 'Awaiting freeze approval: specified and checked. It becomes fixed only when the project lead approves it, before the historical test opens, and cannot change afterwards.',
+    freeze: 'Frozen: approved and fixed before the historical test opens. Any change needs a new approval, and none is allowed once the test opens.',
     significance: 'Statistically clear: too large to be explained by chance (5% level), after adjusting for running three comparisons.',
     ci: 'Likely range (95%): where the true difference most likely lies. If it spans zero, the gap could be chance.',
     bl: 'Black–Litterman: starts from a neutral mix and tilts toward the forecasts, more when they are confident.',
@@ -169,7 +169,7 @@
   const FMT_GAP = { y: v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(0) + '%', tip: v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}% vs common benchmark` };
   const CB = () => D.dev.common_benchmark;
   const commonLine = label => ({ label: label || 'Common benchmark', data: CB().wealth, color: css('--c-common'), dash: COMMON_DASH });
-  const freezeChip = () => `<span class="chip wait">${icon('hourglass')}${esc(CB().status_label)} ${tip('freeze')}</span>`;
+  const freezeChip = () => CB().status === 'frozen' ? `<span class="chip frozen">${icon('lock')}Frozen ${tip('freeze')}</span>` : `<span class="chip wait">${icon('hourglass')}${esc(CB().status_label)}</span>`;
 
   function legendButtons(id, items) {
     return `<div class="legend" id="${id}">` + items.map((it, i) => {
@@ -431,8 +431,8 @@
     return [common];
   }
 
-  // Exact split of the gap to the common benchmark: decisions (vs own benchmark) + benchmark mix (own vs common).
-  function attributionBars(a, key) {
+  // Accounting split of the gap to the common benchmark: decisions (vs own benchmark) + benchmark mix (own vs common).
+  function decompositionBars(a, key) {
     const A = Math.max(0.005, Math.abs(a.total), Math.abs(a.decisions), Math.abs(a.mix)) * 1.1;
     const bar = (v, c) => { const w = Math.abs(v) / A * 50; return `<span class="ab" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%;background:${c}"></span>`; };
     const row = (l, sub, v, c, cls) => `<div class="arow${cls ? ' ' + cls : ''}"><span class="al">${l}<small>${sub}</small></span><span class="atrack"><span class="zero"></span>${bar(v, c)}</span><b class="num">${pts(v, 2)}</b></div>`;
@@ -477,9 +477,9 @@
         <div class="panel"><h2>Growth of $1 ${tip('growth')}</h2><div class="legend" id="lg-one"></div><div class="chartbox sm"><canvas id="c-one" aria-label="Growth of one dollar, with the common benchmark and the approach's own benchmark"></canvas></div></div>
       </section>
       <section class="grid2">
-        <div class="panel"><div class="phead"><h2>Where the gap comes from ${tip('attribution')}</h2></div>
-          ${attributionBars(r.attribution, key)}
-          <p class="sub">${Math.abs(r.attribution.mix) > Math.abs(r.attribution.decisions) ? 'Most of the gap comes from the assets this approach may hold, not from its decisions.' : 'Most of the gap comes from the approach\'s decisions.'} Parts may not add up exactly because of rounding.</p></div>
+        <div class="panel"><div class="phead"><h2>Gap to the common benchmark, split ${tip('decomposition')}</h2><span class="chip plain">Accounting split</span></div>
+          ${decompositionBars(r.decomposition, key)}
+          <p class="sub">Parts may not add up exactly because of rounding.</p></div>
         <div class="panel"><div class="phead"><h2>Versus its own benchmark ${tip('benchmark')}</h2><span class="chip plain">Secondary check</span></div>
           <p class="sub"><b class="num">${pts(vs.cer_difference)}</b> net CER per year against ${esc(bench.label)}; likely range ${pts(vs.ci95[0])} to ${pts(vs.ci95[1])}</p>
           ${ciBar(vs, key)}${vs.p >= 0.05 ? NS : ''}

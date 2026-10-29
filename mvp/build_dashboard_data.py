@@ -169,9 +169,9 @@ COMMON_RULES = [
 def common_block(cfg: dict) -> dict:
     b = cfg["common_benchmark"]
     return {"id": b["id"], "label": b["label"], "weights": b["weights"], "status": b["status"],
-            "status_label": "Awaiting freeze approval" if b["status"] != "frozen" else "Frozen",
+            "status_label": "Frozen" if b["status"] == "frozen" else "Awaiting freeze approval",
             "instruments": b["instruments"], "rules": [{"name": n, "text": t} for n, t in COMMON_RULES],
-            "not_neutral": "A reference mix, not a neutral or broad-market benchmark: no corporate bonds, no long-term Treasuries and no cash.",
+            "not_neutral": "A common passive reference, not a neutral portfolio or a measure of model skill: no corporate bonds, no long-term Treasuries and no cash.",
             "data_checks": "Both funds passed the dividend-adjustment data check."}
 
 
@@ -188,8 +188,7 @@ def methodology_block(cfg: dict) -> dict:
         "pending": [
             "Treat 2023 as a secondary period and Jan 2024 – Aug 2026 as the primary test (proposed; the frozen window is Jan 2023 – Aug 2026).",
             "Confirm net CER as the primary metric (the earlier frozen plan ranked forecast accuracy first).",
-            "Decide whether to resume the paused signal experiments.",
-            "Freeze the common benchmark, 60% US Equities / 40% Intermediate-Term Treasuries (specified and checked; awaiting approval)."],
+            "Decide whether to resume the paused signal experiments."],
         "settings": [
             {"icon": "calendar", "name": "Decision time", "value": "8 p.m. New York time, last trading day of each month", "status": "frozen"},
             {"icon": "arrow", "name": "Trading", "value": "Next trading day's close; held one month", "status": "frozen"},
@@ -198,9 +197,9 @@ def methodology_block(cfg: dict) -> dict:
             {"icon": "window", "name": "Evaluation periods", "value": "Development Mar 2019 – Dec 2022; test Jan 2023 – Aug 2026", "status": "frozen"},
             {"icon": "target", "name": "Primary metric", "value": "Net CER (certainty-equivalent return)", "status": "approval", "tip": "cer"},
             {"icon": "chart", "name": "Secondary metrics", "value": "Sharpe ratio, worst fall, volatility, turnover", "status": "frozen"},
-            {"icon": "chart", "name": "Descriptive metrics", "value": "Cumulative return; difference from the common benchmark", "status": "approval"},
+            {"icon": "chart", "name": "Descriptive metrics", "value": "Cumulative return; difference from the common benchmark", "status": "frozen"},
             {"icon": "scale", "name": "Significance test", "value": "Resampled blocks of months; the three comparisons judged together", "status": "frozen", "tip": "significance"},
-            {"icon": "bench", "name": "Common benchmark", "value": "60% US Equities / 40% Intermediate-Term Treasuries, rebalanced monthly; one reference for all three approaches", "status": "approval", "tip": "commonbench"},
+            {"icon": "bench", "name": "Common benchmark", "value": "60% US Equities / 40% Intermediate-Term Treasuries, rebalanced monthly; one reference for all three approaches", "status": "frozen", "tip": "commonbench"},
             {"icon": "bench", "name": "Own benchmarks", "value": "Each approach's own fixed starting mix; shown in its details as a secondary check", "status": "design", "tip": "benchmark"},
             {"icon": "clock", "name": "Point-in-time data", "value": "Only information public before each decision", "status": "design"},
             {"icon": "refresh", "name": "Walk-forward", "value": "Refit monthly on past data (Deterministic); replay (JEV); walk-forward calibration (Causal RAG)", "status": "design", "tip": "walkforward"},
@@ -289,14 +288,14 @@ def main() -> int:
         att = B.decomposition(sim, neutral_sims[nkey], common, cfg["metrics"]["cer_delta"])
         r0 = cb_rows[s["src"]]
         assert abs(rel["cer_difference"] - r0["vs_common"]["cer_difference"]) < 1e-12
-        assert all(abs(att[k] - r0["attribution"][k]) < 1e-12 for k in att)
+        assert all(abs(att[k] - r0["decomposition"][k]) < 1e-12 for k in att)
         series = {"wealth": wealth(sim), "monthly_net_return": [_r(v) for v in sim["net_total_return"]],
                   "weights": {a: [_r(v, 4) for v in sim[f"w_{a}"]] for a in s["universe"]},
                   "metrics": mb, "neutral": nkey, "vs_neutral": contrast_block(vs),
                   "vs_common": {**contrast_block(rel), "cumulative_difference": _r(rel["cumulative_return"]["difference"]),
                                 "excess_return_difference": _r(rel["annualized_excess_return_difference"]),
                                 "tracking_error": _r(rel["tracking_error_annualized"])},
-                  "attribution": {"total": _r(att["total_vs_common"]), "decisions": _r(att["active_decisions"]), "mix": _r(att["benchmark_mix_difference"])}}
+                  "decomposition": {"total": _r(att["total_vs_common"]), "decisions": _r(att["active_decisions"]), "mix": _r(att["benchmark_mix_difference"])}}
         fc = []
         for r in dev_recs:
             v = (r.forecast or {}).get("values", {})
