@@ -17,19 +17,18 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 VIEWS = {
-    "overview": ["Three ways to build a portfolio", "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG",
-                 "Awaiting validation", "No clear winner yet", "not statistically clear", "What the primary backtest compares", "Findings so far",
-                 "What we know", "Not yet known", "Key metrics", "Net CER is the primary metric", "Growth of $1", "Versus common benchmark",
-                 "Common benchmark", "60% US Equities / 40% Intermediate-Term Treasuries", "Frozen", "Cumulative return",
-                 "Net CER vs common benchmark", "own benchmark is in its details",
+    "overview": ["Does AI improve on our Deterministic baseline?", "Deterministic Quantitative Model", "Agentic Workflow — JEV", "Agentic Causal RAG",
+                 "Research baseline", "Awaiting validation", "No clear answer yet", "not statistically clear", "Research comparisons", "Findings so far",
+                 "What we know", "Not yet known", "Key metrics", "Net CER is the primary metric", "Growth of $1", "Versus baseline",
+                 "vs Deterministic baseline", "Net CER vs baseline", "Cumulative return", "Passive investment comparison", "Passive 60/40 reference",
                  "Development 2019–22", "Historical test", "Not run yet",
                  "Within-approach experiments", "Methodology and validation"],
-    "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Versus the common benchmark", "Gap to the common benchmark, split", "Accounting split", "Benchmark mix",
+    "approaches": ["How it works", "Economic surprises", "Ridge regression", "Black–Litterman", "Results", "Research baseline", "Versus the passive 60/40 reference", "Gap split", "accounting split", "Benchmark mix",
                    "Versus its own benchmark", "Secondary check",
                    "Monthly return forecasts", "Holdings over time", "Reproduction check", "Historical test 2023–26: sealed"],
     "deterministic": ["How it works", "Results", "Monthly return forecasts", "Reproduction check", "Limitations"],
-    "jev": ["How it works", "JEV decision model", "JEV's answer each month", "represents the Agentic Workflow", "Reproduction check"],
-    "committee": ["Within-approach variant of the Agentic Workflow", "Chief investment officer", "12-month views", "Sample reasoning"],
+    "jev": ["How it works", "JEV decision model", "JEV's answer each month", "represents the Agentic Workflow", "Versus the Deterministic baseline", "Reproduction check"],
+    "committee": ["Within-approach variant of the Agentic Workflow", "Chief investment officer", "12-month views", "Versus JEV (within-approach)", "Sample reasoning"],
     "causal-rag": ["Awaiting validation", "Results unavailable", "Knowledge graph", "Hypothesis Agent", "CauseTrace", "Testing Agent",
                    "Validation progress", "Inputs: research the agents can draw on", "No results yet", "Demo: one month, step by step", "Safeguards"],
     "experiments": ["Within-approach experiments", "None enters the primary comparison", "Tested", "Awaiting validation", "Planned", "Blocked", "Paused",
@@ -39,13 +38,13 @@ VIEWS = {
     "methodology": ["Timeline", "Training", "Development", "Historical test", "Live", "2023 overlaps", "reported separately", "Awaiting decision", "Jan 2024 – Aug 2026", "Supporting metrics",
                     "Rules and settings", "Frozen", "Needs approval", "Differs by design", "Net CER (certainty-equivalent return)", "Validation status",
                     "How net CER is calculated", "not a compound annual return",
-                    "Common benchmark", "Own benchmarks", "Same dates", "Monthly rebalancing", "Same trading cost", "Dividends included",
-                    "Same return accounting", "not a neutral portfolio or a measure of model skill"],
+                    "Passive Portfolio Reference — 60% SPY / 40% IEF", "Research baseline", "Own benchmarks", "Same dates", "Monthly rebalancing", "Same trading cost", "Dividends included",
+                    "Same return accounting", "not the research baseline and not a fourth approach"],
     "timeline": ["Timeline", "Feb 2015"],
     "method": ["Rules and settings"],
 }
 # Wording the usability review flagged as jargon or as overstating the results.
-JARGON = re.compile(r"\b(attribution|Awaiting freeze approval|best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% SPY|% TLT|% IEF|% LQD", re.I)
+JARGON = re.compile(r"\b(common benchmark|attribution|Awaiting freeze approval|best|TypeSafe|temperature|P\(stocks|spending approval|one fair test|Faithfulness)\b|\bS 0\b|% TLT|% LQD", re.I)   # "60% SPY / 40% IEF" is the approved passive-reference label
 FORBIDDEN = re.compile(r"\b(AP1|AP2A|AP2B|AP2-A|AP2-B|AP3|engineering_mock|saved_native_replay|\.jsonl|\.py\b)")
 
 
@@ -80,7 +79,7 @@ def main() -> int:
                     bad = FORBIDDEN.findall(page.text_content("body"))
                     if bad:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: internal labels shown {sorted(set(bad))}")
-                    jargon = JARGON.findall(page.text_content("body"))
+                    jargon = [m.group(0) for m in JARGON.finditer(page.text_content("body"))]
                     if jargon:
                         problems.append(f"[{scheme}/{vp_name}] #{view}: flagged wording {sorted(set(map(str, jargon)))}")
                     # nothing may be cut off: the nav fits, and no table or timeline needs sideways scrolling on a phone
@@ -99,19 +98,22 @@ def main() -> int:
                         n_cards = page.locator("main .acard").count()
                         if n_cards != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: {n_cards} approach cards, expected exactly 3")
-                        # main chart: one line per approach with results and exactly one dashed line, the common benchmark
+                        # main chart: the approaches with the Deterministic baseline; the passive 60/40 reference is an optional dashed line, off by default
                         for mode in ("abs", "gap"):
                             g = page.locator(f"[data-g={mode}]")
                             g.tap() if vp_name == "phone" else g.click()   # taps on phones: a mouse click would leave a stale pointer
-                            ds = page.evaluate("""() => Chart.getChart('c-growth').data.datasets.map(d => ({l: d.label, dash: (d.borderDash || []).length > 0}))""")
-                            dashed = [d["l"] for d in ds if d["dash"]]
-                            if dashed != ["Common benchmark"] or len(ds) != 3:
-                                problems.append(f"[{scheme}/{vp_name}] #{view} ({mode}): chart lines {ds}, expected two approaches and one dashed common benchmark")
+                            ds = page.evaluate("""() => { const c = Chart.getChart('c-growth'); return c.data.datasets.map((d, i) => ({l: d.label, dash: (d.borderDash || []).length > 0, shown: c.isDatasetVisible(i)})); }""")
+                            want = [("Deterministic (baseline)", False, True), ("Agentic Workflow (JEV)", False, True), ("Passive 60/40 reference", True, False)] if mode == "abs" \
+                                else [("Agentic Workflow (JEV)", False, True), ("Deterministic baseline", True, True)]
+                            if [(d["l"], d["dash"], d["shown"]) for d in ds] != want:
+                                problems.append(f"[{scheme}/{vp_name}] #{view} ({mode}): chart lines {ds}")
                         g = page.locator("[data-g=abs]")
                         g.tap() if vp_name == "phone" else g.click()
                     if view in ("deterministic", "jev", "committee"):
-                        ds = page.evaluate("""() => Chart.getChart('c-one').data.datasets.map(d => d.label)""")
-                        if len(ds) != 3 or ds[1] != "Common benchmark" or not ds[2].startswith("Own benchmark"):
+                        ds = page.evaluate("""() => { const c = Chart.getChart('c-one'); return c.data.datasets.map((d, i) => ({l: d.label, shown: c.isDatasetVisible(i)})); }""")
+                        cmp = {"deterministic": [], "jev": ["Deterministic baseline"], "committee": ["JEV"]}[view]
+                        labels = [d["l"] for d in ds]
+                        if labels[1:1 + len(cmp)] != cmp or not labels[-2].startswith("Own benchmark") or labels[-1] != "Passive 60/40 reference" or ds[-1]["shown"]:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: detail chart lines {ds}")
                         if page.locator("main .attr .arow").count() != 3:
                             problems.append(f"[{scheme}/{vp_name}] #{view}: decomposition rows missing")

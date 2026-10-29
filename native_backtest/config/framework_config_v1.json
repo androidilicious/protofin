@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.5",
+  "version": "1.6",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -293,7 +293,14 @@
       "primary": "2024-01..2026-08 (confirmatory; primary Holm family of three pairwise net-CER contrasts)",
       "secondary": "2023-01..2023-12 (same contrasts and metrics, reported separately and labelled secondary; no confirmatory claim; with 12 months the 6-month block bootstrap has two blocks, so its intervals are reported as descriptive only)",
       "sealed": "2023-01..2026-08 until final GO"
-    }
+    },
+    "research_question": "Do the AI-based approaches improve investment performance relative to the conventional Deterministic Quantitative Model?",
+    "research_baseline": {
+      "system": "AP1",
+      "name": "Deterministic Quantitative Model",
+      "role": "Primary research baseline. The primary comparisons are AP2B (Agentic Workflow, JEV) vs AP1 and AP3 (Agentic Causal RAG) vs AP1, which test whether each AI approach improves on the baseline, and AP3 vs AP2B, which compares the two AI approaches. One Holm family of three, unchanged."
+    },
+    "passive_reference": "The frozen common benchmark (60% SPY / 40% IEF) is a secondary passive investment reference. It is not the research baseline and not a fourth approach; comparisons with it answer a separate question and never enter the primary family."
   },
   "within_approach_contrasts": [
     [
@@ -322,6 +329,11 @@
       "version": "1.5",
       "date": "2026-10-28",
       "change": "Project lead's decisions: net CER confirmed as the primary metric; supporting metrics listed; primary historical period 2024-01..2026-08; 2023 a separately reported secondary period; the whole 2023-01..2026-08 window stays sealed (lock unchanged). Costs, timing, metrics settings and the frozen common benchmark unchanged."
+    },
+    {
+      "version": "1.6",
+      "date": "2026-10-28",
+      "change": "Reporting amendment: the Deterministic Quantitative Model is stated as the primary research baseline (research question and primary comparisons recorded; the contrasts and Holm family are unchanged); the frozen 60/40 SPY/IEF benchmark is relabelled the Passive Portfolio Reference and shown as an optional reference line and a separate comparison. Numerical specification, fingerprint, accounting and historical calculations unchanged."
     }
   ],
   "common_benchmark": {
@@ -351,10 +363,12 @@
     "role": "A common passive reference for evaluation and display only: one reference line for all three primary approaches and secondary, descriptive comparisons. It is not a fully neutral portfolio and not a direct measure of model skill. It never enters the primary Holm family, never redefines the primary endpoint and is never an input to any system.",
     "decomposition": "Accounting decomposition, not a causal attribution: CER(system) - CER(common) = [CER(system) - CER(own native benchmark)] (labelled 'decisions') + [CER(own native benchmark) - CER(common)] (labelled 'benchmark mix'). Exact by construction.",
     "reporting": [
-      "One common-benchmark line on the main dashboard chart.",
+      "Shown as the Passive Portfolio Reference — 60% SPY / 40% IEF: a secondary investment reference, not the research baseline and not a fourth approach.",
+      "Main dashboard chart: the approaches' lines with the Deterministic research baseline; the passive portfolio is an optional, clearly labelled dashed reference line, off by default.",
+      "A separate 'passive investment comparison' (does a strategy beat a simple 60/40 portfolio?) is kept apart from the research comparison (does an AI approach improve on the Deterministic baseline?).",
       "Comparisons with each approach's native benchmark in the approach's detail view.",
       "The decisions / benchmark-mix split shown and described as an accounting decomposition, not a causal attribution.",
-      "Results against the common benchmark reported whatever they show."
+      "Results against the passive portfolio reported whatever they show."
     ],
     "selection_rationale": [
       "Both instruments passed Stage 2 gate 5 (distribution adjustment, C1-C6) over 2014-02..2023-02-01; TLT's gate 5 result (FAIL on C2 preserved) is still awaiting team sign-off, so the reference line does not depend on it.",
@@ -370,6 +384,14 @@
       "on": "2026-10-28",
       "approval_record": "native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json",
       "fingerprint_sha256": "fffd92b9731598385353749424b643e83ffbf0567403624cea7e170a75741aed"
-    }
+    },
+    "display_label": "Passive Portfolio Reference — 60% SPY / 40% IEF",
+    "reporting_amendments": [
+      {
+        "date": "2026-10-28",
+        "record": "native_backtest/config/approvals/common_benchmark_reporting_amendment_2026-10-28.json",
+        "summary": "Relabelled as the Passive Portfolio Reference and moved from the main chart's default view to an optional line and a separate comparison; the Deterministic model is the research baseline. Numerical specification and fingerprint unchanged."
+      }
+    ]
   }
 }

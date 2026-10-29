@@ -139,7 +139,8 @@ def test_cer_is_defined_as_certainty_equivalent_return():
 def test_common_benchmark_is_one_spy_ief_reference_awaiting_freeze():
     cb = D["dev"]["common_benchmark"]
     assert cb["weights"] == {"SPY": 0.6, "IEF": 0.4} == CFG["common_benchmark"]["weights"]
-    assert cb["label"] == "60% US Equities / 40% Intermediate-Term Treasuries"
+    assert cb["label"] == "Passive Portfolio Reference — 60% SPY / 40% IEF"
+    assert cb["formal_label"] == "60% US Equities / 40% Intermediate-Term Treasuries"
     assert cb["status"] == "frozen" and cb["status_label"] == "Frozen"
     assert len(cb["wealth"]) == len(D["dev"]["months"])
     rep = REPORT["common_benchmark_matched_dev"]["benchmark"]
@@ -169,3 +170,15 @@ def test_causal_rag_has_no_benchmark_comparison():
     assert "rag" not in D["dev"]["series"]
     row = {r["system"]: r for r in REPORT["common_benchmark_matched_dev"]["systems"]}["AP3"]
     assert "vs_common" not in row and row["status"].startswith("pending")
+
+
+def test_deterministic_is_the_research_baseline_and_contrasts_are_unchanged():
+    rd = CFG["research_design"]
+    assert rd["research_baseline"]["system"] == "AP1"
+    assert CFG["primary_contrasts"] == [["AP2B", "AP1"], ["AP3", "AP1"], ["AP3", "AP2B"]] and CFG["metrics"]["multiplicity"] == "Holm"
+    items = D["dev"]["primary_contrasts"]["items"]
+    assert [(i["a"], i["b"]) for i in items] == [("jev", "det"), ("rag", "det"), ("rag", "jev")]
+    assert items[0]["computed"] and not items[1]["computed"] and not items[2]["computed"]
+    # the passive reference is not an approach and keeps its frozen numbers
+    assert all(s["key"] != "passive" for s in D["systems"]) and CFG["common_benchmark"]["status"] == "frozen"
+    assert "fourth approach" in CFG["research_design"]["passive_reference"]

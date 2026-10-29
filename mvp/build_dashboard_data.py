@@ -168,10 +168,10 @@ COMMON_RULES = [
 
 def common_block(cfg: dict) -> dict:
     b = cfg["common_benchmark"]
-    return {"id": b["id"], "label": b["label"], "weights": b["weights"], "status": b["status"],
+    return {"id": b["id"], "label": b.get("display_label", b["label"]), "formal_label": b["label"], "weights": b["weights"], "status": b["status"],
             "status_label": "Frozen" if b["status"] == "frozen" else "Awaiting freeze approval",
             "instruments": b["instruments"], "rules": [{"name": n, "text": t} for n, t in COMMON_RULES],
-            "not_neutral": "A common passive reference, not a neutral portfolio or a measure of model skill: no corporate bonds, no long-term Treasuries and no cash.",
+            "not_neutral": "A secondary passive investment reference, not the research baseline, not a fourth approach, not a neutral portfolio and not a measure of model skill: no corporate bonds, no long-term Treasuries and no cash.",
             "data_checks": "Both funds passed the dividend-adjustment data check."}
 
 
@@ -194,9 +194,10 @@ def methodology_block(cfg: dict) -> dict:
             {"icon": "cash", "name": "Cash rate", "value": "4-week Treasury bill", "status": "frozen"},
             {"icon": "window", "name": "Evaluation periods", "value": "Development Mar 2019 – Dec 2022; primary test Jan 2024 – Aug 2026; 2023 reported separately; all of 2023–2026 sealed until GO", "status": "frozen"},
             {"icon": "target", "name": "Primary metric", "value": "Net CER (certainty-equivalent return)", "status": "frozen", "tip": "cer"},
-            {"icon": "chart", "name": "Supporting metrics", "value": "Sharpe ratio, worst fall, volatility, cumulative return, turnover, results against the common benchmark", "status": "frozen"},
+            {"icon": "chart", "name": "Supporting metrics", "value": "Sharpe ratio, worst fall, volatility, cumulative return, turnover, results against the passive reference", "status": "frozen"},
             {"icon": "scale", "name": "Significance test", "value": "Resampled blocks of months; the three comparisons judged together", "status": "frozen", "tip": "significance"},
-            {"icon": "bench", "name": "Common benchmark", "value": "60% US Equities / 40% Intermediate-Term Treasuries, rebalanced monthly; one reference for all three approaches", "status": "frozen", "tip": "commonbench"},
+            {"icon": "target", "name": "Research baseline", "value": "Deterministic Quantitative Model; comparisons: JEV vs baseline, Causal RAG vs baseline, Causal RAG vs JEV", "status": "frozen", "tip": "baseline"},
+            {"icon": "bench", "name": "Passive portfolio reference", "value": "60% SPY / 40% IEF, rebalanced monthly; a secondary investment reference", "status": "frozen", "tip": "commonbench"},
             {"icon": "bench", "name": "Own benchmarks", "value": "Each approach's own fixed starting mix; shown in its details as a secondary check", "status": "design", "tip": "benchmark"},
             {"icon": "clock", "name": "Point-in-time data", "value": "Only information public before each decision", "status": "design"},
             {"icon": "refresh", "name": "Walk-forward", "value": "Refit monthly on past data (Deterministic); replay (JEV); walk-forward calibration (Causal RAG)", "status": "design", "tip": "walkforward"},
@@ -384,10 +385,9 @@ def main() -> int:
     sig_pw = [f"{SYSTEMS[i['a']]['short']} vs {SYSTEMS[i['b']]['short']}" for i in primary if i["computed"] and i["p"] < 0.05]
     span = f"{dev[0].year}–{dev[-1].year}"
     if not sig_vs and not sig_pw:
-        headline = (f"Development diagnostics, {span}: neither the Deterministic model nor the Agentic Workflow (JEV) beat its own "
-                    "benchmark or the other by a statistically significant margin. Causal RAG is awaiting validation. "
-                    "Protected historical results (2023–2026) are sealed.")
-        finding = "No statistically clear difference"
+        headline = (f"Development diagnostics, {span}: the Agentic Workflow (JEV) is not statistically different from the Deterministic "
+                    "research baseline. Causal RAG is awaiting validation. Protected historical results (2023–2026) are sealed.")
+        finding = "No clear difference from the baseline"
     else:
         headline = (f"Development diagnostics, {span}: statistically significant for " + ", ".join(sig_vs + sig_pw)
                     + ". Causal RAG is awaiting validation. Protected historical results (2023–2026) are sealed.")
@@ -396,9 +396,9 @@ def main() -> int:
         "headline": headline,
         "finding": finding,
         "know": ["Both approaches with results reproduce their authors' saved results exactly.",
-                 f"On {n_dev} development months, neither beat the common benchmark, its own benchmark or the other by a margin chance can't explain.",
-                 "Every approach is scored on the same months, trading costs and cash rate, against the same reference portfolio."],
-        "not_yet": ["Which approach is better: the historical test (2023–2026) is still sealed.",
+                 f"On {n_dev} development months, JEV's difference from the Deterministic baseline is within what chance could produce.",
+                 "Every approach is scored on the same months, trading costs and cash rate."],
+        "not_yet": ["Whether AI improves on the baseline: the historical test (Jan 2024 – Aug 2026 primary) is still sealed.",
                     "Anything about Causal RAG: its model runs await approval and validation.",
                     "A controlled comparison: assets, horizons and information differ by design."],
         "can": ["Each approach was run with its own original code, which reproduced its authors' saved results before any comparison.",

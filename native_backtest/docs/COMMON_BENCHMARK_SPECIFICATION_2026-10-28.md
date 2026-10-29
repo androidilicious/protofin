@@ -126,3 +126,28 @@ The project lead approved:
 - Approver, time, conditions, rationale, full specification, inherited settings and both hashes are in `native_backtest/config/approvals/common_benchmark_freeze_2026-10-28.json`.
 - The accounting checks were re-run under the frozen specification; all pass.
 - Any change now needs a new configuration version, a documented reason and a new approval. None is allowed once the protected window has been opened.
+
+## 8. Reporting amendment (2026-10-28, 21:36 ET)
+
+**Requested by the project lead.** The Deterministic Quantitative Model is the primary research baseline. The research question is whether the AI-based approaches improve on it. The primary comparisons are unchanged:
+- JEV − Deterministic;
+- Causal RAG − Deterministic;
+- Causal RAG − JEV.
+
+They form one Holm family of three.
+
+**What changed: labels and display only.**
+- This portfolio is shown as **Passive Portfolio Reference — 60% SPY / 40% IEF**. It is a secondary investment reference, not the research baseline and not a fourth approach.
+- On the main chart it is an optional dashed line, off by default.
+- Its comparison ("does a strategy beat a simple 60/40 portfolio?") is shown separately from the research comparison ("does an AI approach improve on the Deterministic baseline?").
+
+**What did not change:**
+- weights, rules, accounting and historical calculations;
+- the fingerprint, still `fffd92b9…1aed`;
+- the native-benchmark comparisons;
+- the sealed window.
+
+**Records:**
+- `native_backtest/config/approvals/common_benchmark_reporting_amendment_2026-10-28.json`;
+- `framework_config_v1.json` v1.6: `common_benchmark.display_label`, `reporting`, `reporting_amendments`, and `research_design.research_baseline`.
+
