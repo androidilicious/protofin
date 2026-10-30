@@ -57,39 +57,58 @@
     </div></div>
 
     <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
-        <section class="card p-5">
-            <div class="flex flex-wrap items-end gap-5">
-                <div class="flex flex-col gap-1"><span class="eyebrow">Funds</span><div class="seg" id="fundSeg"><button data-v="2" class="on">SPY / TLT</button><button data-v="3">SPY / IEF / LQD</button></div></div>
-                <div class="flex flex-col gap-1" id="mix3Wrap" style="display:none"><span class="eyebrow">Prior mix (SPY / IEF / LQD)</span><div class="seg"><button class="on">45 / 35 / 20</button></div></div>
-                <div class="flex flex-col gap-1" id="mixWrap"><span class="eyebrow">Prior mix (SPY / TLT)</span><div class="seg" id="mixSeg"><button data-v="50">50 / 50</button><button data-v="60" class="on">60 / 40</button><button data-v="70">70 / 30</button></div></div>
-                <div class="flex flex-col gap-1"><span class="eyebrow">How a forecast becomes a view</span><div class="seg" id="mapSeg"><button data-v="sign" class="on">Direction kept (strict)</button><button data-v="ridge">Any sign (Ridge)</button></div></div>
-                <div class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><div class="seg" id="spdSeg"><button data-v="350">calm</button><button data-v="150" class="on">normal</button><button data-v="50">fast</button></div></div>
-                <span class="flex-1"></span><span id="status" class="muted text-xs mono"></span>
+        <section class="card p-6">
+            <div class="eyebrow purple">The question</div>
+            <h1 class="t1" style="font-size:28px;font-weight:800;line-height:1.2;margin-top:6px">Can any of our forecasting approaches beat simply holding a fixed mix of funds?</h1>
+            <p id="headline" class="t1 text-lg mt-3 max-w-4xl"></p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5 text-sm">
+                <div class="inner p-4"><div class="t1 font-semibold">1 · Pick the funds</div><p class="t2 mt-1">Stocks and long bonds (SPY / TLT), or stocks, government bonds and company bonds (SPY / IEF / LQD).</p></div>
+                <div class="inner p-4"><div class="t1 font-semibold">2 · Press Play</div><p class="t2 mt-1">Watch what $100 invested in March 2019 became under each approach, month by month to December 2022.</p></div>
+                <div class="inner p-4"><div class="t1 font-semibold">3 · Read the scorecard</div><p class="t2 mt-1">Each approach is compared with <b>doing nothing</b> (holding the fixed mix). A negative number means it did worse.</p></div>
             </div>
-            <p class="mt-3 muted text-sm max-w-5xl">Three forecasting approaches, one pipeline. Each supplies only a raw monthly signal: the <b class="t2">deterministic model</b> its 8 Bloomberg macro surprises, <b class="t2">Jev</b> its probability, tilt and confidence, the <b class="t2">committee</b> its CIO's SPY and TLT numbers and confidence, <b class="t2">Causal RAG</b> the net direction of its Supported, Contradicted and Insufficient cause-and-effect chains (exploratory: run on a free stand-in model whose reliability checks failed; its IEF signal stands in for TLT). The same learned rule turns each signal into a view, the same past-miss rule sets its uncertainty Ω, the same Black-Litterman blends it with the prior mix, and the same optimizer, costs (5 bps) and score apply. Jev and the committee were re-asked a <b class="t2">one-month</b> question for every month since 2015, so everyone forecasts what is scored. Two fund sets: <b class="t2">SPY/TLT at 60/40</b>, and <b class="t2">SPY/IEF/LQD at 45/35/20</b> (the deterministic model's and Causal RAG's own setup; Jev and the committee were asked again about these three funds, and Causal RAG needs no stand-in there). Two controls: <b class="t2">static</b> holds the mix; the <b class="t2">placebo</b> runs the whole machinery on the historical average. Development months only; 2023–2026 stays sealed.</p>
         </section>
 
         <section class="card p-5">
-            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">All runs together · <span id="raceMonth" class="t1 mono">press Play</span></div><span class="chip">growth of 100, net of costs</span></div>
+            <div class="flex flex-wrap items-end gap-5">
+                <div class="flex flex-col gap-1"><span class="eyebrow">Funds</span><div class="seg" id="fundSeg"><button data-v="2" class="on">SPY / TLT</button><button data-v="3">SPY / IEF / LQD</button></div></div>
+                <div class="flex flex-col gap-1" id="mix3Wrap" style="display:none"><span class="eyebrow">Fixed mix (SPY / IEF / LQD)</span><div class="seg"><button class="on">45 / 35 / 20</button></div></div>
+                <div class="flex flex-col gap-1" id="mixWrap"><span class="eyebrow">Fixed mix (SPY / TLT)</span><div class="seg" id="mixSeg"><button data-v="50">50 / 50</button><button data-v="60" class="on">60 / 40</button><button data-v="70">70 / 30</button></div></div>
+                <div class="flex flex-col gap-1"><span class="eyebrow">How to read each forecast</span><div class="seg" id="mapSeg"><button data-v="sign" class="on">As stated</button><button data-v="ridge">Either way</button></div></div>
+                <div class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><div class="seg" id="spdSeg"><button data-v="350">calm</button><button data-v="150" class="on">normal</button><button data-v="50">fast</button></div></div>
+                <span class="flex-1"></span><span id="status" class="muted text-xs mono"></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4 text-sm">
+                <div class="inner p-3"><b class="warn">Deterministic model</b><div class="t2">A regression on 8 economic surprises (jobs, inflation, …)</div></div>
+                <div class="inner p-3"><b class="accent">AI committee</b><div class="t2">Three GPT-4o roles (economist, risk manager, CIO) give return forecasts</div></div>
+                <div class="inner p-3"><b class="purple">Jev</b><div class="t2">A decision model that answers with probabilities</div></div>
+                <div class="inner p-3"><b class="teal">Causal RAG</b> <span class="chip warn" style="padding:1px 6px;font-size:9px">exploratory</span><div class="t2">AI agents test cause-and-effect chains from economics papers</div></div>
+                <div class="inner p-3"><b class="muted">Doing nothing</b><div class="t2">Hold the fixed mix every month. The bar to beat.</div></div>
+                <div class="inner p-3"><b class="faint">Fake forecaster (placebo)</b><div class="t2">Runs the same machinery with no real forecast. Shows what tilting alone costs.</div></div>
+            </div>
+            <details class="mt-3"><summary class="muted text-sm" style="cursor:pointer">How the comparison is kept fair</summary><p class="muted text-sm mt-2">Three forecasting approaches, one pipeline. Each supplies only a raw monthly signal: the <b class="t2">deterministic model</b> its 8 Bloomberg macro surprises, <b class="t2">Jev</b> its probability, tilt and confidence, the <b class="t2">committee</b> its CIO's SPY and TLT numbers and confidence, <b class="t2">Causal RAG</b> the net direction of its Supported, Contradicted and Insufficient cause-and-effect chains (exploratory: run on a free stand-in model whose reliability checks failed; its IEF signal stands in for TLT). The same learned rule turns each signal into a view, the same past-miss rule sets its uncertainty Ω, the same Black-Litterman blends it with the prior mix, and the same optimizer, costs (5 bps) and score apply. Jev and the committee were re-asked a <b class="t2">one-month</b> question for every month since 2015, so everyone forecasts what is scored. Two fund sets: <b class="t2">SPY/TLT at 60/40</b>, and <b class="t2">SPY/IEF/LQD at 45/35/20</b> (the deterministic model's and Causal RAG's own setup; Jev and the committee were asked again about these three funds, and Causal RAG needs no stand-in there). Two controls: <b class="t2">static</b> holds the mix; the <b class="t2">placebo</b> runs the whole machinery on the historical average. Development months only; 2023–2026 stays sealed.</p></details>
+        </section>
+
+        <section class="card p-5">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">What $100 invested in March 2019 became · <span id="raceMonth" class="t1 mono">press Play</span></div><span class="chip">after trading costs</span></div>
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div class="lg:col-span-3" style="height:340px"><canvas id="navChart"></canvas></div>
-                <div class="lg:col-span-2"><div class="eyebrow mb-2">Leaderboard</div><div class="race" id="race"></div><div class="eyebrow mt-4 mb-2">SPY weight this month</div><div class="race" id="raceW"></div></div>
+                <div class="lg:col-span-2"><div class="eyebrow mb-2">Standing</div><div class="race" id="race"></div><div class="eyebrow mt-4 mb-2">Share in stocks this month</div><div class="race" id="raceW"></div></div>
             </div>
-            <div class="eyebrow mt-4 mb-1">SPY weight, %</div>
+            <div class="eyebrow mt-4 mb-1">Share in stocks (SPY) each month, %</div>
             <div style="height:170px"><canvas id="wChart"></canvas></div>
         </section>
 
         <section class="card p-5">
-            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">Verdict · <span id="runLabel" class="t1 mono"></span></div><span class="chip">net CER = 12 × (mean monthly return above cash − 1.25 × its variance)</span></div>
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">Scorecard · <span id="runLabel" class="t1 mono"></span></div><button id="detBtn" class="btn btn-ghost" style="padding:5px 12px;font-size:11px">Show details</button></div>
             <div class="overflow-x-auto"><table id="tbl"></table></div>
-            <p id="verdict" class="t1 text-sm mt-3 max-w-5xl"></p>
+            <p id="verdict" class="t1 text-sm mt-3 max-w-5xl"></p><p class="faint text-xs mt-2">Score = yearly return above cash, minus a penalty for bumpiness (net CER = 12 × (mean monthly excess return − 1.25 × its variance)), after trading costs. "Can't tell" means the 95% range includes zero.</p>
         </section>
 
         <section class="card p-5">
-            <div class="eyebrow purple mb-3">What "direction kept" vs "any sign" means</div>
+            <div class="eyebrow purple mb-3">Two ways to read a forecast</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div class="inner p-4"><div class="t1 font-semibold">Direction kept (strict)</div><p class="t2 mt-1">view = average + k × (the approach's stated view − its mean), with k ≥ 0 learned on past months. The approach's direction can never be flipped; a signal that was reliably wrong gets k = 0 and collapses to the placebo. This answers "does the approach's own opinion help?"</p></div>
-                <div class="inner p-4"><div class="t1 font-semibold">Any sign (Ridge)</div><p class="t2 mt-1">The same Ridge regression the deterministic model uses, on all of the approach's raw numbers. It may learn to read a signal in reverse. This answers "is there any information in the output?" In 2015–2019 Jev's bearish months were followed by good stock months, so Ridge inverted it; that lost money in 2019–2022.</p></div>
+                <div class="inner p-4"><div class="t1 font-semibold">As stated</div><p class="t2 mt-1">view = average + k × (the approach's stated view − its mean), with k ≥ 0 learned on past months. The approach's direction can never be flipped; a signal that was reliably wrong gets k = 0 and collapses to the placebo. This answers "does the approach's own opinion help?"</p></div>
+                <div class="inner p-4"><div class="t1 font-semibold">Either way</div><p class="t2 mt-1">The same Ridge regression the deterministic model uses, on all of the approach's raw numbers. It may learn to read a signal in reverse. This answers "is there any information in the output?" In 2015–2019 Jev's bearish months were followed by good stock months, so Ridge inverted it; that lost money in 2019–2022.</p></div>
             </div>
             <div class="eyebrow mt-5 mb-2">One month, March 2019, SPY/TLT 60/40 · view Q and weight under each rule (monthly return above cash)</div>
             <div class="overflow-x-auto"><table id="exTbl"></table></div>
@@ -112,7 +131,7 @@
     <script type="module">
         const $ = id => document.getElementById(id);
         const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-        let funds = '2', mix = '60', mapping = 'sign', speed = 150, navChart = null, wChart = null, shown = 0, playing = false, timer = null;
+        let showDet = false, funds = '2', mix = '60', mapping = 'sign', speed = 150, navChart = null, wChart = null, shown = 0, playing = false, timer = null;
         function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} if (navChart) draw(shown); }
         const q = new URLSearchParams(location.search);
         applyTheme(q.get('theme') || (() => { try { return localStorage.getItem('protofin.theme'); } catch (e) { return null; } })() || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
@@ -123,6 +142,8 @@
         const COL = { STATIC: '--muted', PLACEBO: '--faint', DET: '--warn', JEV: '--purple', COMMITTEE: '--accent', CAUSAL_RAG: '--teal', JEV_12M: '--purple', COMMITTEE_12M: '--accent' };
         const pct = (x, d = 2) => (x * 100).toFixed(d) + '%', pts = x => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(2);
         const ci = c => { if (!c) return ''; const lo = -0.04, hi = 0.03, X = v => ((v - lo) / (hi - lo) * 100).toFixed(1) + '%'; return `<div class="ci"><div class="zero" style="left:${X(0)}"></div><div class="ln" style="left:${X(c.lo)};width:${((c.hi - c.lo) / (hi - lo) * 100).toFixed(1)}%"></div><div class="pt" style="left:${X(c.d)};background:${c.d >= 0 ? 'var(--pos)' : 'var(--neg)'}"></div></div>`; };
+        const PLAIN = { STATIC: 'Doing nothing', PLACEBO: 'Fake forecaster (placebo)' };
+        const nm = k => PLAIN[k] || run().systems[k].name;
         const run = () => D.runs[funds === '3' ? `f3_${mapping}` : `spy${mix}_${mapping}`];
         const mixLabel = () => funds === '3' ? '45/35/20 SPY/IEF/LQD' : `${mix}/${100 - mix} SPY/TLT`;
         const center = () => funds === '3' ? 45 : +mix;
@@ -130,17 +151,24 @@
 
         function table() {
             const r = run(), S = r.systems;
-            $('runLabel').innerText = `${mixLabel()} prior · ${mapping === 'sign' ? 'direction kept' : 'any sign'} · ${D.window}`;
-            $('tbl').innerHTML = '<tr><th>Approach</th><th>Net CER</th><th>vs static</th><th>95% range</th><th></th><th>p</th><th>vs placebo</th><th>Sharpe</th><th>Worst drop</th><th>Trading / yr</th><th>SPY range</th></tr>' + ORDER.map(k => { const s = S[k]; if (!s) return ''; const c = s.vs_static, d = s.vs_placebo, best = k === 'STATIC';
-                return `<tr${best ? ' style="background:var(--accent-soft)"' : ''}><td class="lab" style="color:var(${COL[k]})">${s.name}${k === 'CAUSAL_RAG' ? ' <span class="chip warn" style="padding:1px 6px;font-size:9px">exploratory</span>' : ''}</td><td><b>${pct(s.net_cer)}</b></td><td class="${c && c.d < 0 ? 'neg' : 'pos'}">${c ? pts(c.d) + ' pts' : '—'}</td><td class="faint">${c ? `${pts(c.lo)} to ${pts(c.hi)}` : ''}</td><td>${ci(c)}</td><td>${c ? c.p.toFixed(2) : ''}</td><td class="${d && d.d < 0 ? 'neg' : 'pos'}">${d ? pts(d.d) + ' pts' : '—'}</td><td>${s.sharpe == null ? '' : s.sharpe.toFixed(2)}</td><td class="neg">${s.maxdd == null ? '' : pct(s.maxdd, 1)}</td><td>${s.turnover == null ? '' : s.turnover.toFixed(2) + '×'}</td><td>${pct(s.spy_min, 0)}–${pct(s.spy_max, 0)}</td></tr>`; }).join('');
-            const best = ['DET', 'JEV', 'COMMITTEE'].filter(k => S[k]).sort((a, b) => S[b].net_cer - S[a].net_cer)[0], c = S[best].vs_static, zero = c.lo <= 0 && c.hi >= 0;
-            $('verdict').innerHTML = `<b>No approach beats holding ${mixLabel()}.</b> The closest is <b style="color:var(${COL[best]})">${S[best].name}</b> at ${pts(c.d)} pts a year (p ${c.p.toFixed(2)}); its 95% range runs from ${pts(c.lo)} to ${pts(c.hi)}, ${zero ? 'so it cannot be told apart from zero' : 'so it is reliably worse than holding the mix'}. The placebo alone costs ${pts(S.PLACEBO.vs_static.d)} pts: tilting on historical averages with no information. 46 months can only separate large differences.`;
+            $('runLabel').innerText = `${mixLabel()} · forecasts read ${mapping === 'sign' ? 'as stated' : 'either way'} · 46 months, Mar 2019 – Dec 2022`;
+            const verdictChip = c => !c ? '<span class="chip">the bar to beat</span>' : (c.lo > 0 ? '<span class="chip" style="border-color:var(--pos);color:var(--pos)">better</span>' : c.hi < 0 ? '<span class="chip" style="border-color:var(--neg);color:var(--neg)">worse</span>' : '<span class="chip">can\'t tell</span>');
+            const rows = ORDER.filter(k => S[k] && (showDet || !k.endsWith('_12M')));
+            const head = '<tr><th>Approach</th><th>Score a year</th><th>vs doing nothing</th><th>Verdict</th>' + (showDet ? '<th>95% range</th><th></th><th>p</th><th>vs placebo</th><th>Sharpe</th><th>Worst drop</th><th>Trading / yr</th><th>Stock share</th>' : '') + '</tr>';
+            $('tbl').innerHTML = head + rows.map(k => { const s = S[k], c = s.vs_static, d = s.vs_placebo, base = k === 'STATIC';
+                return `<tr${base ? ' style="background:var(--accent-soft)"' : ''}><td class="lab" style="color:var(${COL[k]})">${nm(k)}${k === 'CAUSAL_RAG' ? ' <span class="chip warn" style="padding:1px 6px;font-size:9px">exploratory</span>' : ''}</td><td><b>${pct(s.net_cer)}</b></td><td class="${c && c.d < 0 ? 'neg' : 'pos'}">${c ? pts(c.d) + ' pts' : '—'}</td><td>${verdictChip(c)}</td>` +
+                  (showDet ? `<td class="faint">${c ? `${pts(c.lo)} to ${pts(c.hi)}` : ''}</td><td>${ci(c)}</td><td>${c ? c.p.toFixed(2) : ''}</td><td class="${d && d.d < 0 ? 'neg' : 'pos'}">${d ? pts(d.d) + ' pts' : '—'}</td><td>${s.sharpe == null ? '' : s.sharpe.toFixed(2)}</td><td class="neg">${s.maxdd == null ? '' : pct(s.maxdd, 1)}</td><td>${s.turnover == null ? '' : s.turnover.toFixed(2) + '×'}</td><td>${pct(s.spy_min, 0)}–${pct(s.spy_max, 0)}</td>` : '') + '</tr>'; }).join('');
+            const appr = ['DET', 'JEV', 'COMMITTEE', 'CAUSAL_RAG'].filter(k => S[k]);
+            const best = appr.filter(k => k !== 'CAUSAL_RAG').sort((a, b) => S[b].net_cer - S[a].net_cer)[0], c = S[best].vs_static, zero = c.lo <= 0 && c.hi >= 0;
+            const worse = appr.filter(k => S[k].vs_static.hi < 0).length;
+            $('headline').innerHTML = `<b>No.</b> From March 2019 to December 2022, every approach ended below simply holding <b>${mixLabel()}</b>${worse === appr.length ? ', and each was clearly worse' : ''}.`;
+            $('verdict').innerHTML = `<b>Doing nothing won.</b> Holding ${mixLabel()} scored ${pct(S.STATIC.net_cer)} a year. The best approach, <b style="color:var(${COL[best]})">${nm(best)}</b>, scored ${pct(S[best].net_cer)} (${pts(c.d)} points), ${zero ? 'a gap too small to be sure of' : 'clearly worse'}. Even the fake forecaster lost ${pts(-S.PLACEBO.vs_static.d).replace('+', '')} points, which is what tilting without real information costs.`;
         }
         function draw(n) {
             const r = run(), S = r.systems, grid = cssVar('--border'), tick = cssVar('--muted');
             const base = { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: true, labels: { color: tick, boxWidth: 10, font: { size: 10 } } } },
                 scales: { x: { grid: { color: grid }, ticks: { color: tick, maxTicksLimit: 8, font: { family: 'JetBrains Mono', size: 10 } } }, y: { grid: { color: grid }, ticks: { color: tick, font: { family: 'JetBrains Mono', size: 10 } } } } };
-            const ds = (f, stepped) => KEYS.map(k => ({ label: S[k].name, data: f(S[k]).slice(0, n), borderColor: cssVar(COL[k]), borderWidth: k === 'STATIC' ? 1.5 : 2, borderDash: k === 'STATIC' ? [4, 3] : k === 'PLACEBO' ? [2, 2] : [], pointRadius: 0, tension: .2, stepped }));
+            const ds = (f, stepped) => KEYS.map(k => ({ label: nm(k), data: f(S[k]).slice(0, n), borderColor: cssVar(COL[k]), borderWidth: k === 'STATIC' ? 1.5 : 2, borderDash: k === 'STATIC' ? [4, 3] : k === 'PLACEBO' ? [2, 2] : [], pointRadius: 0, tension: .2, stepped }));
             const navs = KEYS.flatMap(k => S[k].nav), lo = Math.floor(Math.min(...navs) * 100 / 5) * 5, hi = Math.ceil(Math.max(...navs) * 100 / 5) * 5;
             if (navChart) navChart.destroy(); if (wChart) wChart.destroy();
             navChart = new Chart($('navChart'), { type: 'line', data: { labels: r.months, datasets: ds(s => s.nav.map(v => v * 100), false) }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: lo, max: hi } } } });
@@ -156,12 +184,12 @@
             $('raceMonth').innerText = n ? `${r.months[i]} · month ${n} of ${r.months.length}` : 'press Play';
             const rows = KEYS.map(k => ({ k, v: n ? S[k].nav[i] * 100 : 100 })).sort((a, b) => b.v - a.v);
             const lo = Math.min(...rows.map(x => x.v)) - 3, hi = Math.max(...rows.map(x => x.v)) + 1;
-            $('race').innerHTML = rows.map(x => `<div class="row"><span style="color:var(${COL[x.k]})">${S[x.k].name}</span><div class="bar" style="width:${((x.v - lo) / (hi - lo) * 100).toFixed(1)}%;background:var(${COL[x.k]})"></div><span class="mono t1 text-right">${x.v.toFixed(1)}</span></div>`).join('');
-            $('raceW').innerHTML = KEYS.map(k => { const w = n ? S[k].w_spy[i] * 100 : center(); return `<div class="row"><span style="color:var(${COL[k]})">${S[k].name}</span><div class="bar" style="width:${w.toFixed(1)}%;background:var(${COL[k]});opacity:.8"></div><span class="mono t1 text-right">${w.toFixed(1)}%</span></div>`; }).join('');
+            $('race').innerHTML = rows.map(x => `<div class="row"><span style="color:var(${COL[x.k]})">${nm(x.k)}</span><div class="bar" style="width:${((x.v - lo) / (hi - lo) * 100).toFixed(1)}%;background:var(${COL[x.k]})"></div><span class="mono t1 text-right">${x.v.toFixed(1)}</span></div>`).join('');
+            $('raceW').innerHTML = KEYS.map(k => { const w = n ? S[k].w_spy[i] * 100 : center(); return `<div class="row"><span style="color:var(${COL[k]})">${nm(k)}</span><div class="bar" style="width:${w.toFixed(1)}%;background:var(${COL[k]});opacity:.8"></div><span class="mono t1 text-right">${w.toFixed(1)}%</span></div>`; }).join('');
         }
         function example() {
             const E = D.example['2019-03'], f = x => (x * 100).toFixed(3) + '%', S = run().systems;
-            $('exTbl').innerHTML = '<tr><th>Approach</th><th>Rule</th><th>Q SPY</th><th>Q TLT</th><th>Learned</th><th>μ SPY</th><th>SPY weight</th></tr>' + ['PLACEBO', 'DET', 'JEV', 'COMMITTEE', 'CAUSAL_RAG'].flatMap(k => ['sign', 'ridge'].map(m => { const e = E[k][m]; const a = String(e.alpha_SPY); const learned = a === 'INTERCEPT_ONLY' ? 'ignore the data' : a.startsWith('k=') ? 'k = ' + a.slice(2) : 'α = ' + a; return `<tr><td class="lab" style="color:var(${COL[k]})">${S[k].name}</td><td class="lab">${m === 'sign' ? 'direction kept' : 'any sign'}</td><td>${f(+e.q_SPY)}</td><td>${f(+e.q_TLT)}</td><td class="faint">${learned}</td><td>${f(+e.mu_SPY)}</td><td><b>${(+e.w_SPY * 100).toFixed(1)}%</b></td></tr>`; })).join('');
+            $('exTbl').innerHTML = '<tr><th>Approach</th><th>Rule</th><th>Q SPY</th><th>Q TLT</th><th>Learned</th><th>μ SPY</th><th>SPY weight</th></tr>' + ['PLACEBO', 'DET', 'JEV', 'COMMITTEE', 'CAUSAL_RAG'].flatMap(k => ['sign', 'ridge'].map(m => { const e = E[k][m]; const a = String(e.alpha_SPY); const learned = a === 'INTERCEPT_ONLY' ? 'ignore the data' : a.startsWith('k=') ? 'k = ' + a.slice(2) : 'α = ' + a; return `<tr><td class="lab" style="color:var(${COL[k]})">${S[k].name}</td><td class="lab">${m === 'sign' ? 'as stated' : 'either way'}</td><td>${f(+e.q_SPY)}</td><td>${f(+e.q_TLT)}</td><td class="faint">${learned}</td><td>${f(+e.mu_SPY)}</td><td><b>${(+e.w_SPY * 100).toFixed(1)}%</b></td></tr>`; })).join('');
         }
         function stop() { playing = false; clearInterval(timer); $('playBtn').innerHTML = shown >= run().months.length ? '&#9654; Play again' : '&#9654; Resume'; }
         function reset() { shown = run().months.length; draw(shown); race(shown); table(); example(); $('playBtn').innerHTML = '&#9654; Play all runs'; }
@@ -174,6 +202,7 @@
         });
         const seg = (id, fn) => $(id).addEventListener('click', e => { if (!e.target.dataset.v) return; [...$(id).children].forEach(b => b.classList.toggle('on', b === e.target)); fn(e.target.dataset.v); });
         seg('mixSeg', v => { mix = v; stop(); reset(); });
+        $('detBtn').addEventListener('click', () => { showDet = !showDet; $('detBtn').innerText = showDet ? 'Hide details' : 'Show details'; table(); });
         seg('fundSeg', v => { funds = v; $('mixWrap').style.display = v === '3' ? 'none' : ''; $('mix3Wrap').style.display = v === '3' ? '' : 'none'; stop(); reset(); });
         seg('mapSeg', v => { mapping = v; stop(); reset(); });
         seg('spdSeg', v => { speed = +v; if (playing) { clearInterval(timer); timer = setInterval(() => { shown++; push(shown); race(shown); if (shown >= run().months.length) stop(); }, speed); } });
