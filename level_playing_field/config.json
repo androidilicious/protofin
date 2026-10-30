@@ -1,19 +1,43 @@
 {
-  "_comment": "Level playing field: every approach goes through the same SPY/TLT pipeline. Only the source of the raw signal differs. Tune prior_weights on development months only, then freeze before the protected window.",
-  "assets": ["SPY", "TLT"],
-  "prior_weights": {"SPY": 0.60, "TLT": 0.40},
-  "bounds_band": 0.20,
+  "_comment": "Level playing field: every approach goes through the same SPY/TLT pipeline. Only the source of the raw signal differs. Tune prior_weights on development months only, then freeze before the protected window. JEV and COMMITTEE are the one-month answers (level horizon); JEV_12M and COMMITTEE_12M are the original 12-month answers, kept as a check.",
+  "assets": [
+    "SPY",
+    "TLT"
+  ],
+  "prior_weights": {
+    "SPY": 0.6,
+    "TLT": 0.4
+  },
+  "bounds_band": 0.2,
   "delta": 2.5,
   "tau": 0.05,
   "cov_window_months": 36,
   "cost_per_dollar": 0.0005,
   "train_start": "2015-02",
-  "development": ["2019-03", "2022-12"],
-  "prior_grid": [0.50, 0.60, 0.70],
-  "bootstrap": {"block_months": 6, "reps": 5000, "seed": 20261027},
+  "development": [
+    "2019-03",
+    "2022-12"
+  ],
+  "prior_grid": [
+    0.5,
+    0.6,
+    0.7
+  ],
+  "bootstrap": {
+    "block_months": 6,
+    "reps": 5000,
+    "seed": 20261027
+  },
   "sources": {
     "macro_panel": "stage2 run spec dev v4 (8 surprise z-scores, the deterministic model's inputs)",
-    "jev": "native_backtest/vendor/protofin_feature-jev_7a70331/site/data/jev_runs.json",
-    "committee": "native_backtest/vendor/protofin_approach-2_ce063b8/site/data/committee_runs.json"
-  }
+    "jev_1m": "level_playing_field/data/jev_1m.json",
+    "committee_1m": "level_playing_field/data/committee_1m.json",
+    "jev_12m": "native_backtest/vendor/protofin_feature-jev_7a70331/site/data/jev_runs.json",
+    "committee_12m": "native_backtest/vendor/protofin_approach-2_ce063b8/site/data/committee_runs.json"
+  },
+  "primary": [
+    "DET",
+    "JEV",
+    "COMMITTEE"
+  ]
 }

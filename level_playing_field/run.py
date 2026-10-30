@@ -13,7 +13,9 @@ Each approach supplies only a raw monthly signal. Everything else is shared and 
     -> the shared evaluator's accounting, net CER and paired block bootstrap
 
 Systems: DET (8 macro surprises), JEV (P(stocks beat bonds), expected tilt, confidence),
-COMMITTEE (CIO 12-month SPY and TLT views, confidence), PLACEBO (no signal: Q = historical average),
+COMMITTEE (CIO SPY and TLT views, confidence), PLACEBO (no signal: Q = historical average),
+JEV and COMMITTEE answer the one-month question (collect_1m.py); JEV_12M and COMMITTEE_12M are the
+original 12-month answers, kept as a check on what the horizon changes;
 and STATIC (the prior mix with no views, rebalanced monthly).
 Only development months are scored; the protected window is never touched.
 
@@ -174,12 +176,13 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset) -> D
                  "mean_spy_weight": float(s[f"w_{assets[0]}"].mean()), "min_spy_weight": float(s[f"w_{assets[0]}"].min()),
                  "max_spy_weight": float(s[f"w_{assets[0]}"].max())} for k, s in sims.items()}
     approaches = [k for k in raw if k != "PLACEBO"]
+    primary = cfg["primary"]
     vs_static = {k: paired_cer_contrast(sims[k], sims["STATIC"], **kw) for k in approaches + ["PLACEBO"]}
     vs_placebo = {k: paired_cer_contrast(sims[k], sims["PLACEBO"], **kw) for k in approaches}
-    vs_det = {k: paired_cer_contrast(sims[k], sims["DET"], **kw) for k in approaches if k != "DET"}
+    vs_det = {k: paired_cer_contrast(sims[k], sims["DET"], **kw) for k in approaches if k != "DET"} if "DET" in sims else {}
     return {"prior_spy": prior_spy, "metrics": table,
-            "vs_static": vs_static, "vs_static_holm": holm({k: v["p_two_sided_bootstrap"] for k, v in vs_static.items() if k != "PLACEBO"}),
-            "vs_placebo": vs_placebo, "vs_det": vs_det, "vs_det_holm": holm({k: v["p_two_sided_bootstrap"] for k, v in vs_det.items()}),
+            "vs_static": vs_static, "vs_static_holm": holm({k: vs_static[k]["p_two_sided_bootstrap"] for k in primary}),
+            "vs_placebo": vs_placebo, "vs_det": vs_det, "vs_det_holm": holm({k: vs_det[k]["p_two_sided_bootstrap"] for k in primary if k != "DET"}),
             "_detail": pd.DataFrame(detail_rows), "_sims": sims}
 
 
@@ -198,8 +201,17 @@ def main(argv=None) -> int:
     # completed monthly labels (excess return over the holding period) for every month we may train on
     label_months = mk.months_between("2012-01", d1)   # labels for training (from 2015-02) and the 36-month covariance
     y = {a: pd.Series({m: market.period_returns(m, [a])[a] - market.rf_return(m) for m in label_months}) for a in cfg["assets"]}
-    raw = {"DET": signals_det(spec), "JEV": signals_jev(ROOT / cfg["sources"]["jev"]),
-           "COMMITTEE": signals_committee(ROOT / cfg["sources"]["committee"]), "PLACEBO": None}
+    src = cfg["sources"]
+    raw = {"DET": signals_det(spec), "JEV": signals_jev(ROOT / src["jev_1m"]), "COMMITTEE": signals_committee(ROOT / src["committee_1m"]),
+           "JEV_12M": signals_jev(ROOT / src["jev_12m"]), "COMMITTEE_12M": signals_committee(ROOT / src["committee_12m"]), "PLACEBO": None}
+    # a source with no answers would silently act as the placebo; skip it loudly instead
+    need = mk.months_between(cfg["train_start"], d1)
+    for name in [k for k, X in raw.items() if X is not None]:
+        cov = raw[name].reindex(need).notna().all(axis=1).mean() if raw[name].shape[1] else 0.0
+        if cov < 0.9:
+            print(f"SKIPPED {name}: answers for only {cov:.0%} of {need[0]}..{need[-1]} (need 90%); run collect_1m.py first")
+            del raw[name]
+    cfg["primary"] = [k for k in cfg["primary"] if k in raw]
     out_dir = HERE / "out"; out_dir.mkdir(exist_ok=True)
     mixes = [cfg["prior_weights"]["SPY"]] + ([p for p in cfg["prior_grid"] if abs(p - cfg["prior_weights"]["SPY"]) > 1e-9] if args.grid else [])
     summary = {}
@@ -211,8 +223,8 @@ def main(argv=None) -> int:
         summary[tag] = res
         m = res["metrics"]
         print(f"\nprior {p:.0%} SPY / {1 - p:.0%} TLT  ({len(months)} development months)")
-        for k in ["STATIC", "PLACEBO", "DET", "JEV", "COMMITTEE"]:
-            line = f"  {k:10s} net CER {m[k]['net_cer'] * 100:6.2f}%  SPY {m[k]['min_spy_weight'] * 100:4.1f}-{m[k]['max_spy_weight'] * 100:4.1f}%"
+        for k in [k for k in ["STATIC", "PLACEBO", "DET", "JEV", "COMMITTEE", "JEV_12M", "COMMITTEE_12M"] if k in m]:
+            line = f"  {k:13s} net CER {m[k]['net_cer'] * 100:6.2f}%  SPY {m[k]['min_spy_weight'] * 100:4.1f}-{m[k]['max_spy_weight'] * 100:4.1f}%"
             if k in res["vs_static"]:
                 c = res["vs_static"][k]
                 line += f"  vs static {c['cer_difference'] * 100:+6.2f} pts  95% [{c['ci95'][0] * 100:+.2f}, {c['ci95'][1] * 100:+.2f}]  p={c['p_two_sided_bootstrap']:.2f}"

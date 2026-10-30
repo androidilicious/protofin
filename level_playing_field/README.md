@@ -46,6 +46,17 @@ What this shows:
 - **JEV and COMMITTEE do use their signals** (Ridge picked a data-using alpha for SPY in 45 and 44 of 46 months) and swing SPY between about 50% and 80%, but the swings lost money and doubled turnover.
 - Not statistically clear after Holm, and 46 months can only separate large differences.
 
+## Status, 2026-10-29: level horizon
+
+Jev and the committee are being re-asked the **one-month** question (`collect_1m.py`) for 2015-02..2026-08, so every approach forecasts what is scored.
+
+| Source | One-month answers | Result at 60/40 (net CER, vs static) |
+|---|---|---|
+| JEV | 139/139 (typesafe/jev, via a local `wrangler dev` caller) | 3.28%, −1.08 pts (p 0.33); the 12-month answers gave 3.26%, −1.10 |
+| COMMITTEE | 0/139: the local OpenAI key expired; rerun `python -m level_playing_field.collect_1m committee` after renewing it | pending; the 12-month answers gave 3.41%, −0.96 |
+
+`run.py` skips any source with answers for fewer than 90% of months, so a missing source can never pose as the placebo.
+
 ## Differences from the native evaluations
 
 - Jev's and the committee's outputs are mapped to Q by the same learned Ridge, replacing Jev's fixed ±1.5/±3 point table and the committee's direct 12-month views. Their native results are unchanged in `native_backtest/`.
