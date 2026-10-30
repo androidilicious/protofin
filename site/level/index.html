@@ -60,6 +60,7 @@
         <section class="card p-5">
             <div class="flex flex-wrap items-end gap-5">
                 <div class="flex flex-col gap-1"><span class="eyebrow">Funds</span><div class="seg" id="fundSeg"><button data-v="2" class="on">SPY / TLT</button><button data-v="3">SPY / IEF / LQD</button></div></div>
+                <div class="flex flex-col gap-1" id="mix3Wrap" style="display:none"><span class="eyebrow">Prior mix (SPY / IEF / LQD)</span><div class="seg"><button class="on">45 / 35 / 20</button></div></div>
                 <div class="flex flex-col gap-1" id="mixWrap"><span class="eyebrow">Prior mix (SPY / TLT)</span><div class="seg" id="mixSeg"><button data-v="50">50 / 50</button><button data-v="60" class="on">60 / 40</button><button data-v="70">70 / 30</button></div></div>
                 <div class="flex flex-col gap-1"><span class="eyebrow">How a forecast becomes a view</span><div class="seg" id="mapSeg"><button data-v="sign" class="on">Direction kept (strict)</button><button data-v="ridge">Any sign (Ridge)</button></div></div>
                 <div class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><div class="seg" id="spdSeg"><button data-v="350">calm</button><button data-v="150" class="on">normal</button><button data-v="50">fast</button></div></div>
@@ -173,7 +174,7 @@
         });
         const seg = (id, fn) => $(id).addEventListener('click', e => { if (!e.target.dataset.v) return; [...$(id).children].forEach(b => b.classList.toggle('on', b === e.target)); fn(e.target.dataset.v); });
         seg('mixSeg', v => { mix = v; stop(); reset(); });
-        seg('fundSeg', v => { funds = v; $('mixWrap').style.opacity = v === '3' ? .35 : 1; $('mixWrap').style.pointerEvents = v === '3' ? 'none' : ''; stop(); reset(); });
+        seg('fundSeg', v => { funds = v; $('mixWrap').style.display = v === '3' ? 'none' : ''; $('mix3Wrap').style.display = v === '3' ? '' : 'none'; stop(); reset(); });
         seg('mapSeg', v => { mapping = v; stop(); reset(); });
         seg('spdSeg', v => { speed = +v; if (playing) { clearInterval(timer); timer = setInterval(() => { shown++; push(shown); race(shown); if (shown >= run().months.length) stop(); }, speed); } });
         reset();
