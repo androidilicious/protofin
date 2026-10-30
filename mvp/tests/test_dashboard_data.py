@@ -619,7 +619,7 @@ def test_replay_running_metrics_reproduce_the_committed_result():
     assert "to date</b>, not the full-sample result" in js, "running and full-sample figures must be distinguished"
 
 
-def test_replay_marks_causal_rag_as_exploratory_everywhere():
+def test_causal_rag_figures_are_marked_wherever_they_appear():
     js = (ROOT / "mvp/assets/app.js").read_text()
     assert "No genuine agent output exists for" in js, "the pending wording must survive for a future rerun"
     X = D["ap3_exploratory"]
@@ -627,11 +627,23 @@ def test_replay_marks_causal_rag_as_exploratory_everywhere():
     # Causal RAG must never join the validated series; its curve comes only from the labelled block
     assert "rag" not in D["dev"]["series"], "Causal RAG must not appear as a validated development series"
     assert "const rpSeries = k => { if (k !== 'rag') return S(k);" in js
-    assert "rl-badge" in js and "d.explor" in js, "a lane with exploratory values must show the badge"
+    # the loud banner was replaced by one quiet marker; it must still appear wherever a Causal RAG number does
+    assert "const xtag = () =>" in js and 'class="xmark"' in js
+    assert js.count("xtag()") >= 8, "every Causal RAG figure needs its marker"
+    assert "did not pass their pre-registered reliability checks" in js, "the marker must explain itself on hover"
+    for site in ("rl-h", "cch", "pstage-h", "fas-where", "apx"):
+        assert site in js
     if X["state"] == "results":
         assert X["wealth"] and len(X["wealth"]) == len(D["dev"]["months"])
         assert X["metrics"]["cer"] is not None
         assert X["coverage"]["months_scored"] == 46
+        # with the banners gone, the Appendix carries the full reason, as a primary entry
+        primary = [e for e in D["appendix"]["entries"] if e.get("primary")]
+        assert any(e["cat"] == "causal-rag" and "exploratory" in e["title"].lower() for e in primary), \
+            "the Appendix must state why every Causal RAG figure is marked"
+        full = next(e for e in primary if e["cat"] == "causal-rag")
+        for must in ("G3a", "G3b", "not validated evidence", "placebo"):
+            assert must in full["what"], must
 
 
 def test_replay_reflects_the_latest_committed_agent_run():

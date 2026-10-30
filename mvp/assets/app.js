@@ -263,6 +263,13 @@
     const f = D.flows[key];
     return `<div class="mini-flow" aria-label="${esc(f.map(n => n.label).join(' → '))}">${f.map((n, i) => `${i ? '<span class="ar"></span>' : ''}<span class="n ${n.kind === 'agent' ? 'agent' : ''}" title="${esc(n.label)}">${icon(n.kind)}</span>`).join('')}</div>`;
   }
+  // Causal RAG's figures are real but its agents did not pass their reliability gates. One quiet marker goes
+  // wherever one of its numbers appears; the full account lives in the Appendix.
+  const XNOTE = 'Exploratory: the Causal RAG agents did not pass their pre-registered reliability checks, so these '
+    + 'figures are a diagnostic of the pipeline, not validated evidence. Full detail in the Appendix.';
+  const SIM = () => (D.sensitivity && D.sensitivity.similarity) || {};
+  const xtag = () => `<span class="xmark">exploratory${tipText(XNOTE, 'What exploratory means')}</span>`;
+
   // Causal RAG's series and contrasts come only from the labelled exploratory block, never from dev.series.
   const ragSeries = () => { const X = D.ap3_exploratory;
     return (X && X.state === 'results' && X.wealth) ? X : null; };
@@ -287,9 +294,9 @@
           <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
           <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
     return `<article class="acard${s.key === 'det' ? ' baseline' : ''}" style="--c:var(${VAR[s.key]})">
-      <div class="t">${badge(s.key)}<a href="#${SLUG[s.key]}">${esc(s.name)}</a></div>
+      <div class="t">${badge(s.key)}<a href="#${SLUG[s.key]}">${esc(s.name)}</a>${s.key === 'rag' && r ? xtag() : ''}</div>
       ${s.key === 'det' ? `<div class="chips">${baseChip()}</div>`
-        : s.key === 'rag' ? `<div class="chips"><span class="chip wait">${icon('review')}${esc(D.ap3_exploratory.label)}</span></div>`
+        : s.key === 'rag' ? ''
         : r ? '' : `<div class="chips"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span></div>`}
       <p>${esc(s.summary || s.tagline)}</p>
       ${body}
@@ -344,7 +351,7 @@
     return `<div class="cmpwrap"><table class="cmp"><thead><tr><th>Development ${devYears()}</th>${keys.map(head).join('')}${opts.bench ? `<th class="cb"><span class="ln-cb" aria-hidden="true"></span>Passive<span class="ph-hide"> 60/40 reference</span></th>` : ''}</tr></thead>
       <tbody>${rows.map(([k, l, f, pr]) => `<tr${pr ? ' class="primary"' : ''}${f ? '' : ' class="rel"'}><td>${label(l, k)}</td>${keys.map(x => `<td class="num${x === 'rag' ? ' rag-col' : ''}">${cell(x, f, pr)}</td>`).join('')}${opts.bench ? `<td class="num cb">${f ? f(CB().metrics) : '—'}</td>` : ''}</tr>`).join('')}</tbody></table></div>
       ${keys.includes('rag') ? (ragSeries()
-        ? `<p class="sub">Causal RAG's column is <b>${esc(D.ap3_exploratory.label)}</b>: its agents did not pass their reliability checks, so it is a diagnostic rather than comparable evidence. It also holds a different mix and trades far more.</p>`
+        ? '<p class="sub">Causal RAG holds a different mix and trades far more, and its column is exploratory. <a href="#appendix?c=causal-rag">What that means</a>.</p>'
         : '<p class="sub ph-only">Causal RAG has no results yet, so it is left out of this table on small screens.</p>') : ''}`;
   }
 
@@ -484,14 +491,14 @@
       : res.map(s => ({ label: lbl(s), data: rpSeries(s.key).wealth, color: color(s.key), ...(s.key === 'rag' ? { dash: [5, 4] } : {}) })).concat([commonLine()]);
     const card = s => { const src = s.key === 'rag' ? rpSeries('rag') : S(s.key); const m = src && src.metrics;
       return `<div class="ccard" style="--c:var(${VAR[s.key]})">
-        <div class="cch">${badge(s.key)}<b>${esc(s.short)}</b>${s.key === 'det' ? '<span class="chip base">Research baseline</span>' : ''}</div>
+        <div class="cch">${badge(s.key)}<b>${esc(s.short)}</b>${s.key === 'det' ? '<span class="chip base">Research baseline</span>' : ''}${s.key === 'rag' && m ? xtag() : ''}</div>
         <p class="sub">${esc((s.universe || []).map(a => PLAIN[a] || a).join(' · '))}</p>
-        ${m ? `${s.key === 'rag' ? `<div class="rl-badge">${icon('review')}${esc(D.ap3_exploratory.label)}</div>` : ''}<div class="cmetrics">
+        ${m ? `<div class="cmetrics">
             <div><span class="l">Net CER ${tip('cer')}</span><b class="num">${pct(m.cer, 2)}</b></div>
             <div><span class="l">Sharpe ${tip('sharpe')}</span><b class="num">${num(m.sharpe, 2)}</b></div>
             <div><span class="l">Volatility ${tip('volatility')}</span><b class="num">${pct(m.volatility, 1)}</b></div>
             <div><span class="l">Worst fall ${tip('drawdown')}</span><b class="num">${pct(m.drawdown ?? m.max_drawdown, 1)}</b></div>
-          </div>${s.key === 'rag' ? `<p class="sub">${esc(D.ap3_exploratory.why)}</p>` : ''}` : `<div class="unavail"><span>${esc(D.ap3_exploratory.label)}. ${D.ap3_exploratory.months_done} of ${D.ap3_exploratory.months_needed} agent months exist and both reliability gates fail, so no backtest curve or metric is shown.</span></div>`}
+          </div>` : `<div class="unavail"><span>${esc(D.ap3_exploratory.label)}. ${D.ap3_exploratory.months_done} of ${D.ap3_exploratory.months_needed} agent months exist and both reliability gates fail, so no backtest curve or metric is shown.</span></div>`}
         <a class="go" href="#${SLUG[s.key]}">How it works and full detail ${icon('arrow')}</a>
       </div>`; };
     app.innerHTML = `<div class="wrap">
@@ -856,9 +863,9 @@
       com: { head: 'At the position limit', body: `Its view uncertainty is set as a multiple of the prior rather than measured from errors, so the posterior keeps ${share(sy('com').posterior_keeps)} and the response is large. The cap then does the attenuating: it binds in ${sy('com').by_scenario['2x'].binding_months} of ${S.months} months at double strength and removes ${share(sy('com').by_scenario['2x'].attenuation)} of the proposed move.`,
              steps: [['View the allocator receives', sy('com').view_vs_prior_bp.toFixed(0) + ' bp'], ['What the posterior passes on', (sy('com').view_vs_prior_bp * sy('com').posterior_keeps).toFixed(0) + ' bp'], ['Resulting position change', pp(sy('com').by_scenario['1x'].active_weight)]],
              keep: sy('com').posterior_keeps } };
-    const xtag = k => sy(k) && sy(k).exploratory ? `<div class="rl-badge">${icon('review')}${esc(sy(k).designation)}</div>` : '';
+    const xw = k => sy(k) && sy(k).exploratory ? xtag() : '';
     const whereCard = k => `<div class="fas-where" style="--c:var(${VAR[k]})">
-        <h3>${badge(k)}${esc(NAME[k])}</h3>${xtag(k)}
+        <h3>${badge(k)}${esc(NAME[k])}${xw(k)}</h3>
         <span class="fas-tag">${esc(WHERE[k].head)}</span>
         <ol class="fas-funnel">${WHERE[k].steps.map((st, i) => `<li><span class="l">${esc(st[0])}</span><b class="num">${esc(st[1])}</b>${i < 2 ? '<i aria-hidden="true"></i>' : ''}</li>`).join('')}</ol>
         <div class="fas-keep"><span class="l">Share the allocator passes on</span><span class="t"><span style="width:${(WHERE[k].keep * 100).toFixed(1)}%;background:var(${VAR[k]})"></span></span><b class="num">${share(WHERE[k].keep)}</b></div>
@@ -870,7 +877,7 @@
         <td class="num">${r.turnover.toFixed(2)}&times;</td><td class="num">${r.cost_bp.toFixed(1)} bp</td>
         <td class="num">${r.binding_months}</td>
         <td class="num">${r.vs_1x ? `${pts(r.vs_1x.cer_difference, 2)} <span class="sub nw">[${pts(r.vs_1x.ci95[0], 2)}, ${pts(r.vs_1x.ci95[1], 2)}]</span>` : '\u2014'}</td></tr>`; };
-    const scenTable = k => `<div class="fas-tbl"><h3>${badge(k)}${esc(NAME[k])} <span class="sub">\u00b7 ${esc(sy(k).neutral_label)}</span>${sy(k).exploratory ? '<span class="xmark">exploratory</span>' : ''}</h3>
+    const scenTable = k => `<div class="fas-tbl"><h3>${badge(k)}${esc(NAME[k])} <span class="sub">\u00b7 ${esc(sy(k).neutral_label)}</span>${xw(k)}</h3>
         <div class="fas-scroll"><table class="cmp"><thead><tr><th scope="col">Signal strength</th><th scope="col">Position change</th><th scope="col">Net CER</th>
           <th scope="col">Volatility</th><th scope="col">Turnover</th><th scope="col">Cost</th><th scope="col">Limit binds</th>
           <th scope="col">Net CER vs as-built</th></tr></thead>
@@ -935,9 +942,8 @@
       </section>`}
 
       ${S.systems.rag ? `<section class="panel" id="sva-transmission-rag">
-        <h2>${badge('rag')}Agentic Causal RAG \u2014 included, as a diagnostic</h2>
-        <div class="unavail"><span><b>${esc(S.ap3.designation)}.</b> ${esc(S.ap3.caveat || '')}</span>
-          <span class="sub">${esc(S.ap3.categorical_note || '')}</span></div>
+        <h2>${badge('rag')}Agentic Causal RAG${xtag()}</h2>
+        <p class="sva-body">${esc(S.ap3.categorical_note || '')} <a href="#appendix?c=causal-rag">Why its figures are exploratory</a>.</p>
       </section>` : ''}`;
   }
 
@@ -982,7 +988,7 @@
     const mix = k => { const w = sv(k).no_signal_weights, as = Object.keys(w);
       return `<div class="mixbar" role="img" aria-label="Starting weights: ${as.map(a => `${a} ${Math.round(w[a] * 100)} percent`).join(', ')}">${as.map(a => `<span style="flex:${w[a]} 1 0;background:${assetColor(a)}"></span>`).join('')}</div>
         <div class="mixlegend">${as.map(a => `<span><i style="background:${assetColor(a)}"></i>${a} ${Math.round(w[a] * 100)}%</span>`).join('')}</div>`; };
-    const xbadge = k => sv(k) && sv(k).exploratory ? `<div class="rl-badge">${icon('review')}${esc(sv(k).designation)}</div>` : '';
+    const xbadge = k => sv(k) && sv(k).exploratory ? xtag() : '';
     const expCard = (k, n) => `<div class="sva-exp" style="--c:var(${VAR[k]})">
         <div class="sva-exp-h"><span class="sva-tag">Experiment ${n}</span><h3>${badge(k)}${TITLE[k]}</h3></div>${xbadge(k)}
         <div class="sva-vs"><span class="pill">With signals</span><span class="x">vs</span><span class="pill off">Without signals</span>${tip('nosignal')}</div>
@@ -1029,17 +1035,18 @@
 
       <section class="panel" id="sva-observe">
         ${eyebrow(1, 'Observation')}
-        <h2>Two very different forecasting approaches, remarkably similar performance curves</h2>
+        <h2>${ragSeries() ? 'Three very different forecasting approaches, remarkably similar performance curves' : 'Two very different forecasting approaches, remarkably similar performance curves'}</h2>
         <div class="sva-split">
           <div><div class="legend" id="lg-sva-growth"></div>
-            <div class="chartbox sm"><canvas id="c-sva-growth" aria-label="Growth of one dollar, Deterministic and JEV, March 2019 to December 2022"></canvas></div>
+            <div class="chartbox sm"><canvas id="c-sva-growth" aria-label="Growth of one dollar for each approach, March 2019 to December 2022"></canvas></div>
             <p class="sub">Growth of $1 after costs, ${devSpan()}.</p></div>
           <div class="sva-stats">
             <div class="sva-stat"><span class="v num">${corr3(A.corr_monthly_net)}</span><span class="l">Correlation of their monthly net ${tipw('returns', 'correlation')}</span></div>
             <div class="sva-stat"><span class="v num">${corr3(A.corr_own_mixes)}</span><span class="l">Correlation of their no-signal portfolios ${tipw('alone', 'nosignal')}</span></div>
+            ${ragSeries() && SIM().corr_det_vs_rag_1x != null ? `<div class="sva-stat"><span class="v num">${corr3(SIM().corr_det_vs_rag_1x)}</span><span class="l">Deterministic and Causal RAG, monthly ${tipw('returns', 'correlation')}</span></div>` : ''}
           </div>
         </div>
-        <p class="sva-body">Although the models use different forecasting methods, their portfolios respond similarly to market movements. We investigated whether the forecasting signals actually added investment value or whether most performance came from the underlying asset allocations.</p>
+        <p class="sva-body">${ragSeries() ? 'All three use different forecasting methods, and all three portfolios respond similarly to market movements.' : 'Although the models use different forecasting methods, their portfolios respond similarly to market movements.'} We investigated whether the forecasting signals actually added investment value or whether most performance came from the underlying asset allocations.</p>
         <p class="sva-note">${icon('check')}<span>An integrity audit rebuilt every monthly return independently from the raw prices. It matched the backtest and this dashboard and found no calculation or charting error.</span></p>
       </section>
 
@@ -1117,7 +1124,9 @@
     document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump).scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })));
     lineChart('c-sva-growth', 'lg-sva-growth', months, [
       { label: 'Deterministic (baseline)', data: S('det').wealth, color: color('det') },
-      { label: 'Agentic Workflow (JEV)', data: S('jev').wealth, color: color('jev') }], FMT_WEALTH);
+      { label: 'Agentic Workflow (JEV)', data: S('jev').wealth, color: color('jev') },
+      ...(ragSeries() ? [{ label: 'Causal RAG (exploratory)', data: ragSeries().wealth, color: color('rag'), dash: [5, 4] }] : [])],
+      FMT_WEALTH);
     for (const k of SVK)
       lineChart(`c-sva-${k}`, `lg-sva-${k}`, months, [
         { label: 'With signals', data: (k === 'rag' ? ragSeries() : S(k)).wealth, color: color(k), ...(k === 'rag' ? { dash: [5, 4] } : {}) },
@@ -1298,14 +1307,13 @@
   function stagePanel(key, stage, m) {
     const st = pipeStages(key).find(x => x.id === stage) || {};
     const v = pipeValues(key, m);
-    const head = `<div class="pstage-h"><span class="ic">${icon(PIPE_ICON[stage])}</span><div><b>${esc(st.name || '')}</b><span class="sub">${esc(st.what || '')}</span></div></div>`;
+    const head = `<div class="pstage-h"><span class="ic">${icon(PIPE_ICON[stage])}</span><div><b>${esc(st.name || '')}${key === 'rag' ? xtag() : ''}</b><span class="sub">${esc(st.what || '')}</span></div></div>`;
     if (!v) {
       return `<div class="pstage">${head}
         <div class="unavail"><span><b>No genuine values.</b> ${esc((D.pipeline.rag_status && D.pipeline.rag_status.reason) || '')} The stage above is the implemented design, not a result. Anything later built on the current gate-failed outputs keeps the label ${esc((D.pipeline.rag_status && D.pipeline.rag_status.designation) || '')}.</span></div>
         <p class="sub">Produces: ${esc(st.out || '')}</p></div>`;
     }
-    const xb = key === 'rag' ? `<div class="rl-badge">${icon('review')}${esc(D.ap3_exploratory.label)}</div>` : '';
-    return `<div class="pstage">${xb}${head}<div class="pbody">${stageBody(key, stage, v)}</div>
+    return `<div class="pstage">${head}<div class="pbody">${stageBody(key, stage, v)}</div>
       <p class="sub">Produces: ${esc(st.out || '')} — used by the next stage.</p></div>`;
   }
 
@@ -1523,9 +1531,9 @@
     const q = apxQuery.trim().toLowerCase();
     const hit = e => (apxCat === 'all' || e.cat === apxCat) &&
       (!q || (e.title + ' ' + e.what + ' ' + e.where).toLowerCase().includes(q));
-    const shown = A.entries.filter(hit);
+    const shown = A.entries.filter(hit).slice().sort((a, b) => (b.primary ? 1 : 0) - (a.primary ? 1 : 0));
     const label = id => (A.categories.find(c => c.id === id) || {}).label || id;
-    const entry = e => `<div class="apx"><div class="apx-h"><b>${esc(e.title)}</b><span class="chip plain">${esc(label(e.cat))}</span></div>
+    const entry = e => `<div class="apx${e.primary ? ' apx-primary' : ''}"><div class="apx-h"><b>${esc(e.title)}</b><span class="chip plain">${esc(label(e.cat))}</span></div>
         <p class="sub">${esc(e.what)}</p>
         <code class="apx-w">${esc(e.where)}</code>${e.doc ? '<span class="chip plain">Report</span>' : ''}${e.config ? '<span class="chip plain">Configuration</span>' : ''}</div>`;
     app.innerHTML = `<div class="wrap apxwrap">
@@ -2012,7 +2020,7 @@ different neutral portfolios, so differences between them are not attributable t
     const m = rpMonth(), st = RP.stage, d = laneData(k, m);
     const nm = D.systems.find(x => x.key === k) || { short: SHORT[k] };
     const stages = (D.pipeline.stages[k] || []);
-    const head = `<div class="rl-h">${badge(k)}<div><b>${esc(nm.short)}</b><span class="sub">${esc((nm.universe || []).map(a => PLAIN[a] || a).join(' · '))}</span></div></div>`;
+    const head = `<div class="rl-h">${badge(k)}<div><b>${esc(nm.short)}${k === 'rag' ? xtag() : ''}</b><span class="sub">${esc((nm.universe || []).map(a => PLAIN[a] || a).join(' · '))}</span></div></div>`;
     if (d.pending) {
       const X = D.ap3_exploratory;
       return `<section class="rlane pending" style="--c:var(${VAR[k]})" aria-label="${esc(nm.short)}">
@@ -2033,7 +2041,6 @@ different neutral portfolios, so differences between them are not attributable t
     const v = d.v;
     return `<section class="rlane${d.explor ? ' explor' : ''}" style="--c:var(${VAR[k]})" aria-label="${esc(nm.short)}">
       ${head}
-      ${d.explor ? `<div class="rl-badge">${icon('review')}${esc(D.ap3_exploratory.label)}</div>` : ''}
       <ol class="rl-stages">${stages.map((x, i) => {
         const cls = i < st ? 'done' : i === st ? 'live' : 'idle';
         const [val, note] = i <= st ? rpStageValue(k, x.id, v) : ['—', ''];
@@ -2065,7 +2072,7 @@ different neutral portfolios, so differences between them are not attributable t
       // growth and drawdown run on the committed total-return wealth; net CER is defined on net EXCESS
       // returns, so it is taken from the pipeline's own per-month net excess series, not from wealth.
       const w = S2.wealth, x = rpExcess(k);
-      return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}${k === 'rag' ? '<span class="xmark" title="' + esc(D.ap3_exploratory.label) + '">exploratory</span>' : ''}</th>
+      return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}${k === 'rag' ? xtag() : ''}</th>
         <td class="num">$${w[upto].toFixed(3)}</td>
         <td class="num">${pct(w[upto] - 1, 1)}</td>
         <td class="num">${upto >= 1 && x ? pct(cerTo(x, upto), 2) : '—'}</td>
@@ -2081,7 +2088,7 @@ different neutral portfolios, so differences between them are not attributable t
     const row = k => { const S2 = rpSeries(k);
       if (!S2) return `<tr><th scope="row">${badge(k)}${esc(SHORT[k])}</th><td colspan="4" class="na">no results yet</td></tr>`;
       const m = S2.metrics;
-      return `<tr class="${k === 'rag' ? 'xrow' : ''}"><th scope="row">${badge(k)}${esc(SHORT[k])}${k === 'rag' ? '<span class="xmark">exploratory</span>' : ''}</th>
+      return `<tr class="${k === 'rag' ? 'xrow' : ''}"><th scope="row">${badge(k)}${esc(SHORT[k])}${k === 'rag' ? xtag() : ''}</th>
         <td class="num">${pct(m.cer, 2)}</td><td class="num">${pct(m.cumulative ?? m.cumulative_return, 1)}</td>
         <td class="num">${pct(m.volatility, 1)}</td><td class="num">${pct(m.drawdown ?? m.max_drawdown, 1)}</td></tr>`; };
     return `<div class="fas-scroll"><table class="cmp"><thead><tr><th scope="col">Full development sample · ${esc(devSpan())}</th>

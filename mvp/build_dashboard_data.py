@@ -654,7 +654,10 @@ def sensitivity_block() -> dict | None:
     out["similarity"] = {"corr_1x": _r(cp["monthly_net_return_correlation_1x"], 6),
                          "corr_0x": _r(cp["monthly_net_return_correlation_0x"], 6),
                          "corr_signal_parts": _r(cp["monthly_signal_part_correlation"], 6),
-                         "corr_det_vs_committee_1x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP2A"]["monthly_net_return_correlation_1x"], 6)}
+                         "corr_det_vs_committee_1x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP2A"]["monthly_net_return_correlation_1x"], 6),
+                         **({"corr_det_vs_rag_1x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP3"]["monthly_net_return_correlation_1x"], 6),
+                             "corr_det_vs_rag_0x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP3"]["monthly_net_return_correlation_0x"], 6)}
+                            if "AP1_vs_AP3" in r["cross_approach"]["pairwise"] else {})}
     a3 = r["approaches"]["AP3"]
     computed = "performance" in a3
     out["ap3"] = {"status": a3["status"], "computed": computed,
@@ -989,6 +992,7 @@ def appendix_block(out: dict) -> dict:
     file, or at a committed document; nothing is duplicated here."""
     e = []
     add = lambda cat, title, what, where, **kw: e.append({"cat": cat, "title": title, "what": what, "where": where, **kw})
+    X = None
     add("methodology", "Frozen rules and settings", f"{len(out['methodology']['settings'])} settings fixed before scoring: windows, costs, risk aversion, bootstrap, universes.", "methodology.settings")
     add("methodology", "Research phases and windows", "Training/burn-in, development, the sealed historical test and the prospective window.", "methodology.phases")
     add("methodology", "Pending methodology decisions", "Choices not yet made, and what each blocks.", "methodology.pending")
@@ -1010,6 +1014,16 @@ def appendix_block(out: dict) -> dict:
     add("validation", "Validation gate matrix", f"{len(out['validation']['gates'])} gates across the approaches, with current status.", "validation.gates")
     add("validation", "Signal Value verification checks", "The checks run before the signal-value results were read.", "signal_value.checks")
     add("causal-rag", "Reliability gate specifications", "G3a and G3b thresholds, unchanged, and their current measured values.", "ap3_exploratory.gates_failed")
+    X = out["ap3_exploratory"]
+    gates = "; ".join(f"{g} ({', '.join(f'{k.replace(chr(95), chr(32))} {v}' for k, v in c.items())})"
+                      for g, c in (X.get("gates_failed") or {}).items())
+    add("causal-rag", "Why every Causal RAG figure is marked exploratory",
+        (f"Its agents did not pass the two pre-registered reliability gates: {gates}. The thresholds were set "
+         "before the run and were not changed. Every Causal RAG number in this dashboard is therefore a "
+         "diagnostic of the pipeline, not validated evidence that the agents are reliable or that AI adds "
+         "investment value. No contrast involving it is statistically clear, and its permutation placebo places "
+         "the genuine agent features near the bottom of the random distribution."),
+        "ap3_exploratory", primary=True)
     add("causal-rag", "Exploratory backtest results", "The 46-month development result from genuine agent outputs, with every contrast and its interval.", "ap3_exploratory.metrics / ap3_exploratory.vs")
     add("causal-rag", "Agent coverage and assessments", "Months with a hypothesis, the month without one, tests run and failed, and the Supported/Contradicted/Insufficient counts.", "ap3_exploratory.coverage")
     add("causal-rag", "Calibration and placebo diagnostics", "Intercept-only share, calibration slope and the permutation placebo that argues against predictive content.", "ap3_exploratory.calibration")
