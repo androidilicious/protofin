@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin · Level playing field</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg:#0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(183,156,255,.10), transparent 55%);
+            --surface:#111a2e; --surface-2:#0d1526; --surface-3:#18233a; --border:#263250; --border-strong:#33415f; --text:#e8ecf5; --text-2:#b4bdd1; --muted:#7b869f; --faint:#566178;
+            --accent:#5b96ff; --accent-soft:rgba(91,150,255,.14); --pos:#34d399; --neg:#f87171; --warn:#fbbf24; --purple:#b79cff; --teal:#2dd4bf; --shadow:0 10px 30px rgba(0,0,0,.35); --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; }
+        html.light { --bg:#f3f5f9; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(109,40,217,.07), transparent 55%);
+            --surface:#fff; --surface-2:#f7f9fc; --surface-3:#eef2f8; --border:#dfe4ee; --border-strong:#c9d2e0; --text:#0f172a; --text-2:#3b465c; --muted:#6b7486; --faint:#8b94a7;
+            --accent:#2563eb; --accent-soft:rgba(37,99,235,.10); --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --purple:#6d28d9; --teal:#0f766e; --shadow:0 8px 24px rgba(15,23,42,.08); }
+        html, body { background:var(--bg); color:var(--text); font-family:var(--font); } body { background-image:var(--bg-grad); background-attachment:fixed; }
+        .mono{font-family:var(--mono)} .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)} .inner{background:var(--surface-2);border:1px solid var(--border);border-radius:12px}
+        .t1{color:var(--text)} .t2{color:var(--text-2)} .muted{color:var(--muted)} .faint{color:var(--faint)} .accent{color:var(--accent)} .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .purple{color:var(--purple)} .teal{color:var(--teal)}
+        .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+        .kpi{font-family:var(--mono);font-size:24px;font-weight:600}
+        .chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);font-family:var(--mono)}
+        .chip.accent{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)} .chip.warn{border-color:var(--warn);color:var(--warn)} .chip.teal{border-color:var(--teal);color:var(--teal)}
+        .btn{border-radius:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:12px;padding:10px 20px} .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(91,150,255,.35)} .btn-primary:disabled{opacity:.6}
+        .btn-ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text-2)} .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+        select{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px}
+        .topbar{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--border)} .brand{font-weight:800;letter-spacing:.04em;font-size:20px} .brand span{color:var(--accent)}
+        .runcard{opacity:1}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(91,150,255,0)}50%{box-shadow:0 0 0 4px rgba(91,150,255,.18)}}
+        .bstep{opacity:.25;transition:opacity .45s, transform .45s;transform:translateY(4px)} .bstep.on{opacity:1;transform:none}
+        .bstep .n{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);flex:none}
+        .calc{font-family:var(--mono);font-size:12.5px;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:8px 12px;line-height:1.75;color:var(--text)} .calc b{color:var(--accent)}
+        .track{position:relative;height:44px;border-radius:10px;background:var(--surface-3);border:1px solid var(--border)}
+        .track .band{position:absolute;top:0;bottom:0;left:40%;width:40%;background:var(--accent-soft);border-left:1px dashed var(--accent);border-right:1px dashed var(--accent)}
+        .track .tick{position:absolute;top:-2px;bottom:-2px;left:60%;width:2px;background:var(--muted)}
+        .track .dot{position:absolute;top:15px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--muted);opacity:.85;transition:left 1s cubic-bezier(.2,.8,.2,1)}
+        .track .knob{position:absolute;top:6px;width:32px;height:32px;margin-left:-16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;transition:left 1.1s cubic-bezier(.2,.8,.2,1)}
+        .bar{height:14px;border-radius:999px;overflow:hidden;display:flex;border:1px solid var(--border)} .bar>div{transition:width .9s cubic-bezier(.2,.8,.2,1)}
+        table{width:100%;border-collapse:collapse;font-size:13px} th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border)} th:first-child,td:first-child{text-align:left} th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase} td{font-family:var(--mono)}
+            .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden} .seg button{border:0;border-radius:0;background:var(--surface-2);padding:6px 12px;font-size:12px} .seg button.on{background:var(--accent);color:#fff}
+        .ci{position:relative;height:18px;min-width:150px} .ci .ln{position:absolute;top:8px;height:2px;background:var(--muted)} .ci .pt{position:absolute;top:3px;width:12px;height:12px;border-radius:50%;margin-left:-6px} .ci .zero{position:absolute;top:0;bottom:0;width:1px;background:var(--border-strong)}
+        .race{display:flex;flex-direction:column;gap:8px} .race .row{display:grid;grid-template-columns:190px minmax(0,1fr) 70px;gap:10px;align-items:center;font-size:12px} .race .bar{height:16px;border-radius:4px;transition:width .25s linear}
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+    <div class="topbar"><div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-4">
+        <div><div class="brand"><span>Protofin</span> Level playing field</div><div class="eyebrow">same funds · same dates · same Black-Litterman · same scoring · only the forecast changes</div></div>
+        <div class="flex-1"></div>
+        <a href="../index.html" class="btn btn-ghost">Dashboard</a>
+        <a href="../backtest-live.html" class="btn btn-ghost">Backtest</a>
+        <a href="../jev/" class="btn btn-ghost">Jev</a>
+        <a href="../uncertainty/" class="btn btn-ghost">Uncertainty</a>
+        <button id="themeBtn" class="btn btn-ghost">Light mode</button>
+        <button id="playBtn" class="btn btn-primary">&#9654; Play all runs</button>
+    </div></div>
+
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+        <section class="card p-5">
+            <div class="flex flex-wrap items-end gap-5">
+                <div class="flex flex-col gap-1"><span class="eyebrow">Prior mix (SPY / TLT)</span><div class="seg" id="mixSeg"><button data-v="50">50 / 50</button><button data-v="60" class="on">60 / 40</button><button data-v="70">70 / 30</button></div></div>
+                <div class="flex flex-col gap-1"><span class="eyebrow">How a forecast becomes a view</span><div class="seg" id="mapSeg"><button data-v="sign" class="on">Direction kept (strict)</button><button data-v="ridge">Any sign (Ridge)</button></div></div>
+                <div class="flex flex-col gap-1"><span class="eyebrow">Replay speed</span><div class="seg" id="spdSeg"><button data-v="350">calm</button><button data-v="150" class="on">normal</button><button data-v="50">fast</button></div></div>
+                <span class="flex-1"></span><span id="status" class="muted text-xs mono"></span>
+            </div>
+            <p class="mt-3 muted text-sm max-w-5xl">Three forecasting approaches, one pipeline. Each supplies only a raw monthly signal: the <b class="t2">deterministic model</b> its 8 Bloomberg macro surprises, <b class="t2">Jev</b> its probability, tilt and confidence, the <b class="t2">committee</b> its CIO's SPY and TLT numbers and confidence. The same learned rule turns each signal into a view, the same past-miss rule sets its uncertainty Ω, the same Black-Litterman blends it with the prior mix, and the same optimizer, costs (5 bps) and score apply. Jev and the committee were re-asked a <b class="t2">one-month</b> question for every month since 2015, so everyone forecasts what is scored. Two controls: <b class="t2">static</b> holds the mix; the <b class="t2">placebo</b> runs the whole machinery on the historical average. Development months only; 2023–2026 stays sealed.</p>
+        </section>
+
+        <section class="card p-5">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">All runs together · <span id="raceMonth" class="t1 mono">press Play</span></div><span class="chip">growth of 100, net of costs</span></div>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div class="lg:col-span-3" style="height:340px"><canvas id="navChart"></canvas></div>
+                <div class="lg:col-span-2"><div class="eyebrow mb-2">Leaderboard</div><div class="race" id="race"></div><div class="eyebrow mt-4 mb-2">SPY weight this month</div><div class="race" id="raceW"></div></div>
+            </div>
+            <div class="eyebrow mt-4 mb-1">SPY weight, %</div>
+            <div style="height:170px"><canvas id="wChart"></canvas></div>
+        </section>
+
+        <section class="card p-5">
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-3"><div class="eyebrow purple">Verdict · <span id="runLabel" class="t1 mono"></span></div><span class="chip">net CER = 12 × (mean monthly return above cash − 1.25 × its variance)</span></div>
+            <div class="overflow-x-auto"><table id="tbl"></table></div>
+            <p id="verdict" class="t1 text-sm mt-3 max-w-5xl"></p>
+        </section>
+
+        <section class="card p-5">
+            <div class="eyebrow purple mb-3">What "direction kept" vs "any sign" means</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="inner p-4"><div class="t1 font-semibold">Direction kept (strict)</div><p class="t2 mt-1">view = average + k × (the approach's stated view − its mean), with k ≥ 0 learned on past months. The approach's direction can never be flipped; a signal that was reliably wrong gets k = 0 and collapses to the placebo. This answers "does the approach's own opinion help?"</p></div>
+                <div class="inner p-4"><div class="t1 font-semibold">Any sign (Ridge)</div><p class="t2 mt-1">The same Ridge regression the deterministic model uses, on all of the approach's raw numbers. It may learn to read a signal in reverse. This answers "is there any information in the output?" In 2015–2019 Jev's bearish months were followed by good stock months, so Ridge inverted it; that lost money in 2019–2022.</p></div>
+            </div>
+            <div class="eyebrow mt-5 mb-2">One month, March 2019, 60/40 · view Q and weight under each rule (monthly return above cash)</div>
+            <div class="overflow-x-auto"><table id="exTbl"></table></div>
+        </section>
+
+        <section class="card p-5">
+            <div class="eyebrow purple mb-3">How this compares with recent papers</div>
+            <div class="overflow-x-auto"><table>
+                <tr><th>Study</th><th>Design</th><th>Window</th><th>Finding</th></tr>
+                <tr><td class="lab"><a class="accent" href="https://arxiv.org/abs/2606.08283">Macro economists in the machine</a> (2026)</td><td class="lab">LLM agents vs a deterministic rule agent, same macro inputs, same engine, 15 commodity ETFs</td><td class="lab">124 weeks, 2023–26</td><td class="lab">+0.03–0.04 Sharpe, p 0.07–0.13, CI includes zero</td></tr>
+                <tr><td class="lab"><a class="accent" href="https://arxiv.org/abs/2504.14345">LLM-enhanced Black-Litterman</a> (CIKM '25)</td><td class="lab">Q = mean of 100 LLM answers, Ω = their variance, 50 S&amp;P stocks</td><td class="lab">10 months, 2024–25</td><td class="lab">Sharpe 1.06–1.23 vs equal-weight 0.89; no significance tests</td></tr>
+                <tr><td class="lab"><a class="accent" href="https://arxiv.org/abs/2505.07078">Can LLM strategies outperform long-run?</a> (KDD '26)</td><td class="lab">FinMem / FinAgent trading agents on GPT-4o, S&amp;P 500 incl. delisted</td><td class="lab">2004–2024</td><td class="lab">Short-window gains disappear; buy-and-hold wins; no CAPM alpha</td></tr>
+                <tr><td class="lab"><b>This project</b></td><td class="lab">Deterministic vs Jev vs committee, masked point-in-time inputs, one SPY/TLT pipeline</td><td class="lab">46 months, 2019–22</td><td class="lab">Nothing beats static 60/40; committee closest at about −0.2 pts, not distinguishable from zero</td></tr>
+            </table></div>
+            <p class="faint text-xs mt-3">Our result agrees with the careful studies: small or no edge, wide error bars. Our leakage control (masked payloads, no dates or names) is stricter than any of the three.</p>
+        </section>
+        <p class="faint text-xs">Built from the saved outputs of <span class="mono">level_playing_field/</span> on branch <span class="mono">level-playing-field</span> (Farnoosh Memari's shared evaluator, pinned prices and T-bill rates). No model is called by this page and there is no API behind it.</p>
+    </main>
+
+    <script type="module">
+        const $ = id => document.getElementById(id);
+        const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+        let mix = '60', mapping = 'sign', speed = 150, navChart = null, wChart = null, shown = 0, playing = false, timer = null;
+        function applyTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').innerText = m === 'light' ? 'Dark mode' : 'Light mode'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} if (navChart) draw(shown); }
+        const q = new URLSearchParams(location.search);
+        applyTheme(q.get('theme') || (() => { try { return localStorage.getItem('protofin.theme'); } catch (e) { return null; } })() || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+        $('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+        const D = await (await fetch('../data/level.json', { cache: 'no-store' })).json();
+        const ORDER = ['STATIC', 'PLACEBO', 'DET', 'JEV', 'COMMITTEE', 'JEV_12M', 'COMMITTEE_12M'];
+        const KEYS = ['STATIC', 'PLACEBO', 'DET', 'JEV', 'COMMITTEE'];
+        const COL = { STATIC: '--muted', PLACEBO: '--faint', DET: '--warn', JEV: '--purple', COMMITTEE: '--accent', JEV_12M: '--purple', COMMITTEE_12M: '--accent' };
+        const pct = (x, d = 2) => (x * 100).toFixed(d) + '%', pts = x => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(2);
+        const ci = c => { if (!c) return ''; const lo = -0.04, hi = 0.03, X = v => ((v - lo) / (hi - lo) * 100).toFixed(1) + '%'; return `<div class="ci"><div class="zero" style="left:${X(0)}"></div><div class="ln" style="left:${X(c.lo)};width:${((c.hi - c.lo) / (hi - lo) * 100).toFixed(1)}%"></div><div class="pt" style="left:${X(c.d)};background:${c.d >= 0 ? 'var(--pos)' : 'var(--neg)'}"></div></div>`; };
+        const run = () => D.runs[`spy${mix}_${mapping}`];
+        const esc = s => s.replace(/&/g, '&amp;');
+
+        function table() {
+            const r = run(), S = r.systems;
+            $('runLabel').innerText = `${mix}/${100 - mix} prior · ${mapping === 'sign' ? 'direction kept' : 'any sign'} · ${D.window}`;
+            $('tbl').innerHTML = '<tr><th>Approach</th><th>Net CER</th><th>vs static</th><th>95% range</th><th></th><th>p</th><th>vs placebo</th><th>Sharpe</th><th>Worst drop</th><th>Trading / yr</th><th>SPY range</th></tr>' + ORDER.map(k => { const s = S[k]; if (!s) return ''; const c = s.vs_static, d = s.vs_placebo, best = k === 'STATIC';
+                return `<tr${best ? ' style="background:var(--accent-soft)"' : ''}><td class="lab" style="color:var(${COL[k]})">${s.name}</td><td><b>${pct(s.net_cer)}</b></td><td class="${c && c.d < 0 ? 'neg' : 'pos'}">${c ? pts(c.d) + ' pts' : '—'}</td><td class="faint">${c ? `${pts(c.lo)} to ${pts(c.hi)}` : ''}</td><td>${ci(c)}</td><td>${c ? c.p.toFixed(2) : ''}</td><td class="${d && d.d < 0 ? 'neg' : 'pos'}">${d ? pts(d.d) + ' pts' : '—'}</td><td>${s.sharpe == null ? '' : s.sharpe.toFixed(2)}</td><td class="neg">${s.maxdd == null ? '' : pct(s.maxdd, 1)}</td><td>${s.turnover == null ? '' : s.turnover.toFixed(2) + '×'}</td><td>${pct(s.spy_min, 0)}–${pct(s.spy_max, 0)}</td></tr>`; }).join('');
+            const best = ORDER.filter(k => S[k] && k !== 'STATIC').sort((a, b) => S[b].net_cer - S[a].net_cer)[0];
+            $('verdict').innerHTML = `<b>No approach beats holding ${mix}/${100 - mix}.</b> The closest is <b style="color:var(${COL[best]})">${S[best].name}</b> at ${pts(S[best].vs_static.d)} pts a year (p ${S[best].vs_static.p.toFixed(2)}): its 95% range runs from ${pts(S[best].vs_static.lo)} to ${pts(S[best].vs_static.hi)}, so it cannot be told from zero. The placebo alone costs ${pts(S.PLACEBO.vs_static.d)} pts: tilting on historical averages plus trading. 46 months can only separate large differences.`;
+        }
+        function draw(n) {
+            const r = run(), S = r.systems, grid = cssVar('--border'), tick = cssVar('--muted');
+            const base = { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: true, labels: { color: tick, boxWidth: 10, font: { size: 10 } } } },
+                scales: { x: { grid: { color: grid }, ticks: { color: tick, maxTicksLimit: 8, font: { family: 'JetBrains Mono', size: 10 } } }, y: { grid: { color: grid }, ticks: { color: tick, font: { family: 'JetBrains Mono', size: 10 } } } } };
+            const ds = (f, stepped) => KEYS.map(k => ({ label: S[k].name, data: f(S[k]).slice(0, n), borderColor: cssVar(COL[k]), borderWidth: k === 'STATIC' ? 1.5 : 2, borderDash: k === 'STATIC' ? [4, 3] : k === 'PLACEBO' ? [2, 2] : [], pointRadius: 0, tension: .2, stepped }));
+            const navs = KEYS.flatMap(k => S[k].nav), lo = Math.floor(Math.min(...navs) * 100 / 5) * 5, hi = Math.ceil(Math.max(...navs) * 100 / 5) * 5;
+            if (navChart) navChart.destroy(); if (wChart) wChart.destroy();
+            navChart = new Chart($('navChart'), { type: 'line', data: { labels: r.months, datasets: ds(s => s.nav.map(v => v * 100), false) }, options: { ...base, scales: { ...base.scales, y: { ...base.scales.y, min: lo, max: hi } } } });
+            wChart = new Chart($('wChart'), { type: 'line', data: { labels: r.months, datasets: ds(s => s.w_spy.map(v => v * 100), true) }, options: { ...base, plugins: { legend: { display: false } }, scales: { ...base.scales, y: { ...base.scales.y, min: Math.max(0, +mix - 25), max: Math.min(100, +mix + 25) } } } });
+        }
+        function push(n) {   // extend every line by one month without rebuilding the charts
+            const S = run().systems;
+            KEYS.forEach((k, i) => { navChart.data.datasets[i].data = S[k].nav.slice(0, n).map(v => v * 100); wChart.data.datasets[i].data = S[k].w_spy.slice(0, n).map(v => v * 100); });
+            navChart.update('none'); wChart.update('none');
+        }
+        function race(n) {
+            const r = run(), S = r.systems, i = Math.max(0, n - 1);
+            $('raceMonth').innerText = n ? `${r.months[i]} · month ${n} of ${r.months.length}` : 'press Play';
+            const rows = KEYS.map(k => ({ k, v: n ? S[k].nav[i] * 100 : 100 })).sort((a, b) => b.v - a.v);
+            const lo = Math.min(...rows.map(x => x.v)) - 3, hi = Math.max(...rows.map(x => x.v)) + 1;
+            $('race').innerHTML = rows.map(x => `<div class="row"><span style="color:var(${COL[x.k]})">${S[x.k].name}</span><div class="bar" style="width:${((x.v - lo) / (hi - lo) * 100).toFixed(1)}%;background:var(${COL[x.k]})"></div><span class="mono t1 text-right">${x.v.toFixed(1)}</span></div>`).join('');
+            $('raceW').innerHTML = KEYS.map(k => { const w = n ? S[k].w_spy[i] * 100 : +mix; return `<div class="row"><span style="color:var(${COL[k]})">${S[k].name}</span><div class="bar" style="width:${w.toFixed(1)}%;background:var(${COL[k]});opacity:.8"></div><span class="mono t1 text-right">${w.toFixed(1)}%</span></div>`; }).join('');
+        }
+        function example() {
+            const E = D.example['2019-03'], f = x => (x * 100).toFixed(3) + '%', S = run().systems;
+            $('exTbl').innerHTML = '<tr><th>Approach</th><th>Rule</th><th>Q SPY</th><th>Q TLT</th><th>Learned</th><th>μ SPY</th><th>SPY weight</th></tr>' + ['PLACEBO', 'DET', 'JEV', 'COMMITTEE'].flatMap(k => ['sign', 'ridge'].map(m => { const e = E[k][m]; const a = String(e.alpha_SPY); const learned = a === 'INTERCEPT_ONLY' ? 'ignore the data' : a.startsWith('k=') ? 'k = ' + a.slice(2) : 'α = ' + a; return `<tr><td class="lab" style="color:var(${COL[k]})">${S[k].name}</td><td class="lab">${m === 'sign' ? 'direction kept' : 'any sign'}</td><td>${f(+e.q_SPY)}</td><td>${f(+e.q_TLT)}</td><td class="faint">${learned}</td><td>${f(+e.mu_SPY)}</td><td><b>${(+e.w_SPY * 100).toFixed(1)}%</b></td></tr>`; })).join('');
+        }
+        function stop() { playing = false; clearInterval(timer); $('playBtn').innerHTML = shown >= run().months.length ? '&#9654; Play again' : '&#9654; Resume'; }
+        function reset() { shown = run().months.length; draw(shown); race(shown); table(); example(); $('playBtn').innerHTML = '&#9654; Play all runs'; }
+        $('playBtn').addEventListener('click', () => {
+            if (playing) return stop();
+            const total = run().months.length;
+            if (shown >= total) { shown = 0; draw(0); race(0); }
+            playing = true; $('playBtn').innerHTML = '&#10074;&#10074; Pause';
+            timer = setInterval(() => { shown++; push(shown); race(shown); if (shown >= total) stop(); }, speed);
+        });
+        const seg = (id, fn) => $(id).addEventListener('click', e => { if (!e.target.dataset.v) return; [...$(id).children].forEach(b => b.classList.toggle('on', b === e.target)); fn(e.target.dataset.v); });
+        seg('mixSeg', v => { mix = v; stop(); reset(); });
+        seg('mapSeg', v => { mapping = v; stop(); reset(); });
+        seg('spdSeg', v => { speed = +v; if (playing) { clearInterval(timer); timer = setInterval(() => { shown++; push(shown); race(shown); if (shown >= run().months.length) stop(); }, speed); } });
+        reset();
+        if (q.get('autorun') === '1') $('playBtn').click();
+    </script>
+</body>
+</html>
