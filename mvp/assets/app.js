@@ -2311,8 +2311,10 @@ different neutral portfolios, so differences between them are not attributable t
   try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', route); } catch (_) { /* older browsers */ }
   new MutationObserver(route).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  fetch('data/dashboard.json', { cache: 'no-store' })
-    .then(r => { if (!r.ok) throw new Error(`results file not found (${r.status})`); return r.json(); })
+  // Served from a folder the data sits beside; in the single-file build it is preloaded instead.
+  (window.__PROTOFIN_DATA__ ? Promise.resolve(window.__PROTOFIN_DATA__)
+    : fetch('data/dashboard.json', { cache: 'no-store' })
+        .then(r => { if (!r.ok) throw new Error(`results file not found (${r.status})`); return r.json(); }))
     .then(j => {
       D = j;
       document.getElementById('foot-right').textContent = `Results built ${j.generated_at_utc.slice(0, 10)}`;
