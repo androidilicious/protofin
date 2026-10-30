@@ -59,12 +59,19 @@ HARNESS = Path("native_backtest/adapters/node/ap2_signal_disabled.mjs")
 LAST_DEV_AS_OF = "2022-12-30"            # decision month 2022-12, the last development month (as in ap2_native_reproduction)
 SYSTEMS = {"AP1": {"label": "Deterministic Quantitative Model", "short": "Deterministic", "role": "research baseline"},
            "AP2B": {"label": "Agentic Workflow — JEV", "short": "JEV", "role": "primary approach"}}
+# Causal RAG joins only when its genuine development decisions exist. Its results stay labelled exploratory
+# because its reliability gates failed; the AP1/AP2B pair analysis below is unchanged either way.
+AP3_DECISIONS = DEC / "AP3_qwen3_reduced_evidence.jsonl"
+AP3_META = {"label": "Agentic Causal RAG", "short": "Causal RAG", "role": "primary approach",
+            "exploratory": True, "designation": "EXPLORATORY — RELIABILITY GATES FAILED"}
 ASSETS = ("SPY", "IEF", "LQD", "TLT")
 VOL_WINDOW, VOL_THRESHOLD = 63, 0.20     # ex-ante regime: trailing 63 trading days of SPY, 20% a year (a round level, not tuned)
+AP3_TRACE = ROOT / "native_backtest/out/sensitivity/ap3_transmission_trace.csv"
 STAGE2_BOUNDS = {"SPY": (0.20, 0.70), "IEF": (0.15, 0.60), "LQD": (0.10, 0.40)}   # stage2_portfolio LOWER / UPPER
 JEV_BOUNDS = {"SPY": (0.40, 0.80)}                                                 # allocation.js MIN_SPY / MAX_SPY
 JEV_MAX_OFFSET = 3.0                                                               # livebacktest.js TILT_OFFSET extremes
-ON, OFF = {"AP1": "AP1_ON", "AP2B": "AP2B_ON"}, {"AP1": "AP1_OFF", "AP2B": "AP2B_OFF"}
+ON, OFF = {"AP1": "AP1_ON", "AP2B": "AP2B_ON", "AP3": "AP3_ON"}, {"AP1": "AP1_OFF", "AP2B": "AP2B_OFF", "AP3": "AP3_OFF"}
+DEC_FILE = {"AP1": "AP1.jsonl", "AP2B": "AP2B.jsonl", "AP3": "AP3_qwen3_reduced_evidence.jsonl"}
 HE, HB = "JEV_STOCKS_DET_BONDS", "DET_STOCKS_JEV_BONDS"
 
 
@@ -75,10 +82,16 @@ def mixes(cfg: dict) -> Dict[str, Dict[str, float]]:
     sd, sj = d["SPY"], j["SPY"]
     d_bonds = {a: w / (1 - sd) for a, w in d.items() if a != "SPY"}
     j_bonds = {a: w / (1 - sj) for a, w in j.items() if a != "SPY"}
-    return {"AP1": dict(d), "AP2B": dict(j),
-            HE: {"SPY": sj, **{a: (1 - sj) * v for a, v in d_bonds.items()}},
-            HB: {"SPY": sd, **{a: (1 - sd) * v for a, v in j_bonds.items()}},
-            "_bond_sleeves": {"AP1": d_bonds, "AP2B": j_bonds}}
+    out = {"AP1": dict(d), "AP2B": dict(j),
+           HE: {"SPY": sj, **{a: (1 - sj) * v for a, v in d_bonds.items()}},
+           HB: {"SPY": sd, **{a: (1 - sd) * v for a, v in j_bonds.items()}},
+           "_bond_sleeves": {"AP1": d_bonds, "AP2B": j_bonds}}
+    if AP3_DECISIONS.exists():
+        a3 = cfg["systems"]["AP3"]["native_neutral_weights"]
+        out["AP3"] = dict(a3)
+        s3 = a3["SPY"]
+        out["_bond_sleeves"]["AP3"] = {a: w / (1 - s3) for a, w in a3.items() if a != "SPY"}
+    return out
 
 
 def drift_records(weights: Dict[str, float], template, mk, dev) -> list:
@@ -93,16 +106,21 @@ def drift_records(weights: Dict[str, float], template, mk, dev) -> list:
     return out
 
 
+def present_systems() -> list:
+    """AP1 and AP2B always; AP3 only once its genuine development decisions have been imported."""
+    return list(SYSTEMS) + (["AP3"] if AP3_DECISIONS.exists() else [])
+
+
 def build(cfg, mk, dev) -> dict:
     cost = cfg["costs"]["cost_per_dollar_traded"]
     recs = {}
-    for s in SYSTEMS:
-        by = {r.decision_month: r for r in read_jsonl(DEC / f"{s}.jsonl")}
+    for s in present_systems():
+        by = {r.decision_month: r for r in read_jsonl(DEC / DEC_FILE[s])}
         recs[s] = [by[str(m)] for m in dev]
     mx = mixes(cfg)
     sim = lambda rs: simulate_records(rs, mk, dev, cost_per_dollar=cost)
     S = {}
-    for s in SYSTEMS:
+    for s in present_systems():
         S[ON[s]] = sim(recs[s])
         S[OFF[s]] = sim(static_portfolio_records(f"{s}_NO_SIGNAL", mx[s], recs[s]))
         S[f"{s}_OFF_BUY_AND_HOLD"] = sim(drift_records(mx[s], recs[s], mk, dev))
@@ -196,7 +214,9 @@ def attribution(S: dict, P: dict) -> dict:
     stock_g, bond_g, order_g = shapley(g)
     stock_n, bond_n, order_n = shapley(x)
     per = {}
-    for s in SYSTEMS:
+    # per-system quantities (each approach against its OWN no-signal portfolio). The two- and four-part
+    # decompositions below stay the JEV-minus-Deterministic pair they were defined for.
+    for s in present_systems():
         on, off = ON[s], OFF[s]
         t = g[on] - g[off]
         standalone = 12.0 * float(t.mean()) - 6.0 * d * float(np.var(t, ddof=1))
@@ -262,7 +282,7 @@ def sign_changes(v: np.ndarray, tol: float = 1e-12) -> int:
 def decisions(built: dict, ar: pd.DataFrame) -> dict:
     S, mx, recs = built["sims"], built["mixes"], built["records"]
     out = {}
-    for s in SYSTEMS:
+    for s in present_systems():
         on, off = S[ON[s]], S[OFF[s]]
         assets = list(mx[s])
         tilt = pd.DataFrame({a: on[f"w_{a}"] - mx[s][a] for a in assets})
@@ -271,7 +291,9 @@ def decisions(built: dict, ar: pd.DataFrame) -> dict:
         sleeve = sum(w * ar[a] for a, w in mx["_bond_sleeves"][s].items())
         t = (on["gross_total_return"] - off["gross_total_return"]).to_numpy()
         c_extra = (on["cost"] - off["cost"]).to_numpy()
-        bounds = STAGE2_BOUNDS if s == "AP1" else JEV_BOUNDS
+        # Causal RAG allocates through the same Stage 2 optimiser as the Deterministic model, so it has the
+        # same weight bounds; only JEV uses its own capped-tilt range.
+        bounds = JEV_BOUNDS if s == "AP2B" else STAGE2_BOUNDS
         at_bound = sum(int(((on[f"w_{a}"] - lo).abs() < 1e-9).sum() + ((on[f"w_{a}"] - hi).abs() < 1e-9).sum()) for a, (lo, hi) in bounds.items())
         o = {"one_way_tilt_mean": float(one_way.mean()), "one_way_tilt_max": float(one_way.max()),
              "spy_tilt": {"mean": float(spy.mean()), "sd": float(spy.std(ddof=1)), "min": float(spy.min()), "max": float(spy.max()),
@@ -300,10 +322,17 @@ def decisions(built: dict, ar: pd.DataFrame) -> dict:
         o["largest_tilt_month"] = {"decision_month": on["decision_month"].iloc[k], "one_way_tilt": float(one_way.iloc[k]),
                                    "weights": {a: float(on[f"w_{a}"].iloc[k]) for a in assets},
                                    "active_net_return_that_month": float(on["net_excess_return"].iloc[k] - off["net_excess_return"].iloc[k])}
-        if s == "AP1":
-            bl = pd.read_csv(STAGE2 / "stage2_portfolio_bl_diagnostics.csv")
-            bl = bl[bl["strategy"] == "A"].astype({"decision_month": str}).set_index("decision_month").loc[on["decision_month"]]
-            o["stage2_bl_weights_match_records"] = float(max(np.abs(bl[f"w_{a}"].to_numpy() - on[f"w_{a}"].to_numpy()).max() for a in assets))
+        if s in ("AP1", "AP3"):
+            # Both allocate through Stage 2's Black-Litterman, so both get the same survival analysis. AP1's
+            # diagnostics are the archived Stage 2 run; AP3's are its own 1x transmission trace.
+            if s == "AP1":
+                bl = pd.read_csv(STAGE2 / "stage2_portfolio_bl_diagnostics.csv")
+                bl = bl[bl["strategy"] == "A"]
+            else:
+                bl = pd.read_csv(AP3_TRACE)
+                bl = bl[bl["scenario"] == "1x"].rename(columns={f"q_orig_{a}": f"q_{a}" for a in assets})
+            bl = bl.astype({"decision_month": str}).set_index("decision_month").loc[on["decision_month"]]
+            o["native_bl_weights_match_records"] = float(max(np.abs(bl[f"w_{a}"].to_numpy() - on[f"w_{a}"].to_numpy()).max() for a in assets))
             surv = {}
             for a in assets:
                 dq, dm = (bl[f"q_{a}"] - bl[f"pi_{a}"]).to_numpy(), (bl[f"mu_bl_{a}"] - bl[f"pi_{a}"]).to_numpy()
@@ -360,7 +389,7 @@ def regimes(built: dict, mk, dev, ar: pd.DataFrame) -> dict:
                                                      f"'high' at {VOL_THRESHOLD:.0%} or more. Known at the decision date.",
                            "stock_market_that_month_ex_post": "whether SPY rose over the holding month: known only afterwards, so descriptive only"},
            "caution": "Small groups and several splits: descriptive only, no significance claimed."}
-    for s in SYSTEMS:
+    for s in present_systems():
         a = (S[ON[s]]["net_excess_return"] - S[OFF[s]]["net_excess_return"]).to_numpy()
         res = {}
         for col in ("year", "volatility_at_decision", "stock_market_that_month_ex_post"):
@@ -376,11 +405,13 @@ def regimes(built: dict, mk, dev, ar: pd.DataFrame) -> dict:
 def influence(S: dict, P: dict) -> dict:
     """Leave-one-month-out: how much each result depends on a single month (descriptive)."""
     d = P["delta"]
-    x = {k: S[k]["net_excess_return"].to_numpy(float) for k in (ON["AP1"], OFF["AP1"], ON["AP2B"], OFF["AP2B"])}
+    sysms = present_systems()
+    keys = [k for s_ in sysms for k in (ON[s_], OFF[s_])]
+    x = {k: S[k]["net_excess_return"].to_numpy(float) for k in keys}
     months = S[ON["AP1"]]["decision_month"].tolist()
-    stats = {"AP1": lambda v: M.cer(v[ON["AP1"]], d) - M.cer(v[OFF["AP1"]], d),
-             "AP2B": lambda v: M.cer(v[ON["AP2B"]], d) - M.cer(v[OFF["AP2B"]], d),
-             "jev_minus_deterministic_signal_value": lambda v: (M.cer(v[ON["AP2B"]], d) - M.cer(v[OFF["AP2B"]], d)) - (M.cer(v[ON["AP1"]], d) - M.cer(v[OFF["AP1"]], d))}
+    sv = lambda s_: (lambda v: M.cer(v[ON[s_]], d) - M.cer(v[OFF[s_]], d))
+    stats = {s_: sv(s_) for s_ in sysms}
+    stats["jev_minus_deterministic_signal_value"] = lambda v: (M.cer(v[ON["AP2B"]], d) - M.cer(v[OFF["AP2B"]], d)) - (M.cer(v[ON["AP1"]], d) - M.cer(v[OFF["AP1"]], d))
     out = {}
     for k, f in stats.items():
         full = f(x)
@@ -465,7 +496,7 @@ def stage2_native(S: dict, P: dict) -> dict:
 
 def buy_and_hold(S: dict, P: dict) -> dict:
     out = {}
-    for s in SYSTEMS:
+    for s in present_systems():
         bh = S[f"{s}_OFF_BUY_AND_HOLD"]
         c = M.paired_cer_contrast(S[ON[s]], bh, delta=P["delta"], block=P["block"], reps=P["reps"], seed=P["seed"])
         out[s] = {"net_cer_without_buy_and_hold": M.cer(bh["net_excess_return"], P["delta"]),
@@ -487,12 +518,21 @@ def main(argv=None) -> int:
     S, mx, ar = built["sims"], built["mixes"], built["asset_returns"]
 
     systems = {}
-    for s, meta in SYSTEMS.items():
+    meta_all = {**SYSTEMS, **({"AP3": AP3_META} if "AP3" in built["records"] else {})}
+    for s, meta in meta_all.items():
         on, off = S[ON[s]], S[OFF[s]]
         systems[s] = {**meta, "universe": list(mx[s]), "no_signal_weights": mx[s],
                       "with_signals": mblock(on), "without_signals": mblock(off), "incremental": incremental(on, off, P)}
+    if "AP3" in systems:
+        systems["AP3"]["note"] = (
+            "Causal RAG's frozen neutral weights are the same 45/35/20 portfolio as the Deterministic model's, so "
+            "the two share an identical no-signal control. Its incremental value is therefore directly comparable "
+            "with the Deterministic model's, and not with JEV's, whose control is a different portfolio.")
 
-    x = {k: S[k]["net_excess_return"].to_numpy(float) for k in (ON["AP1"], OFF["AP1"], ON["AP2B"], OFF["AP2B"], HE, HB)}
+    keys = [ON["AP1"], OFF["AP1"], ON["AP2B"], OFF["AP2B"], HE, HB]
+    if "AP3" in systems:
+        keys += [ON["AP3"], OFF["AP3"]]
+    x = {k: S[k]["net_excess_return"].to_numpy(float) for k in keys}
     D1, D0, J1, J0 = ON["AP1"], OFF["AP1"], ON["AP2B"], OFF["AP2B"]
     stats = {"deterministic_signal_value": lambda c: c[D1] - c[D0],
              "jev_signal_value": lambda c: c[J1] - c[J0],
@@ -501,6 +541,12 @@ def main(argv=None) -> int:
              "no_signal_mix_difference": lambda c: c[J0] - c[D0],
              "mix_stock_weight_net": lambda c: 0.5 * ((c[HE] - c[D0]) + (c[J0] - c[HB])),
              "mix_bond_sleeve_net": lambda c: 0.5 * ((c[HB] - c[D0]) + (c[J0] - c[HE]))}
+    if "AP3" in systems:
+        R1, R0 = ON["AP3"], OFF["AP3"]
+        stats["causal_rag_signal_value"] = lambda c: c[R1] - c[R0]
+        stats["causal_rag_minus_deterministic_signal_value"] = lambda c: (c[R1] - c[R0]) - (c[D1] - c[D0])
+        stats["causal_rag_minus_jev_signal_value"] = lambda c: (c[R1] - c[R0]) - (c[J1] - c[J0])
+        stats["causal_rag_minus_deterministic_total"] = lambda c: c[R1] - c[D1]
     jb = joint_bootstrap(x, stats, P)
     for k in jb:
         jb[k]["statistically_clear_at_5pct"] = clear(jb[k])
@@ -518,6 +564,18 @@ def main(argv=None) -> int:
                                                abs(prev["cer_difference"] - systems[s]["incremental"]["net_cer_difference"])),
                      "previous_no_signal_net_cer": rows[s]["native_neutral"]["cer_delta_2_5"],
                      "no_signal_net_cer_abs_difference": abs(rows[s]["native_neutral"]["cer_delta_2_5"] - systems[s]["without_signals"]["net_cer"])}
+    if "AP3" in systems:
+        ev = json.loads((ROOT / "native_backtest/out/ap3/qwen3_runs/evaluation/evaluation.json").read_text())
+        prev = ev["vs_own_benchmark"]
+        checks["AP3"] = {"source": "native_backtest/out/ap3/qwen3_runs/evaluation/evaluation.json (exploratory)",
+                         "previously_reported_vs_own_benchmark": prev["cer_difference"], "ci95_previous": prev["ci95"],
+                         "p_previous": prev["p_two_sided_bootstrap"],
+                         "max_abs_difference": max(abs(prev["cer_difference"] - jb["causal_rag_signal_value"]["point"]),
+                                                   abs(prev["ci95"][0] - jb["causal_rag_signal_value"]["ci95"][0]),
+                                                   abs(prev["ci95"][1] - jb["causal_rag_signal_value"]["ci95"][1]),
+                                                   abs(prev["cer_difference"] - systems["AP3"]["incremental"]["net_cer_difference"])),
+                         "previous_with_signals_net_cer": ev["metrics"]["AP3"]["cer_delta_2_5"],
+                         "with_signals_net_cer_abs_difference": abs(ev["metrics"]["AP3"]["cer_delta_2_5"] - systems["AP3"]["with_signals"]["net_cer"])}
     jt = jb["jev_minus_deterministic_total"]
     checks["primary_contrast_AP2B_minus_AP1"] = {"previously_reported": prim["cer_difference"], "ci95_previous": prim["ci95"], "p_previous": prim["p_two_sided_bootstrap"],
                                                  "max_abs_difference": max(abs(prim["cer_difference"] - jt["point"]), abs(prim["ci95"][0] - jt["ci95"][0]),
@@ -528,7 +586,9 @@ def main(argv=None) -> int:
     monthly_attr = ret.pop("_monthly")
     reg, lab = regimes(built, mk, dev, ar)
     res = {
-        "title": "Signal value-added and portfolio attribution: Deterministic and JEV vs their own signal-disabled portfolios",
+        "title": ("Signal value-added and portfolio attribution: each approach against its own signal-disabled portfolio"
+                  if "AP3" in systems else
+                  "Signal value-added and portfolio attribution: Deterministic and JEV vs their own signal-disabled portfolios"),
         "status": "DEVELOPMENT DIAGNOSTIC (2019-03..2022-12); not a protected historical result; the protected window stays sealed",
         "months": [str(dev[0]), str(dev[-1]), len(dev)],
         "research_design": "Three primary approaches unchanged (Deterministic research baseline, Agentic Workflow - JEV, Agentic Causal RAG). "
@@ -553,7 +613,25 @@ def main(argv=None) -> int:
                                                           "meaning": "JEV's signal value-added minus Deterministic's: the part of the JEV-Deterministic gap not due to their different no-signal mixes"},
             "jev_minus_deterministic_total": jb["jev_minus_deterministic_total"],
             "no_signal_mix_difference": jb["no_signal_mix_difference"],
-            "mix_stock_weight_net": jb["mix_stock_weight_net"], "mix_bond_sleeve_net": jb["mix_bond_sleeve_net"]},
+            "mix_stock_weight_net": jb["mix_stock_weight_net"], "mix_bond_sleeve_net": jb["mix_bond_sleeve_net"],
+            **({"q4_causal_rag_signals_vs_own_no_signal": {
+                    **jb["causal_rag_signal_value"],
+                    "designation": AP3_META["designation"],
+                    "meaning": "Causal RAG's signal value-added against its own frozen 45/35/20 no-signal portfolio, "
+                               "same accounting as the other two. EXPLORATORY: its reliability gates failed."},
+                "q5_causal_rag_vs_deterministic_after_allocation": {
+                    **jb["causal_rag_minus_deterministic_signal_value"],
+                    "designation": AP3_META["designation"],
+                    "meaning": "Causal RAG's signal value-added minus Deterministic's. They share an identical "
+                               "no-signal control, so this is the whole of their gap that is not the market."},
+                "q6_causal_rag_vs_jev_signal_value": {
+                    **jb["causal_rag_minus_jev_signal_value"],
+                    "designation": AP3_META["designation"],
+                    "meaning": "Causal RAG's signal value-added minus JEV's. Their no-signal controls differ, so "
+                               "this compares signal contributions, not portfolios."},
+                "causal_rag_minus_deterministic_total": {
+                    **jb["causal_rag_minus_deterministic_total"], "designation": AP3_META["designation"]},
+                } if "AP3" in systems else {})},
         "reproduces_previous_results": checks,
         "attribution_net_cer": att, "attribution_mean_return": ret,
         "information_checks": information_checks(built["records"], mk, dev),
@@ -573,7 +651,7 @@ def main(argv=None) -> int:
             mon[f"{k}__{c}"] = v[c].to_numpy()
     for a in ASSETS:
         mon[f"asset_return_{a}"] = ar[a].to_numpy()
-    for s in SYSTEMS:
+    for s in present_systems():
         mon[f"{s}_active_net"] = S[ON[s]]["net_excess_return"].to_numpy() - S[OFF[s]]["net_excess_return"].to_numpy()
     mon = mon.merge(monthly_attr, on="decision_month").merge(lab, on="decision_month")
     mon.to_csv(OUT / "monthly_v1.csv", index=False, float_format="%.12g")

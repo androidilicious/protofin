@@ -104,7 +104,8 @@
   const icon = (k, cls) => `<svg class="i${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${P[k] || ''}</svg>`;
 
   const STATUS = {   // implementation status (experiments)
-    tested: ['ok', 'check', 'Tested'], awaiting_validation: ['wait', 'hourglass', 'Awaiting validation'], planned: ['plan', 'planned', 'Planned'],
+    tested: ['ok', 'check', 'Tested'], exploratory: ['explor', 'review', 'Ran \u2014 gates failed'],
+    awaiting_validation: ['wait', 'hourglass', 'Awaiting validation'], planned: ['plan', 'planned', 'Planned'],
     blocked: ['block', 'blocked', 'Blocked'], paused: ['pause', 'pause', 'Paused'],
   };
   const GATE = {     // validation status (methodology)
@@ -262,24 +263,34 @@
     const f = D.flows[key];
     return `<div class="mini-flow" aria-label="${esc(f.map(n => n.label).join(' → '))}">${f.map((n, i) => `${i ? '<span class="ar"></span>' : ''}<span class="n ${n.kind === 'agent' ? 'agent' : ''}" title="${esc(n.label)}">${icon(n.kind)}</span>`).join('')}</div>`;
   }
+  // Causal RAG's series and contrasts come only from the labelled exploratory block, never from dev.series.
+  const ragSeries = () => { const X = D.ap3_exploratory;
+    return (X && X.state === 'results' && X.wealth) ? X : null; };
+  const ragVsDet = () => { const X = D.ap3_exploratory;
+    const v = X && X.vs && X.vs.vs_deterministic;
+    return v ? { ...v, computed: true, significant: false, exploratory: true } : null; };
+
   function approachCard(s) {
-    const r = S(s.key);
+    const r = s.key === 'rag' ? ragSeries() : S(s.key);
     const ragGates = D.validation.gates.filter(g => g.cells.rag.status !== 'na');
     const passed = ragGates.filter(g => g.cells.rag.status === 'pass').length;
     const blocked = ragGates.filter(g => g.cells.rag.status === 'blocked').length;
     const segColor = st => st === 'pass' ? css('--pos') : st === 'blocked' ? css('--neg') : css('--surface-3');
-    const c = baseVs(s.key);
+    const c = s.key === 'rag' ? ragVsDet() : baseVs(s.key);
     const vs = s.key === 'det' ? `<div class="vsrow"><span>The AI approaches are measured against this model.</span></div>`
       : c && c.computed ? `<div class="vsrow"><span>vs Deterministic baseline: <b class="num">${pts(c.cer_difference)}</b>, likely range ${pts(c.ci95[0])} to ${pts(c.ci95[1])} ${tip('vsbase')}</span>
         ${ciBar(c, s.key)}${c.significant ? '' : NS}</div>` : '';
     const body = r ? `
-      <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>${vs}`
+      <div class="big"><span class="v num">${pct(r.metrics.cer)}</span><span class="l">net CER per year ${tip('cer')}</span></div>
+      ${s.key === 'rag' ? `<p class="sub">${esc(D.ap3_exploratory.why)}</p>` : ''}${vs}`
       : `<div class="unavail"><span><b>No results yet.</b> No comparison with the baseline until a real model run passes its reliability checks.</span>
           <div class="prog" role="img" aria-label="${passed} of ${ragGates.length} validation checks passed, ${blocked} blocked">${ragGates.slice().sort((x, y) => ORDER[x.cells.rag.status] - ORDER[y.cells.rag.status]).map(g => `<i style="flex:1;background:${segColor(g.cells.rag.status)};margin-right:2px"></i>`).join('')}</div>
           <div class="ilegend"><span><i class="sw" style="background:${css('--pos')}"></i>${passed} passed</span><span><i class="sw" style="background:${css('--surface-3')}"></i>${ragGates.length - passed - blocked} to do</span><span><i class="sw" style="background:${css('--neg')}"></i>${blocked} blocked</span></div></div>`;
     return `<article class="acard${s.key === 'det' ? ' baseline' : ''}" style="--c:var(${VAR[s.key]})">
       <div class="t">${badge(s.key)}<a href="#${SLUG[s.key]}">${esc(s.name)}</a></div>
-      ${s.key === 'det' ? `<div class="chips">${baseChip()}</div>` : r ? '' : `<div class="chips"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span></div>`}
+      ${s.key === 'det' ? `<div class="chips">${baseChip()}</div>`
+        : s.key === 'rag' ? `<div class="chips"><span class="chip wait">${icon('review')}${esc(D.ap3_exploratory.label)}</span></div>`
+        : r ? '' : `<div class="chips"><span class="chip wait">${icon('hourglass')}Awaiting validation ${tip('awaiting')}</span></div>`}
       <p>${esc(s.summary || s.tagline)}</p>
       ${body}
       <span class="go">Details →</span>
@@ -319,19 +330,27 @@
     const rows = [['cer', 'Net CER', m => pct(m.cer), true], ['sharpe', 'Sharpe ratio', m => num(m.sharpe)], ['drawdown', 'Worst fall', m => pct(m.max_drawdown)],
       ['cumulative', 'Cumulative return', m => pct(m.cumulative_return)], ['volatility', 'Volatility', m => pct(m.volatility)], ['turnover', 'Turnover', m => pct(m.turnover, 0)]]
       .concat(opts.baseline ? [['vsbase', 'Net CER vs baseline', null]] : []);
-    const vsb = x => { if (x === 'det') return 'baseline'; const c = baseVs(x); return c && c.computed ? pts(c.cer_difference) : 'pending'; };
-    const cell = (x, f, pr) => { if (!f) return vsb(x); const r = S(x); return r ? f(r.metrics) : (pr ? 'not run' : '—'); };
+    const seriesOf = x => x === 'rag' ? ragSeries() : S(x);
+    const vsb = x => { if (x === 'det') return 'baseline';
+      const c = x === 'rag' ? ragVsDet() : baseVs(x);
+      return c && c.computed ? pts(c.cer_difference) : 'pending'; };
+    const cell = (x, f, pr) => { if (!f) return vsb(x); const r = seriesOf(x);
+      if (!r) return pr ? 'not run' : '—';
+      const m = r.metrics;
+      return f({ ...m, cumulative_return: m.cumulative_return ?? m.cumulative, max_drawdown: m.max_drawdown ?? m.drawdown }); };
     const col = k => k === 'rag' ? ' class="rag-col"' : '';
-    const head = k => `<th${col(k)}><span class="nw"><span class="badge" style="background:var(${VAR[k]});width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px"></span>${SHORT[k]}</span>${k === 'det' && opts.baseline ? '<small class="bl">baseline</small>' : ''}</th>`;
+    const head = k => `<th${col(k)}><span class="nw"><span class="badge" style="background:var(${VAR[k]});width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px"></span>${SHORT[k]}</span>${k === 'det' && opts.baseline ? '<small class="bl">baseline</small>' : ''}${k === 'rag' && ragSeries() ? '<small class="bl xs">exploratory</small>' : ''}</th>`;
     const label = (l, k) => { const w = l.split(' '); return `${w.slice(0, -1).join(' ')} ${tipw(w.at(-1), k)}`; };
     return `<div class="cmpwrap"><table class="cmp"><thead><tr><th>Development ${devYears()}</th>${keys.map(head).join('')}${opts.bench ? `<th class="cb"><span class="ln-cb" aria-hidden="true"></span>Passive<span class="ph-hide"> 60/40 reference</span></th>` : ''}</tr></thead>
       <tbody>${rows.map(([k, l, f, pr]) => `<tr${pr ? ' class="primary"' : ''}${f ? '' : ' class="rel"'}><td>${label(l, k)}</td>${keys.map(x => `<td class="num${x === 'rag' ? ' rag-col' : ''}">${cell(x, f, pr)}</td>`).join('')}${opts.bench ? `<td class="num cb">${f ? f(CB().metrics) : '—'}</td>` : ''}</tr>`).join('')}</tbody></table></div>
-      ${keys.includes('rag') ? '<p class="sub ph-only">Causal RAG has no results yet, so it is left out of this table on small screens.</p>' : ''}`;
+      ${keys.includes('rag') ? (ragSeries()
+        ? `<p class="sub">Causal RAG's column is <b>${esc(D.ap3_exploratory.label)}</b>: its agents did not pass their reliability checks, so it is a diagnostic rather than comparable evidence. It also holds a different mix and trades far more.</p>`
+        : '<p class="sub ph-only">Causal RAG has no results yet, so it is left out of this table on small screens.</p>') : ''}`;
   }
 
   // Passive investment comparison: a separate, secondary question from the research comparison.
   function passivePanel(keys) {
-    const row = k => { const r = S(k); if (!r) return `<div class="prow"><span class="nw">${badge(k)}${SHORT[k]}</span><span class="sub">Not run yet</span></div>`;
+    const row = k => { const r = k === 'rag' ? ragSeries() : S(k); if (!r) return `<div class="prow"><span class="nw">${badge(k)}${SHORT[k]}</span><span class="sub">Not run yet</span></div>`;
       const v = r.vs_common; return `<div class="prow"><span class="nw">${badge(k)}${SHORT[k]}: <b class="num">${pts(v.cer_difference)}</b></span>${ciBar(v, k)}${v.p >= 0.05 ? NS : ''}</div>`; };
     return `<section class="panel passive">
         <div class="phead"><h2>Passive investment comparison ${tip('separate')}</h2><span class="chip plain"><span class="ln-cb" aria-hidden="true"></span>${esc(PASSIVE)}</span></div>
@@ -401,7 +420,9 @@
         <div>
           <h1>Does AI improve on our Deterministic baseline?</h1>
           <p class="lede">Three forecasting architectures, one shared evaluator, ${months.length} development months. The protected historical test is sealed.</p>
-          <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>JEV is not statistically different from the baseline, Causal RAG has no results, and nothing here is confirmatory.</span></div></div>
+          <div class="verdict"><span class="ic">${icon('scale')}</span><div><b>No clear answer yet</b><span>${rpSeries('rag')
+            ? 'All three now have development results. No difference between them is statistically clear, and Causal RAG\'s agents failed their reliability checks, so nothing here is confirmatory.'
+            : 'JEV is not statistically different from the baseline, Causal RAG has no results, and nothing here is confirmatory.'}</span></div></div>
         </div>
         <div class="okpis">
           ${kpi(pct(base.metrics.cer, 2), 'Baseline net CER', 'cer')}
@@ -444,8 +465,9 @@
         <a href="#appendix"><span class="ic">${icon('method')}</span><span><b>Appendix</b><span>Methods, formulas, full tables, artifacts</span></span></a>
       </div></section>
     </div>`;
-    lineChart('c-ov', 'lg-ov', months, D.systems.filter(x => S(x.key)).map(x => ({
-      label: x.key === 'det' ? 'Deterministic (baseline)' : x.short, data: S(x.key).wealth, color: color(x.key) })).concat([commonLine()]), FMT_WEALTH);
+    lineChart('c-ov', 'lg-ov', months, D.systems.filter(x => rpSeries(x.key)).map(x => ({
+      label: x.key === 'det' ? 'Deterministic (baseline)' : x.key === 'rag' ? x.short + ' (exploratory)' : x.short,
+      data: rpSeries(x.key).wealth, color: color(x.key), ...(x.key === 'rag' ? { dash: [5, 4] } : {}) })).concat([commonLine()]), FMT_WEALTH);
   }
 
   const NSIG_LABEL = 'Not statistically clear';
@@ -812,8 +834,8 @@
   function sensitivitySections() {
     const S = D.sensitivity;
     if (!S) return '';
-    const KEYS = ['det', 'jev', 'com'];
-    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee' };
+    const KEYS = ['det', 'jev', 'com'].concat(S.systems.rag ? ['rag'] : []);
+    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee', rag: 'Causal RAG' };
     const sy = k => S.systems[k];
     const pp = (v, d) => (v * 100).toFixed(d === undefined ? 2 : d) + ' pp';
     const share = v => (v * 100).toFixed(1) + '%';
@@ -828,11 +850,15 @@
       jev: { head: 'Before the allocator', body: `This engine has no posterior step and its cap never binds: it passes the signal on in full. The shrinking happens earlier, when the five-way tilt is averaged into one number and then weighted by the model\u2019s own confidence.`,
              steps: [['Largest tilt available', sy('jev').jev_stages.largest_tilt.toFixed(2) + ' pts'], ['After averaging the five options', sy('jev').jev_stages.weighted_offset.toFixed(2) + ' pts'], ['After the confidence weight', sy('jev').jev_stages.signal_points.toFixed(2) + ' pts']],
              keep: 1 },
+      rag: { head: 'Inside Black\u2013Litterman', body: `Its view is the largest of the three posterior allocators \u2014 ${sy('rag').view_vs_prior_bp.toFixed(1)} bp a month from its own prior \u2014 but its \u03a9, estimated from its own errors, leaves only ${share(sy('rag').posterior_keeps)}. Its limits bind in ${sy('rag').by_scenario['1x'].binding_months} of ${S.months} months, rising to ${sy('rag').by_scenario['2x'].binding_months} at double strength.`,
+             steps: [['View the allocator receives', sy('rag').view_vs_prior_bp.toFixed(1) + ' bp'], ['What the posterior passes on', (sy('rag').view_vs_prior_bp * sy('rag').posterior_keeps).toFixed(2) + ' bp'], ['Resulting position change', pp(sy('rag').by_scenario['1x'].active_weight)]],
+             keep: sy('rag').posterior_keeps },
       com: { head: 'At the position limit', body: `Its view uncertainty is set as a multiple of the prior rather than measured from errors, so the posterior keeps ${share(sy('com').posterior_keeps)} and the response is large. The cap then does the attenuating: it binds in ${sy('com').by_scenario['2x'].binding_months} of ${S.months} months at double strength and removes ${share(sy('com').by_scenario['2x'].attenuation)} of the proposed move.`,
              steps: [['View the allocator receives', sy('com').view_vs_prior_bp.toFixed(0) + ' bp'], ['What the posterior passes on', (sy('com').view_vs_prior_bp * sy('com').posterior_keeps).toFixed(0) + ' bp'], ['Resulting position change', pp(sy('com').by_scenario['1x'].active_weight)]],
              keep: sy('com').posterior_keeps } };
+    const xtag = k => sy(k) && sy(k).exploratory ? `<div class="rl-badge">${icon('review')}${esc(sy(k).designation)}</div>` : '';
     const whereCard = k => `<div class="fas-where" style="--c:var(${VAR[k]})">
-        <h3>${badge(k)}${esc(NAME[k])}</h3>
+        <h3>${badge(k)}${esc(NAME[k])}</h3>${xtag(k)}
         <span class="fas-tag">${esc(WHERE[k].head)}</span>
         <ol class="fas-funnel">${WHERE[k].steps.map((st, i) => `<li><span class="l">${esc(st[0])}</span><b class="num">${esc(st[1])}</b>${i < 2 ? '<i aria-hidden="true"></i>' : ''}</li>`).join('')}</ol>
         <div class="fas-keep"><span class="l">Share the allocator passes on</span><span class="t"><span style="width:${(WHERE[k].keep * 100).toFixed(1)}%;background:var(${VAR[k]})"></span></span><b class="num">${share(WHERE[k].keep)}</b></div>
@@ -844,7 +870,7 @@
         <td class="num">${r.turnover.toFixed(2)}&times;</td><td class="num">${r.cost_bp.toFixed(1)} bp</td>
         <td class="num">${r.binding_months}</td>
         <td class="num">${r.vs_1x ? `${pts(r.vs_1x.cer_difference, 2)} <span class="sub nw">[${pts(r.vs_1x.ci95[0], 2)}, ${pts(r.vs_1x.ci95[1], 2)}]</span>` : '\u2014'}</td></tr>`; };
-    const scenTable = k => `<div class="fas-tbl"><h3>${badge(k)}${esc(NAME[k])} <span class="sub">\u00b7 ${esc(sy(k).neutral_label)}</span></h3>
+    const scenTable = k => `<div class="fas-tbl"><h3>${badge(k)}${esc(NAME[k])} <span class="sub">\u00b7 ${esc(sy(k).neutral_label)}</span>${sy(k).exploratory ? '<span class="xmark">exploratory</span>' : ''}</h3>
         <div class="fas-scroll"><table class="cmp"><thead><tr><th scope="col">Signal strength</th><th scope="col">Position change</th><th scope="col">Net CER</th>
           <th scope="col">Volatility</th><th scope="col">Turnover</th><th scope="col">Cost</th><th scope="col">Limit binds</th>
           <th scope="col">Net CER vs as-built</th></tr></thead>
@@ -901,19 +927,25 @@
         <p class="sub">Pre-registered before the scenarios were run. Rebuilt independently from the pinned prices: ${S.validation.audit_checks} checks, ${S.validation.audit_failures} failures. Full method and results: <code>${esc(S.report)}</code>.</p>
       </section>
 
-      <section class="panel" id="sva-transmission-rag">
+      ${S.systems.rag ? '' : `<section class="panel" id="sva-transmission-rag">
         <h2>${badge('rag')}Agentic Causal RAG \u2014 not included</h2>
         <div class="unavail"><span><b>${esc(S.ap3.status.toLowerCase().replace(/^./, c => c.toUpperCase()))}.</b> Genuine model outputs cover ${S.ap3.months_available} of the ${S.ap3.months_required} months this needs, and both reliability checks are still failing, so there is no forecast series to rescale. No scenario was estimated or stood in for it.</span>
           <ul class="sub">${S.ap3.blockers.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
           <span class="sub">Anything later built on the current outputs keeps the label ${esc(S.ap3.designation)}.</span></div>
-      </section>`;
+      </section>`}
+
+      ${S.systems.rag ? `<section class="panel" id="sva-transmission-rag">
+        <h2>${badge('rag')}Agentic Causal RAG \u2014 included, as a diagnostic</h2>
+        <div class="unavail"><span><b>${esc(S.ap3.designation)}.</b> ${esc(S.ap3.caveat || '')}</span>
+          <span class="sub">${esc(S.ap3.categorical_note || '')}</span></div>
+      </section>` : ''}`;
   }
 
   function sensitivityCharts() {
     const S = D.sensitivity;
     if (!S) return;
-    const KEYS = ['det', 'jev', 'com'];
-    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee' };
+    const KEYS = ['det', 'jev', 'com'].concat(S.systems.rag ? ['rag'] : []);
+    const NAME = { det: 'Deterministic', jev: 'JEV', com: 'Agent Committee', rag: 'Causal RAG' };
     const labels = S.scenarios.map(s => S.labels[s].replace(/ \(.*\)/, '') + ' (' + s + ')');
     const bars = (canvasId, legendId, pick, fmt) => {
       killChart(canvasId);
@@ -936,18 +968,23 @@
     const V = D.signal_value, A = D.audit;
     if (!V || !A) { app.innerHTML = '<div class="wrap"><p class="sub">This analysis is not in the current data build.</p></div>'; return; }
     const months = D.dev.months, sv = k => V.systems[k], g = V.gap, P = g.parts, IM = V.influential_month;
-    const TITLE = { det: 'Deterministic signal value', jev: 'JEV signal value' };
-    const ONLY = { det: 'Only the Ridge-generated portfolio tilts are switched off', jev: 'Only the JEV-generated portfolio tilts are switched off' };
+    const TITLE = { det: 'Deterministic signal value', jev: 'JEV signal value', rag: 'Causal RAG signal value' };
+    const SVK = ['det', 'jev'].concat(sv('rag') ? ['rag'] : []);
+    const ONLY = { det: 'Only the Ridge-generated portfolio tilts are switched off', jev: 'Only the JEV-generated portfolio tilts are switched off',
+                   rag: 'Only the tilts driven by the agents\' assessments are switched off' };
     const Q = { det: 'Do the Deterministic model\'s forecasting signals improve performance beyond its underlying portfolio?',
-                jev: 'Do JEV\'s AI-generated forecasts improve performance beyond its underlying portfolio?' };
+                jev: 'Do JEV\'s AI-generated forecasts improve performance beyond its underlying portfolio?',
+                rag: 'Do the Causal RAG agents\' assessments improve performance beyond the same underlying portfolio?' };
     const TAKE = { det: v => `Lower with signals, by ${mag(v.cer_difference)}. No statistically significant improvement from the Deterministic signals.`,
-                   jev: v => `Higher with signals, by ${mag(v.cer_difference)}: a positive observed contribution, but not statistically significant.` };
+                   jev: v => `Higher with signals, by ${mag(v.cer_difference)}: a positive observed contribution, but not statistically significant.`,
+                   rag: v => `Higher with signals, by ${mag(v.cer_difference)}, but not statistically significant — and its agents failed their reliability checks, so this is a diagnostic, not evidence.` };
     const eyebrow = (n, label) => `<div class="sva-eyebrow"><span class="n">${n}</span>${esc(label)}</div>`;
     const mix = k => { const w = sv(k).no_signal_weights, as = Object.keys(w);
       return `<div class="mixbar" role="img" aria-label="Starting weights: ${as.map(a => `${a} ${Math.round(w[a] * 100)} percent`).join(', ')}">${as.map(a => `<span style="flex:${w[a]} 1 0;background:${assetColor(a)}"></span>`).join('')}</div>
         <div class="mixlegend">${as.map(a => `<span><i style="background:${assetColor(a)}"></i>${a} ${Math.round(w[a] * 100)}%</span>`).join('')}</div>`; };
+    const xbadge = k => sv(k) && sv(k).exploratory ? `<div class="rl-badge">${icon('review')}${esc(sv(k).designation)}</div>` : '';
     const expCard = (k, n) => `<div class="sva-exp" style="--c:var(${VAR[k]})">
-        <div class="sva-exp-h"><span class="sva-tag">Experiment ${n}</span><h3>${badge(k)}${TITLE[k]}</h3></div>
+        <div class="sva-exp-h"><span class="sva-tag">Experiment ${n}</span><h3>${badge(k)}${TITLE[k]}</h3></div>${xbadge(k)}
         <div class="sva-vs"><span class="pill">With signals</span><span class="x">vs</span><span class="pill off">Without signals</span>${tip('nosignal')}</div>
         ${mix(k)}
         <ul class="sva-setup">
@@ -958,12 +995,12 @@
         </ul>
         <p class="sva-q">${esc(Q[k])}</p>
       </div>`;
-    const cerMax = Math.max(...['det', 'jev'].flatMap(k => [sv(k).with.cer, sv(k).without.cer])) * 1.12;
-    const ciAx = Math.max(...['det', 'jev'].flatMap(k => sv(k).value.ci95.map(Math.abs))) * 1.1;
+    const cerMax = Math.max(...SVK.flatMap(k => [sv(k).with.cer, sv(k).without.cer])) * 1.12;
+    const ciAx = Math.max(...SVK.flatMap(k => sv(k).value.ci95.map(Math.abs))) * 1.1;
     const cerRow = (label, v, c, dashed) => `<div class="cerbar"><span>${label}</span><span class="t"><span class="${dashed ? 'off' : ''}" style="width:${(v / cerMax * 100).toFixed(1)}%;background:${c}"></span></span><b class="num">${pct(v, 2)}</b></div>`;
     const resCard = (k, n) => { const s = sv(k), v = s.value;
       return `<div class="sva-exp" style="--c:var(${VAR[k]})">
-        <div class="sva-exp-h"><span class="sva-tag">Experiment ${n}</span><h3>${badge(k)}${esc(sys(k).short)}</h3></div>
+        <div class="sva-exp-h"><span class="sva-tag">Experiment ${n}</span><h3>${badge(k)}${esc(sys(k).short)}</h3></div>${xbadge(k)}
         <div class="cerbars" aria-label="Net CER with signals ${pct(s.with.cer, 2)}, without signals ${pct(s.without.cer, 2)}">
           <div class="sub">Net CER per ${tipw('year', 'cer')}</div>
           ${cerRow('With signals', s.with.cer, color(k), false)}${cerRow('Without signals', s.without.cer, css('--c-bench'), true)}</div>
@@ -1016,14 +1053,14 @@
           <div class="switch"><b>${icon('model')}Forecasting signal</b><span class="sva-toggle" aria-hidden="true"><span class="on">On</span><span>Off</span></span></div>
         </div>
         <p class="sva-principle-line"><b>Keep the investment framework fixed. Change only the forecasting signal.</b></p>
-        <div class="grid2">${expCard('det', 1)}${expCard('jev', 2)}</div>
+        <div class="grid2">${SVK.map((k, i) => expCard(k, i + 1)).join('')}</div>
         <p class="sub">Both experiments use the 46 development months, ${devSpan()}. They are development diagnostics, not protected historical test results.</p>
       </section>
 
       <section class="panel" id="sva-results">
         ${eyebrow(3, 'Results')}
         <h2>Did the signals add value?</h2>
-        <div class="grid2">${resCard('det', 1)}${resCard('jev', 2)}</div>
+        <div class="grid2">${SVK.map((k, i) => resCard(k, i + 1)).join('')}</div>
         <p class="sub">Both 95% intervals include zero, so neither signal's contribution is statistically significant. Values are rounded; differences are computed at full precision.</p>
       </section>
 
@@ -1081,9 +1118,9 @@
     lineChart('c-sva-growth', 'lg-sva-growth', months, [
       { label: 'Deterministic (baseline)', data: S('det').wealth, color: color('det') },
       { label: 'Agentic Workflow (JEV)', data: S('jev').wealth, color: color('jev') }], FMT_WEALTH);
-    for (const k of ['det', 'jev'])
+    for (const k of SVK)
       lineChart(`c-sva-${k}`, `lg-sva-${k}`, months, [
-        { label: 'With signals', data: S(k).wealth, color: color(k) },
+        { label: 'With signals', data: (k === 'rag' ? ragSeries() : S(k)).wealth, color: color(k), ...(k === 'rag' ? { dash: [5, 4] } : {}) },
         { label: `Without signals (${sv(k).no_signal_label})`, data: D.dev.benchmarks[sv(k).no_signal].wealth, color: css('--c-bench'), dash: OWN_DASH }], FMT_WEALTH);
     const act = sv('jev').active, hi = months.indexOf(im.decision_month);
     chart(document.getElementById('c-sva-month'), { type: 'bar',
@@ -1807,7 +1844,8 @@ ${tbl(['Check'].concat(D.validation.columns.map(k => SHORT[k])), (D.validation.g
       windows: { training: D.windows.training, development: D.windows.development,
                  historical_test: D.windows.historical_test, historical_test_status: D.windows.historical_test_status },
       approaches: D.systems.map(s => ({ key: s.key, name: s.name, universe: s.universe, role: s.role,
-        has_development_results: !!S(s.key) })),
+        has_development_results: !!(s.key === 'rag' ? ragSeries() : S(s.key)),
+        ...(s.key === 'rag' && ragSeries() ? { validated: false, designation: D.ap3_exploratory.label } : {}) })),
       variants: D.variants.map(s => ({ key: s.key, name: s.name, role: s.role, has_development_results: !!S(s.key) })),
       included_experiments: (D.experiments.groups || []).flatMap(g => [].concat(g.base ? [g.base] : [], g.variants || []).map(x => ({ approach: SHORT[g.approach] || g.approach, experiment: x.name, status: x.status }))),
       analyses_included: ['Portfolio integrity audit', 'Signal value-added', 'Forecast-to-allocation sensitivity',
@@ -2015,9 +2053,7 @@ different neutral portfolios, so differences between them are not attributable t
   const rpExcess = k => { const P = D.pipeline[k];
     return P ? rpMonths().map(m => (P[m] || {}).net) : null; };
   // Causal RAG never joins dev.series: its curve comes only from the labelled exploratory block.
-  const rpSeries = k => { if (k !== 'rag') return S(k);
-    const X = D.ap3_exploratory;
-    return (X && X.state === 'results' && X.wealth) ? X : null; };
+  const rpSeries = k => { if (k !== 'rag') return S(k); return ragSeries(); };
 
   function rpRunning() {
     const n = RP.i, done = RP.stage >= 5;      // the month's result is known only once the holding period has run

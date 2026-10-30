@@ -106,9 +106,13 @@ def rf_return(dtb: pd.Series, entry: pd.Timestamp, exit_: pd.Timestamp) -> float
     return (1.0 + r28) ** ((exit_ - entry).days / 28.0) - 1.0
 
 
+DECISION_FILE = {"AP3": "AP3_qwen3_reduced_evidence.jsonl"}
+
+
 def read_weights(system: str) -> dict:
     out = {}
-    for line in (ROOT / f"native_backtest/out/decisions/{system}.jsonl").read_text().splitlines():
+    f = ROOT / "native_backtest/out/decisions" / DECISION_FILE.get(system, f"{system}.jsonl")
+    for line in f.read_text().splitlines():
         r = json.loads(line)
         out[r["decision_month"]] = r
     return out

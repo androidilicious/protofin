@@ -123,7 +123,8 @@ def metric_block(sim: pd.DataFrame) -> dict:
 def contrast_block(c: dict) -> dict:
     return {"cer_difference": _r(c["cer_difference"]), "ci95": [_r(v) for v in c["ci95"]], "p": _r(c["p_two_sided_bootstrap"], 4)}
 
-STATUS_ORDER = ("tested", "awaiting_validation", "planned", "blocked", "paused")
+EXPLORATORY_LABEL = "EXPLORATORY \u2014 RELIABILITY GATES FAILED"
+STATUS_ORDER = ("tested", "exploratory", "awaiting_validation", "planned", "blocked", "paused")
 EXP_TEXT = {
     "AP1": ("Base model: 8 economic-data surprises", "det", "The Deterministic model as it runs in the primary comparison."),
     "AP1+B1..B5": ("Add one financial signal at a time", None,
@@ -215,7 +216,44 @@ def within_approach_results() -> dict:
     }
     for v in out.values():
         v["months"] = f"{r['months'][2]} development months"
+    out.update(ap3_experiment_result())
     return out
+
+
+def ap3_experiment_result() -> dict:
+    """Causal RAG - Reduced Evidence: executed, with its real outcome and the reasons not to read it as skill."""
+    ev = ROOT / "native_backtest/out/ap3/qwen3_runs/evaluation/evaluation.json"
+    if not ev.exists():
+        return {}
+    e = json.loads(ev.read_text())
+    if not e.get("exploratory"):
+        return {}
+    m, cov, cal = e["metrics"]["AP3"], e["coverage"], e["calibration"]
+    c1 = e["primary_contrasts_development"]["AP3-AP1"]
+    own = e["vs_own_benchmark"]
+    pl = cal.get("placebo") or {}
+    return {"AP3-RE": {
+        "headline": "Ran end to end on genuine agent outputs; the gates still failed",
+        "learned": ("All 95 agent months produced real qwen3:4b outputs and the 46 development months went through the "
+                    "native pipeline. Its net CER is the highest of the three, and none of that is statistically "
+                    "supported. The permutation placebo puts the genuine agent features near the bottom of the random "
+                    "distribution, so the evidence does not support reading this as forecast skill."),
+        "rows": [{"label": "Net CER", "value": _pcts(m["cer_delta_2_5"]),
+                  "note": "vs Deterministic " + _minus(f"{c1['cer_difference'] * 100:+.2f} pts")
+                          + f", p = {c1['p_two_sided_bootstrap']:.2f}: not statistically clear"},
+                 {"label": "vs its own 45/35/20 control", "value": _minus(f"{own['cer_difference']*100:+.2f} pts"),
+                  "note": f"p = {own['p_two_sided_bootstrap']:.2f}: not statistically clear"},
+                 {"label": "Months with at least one hypothesis",
+                  "value": f"{cov['scored_months_with_at_least_one_hypothesis']} of {cov['scored_months_present']}",
+                  "note": f"{', '.join(cov['scored_months_without_hypotheses'])} produced none and falls back to its prior"},
+                 {"label": "Permutation placebo percentile", "value": f"{pl.get('percentile', float('nan')):.1f}%",
+                  "note": f"the genuine features beat only {pl.get('percentile', 0):.1f}% of {pl.get('n', 0):.0f} random relabelings"},
+                 {"label": "Trading per year", "value": _pcts(m["annualized_one_way_turnover"], 0),
+                  "note": "against the Deterministic model's 46%"}],
+        "caution": ("Both pre-registered reliability gates failed (G3b accuracy 0.5667 with 2 opposite-direction "
+                    "errors; G3a schema-valid call rate 0.9771). This is a diagnostic of the pipeline, not evidence "
+                    "that the agents are reliable or that AI adds investment value."),
+        "months": f"{m['n_months']} development months"}}
 
 
 
@@ -273,6 +311,12 @@ def ap3_exploratory_block(cfg: dict, mk, dev, cost: float) -> dict | None:
         "vs": {VS_LABEL.get(k, k): {"cer_difference": _r(v["cer_difference"]), "ci95": [_r(x) for x in v["ci95"]],
                                     "p": _r(v["p_two_sided_bootstrap"], 4)}
                for k, v in (e.get("primary_contrasts_development") or {}).items()},
+        "vs_common": {"cer_difference": _r(e["passive_reference"]["vs_reference"]["cer_difference"]),
+                      "ci95": [_r(x) for x in e["passive_reference"]["vs_reference"]["ci95"]],
+                      "p": _r(e["passive_reference"]["vs_reference"]["p_two_sided_bootstrap"], 4),
+                      "cumulative_difference": _r(e["passive_reference"]["vs_reference"]["cumulative_return"]["difference"]),
+                      "excess_return_difference": _r(e["passive_reference"]["vs_reference"]["annualized_excess_return_difference"]),
+                      "tracking_error": _r(e["passive_reference"]["vs_reference"]["tracking_error_annualized"], 6)},
         "vs_own_neutral": {"cer_difference": _r(e["vs_own_benchmark"]["cer_difference"]),
                            "ci95": [_r(x) for x in e["vs_own_benchmark"]["ci95"]],
                            "p": _r(e["vs_own_benchmark"]["p_two_sided_bootstrap"], 4)},
@@ -295,8 +339,12 @@ def experiments_block(cfg: dict, within: list) -> dict:
             assert x["status"] in STATUS_ORDER, x
             out = {"name": name, "status": x["status"], "detail": detail, "link": link}
             if x["id"] in results:
-                assert x["status"] == "tested", x       # results are shown only for experiments that actually ran
+                # results are shown only for experiments that actually ran: validated ones, and the exploratory
+                # Causal RAG run whose own result carries its failed-gate designation.
+                assert x["status"] in ("tested", "exploratory"), x
                 out["result"] = results[x["id"]]
+                if x["status"] == "exploratory":
+                    out["designation"] = EXPLORATORY_LABEL
             return out
         groups.append({"approach": GROUP_KEY[g["approach"]], "base": item(g["base"]), "variants": [item(v) for v in g["variants"]],
                        **({"blocked_by": g["base"]["blocked_by"]} if "blocked_by" in g["base"] else {})})
@@ -480,6 +528,12 @@ def audit_block(sims: dict) -> dict | None:
             "spread": [_r(j - d) for j, d in zip(jev, det)], "report": AUDIT_REPORT}
 
 
+def ap3_sim() -> pd.DataFrame:
+    """The imported exploratory Causal RAG simulation, as the shared evaluator produced it."""
+    return pd.read_csv(ROOT / "native_backtest/out/ap3/qwen3_runs/evaluation/AP3_common_matched_dev.csv",
+                       dtype={"decision_month": str})
+
+
 def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
     """Secondary analysis: each system against its own portfolio with the signals switched off (development months)."""
     if not SIGNAL.exists() or not {"det", "jev"} <= set(sims):
@@ -489,16 +543,20 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
     ci = lambda c: {"cer_difference": _r(c["point"] if "point" in c else c["net_cer_difference"]), "ci95": [_r(v) for v in c["ci95"]],
                     "p": _r(c["p_two_sided_bootstrap"], 4), "clear": bool(c["statistically_clear_at_5pct"])}
     out = {"months": r["months"], "report": SIGNAL_REPORT, "systems": {}}
-    for key, src in (("det", "AP1"), ("jev", "AP2B")):
+    pairs = [("det", "AP1"), ("jev", "AP2B")]
+    if "AP3" in r["systems"] and "rag_exploratory" not in out:
+        pairs.append(("rag", "AP3"))          # joins only once its genuine decisions exist; stays labelled
+    for key, src in pairs:
         sv = r["systems"][src]
         nkey = "/".join(f"{a}{int(round(w * 100))}" for a, w in sv["no_signal_weights"].items())
         # the analysis and the dashboard must agree month by month on both portfolios
-        assert np.abs(mon[f"{src}_ON__net_total_return"].to_numpy() - sims[key]["net_total_return"].to_numpy()).max() < 1e-12
+        on_sim = sims.get(key) if key in sims else ap3_sim()
+        assert np.abs(mon[f"{src}_ON__net_total_return"].to_numpy() - on_sim["net_total_return"].to_numpy()).max() < 1e-12
         assert np.abs(mon[f"{src}_OFF__net_total_return"].to_numpy() - neutral_sims[nkey]["net_total_return"].to_numpy()).max() < 1e-12
         d, inc = r["decisions"][src], sv["incremental"]
         out["systems"][key] = {
             "no_signal": nkey, "no_signal_label": mix_label(sv["no_signal_weights"]),
-            "with": metric_block(sims[key]), "without": metric_block(neutral_sims[nkey]),
+            "with": metric_block(on_sim), "without": metric_block(neutral_sims[nkey]),
             "value": ci(inc), "tracking_error": _r(inc["tracking_error_annualised"], 4), "months_ahead": inc["months_active_positive"],
             "tilt_size": _r(d["one_way_tilt_mean"], 4), "extra_turnover": _r(d["turnover_with_minus_without_annualised"], 4),
             "tilt_before_costs": _r(r["attribution_net_cer"]["per_system"][src]["tilts_before_costs"]),
@@ -507,7 +565,9 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
             "stock_weight_range": _r(d.get("spy_weight_range_across_choices", d.get("spy_weight_range_across_forecast_terciles")), 4),
             "influence": {k: (_r(v) if isinstance(v, float) else v) for k, v in r["influence_leave_one_month_out"][src].items()},
             "active": [_r(v) for v in mon[f"{src}_active_net"]],
-            "universe": sv["universe"], "no_signal_weights": sv["no_signal_weights"]}
+            "universe": sv["universe"], "no_signal_weights": sv["no_signal_weights"],
+            **({"exploratory": True, "designation": sv["designation"], "note": sv.get("note")}
+               if sv.get("exploratory") else {})}
     tp = r["attribution_net_cer"]["two_by_two"]
     q = r["questions"]
     out["gap"] = {"total": ci(q["jev_minus_deterministic_total"]), "mix": ci(q["no_signal_mix_difference"]),
@@ -950,6 +1010,12 @@ def appendix_block(out: dict) -> dict:
     add("validation", "Validation gate matrix", f"{len(out['validation']['gates'])} gates across the approaches, with current status.", "validation.gates")
     add("validation", "Signal Value verification checks", "The checks run before the signal-value results were read.", "signal_value.checks")
     add("causal-rag", "Reliability gate specifications", "G3a and G3b thresholds, unchanged, and their current measured values.", "ap3_exploratory.gates_failed")
+    add("causal-rag", "Exploratory backtest results", "The 46-month development result from genuine agent outputs, with every contrast and its interval.", "ap3_exploratory.metrics / ap3_exploratory.vs")
+    add("causal-rag", "Agent coverage and assessments", "Months with a hypothesis, the month without one, tests run and failed, and the Supported/Contradicted/Insufficient counts.", "ap3_exploratory.coverage")
+    add("causal-rag", "Calibration and placebo diagnostics", "Intercept-only share, calibration slope and the permutation placebo that argues against predictive content.", "ap3_exploratory.calibration")
+    add("causal-rag", "Per-month agent records", "Every hypothesis, its trigger, mechanism, stated confidence and the Testing Agent's verdict, by month.", "pipeline.rag")
+    add("causal-rag", "Signal value against its own control", "Causal RAG with its assessments switched off, on the same 45/35/20 portfolio, dates, prices and costs.", "signal_value.systems.rag")
+    add("causal-rag", "Sensitivity scenarios", "Its 0x/0.5x/1x/2x scenarios through its own Black-Litterman allocator.", "sensitivity.systems.rag")
     add("causal-rag", "Exploratory mode", "What the gate-failed diagnostic mode permits, and what it never permits.", "ap3_exploratory")
     add("causal-rag", "Knowledge graph and triggers", "The CauseTrace graph vintage, its nodes and the trigger set.", "ap3.graph / ap3.triggers")
     add("causal-rag", "Two candidate versions", "Reduced Evidence and Full Evidence, and what still separates them.", "ap3.versions")

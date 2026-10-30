@@ -1,5 +1,5 @@
 {
- "title": "Signal value-added and portfolio attribution: Deterministic and JEV vs their own signal-disabled portfolios",
+ "title": "Signal value-added and portfolio attribution: each approach against its own signal-disabled portfolio",
  "status": "DEVELOPMENT DIAGNOSTIC (2019-03..2022-12); not a protected historical result; the protected window stays sealed",
  "months": [
   "2019-03",
@@ -176,6 +176,89 @@
      "seed": 20261027
     }
    }
+  },
+  "AP3": {
+   "label": "Agentic Causal RAG",
+   "short": "Causal RAG",
+   "role": "primary approach",
+   "exploratory": true,
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "universe": [
+    "SPY",
+    "IEF",
+    "LQD"
+   ],
+   "no_signal_weights": {
+    "SPY": 0.45,
+    "IEF": 0.35,
+    "LQD": 0.2
+   },
+   "with_signals": {
+    "net_cer": 0.05122417038522721,
+    "net_annualized_excess_return": 0.0658738479777146,
+    "cumulative_return": 0.3081787553512627,
+    "net_sharpe": 0.6084907858486465,
+    "max_drawdown": -0.1867448546677476,
+    "annualized_volatility": 0.1082577575695613,
+    "annualized_one_way_turnover": 1.0636260198616534,
+    "total_cost": 0.00407723307613634,
+    "annualized_cost": 0.0010636260198616538,
+    "n_months": 46
+   },
+   "without_signals": {
+    "net_cer": 0.0377399153452612,
+    "net_annualized_excess_return": 0.05430757695359762,
+    "cumulative_return": 0.24783494834795206,
+    "net_sharpe": 0.4717205812234455,
+    "max_drawdown": -0.18525302467160232,
+    "annualized_volatility": 0.11512657941009596,
+    "annualized_one_way_turnover": 0.26861464735593077,
+    "total_cost": 0.0010296894815310684,
+    "annualized_cost": 0.0002686146473559309,
+    "n_months": 46
+   },
+   "incremental": {
+    "net_cer_difference": 0.01348425503996601,
+    "ci90": [
+     -0.0028347279214548013,
+     0.0422315383540912
+    ],
+    "ci95": [
+     -0.0034642937809273846,
+     0.04532348724654493
+    ],
+    "p_two_sided_bootstrap": 0.5444,
+    "statistically_clear_at_5pct": false,
+    "observed_direction": "higher with signals",
+    "mean_active_return_annualised": 0.011566271024116996,
+    "tracking_error_annualised": 0.026492008699839108,
+    "information_ratio": 0.43659471636015434,
+    "months_active_positive": 23,
+    "months": 46,
+    "differences_with_minus_without": {
+     "net_cer": 0.01348425503996601,
+     "net_annualized_excess_return": 0.011566271024116982,
+     "cumulative_return": 0.06034380700331066,
+     "net_sharpe": 0.13677020462520095,
+     "max_drawdown": -0.0014918299961452774,
+     "annualized_volatility": -0.006868821840534667,
+     "annualized_one_way_turnover": 0.7950113725057226,
+     "total_cost": 0.0030475435946052715,
+     "annualized_cost": 0.0007950113725057229
+    },
+    "break_even_cost_stage2_convention_14": {
+     "break_even_cost_per_dollar": 0.009270221416444725,
+     "break_even_cost_bps": 92.70221416444724,
+     "status": "defined",
+     "cer_gap_at_zero_cost": 0.014249908935448197
+    },
+    "bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027
+    }
+   },
+   "note": "Causal RAG's frozen neutral weights are the same 45/35/20 portfolio as the Deterministic model's, so the two share an identical no-signal control. Its incremental value is therefore directly comparable with the Deterministic model's, and not with JEV's, whose control is a different portfolio."
   }
  },
  "questions": {
@@ -277,6 +360,69 @@
    "p_two_sided_bootstrap": 0.758,
    "share_of_draws_above_zero": 0.379,
    "statistically_clear_at_5pct": false
+  },
+  "q4_causal_rag_signals_vs_own_no_signal": {
+   "point": 0.01348425503996601,
+   "ci90": [
+    -0.0028347279214548013,
+    0.0422315383540912
+   ],
+   "ci95": [
+    -0.0034642937809273846,
+    0.04532348724654493
+   ],
+   "p_two_sided_bootstrap": 0.5444,
+   "share_of_draws_above_zero": 0.7278,
+   "statistically_clear_at_5pct": false,
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "meaning": "Causal RAG's signal value-added against its own frozen 45/35/20 no-signal portfolio, same accounting as the other two. EXPLORATORY: its reliability gates failed."
+  },
+  "q5_causal_rag_vs_deterministic_after_allocation": {
+   "point": 0.014571772325294031,
+   "ci90": [
+    -0.002275296621482067,
+    0.044443767955074535
+   ],
+   "ci95": [
+    -0.0028543539722370886,
+    0.0475455971710076
+   ],
+   "p_two_sided_bootstrap": 0.472,
+   "share_of_draws_above_zero": 0.764,
+   "statistically_clear_at_5pct": false,
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "meaning": "Causal RAG's signal value-added minus Deterministic's. They share an identical no-signal control, so this is the whole of their gap that is not the market."
+  },
+  "q6_causal_rag_vs_jev_signal_value": {
+   "point": 0.01038992294593765,
+   "ci90": [
+    -0.001890494048614041,
+    0.029233409425108426
+   ],
+   "ci95": [
+    -0.002776221367870098,
+    0.03264860751197792
+   ],
+   "p_two_sided_bootstrap": 0.292,
+   "share_of_draws_above_zero": 0.854,
+   "statistically_clear_at_5pct": false,
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "meaning": "Causal RAG's signal value-added minus JEV's. Their no-signal controls differ, so this compares signal contributions, not portfolios."
+  },
+  "causal_rag_minus_deterministic_total": {
+   "point": 0.014571772325294031,
+   "ci90": [
+    -0.002275296621482067,
+    0.044443767955074535
+   ],
+   "ci95": [
+    -0.0028543539722370886,
+    0.0475455971710076
+   ],
+   "p_two_sided_bootstrap": 0.472,
+   "share_of_draws_above_zero": 0.764,
+   "statistically_clear_at_5pct": false,
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED"
   }
  },
  "reproduces_previous_results": {
@@ -301,6 +447,18 @@
    "max_abs_difference": 0.0,
    "previous_no_signal_net_cer": 0.0436530117126389,
    "no_signal_net_cer_abs_difference": 0.0
+  },
+  "AP3": {
+   "source": "native_backtest/out/ap3/qwen3_runs/evaluation/evaluation.json (exploratory)",
+   "previously_reported_vs_own_benchmark": 0.01348425503996601,
+   "ci95_previous": [
+    -0.0034642937809273846,
+    0.04532348724654493
+   ],
+   "p_previous": 0.5444,
+   "max_abs_difference": 0.0,
+   "previous_with_signals_net_cer": 0.05122417038522721,
+   "with_signals_net_cer_abs_difference": 0.0
   },
   "primary_contrast_AP2B_minus_AP1": {
    "previously_reported": 0.010094945746734078,
@@ -375,6 +533,14 @@
     "interaction_tilt_with_own_mix": 0.0011918027655176333,
     "extra_costs_from_tilts": -2.827859926006482e-05,
     "residual": 7.806255641895632e-18
+   },
+   "AP3": {
+    "signal_value_net": 0.01348425503996601,
+    "tilts_before_costs": 0.014249908935448197,
+    "tilts_before_costs_standalone": 0.011479392175111139,
+    "interaction_tilt_with_own_mix": 0.002770516760337063,
+    "extra_costs_from_tilts": -0.0007656538954821865,
+    "residual": -5.204170427930421e-18
    }
   }
  },
@@ -395,7 +561,7 @@
   "max_abs_mix_identity_residual": 1.0408340855860843e-17
  },
  "information_checks": {
-  "records_checked": 92,
+  "records_checked": 138,
   "problems": []
  },
  "decisions": {
@@ -466,7 +632,7 @@
     },
     "active_net_return_that_month": 0.004805782002872331
    },
-   "stage2_bl_weights_match_records": 0.0,
+   "native_bl_weights_match_records": 0.0,
    "forecast_survival_through_black_litterman": {
     "SPY": {
      "forecast_sd": 0.001684366567389887,
@@ -584,6 +750,105 @@
     "strong_bonds": 0.569418460999451
    },
    "spy_weight_range_across_choices": 0.040679244182542096
+  },
+  "AP3": {
+   "one_way_tilt_mean": 0.049479570480318424,
+   "one_way_tilt_max": 0.24999999999999997,
+   "spy_tilt": {
+    "mean": -9.214024496133162e-05,
+    "sd": 0.05552846470504908,
+    "min": -0.15134943073480883,
+    "max": 0.24999999999999994,
+    "months_overweight": 30,
+    "months_underweight": 16
+   },
+   "tilt_sd_by_asset": {
+    "SPY": 0.05552846470504908,
+    "IEF": 0.08038165149771384,
+    "LQD": 0.04274961729537149
+   },
+   "spy_tilt_direction_changes": 15,
+   "possible_direction_changes": 45,
+   "months_spy_tilt_at_least": {
+    "1pt": 20,
+    "2pt": 10,
+    "5pt": 5
+   },
+   "months_at_a_weight_bound": 4,
+   "weight_bounds": {
+    "SPY": [
+     0.2,
+     0.7
+    ],
+    "IEF": [
+     0.15,
+     0.6
+    ],
+    "LQD": [
+     0.1,
+     0.4
+    ]
+   },
+   "turnover_with_minus_without_annualised": 0.7950113725057226,
+   "tilt_hit_rate_before_costs": 0.5,
+   "tilt_timing_correlation": 0.16594633856074614,
+   "tilt_return_before_costs_annualised": 0.012361282396622715,
+   "extra_cost_annualised": 0.0007950113725057229,
+   "tilt_return_after_costs_annualised": 0.011566271024116991,
+   "tilt_covers_its_costs": true,
+   "average_tilt_vs_timing_ex_post": {
+    "note": "uses the full-period average weights, known only afterwards: descriptive only",
+    "average_tilt": {
+     "SPY": -9.214024496134732e-05,
+     "IEF": -0.004528478385296519,
+     "LQD": 0.004620618630257867
+    },
+    "average_tilt_return_annualised": 6.593823323505451e-05,
+    "timing_return_annualised": 0.012295344163387664,
+    "cer_before_costs_from_average_tilt": -1.8010963072655206e-05,
+    "cer_before_costs_from_timing": 0.014267919898520852
+   },
+   "largest_tilt_month": {
+    "decision_month": "2020-02",
+    "one_way_tilt": 0.24999999999999997,
+    "weights": {
+     "SPY": 0.2986505692651912,
+     "IEF": 0.6,
+     "LQD": 0.10134943073480891
+    },
+    "active_net_return_that_month": 0.04793587923420668
+   },
+   "native_bl_weights_match_records": 2.3037127760972e-15,
+   "forecast_survival_through_black_litterman": {
+    "SPY": {
+     "forecast_sd": 0.001684366567389887,
+     "forecast_minus_prior_sd": 0.001422335264830867,
+     "posterior_minus_prior_sd": 0.0002979945820941784,
+     "share_of_forecast_departure_kept": 0.0395798203208257,
+     "corr_weight_tilt_with_posterior_departure": 0.8882899249076339
+    },
+    "IEF": {
+     "forecast_sd": 0.012365945528877518,
+     "forecast_minus_prior_sd": 0.012377171713864708,
+     "posterior_minus_prior_sd": 0.0005149707546696013,
+     "share_of_forecast_departure_kept": 0.03536815664428876,
+     "corr_weight_tilt_with_posterior_departure": 0.6806984857546942
+    },
+    "LQD": {
+     "forecast_sd": 0.0018144162643314722,
+     "forecast_minus_prior_sd": 0.0020480209683835294,
+     "posterior_minus_prior_sd": 7.760655150744373e-05,
+     "share_of_forecast_departure_kept": 0.04714013348699313,
+     "corr_weight_tilt_with_posterior_departure": -0.16874677082181014
+    }
+   },
+   "spy_weight_by_forecast_tercile": {
+    "highest third": 0.4819209126481479,
+    "lowest third": 0.41292988420321086,
+    "middle third": 0.4573379807838791
+   },
+   "spy_weight_range_across_forecast_terciles": 0.06899102844493704,
+   "forecast_spread_corr_with_spy_tilt": 0.9827262680508771
   }
  },
  "regimes": {
@@ -704,6 +969,62 @@
      "months_signals_ahead": 11
     }
    }
+  },
+  "AP3": {
+   "year": {
+    "2019": {
+     "months": 10,
+     "active_return_sum": -0.005015055661744913,
+     "active_return_mean_monthly": -0.0005015055661744914,
+     "months_signals_ahead": 5
+    },
+    "2020": {
+     "months": 12,
+     "active_return_sum": 0.05004563199973258,
+     "active_return_mean_monthly": 0.0041704693333110485,
+     "months_signals_ahead": 7
+    },
+    "2021": {
+     "months": 12,
+     "active_return_sum": 0.00048071278810969025,
+     "active_return_mean_monthly": 4.0059399009140856e-05,
+     "months_signals_ahead": 6
+    },
+    "2022": {
+     "months": 12,
+     "active_return_sum": -0.0011739168669822027,
+     "active_return_mean_monthly": -9.782640558185023e-05,
+     "months_signals_ahead": 5
+    }
+   },
+   "volatility_at_decision": {
+    "high (20%+ a year)": {
+     "months": 16,
+     "active_return_sum": 0.0012772108076895886,
+     "active_return_mean_monthly": 7.982567548059929e-05,
+     "months_signals_ahead": 7
+    },
+    "normal (below 20%)": {
+     "months": 30,
+     "active_return_sum": 0.043060161451425584,
+     "active_return_mean_monthly": 0.0014353387150475194,
+     "months_signals_ahead": 16
+    }
+   },
+   "stock_market_that_month_ex_post": {
+    "SPY down": {
+     "months": 18,
+     "active_return_sum": 0.04337417911030803,
+     "active_return_mean_monthly": 0.002409676617239335,
+     "months_signals_ahead": 7
+    },
+    "SPY up": {
+     "months": 28,
+     "active_return_sum": 0.0009631931488071222,
+     "active_return_mean_monthly": 3.439975531454008e-05,
+     "months_signals_ahead": 16
+    }
+   }
   }
  },
  "influence_leave_one_month_out": {
@@ -721,6 +1042,14 @@
    "leave_one_out_max": 0.00488300062714965,
    "most_influential_month": "2020-02",
    "without_most_influential_month": -0.001756770321485926,
+   "months_whose_removal_flips_the_sign": 1
+  },
+  "AP3": {
+   "full": 0.01348425503996601,
+   "leave_one_out_min": -0.001358835247826734,
+   "leave_one_out_max": 0.017278877497581897,
+   "most_influential_month": "2020-02",
+   "without_most_influential_month": -0.001358835247826734,
    "months_whose_removal_flips_the_sign": 1
   },
   "jev_minus_deterministic_signal_value": {
@@ -790,6 +1119,21 @@
       0.020917010443181252
      ],
      "p_two_sided_bootstrap": 0.6096,
+     "statistically_clear_at_5pct": false
+    }
+   },
+   "AP3": {
+    "net_cer_without_buy_and_hold": 0.037118931579083574,
+    "cumulative_without_buy_and_hold": 0.2470286631067291,
+    "spy_weight_at_end": 0.5431744284770107,
+    "traded_after_first_month": 0.0,
+    "incremental": {
+     "net_cer_difference": 0.014105238806143637,
+     "ci95": [
+      -0.008085004179864397,
+      0.05091689065097896
+     ],
+     "p_two_sided_bootstrap": 0.484,
      "statistically_clear_at_5pct": false
     }
    }

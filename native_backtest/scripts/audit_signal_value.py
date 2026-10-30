@@ -36,9 +36,13 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "native_backtest/out/signal_value"
 TOL = 1e-12
 NO_SIGNAL = {"AP1": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}, "AP2B": {"SPY": 0.60, "TLT": 0.40}}
+# Causal RAG is rebuilt here too once its genuine decisions exist; its own frozen control is the same
+# 45/35/20 portfolio as the Deterministic model's.
+if (ROOT / "native_backtest/out/decisions/AP3_qwen3_reduced_evidence.jsonl").exists():
+    NO_SIGNAL["AP3"] = {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}
 HYBRID = {"JEV_STOCKS_DET_BONDS": {"SPY": 0.60, "IEF": 0.40 * 35 / 55, "LQD": 0.40 * 20 / 55},
           "DET_STOCKS_JEV_BONDS": {"SPY": 0.45, "TLT": 0.55}}
-UNIVERSE = {"AP1": ["SPY", "IEF", "LQD"], "AP2B": ["SPY", "TLT"]}
+UNIVERSE = {"AP1": ["SPY", "IEF", "LQD"], "AP2B": ["SPY", "TLT"], "AP3": ["SPY", "IEF", "LQD"]}
 
 
 def cer(x, delta: float) -> float:
@@ -242,7 +246,7 @@ def main() -> int:
             C.num(f"{s} {y} active sum", float(a[sel].sum()), rg["year"][y]["active_return_sum"])
 
     # leave-one-month-out influence
-    for s, (on, off) in {"AP1": (D1, D0), "AP2B": (J1, J0)}.items():
+    for s, (on, off) in {k: (f"{k}_ON", f"{k}_OFF") for k in NO_SIGNAL}.items():
         loo = [cer(np.delete(x[on], i), dl) - cer(np.delete(x[off], i), dl) for i in range(len(months))]
         inf = rep["influence_leave_one_month_out"][s]
         C.num(f"{s} leave-one-out range", [min(loo), max(loo)], [inf["leave_one_out_min"], inf["leave_one_out_max"]])

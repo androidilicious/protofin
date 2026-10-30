@@ -53,15 +53,23 @@ def test_experiment_statuses_match_the_research_design():
                                                                  "All five financial signals together": "tested", "Market regimes": "tested"}
     assert rag["base"]["status"] == "awaiting_validation"
     versions = {v["name"]: v["status"] for v in rag["variants"][:2]}
-    assert versions == {"Causal RAG — Reduced Evidence": "awaiting_validation", "Causal RAG — With Historical Documents": "blocked"}
+    assert versions["Causal RAG — With Historical Documents"] == "blocked"
+    # Reduced Evidence has now run; it may be "exploratory", and must never be "tested"
+    assert versions["Causal RAG — Reduced Evidence"] in ("awaiting_validation", "exploratory")
     assert rag["variants"][2]["name"] == "Policy-path proxy variant" and rag["variants"][2]["status"] == "awaiting_validation"
     assert all(v["status"] == "planned" for v in rag["variants"][3:])
     # nothing untested links to results: the two Causal RAG versions link only to the explanation page, which shows none
-    assert all(v["link"] in (None, "rag") for g in shown for v in g["variants"] if v["status"] != "tested")
+    assert all(v["link"] in (None, "rag") for g in shown for v in g["variants"] if v["status"] not in ("tested", "exploratory"))
     # no Causal RAG experiment may be called tested, and results are attached only to experiments that ran
     assert not any(v["status"] == "tested" for v in rag["variants"]) and rag["base"]["status"] != "tested"
-    assert all(v["status"] == "tested" for g in shown for v in g["variants"] if "result" in v)
-    assert sum("result" in v for g in shown for v in g["variants"]) == 4
+    assert all(v["status"] in ("tested", "exploratory") for g in shown for v in g["variants"] if "result" in v)
+    assert sum("result" in v for g in shown for v in g["variants"]) == 5
+    # an exploratory result must carry its designation so it can never read as a validated one
+    for g in shown:
+        for v in g["variants"]:
+            if v["status"] == "exploratory":
+                assert "result" in v and v["designation"] == EXPLORATORY_LABEL
+                assert "gates still failed" in v["result"]["headline"] or "gates" in v["result"]["caution"]
     V = D["ap3"]["versions"]
     assert V["primary"] is None and [i["key"] for i in V["items"]] == ["re", "hd"]
     assert not any(c["done"] for i in V["items"] for c in i["checks"] if "real-model" in c["text"].lower() or "Real model" in c["text"])
@@ -362,7 +370,8 @@ def test_exploratory_causal_rag_block_is_honest_about_its_state():
 def test_no_experiment_or_approach_is_marked_validated_by_the_exploratory_run():
     cfg = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())
     st = {v["id"]: v["status"] for g in cfg["research_design"]["within_approach_experiments"]["groups"] for v in g["variants"]}
-    assert st["AP3-RE"] == "awaiting_validation"                 # the exploratory run does not promote it
+    # the exploratory run records that it ran, and never promotes it to a validated result
+    assert st["AP3-RE"] in ("awaiting_validation", "exploratory") and st["AP3-RE"] != "tested"
     gates = json.loads((ROOT / "native_backtest/config/ap3_reliability_gates_v1.json").read_text())
     assert gates["G3b_testing_agent_fixtures"]["accuracy_min"] == 0.8 and gates["G3a_first_12_months"]["failed_months_max"] == 1
 

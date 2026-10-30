@@ -144,10 +144,15 @@ def test_statuses_changed_only_for_experiments_that_actually_ran():
     cfg = load_config()
     st = {v["id"]: v["status"] for g in cfg["research_design"]["within_approach_experiments"]["groups"] for v in g["variants"]}
     assert st["AP1+B1..B5"] == st["AP1+B-All"] == st["REG"] == st["AP2-COMBO"] == "tested"
-    assert st["AP3-RE"] == st["AP3-RE-PROXY"] == "awaiting_validation" and st["AP3-HD"] == "blocked"
+    # the completed qwen3:4b run moves AP3-RE to "exploratory" - it ran, and its gates failed. It must never
+    # become "tested", and nothing else in the Causal RAG group moves with it.
+    assert st["AP3-RE"] in ("awaiting_validation", "exploratory") and st["AP3-RE"] != "tested"
+    assert st["AP3-RE-PROXY"] == "awaiting_validation" and st["AP3-HD"] == "blocked"
     for k in ("AP3-RE-vs-HD", "AP3-STD", "AP3-NR/RG/PERM/MED", "AP3-VAR"):
         assert st[k] == "planned", k                              # no Causal RAG experiment is called tested
-    assert cfg["version"] == "1.8" and cfg["change_log"][-1]["version"] == "1.8"
+    assert cfg["version"] == cfg["change_log"][-1]["version"], "every version bump is logged"
+    assert cfg["version"] in ("1.8", "1.9")
+    assert "no experiment definition changed" in cfg["change_log"][-1]["change"]
     # the frozen scientific settings are untouched
     assert cfg["windows"]["protected"] == ["2023-01", "2026-08"] and cfg["costs"]["cost_per_dollar_traded"] == 0.0005
     assert cfg["metrics"]["cer_delta"] == 2.5 and cfg["primary_contrasts"] == [["AP2B", "AP1"], ["AP3", "AP1"], ["AP3", "AP2B"]]
