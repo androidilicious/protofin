@@ -62,6 +62,21 @@ What this shows:
 
 `CAUSAL_RAG` uses the saved 95-month run from Farnoosh's branch (`data/causal_rag_qwen3.json`: qwen3:4b free stand-in model, reliability gates G3a and G3b failed). Its signal per fund is the net predicted direction of its Supported, Contradicted and Insufficient chains; its IEF signal stands in for TLT. It goes through the same view rule, Ω, Black-Litterman and scoring, and is kept out of the primary Holm family. At 60/40: −0.52 pts vs static with the direction kept (the same as the placebo: k = 0 for both funds in most months), −1.33 pts (p 0.00) when it may be read freely.
 
+## Three-fund set: SPY / IEF / LQD at 45/35/20 (`config_3f.json`)
+
+The deterministic model's and Causal RAG's own universe, with Stage 2's bounds (SPY 20–70, IEF 15–60, LQD 10–40) and Ledoit–Wolf covariance. `collect_3f.py` builds the three-fund masked block and re-asked Jev (139/139) and the gpt-4o committee (139/139) about the three funds; Causal RAG needs no stand-in. Outputs in `out3/`.
+
+| 45/35/20, direction kept | Net CER | vs static |
+|---|---|---|
+| STATIC | 3.77% | — |
+| PLACEBO | 3.18% | −0.59 (p 0.04) |
+| DET | 3.18% | −0.59 (p 0.01) |
+| JEV | 3.09% | −0.69 (p 0.00) |
+| COMMITTEE | 2.75% | −1.03 (p 0.03) |
+| CAUSAL_RAG (exploratory) | 3.11% | −0.66 (p 0.01) |
+
+Every range sits below zero. With the plain sample covariance (IEF–LQD correlation about 0.7) the optimizer overreacted and every approach lost about twice as much, so Ledoit–Wolf is kept for three funds.
+
 ## Covariance: why the sample estimate
 
 The first runs used Ledoit–Wolf, as Stage 2 does for three assets. With two assets it shrank 40–100% toward equal variances and zero correlation (fully in 11 of 46 months), erasing the SPY–TLT negative correlation (−0.25 in March 2019). Two assets over 36 months is three numbers to estimate, so the plain sample covariance is used (`"covariance": "sample"` in `config.json`; `"ledoit_wolf"` remains available). The ranking did not change; the placebo's cost rose from 0.40 to 0.51 pts and the committee's gap widened from −0.24 to −0.40 (sign mapping).
