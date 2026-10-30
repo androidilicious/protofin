@@ -58,6 +58,10 @@ What this shows:
 - **The committee is the closest** (−0.30 ridge, −0.40 sign) and beats the placebo through its bond calls, but its range includes zero.
 - 46 months can only separate large differences.
 
+## Causal RAG (exploratory)
+
+`CAUSAL_RAG` uses the saved 95-month run from Farnoosh's branch (`data/causal_rag_qwen3.json`: qwen3:4b free stand-in model, reliability gates G3a and G3b failed). Its signal per fund is the net predicted direction of its Supported, Contradicted and Insufficient chains; its IEF signal stands in for TLT. It goes through the same view rule, Ω, Black-Litterman and scoring, and is kept out of the primary Holm family. At 60/40: −0.52 pts vs static with the direction kept (the same as the placebo: k = 0 for both funds in most months), −1.33 pts (p 0.00) when it may be read freely.
+
 ## Covariance: why the sample estimate
 
 The first runs used Ledoit–Wolf, as Stage 2 does for three assets. With two assets it shrank 40–100% toward equal variances and zero correlation (fully in 11 of 46 months), erasing the SPY–TLT negative correlation (−0.25 in March 2019). Two assets over 36 months is three numbers to estimate, so the plain sample covariance is used (`"covariance": "sample"` in `config.json`; `"ledoit_wolf"` remains available). The ranking did not change; the placebo's cost rose from 0.40 to 0.51 pts and the committee's gap widened from −0.24 to −0.40 (sign mapping).

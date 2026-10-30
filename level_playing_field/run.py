@@ -85,6 +85,17 @@ def signals_committee(path: Path) -> pd.DataFrame:
     return df
 
 
+def signals_causal_rag(path: Path) -> pd.DataFrame:
+    """Causal RAG status features (exploratory run). SPY's for the stock view; IEF's stand in for TLT."""
+    rows = {}
+    for m, v in json.loads(path.read_text(encoding="utf-8"))["months"].items():
+        rows[pd.Period(m, "M")] = {"spy_S": v["SPY"]["F_S"], "spy_C": v["SPY"]["F_C"], "spy_I": v["SPY"]["F_I"],
+                                   "ief_S": v["IEF"]["F_S"], "ief_C": v["IEF"]["F_C"], "ief_I": v["IEF"]["F_I"]}
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df.attrs["stated"] = {"SPY": df["spy_S"], "TLT": df["ief_S"]}   # direction of the Supported chains
+    return df
+
+
 # ------------------------------------------------------------------ views and Omega (identical learner)
 def _scale_fit(v: np.ndarray, y: np.ndarray) -> float:
     """Least-squares scale k >= 0 of y on centred v: the approach's direction is kept, only the size is learned."""
@@ -232,7 +243,8 @@ def main(argv=None) -> int:
     y = {a: pd.Series({m: market.period_returns(m, [a])[a] - market.rf_return(m) for m in label_months}) for a in cfg["assets"]}
     src = cfg["sources"]
     raw = {"DET": signals_det(spec), "JEV": signals_jev(ROOT / src["jev_1m"]), "COMMITTEE": signals_committee(ROOT / src["committee_1m"]),
-           "JEV_12M": signals_jev(ROOT / src["jev_12m"]), "COMMITTEE_12M": signals_committee(ROOT / src["committee_12m"]), "PLACEBO": None}
+           "JEV_12M": signals_jev(ROOT / src["jev_12m"]), "COMMITTEE_12M": signals_committee(ROOT / src["committee_12m"]),
+           "CAUSAL_RAG": signals_causal_rag(ROOT / src["causal_rag"]), "PLACEBO": None}
     # a source with no answers would silently act as the placebo; skip it loudly instead
     need = mk.months_between(cfg["train_start"], d1)
     for name in [k for k, X in raw.items() if X is not None]:
@@ -253,7 +265,7 @@ def main(argv=None) -> int:
         summary[tag] = res
         m = res["metrics"]
         print(f"\nprior {p:.0%} SPY / {1 - p:.0%} TLT  ({len(months)} development months)")
-        for k in [k for k in ["STATIC", "PLACEBO", "DET", "JEV", "COMMITTEE", "JEV_12M", "COMMITTEE_12M"] if k in m]:
+        for k in [k for k in ["STATIC", "PLACEBO", "DET", "JEV", "COMMITTEE", "CAUSAL_RAG", "JEV_12M", "COMMITTEE_12M"] if k in m]:
             line = f"  {k:13s} net CER {m[k]['net_cer'] * 100:6.2f}%  SPY {m[k]['min_spy_weight'] * 100:4.1f}-{m[k]['max_spy_weight'] * 100:4.1f}%"
             if k in res["vs_static"]:
                 c = res["vs_static"][k]
