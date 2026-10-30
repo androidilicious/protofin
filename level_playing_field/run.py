@@ -8,7 +8,7 @@ Each approach supplies only a raw monthly signal. Everything else is shared and 
     -> view uncertainty Omega: mean squared one-step validation error of the chosen alpha on past
        months only                                                                (same rule for all)
     -> Black-Litterman around the configured prior mix (default 60/40), P = I, tau, delta,
-       36-month Ledoit-Wolf covariance of completed labels, He-Litterman Sigma_BL
+       36-month sample covariance of completed labels (config "covariance"), He-Litterman Sigma_BL
     -> bounded mean-variance weights (prior +/- band)
     -> the shared evaluator's accounting, net CER and paired block bootstrap
 
@@ -170,7 +170,8 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset, mapp
     detail_rows = []
     for dm in months:
         win = [m for m in excess.index if dm - 1 - cfg["cov_window_months"] <= m <= dm - 2]
-        sigma = LedoitWolf(assume_centered=False).fit(excess.loc[win].to_numpy()).covariance_
+        xw = excess.loc[win].to_numpy()
+        sigma = LedoitWolf(assume_centered=False).fit(xw).covariance_ if cfg.get("covariance") == "ledoit_wolf" else np.cov(xw, rowvar=False, ddof=1)
         day = market.decision_dates[dm]
         t = mk.decision_time_iso(day)
         for name, X in raw.items():

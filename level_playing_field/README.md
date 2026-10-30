@@ -36,27 +36,31 @@ Two mappings from raw signal to view Q, both identical across approaches:
 - **ridge**: Stage 2's Ridge on all of the approach's raw numbers. It may learn any sign, so it can read a reliably wrong signal in reverse.
 - **sign**: Q = average + k × (stated view − its mean), k ≥ 0 fitted on past months. The approach's stated direction is never inverted; an anti-predictive signal collapses to the placebo (k = 0). This is the stricter test of "does the approach's own view help".
 
-Net CER at 60/40 (difference vs the static mix, 95% range, p):
+Net CER at 60/40 (difference vs the static mix, 95% range, p). Covariance: 36-month sample covariance (see below).
 
 | | ridge mapping | sign mapping |
 |---|---|---|
-| STATIC 60/40 | **4.37%** | **4.37%** |
-| PLACEBO | 3.97% (−0.40, p 0.06) | 3.97% (−0.40, p 0.06) |
-| DET | 3.93% (−0.44 [−0.94, −0.03], p 0.03) | 3.93% (same: DET has no stated direction, Ridge is its model) |
-| JEV (1-month) | 3.28% (−1.08 [−3.61, +0.80], p 0.33) | 3.97% (−0.40, p 0.06): k = 0 almost everywhere, i.e. the placebo |
-| COMMITTEE (1-month) | 4.15% (−0.21 [−3.37, +2.03], p 0.94) | 4.13% (−0.24 [−1.11, +0.66], p 0.56) |
-| JEV_12M | 3.26% (−1.10) | 3.98% (−0.38) |
-| COMMITTEE_12M | 3.41% (−0.96) | 4.00% (−0.36) |
+| STATIC 60/40 | 4.37% | 4.37% |
+| PLACEBO | 3.86% (-0.51 [-1.03, -0.10], p 0.01) | 3.86% (-0.51 [-1.03, -0.10], p 0.01) |
+| DET | 3.82% (-0.54 [-1.05, -0.15], p 0.00) | 3.82% (-0.54 [-1.05, -0.15], p 0.00) |
+| JEV (1-month) | 3.19% (-1.18 [-3.60, +0.65], p 0.25) | 3.86% (-0.51 [-1.03, -0.10], p 0.01) |
+| COMMITTEE (1-month) | 4.07% (-0.30 [-3.62, +2.05], p 0.90) | 3.97% (-0.40 [-1.09, +0.28], p 0.25) |
+| JEV_12M | 3.07% (-1.30 [-3.34, +0.09], p 0.08) | 3.86% (-0.50 [-1.04, -0.08], p 0.01) |
+| COMMITTEE_12M | 3.25% (-1.11 [-3.53, +0.60], p 0.27) | 3.88% (-0.48 [-1.04, -0.03], p 0.03) |
 
 Same ordering at 50/50 and 70/30 (`out/summary.json`).
 
 What this shows:
-- **Nothing beats holding the mix.** Every approach, under either mapping and at every mix, has a lower net CER than static 60/40. The placebo alone costs about 0.4 pts: tilting on historical averages plus trading.
+- **Nothing beats holding the mix.** Every approach, under either mapping and at every mix, has a lower net CER than static 60/40.
+- **The machinery alone costs about half a point.** The placebo (historical-average views) loses 0.51 pts a year with p 0.01: the tilts carry no information. It trades no more than static (0.31× vs 0.30× a year), so the loss is the tilting, not the cost.
 - **DET ≈ placebo:** the surprises are ignored for SPY in every month.
-- **Jev's view has no usable direction.** Under the sign mapping k = 0, so Jev becomes the placebo. Under the ridge mapping Ridge read Jev in reverse (its tilt correlated −0.16 with next-month SPY in 2015–2019) and that lost 0.7 pts more.
-- **The committee's one-month view is the closest to break-even** (−0.21 / −0.24 pts) but with a very wide range (the committee swings SPY 49–80%), so it is indistinguishable from zero.
-- **The horizon mattered for the committee, not for Jev:** re-asking the committee for one month improved it from −0.96 to −0.21 under ridge; Jev was unchanged.
-- 46 months can only separate large differences; none of these is statistically clear.
+- **Jev's view has no usable direction.** Under the sign mapping it is the placebo. Under the ridge mapping Ridge read Jev in reverse and lost a further 0.7 pts.
+- **The committee is the closest** (−0.30 ridge, −0.40 sign) and beats the placebo through its bond calls, but its range includes zero.
+- 46 months can only separate large differences.
+
+## Covariance: why the sample estimate
+
+The first runs used Ledoit–Wolf, as Stage 2 does for three assets. With two assets it shrank 40–100% toward equal variances and zero correlation (fully in 11 of 46 months), erasing the SPY–TLT negative correlation (−0.25 in March 2019). Two assets over 36 months is three numbers to estimate, so the plain sample covariance is used (`"covariance": "sample"` in `config.json`; `"ledoit_wolf"` remains available). The ranking did not change; the placebo's cost rose from 0.40 to 0.51 pts and the committee's gap widened from −0.24 to −0.40 (sign mapping).
 
 ## Differences from the native evaluations
 
