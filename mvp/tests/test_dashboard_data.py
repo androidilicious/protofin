@@ -277,19 +277,21 @@ def test_signal_value_tab_numbers_match_the_reports():
     V, A = D["signal_value"], D["audit"]
     r = json.loads((ROOT / "native_backtest/out/signal_value/signal_value_v1.json").read_text())
     p2 = lambda x: round(x * 100, 2)
-    shown = {"det": (3.67, 3.77, -0.11, 0.17, (-0.31, 0.03)), "jev": (4.67, 4.37, 0.31, 0.59, (-0.48, 1.38))}
+    shown = {"det": (3.67, 3.77, -0.11, 0.17, (-0.31, 0.03)), "jev": (5.04, 4.89, 0.15, 0.77, (-0.47, 0.98))}
     for key, src in (("det", "AP1"), ("jev", "AP2B")):
         s, want = V["systems"][key], shown[key]
         assert (p2(s["with"]["cer"]), p2(s["without"]["cer"]), p2(s["value"]["cer_difference"]), round(s["value"]["p"], 2)) == want[:4]
         assert tuple(p2(x) for x in s["value"]["ci95"]) == want[4] and s["value"]["ci95"][0] < 0 < s["value"]["ci95"][1]
         assert abs(s["value"]["cer_difference"] - r["systems"][src]["incremental"]["net_cer_difference"]) < 5e-7
     g = V["gap"]
-    assert (p2(g["total"]["cer_difference"]), p2(g["mix"]["cer_difference"]), p2(g["signals"]["cer_difference"])) == (1.01, 0.59, 0.42)
-    assert {k: p2(v) for k, v in g["parts"].items()} == {"stock": 1.39, "bond": -0.79, "jev": 0.31, "det": 0.11}
-    assert g["rounded_parts_sum"] == 1.02 and g["rounded_total"] == 1.01 and g["full_precision_residual"] == 0.0   # flagged on the tab
+    assert (p2(g["total"]["cer_difference"]), p2(g["mix"]["cer_difference"]), p2(g["signals"]["cer_difference"])) == (1.37, 1.12, 0.26)
+    # on the common universe both no-signal mixes hold the same bond composition, so the bond term is a true zero
+    assert {k: p2(v) for k, v in g["parts"].items()} == {"stock": 1.12, "bond": 0.0, "jev": 0.15, "det": 0.11}
+    assert g["parts"]["bond"] == 0.0 and str(g["parts"]["bond"])[0] != "-", "never render a negative zero"
+    assert g["rounded_parts_sum"] == 1.38 and g["rounded_total"] == 1.37 and g["full_precision_residual"] == 0.0   # flagged on the tab
     im = V["influential_month"]
-    assert im["decision_month"] == "2020-02" and (p2(im["value_with"]), p2(im["value_without"])) == (0.31, -0.18) and im["only_month_that_flips_the_sign"]
-    assert (round(A["corr_monthly_net"], 3), round(A["corr_own_mixes"], 3)) == (0.971, 0.983)
+    assert im["decision_month"] == "2020-02" and (p2(im["value_with"]), p2(im["value_without"])) == (0.15, -0.22) and im["only_month_that_flips_the_sign"]
+    assert (round(A["corr_monthly_net"], 3), round(A["corr_own_mixes"], 3)) == (0.989, 0.989)
     sva = (ROOT / "native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md").read_text()
     for t in ("−0.11 pts", "+0.31 pts", "−0.18 pts", "+0.59 pts", "+0.42 pts", "+1.39 pts", "−0.79 pts", "+1.01 pts",
               "−0.31 pts to +0.03 pts", "−0.48 pts to +1.38 pts", "3.67%", "3.77%", "4.67%", "4.37%"):
@@ -317,7 +319,11 @@ def test_signal_value_tab_series_come_from_the_analysis():
     assert V["systems"]["jev"]["active"][i] == im["jev_active_return"] and abs(sum(V["systems"]["jev"]["active"]) - im["jev_active_sum_all_months"]) < 1e-5
     row = mon.iloc[i]
     assert (im["entry"], im["exit"]) == (row["entry_date"], row["exit_date"]) and abs(im["spy_return"] - row["asset_return_SPY"]) < 5e-5
-    assert V["systems"]["det"]["no_signal_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2} and V["systems"]["jev"]["no_signal_weights"] == {"SPY": 0.6, "TLT": 0.4}
+    assert V["systems"]["det"]["no_signal_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2}
+    jn = V["systems"]["jev"]["no_signal_weights"]
+    sl = D["common_universe"]["bond_sleeve"]
+    assert set(jn) == {"SPY", "IEF", "LQD"} and jn["SPY"] == 0.6
+    assert all(abs(jn[a] - 0.4 * sl[a]) < 1e-12 for a in sl), jn
 
 
 def test_the_information_architecture_is_the_nine_redesigned_sections():
@@ -455,7 +461,7 @@ def test_causal_rag_scenarios_if_computed_stay_exploratory():
 def test_transmission_keeps_each_approach_in_its_own_native_portfolio():
     S = D["sensitivity"]
     det, jev, com = (S["systems"][k] for k in ("det", "jev", "com"))
-    assert det["universe"] == ["SPY", "IEF", "LQD"] and jev["universe"] == ["SPY", "TLT"]
+    assert det["universe"] == ["SPY", "IEF", "LQD"] and jev["universe"] == ["SPY", "IEF", "LQD"]
     assert det["neutral_label"] != jev["neutral_label"]
     assert jev["neutral_label"] == com["neutral_label"]                          # same approach family
     assert "black-litterman" not in jev["allocator"].lower(), "JEV must not be routed through the AP1 allocator"
@@ -533,7 +539,7 @@ def test_each_pipeline_keeps_its_native_architecture():
     assert "Black" in det[3]["what"] and "Black" not in jev[3]["what"], "JEV must not be routed through Black-Litterman"
     assert "capped tilt" in jev[3]["what"]
     assert set(PIPE["det"][PIPE["default_month"]]["weights"]) == {"SPY", "IEF", "LQD"}
-    assert set(PIPE["jev"][PIPE["default_month"]]["weights"]) == {"SPY", "TLT"}
+    assert set(PIPE["jev"][PIPE["default_month"]]["weights"]) == {"SPY", "IEF", "LQD"}
 
 
 # ---------------------------------------------------------------- Download Content package

@@ -48,6 +48,13 @@ SIGNAL = ROOT / "native_backtest" / "out" / "signal_value" / "signal_value_v1.js
 SIGNAL_REPORT = "native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md"
 
 RAG_STATUS = "Awaiting validation · results unavailable"
+# Every approach holds the same three assets. The Agentic Workflow decides only the stock-versus-bond split; its
+# bond remainder is divided at the frozen ratio of the committed re-specification, which is a fixed rule and not a
+# forecast. Read from the pre-registration rather than written out here, so the dashboard cannot drift from it.
+JEV_SLEEVE = json.loads((ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json")
+                        .read_text())["mapping"]["bond_sleeve_proportions"]
+JEV_NEUTRAL = {"SPY": 0.60, **{a: 0.40 * pr for a, pr in JEV_SLEEVE.items()}}
+COMMON = ("SPY", *JEV_SLEEVE)
 
 # Display order: the three primary approaches, then the within-approach variant.
 SYSTEMS = {
@@ -63,13 +70,15 @@ SYSTEMS = {
                         "CPI", "Core CPI", "PPI", "Average hourly earnings"],
             "model": "Ridge regression, refit every month on past data only"},
     "jev": {"src": "AP2B", "role": "primary", "name": "Agentic Workflow — JEV", "short": "Agentic Workflow (JEV)", "color": "#2dd4bf",
-            "universe": ["SPY", "TLT"], "neutral": {"SPY": 0.60, "TLT": 0.40},
-            "horizon": "12-month question, rebalanced monthly", "assets_label": "US stocks, 20+ year Treasuries",
+            "universe": ["SPY", "IEF", "LQD"], "neutral": JEV_NEUTRAL,
+            "horizon": "12-month question, rebalanced monthly",
+            "assets_label": "US stocks, 7–10y Treasuries, corporate bonds",
             "tagline": "JEV, an AI decision model, answers whether stocks will beat bonds over 12 months, and its answer tilts the portfolio.",
             "summary": "JEV, an AI decision model, makes a 12-month stocks-versus-bonds call that tilts a 60/40 portfolio.",
             "steps": ["JEV reads a snapshot of recent market conditions",
                       "It gives the chance that stocks beat bonds over 12 months, plus a five-way tilt",
-                      "The tilt, scaled by JEV's confidence, moves a 60/40 portfolio within 40–80% stocks"],
+                      "The tilt, scaled by JEV's confidence, moves a 60/40 portfolio within 40–80% stocks",
+                      "The 40% bond side is split across the same two bond funds the other approaches hold, at a fixed ratio JEV never chooses"],
             "signals": ["Recent returns and volatility", "Stock–bond correlation and drawdown", "Rate levels and a 10-year rate shock",
                         "Term spread", "Policy and geopolitical uncertainty indexes", "Cash yield"],
             "model": "JEV decision model (saved answers; version not recorded)"},
@@ -85,12 +94,14 @@ SYSTEMS = {
                         "Fed and official documents published before each decision", "Market-reaction data used as tests"],
             "model": "Qwen3 4B, free (stands in for Llama 3.1 70B)", "status_label": RAG_STATUS},
     "com": {"src": "AP2A", "role": "variant", "name": "Agentic Workflow — Agent Committee", "short": "Agent Committee", "color": "#f5a524",
-            "universe": ["SPY", "TLT"], "neutral": {"SPY": 0.60, "TLT": 0.40},
-            "horizon": "12-month views, rebalanced monthly", "assets_label": "US stocks, 20+ year Treasuries",
+            "universe": ["SPY", "IEF", "LQD"], "neutral": JEV_NEUTRAL,
+            "horizon": "12-month views, rebalanced monthly",
+            "assets_label": "US stocks, 7–10y Treasuries, corporate bonds",
             "tagline": "A within-approach variant: three AI agents debate the market, and a chief investment officer sets the view.",
             "steps": ["An Economist and a Risk Manager each read the same market snapshot as JEV",
                       "A CIO agent weighs both and states 12-month return views with a confidence level",
-                      "Black–Litterman tilts a 60/40 portfolio toward the views, more when confidence is high"],
+                      "Black–Litterman tilts a 60/40 portfolio toward the views, more when confidence is high",
+                      "The bond side is split across the same two bond funds the other approaches hold, at a fixed ratio the agents never choose"],
             "signals": ["Same market snapshot as JEV"],
             "model": "GPT-4o (saved runs, repeatable settings)"},
 }
@@ -572,7 +583,10 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
     q = r["questions"]
     out["gap"] = {"total": ci(q["jev_minus_deterministic_total"]), "mix": ci(q["no_signal_mix_difference"]),
                   "signals": ci(q["q3_jev_vs_deterministic_after_allocation"]),
-                  "parts": {"stock": _r(tp["mix_stock_weight_net"]), "bond": _r(tp["mix_bond_sleeve_net"]),
+                  # the bond term is exactly zero now both mixes hold the same bond composition; keep it as a
+                  # true zero so the tab never renders a negative zero from floating-point dust
+                  "parts": {"stock": _r(tp["mix_stock_weight_net"]),
+                            "bond": 0.0 if abs(tp["mix_bond_sleeve_net"]) < 1e-12 else _r(tp["mix_bond_sleeve_net"]),
                             "jev": _r(tp["jev_signal_value"]), "det": _r(tp["minus_deterministic_signal_value"])},
                   "signals_without_most_influential_month": _r(r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["without_most_influential_month"]),
                   "most_influential_month": r["influence_leave_one_month_out"]["jev_minus_deterministic_signal_value"]["most_influential_month"]}
@@ -588,7 +602,8 @@ def signal_value_block(sims: dict, neutral_sims: dict) -> dict | None:
     out["influential_month"] = {
         "decision_month": inf["most_influential_month"], "entry": row["entry_date"], "exit": row["exit_date"],
         "jev_spy_weight": _r(row["AP2B_ON__w_SPY"], 4), "no_signal_spy_weight": _r(row["AP2B_OFF__w_SPY"], 4),
-        "jev_active_return": _r(row["AP2B_active_net"]), "spy_return": _r(row["asset_return_SPY"], 4), "tlt_return": _r(row["asset_return_TLT"], 4),
+        "jev_active_return": _r(row["AP2B_active_net"]), "spy_return": _r(row["asset_return_SPY"], 4),
+        "bond_return": _r(sum(pr * row[f"asset_return_{a}"] for a, pr in JEV_SLEEVE.items()), 4),
         "jev_active_sum_all_months": _r(mon["AP2B_active_net"].sum()),
         "value_with": _r(inf["full"]), "value_without": _r(inf["without_most_influential_month"]),
         "only_month_that_flips_the_sign": inf["months_whose_removal_flips_the_sign"] == 1}
@@ -862,8 +877,8 @@ def pipeline_block(sims: dict) -> dict | None:
             "confidence": _r(float(t["confidence"]), 4), "conf_applied": _r(float(t["conf_applied"]), 4),
             "base_edge": _r(float(t["base_edge"]), 4), "edge": _r(float(t["edge"]), 4),
             "w_unconstrained": {"SPY": _r(float(t["w_unconstrained_SPY"]), 5)},
-            "weights": {a: _r(float(t[f"w_{a}"]), 5) for a in ("SPY", "TLT")},
-            "pretrade": {a: _r(float(rr[f"pretrade_w_{a}"]), 5) for a in ("SPY", "TLT")},
+            "weights": {a: _r(float(t[f"w_{a}"]), 5) for a in COMMON},
+            "pretrade": {a: _r(float(rr[f"pretrade_w_{a}"]), 5) for a in COMMON},
             "binding": ("" if pd.isna(t["bounds_binding"]) else str(t["bounds_binding"])),
             "turnover": _r(float(rr["one_way_turnover"]), 5), "cost": _r(float(rr["cost"]), 6),
             "gross": _r(float(rr["gross_excess_return"]), 6), "net": _r(float(rr["net_excess_return"]), 6),
@@ -892,7 +907,7 @@ def pipeline_block(sims: dict) -> dict | None:
             {"id": "forecast", "name": "Forecasting", "what": "The distribution is averaged into one offset in points of edge, then multiplied by the agent's confidence.",
              "out": "A signal-induced edge contribution."},
             {"id": "alloc", "name": "Portfolio allocation", "what": "edge = baseEdge + confidence x offset drives the native capped tilt; the stock weight is clipped to 40-80%.",
-             "out": "Target weights for SPY and TLT."},
+             "out": "A stock weight; the bond remainder is split across IEF and LQD at a fixed ratio."},
             {"id": "trade", "name": "Trades & returns", "what": "The same shared evaluator: traded at the entry close against drifted weights at 5 bp per dollar traded.",
              "out": "Turnover, cost and the month's realised return."},
             {"id": "eval", "name": "Performance evaluation", "what": "Net of cost and the cash rate, scored on the same 46 development months as every other approach.",
@@ -996,26 +1011,36 @@ def appendix_block(out: dict) -> dict:
     add("methodology", "Frozen rules and settings", f"{len(out['methodology']['settings'])} settings fixed before scoring: windows, costs, risk aversion, bootstrap, universes.", "methodology.settings")
     add("methodology", "Research phases and windows", "Training/burn-in, development, the sealed historical test and the prospective window.", "methodology.phases")
     add("methodology", "Pending methodology decisions", "Choices not yet made, and what each blocks.", "methodology.pending")
-    add("methodology", "Common benchmark specification", "The single SPY/IEF reference used to compare approaches with different universes.", "methodology.common_benchmark")
+    add("methodology", "Passive Portfolio Reference specification",
+        "The frozen 60% SPY / 40% IEF reference line: how it is held, traded and costed, and why it is a passive "
+        "investment comparison rather than the research baseline.", "methodology.common_benchmark")
     add("data", "Asset universes", "What each approach holds and why the universes are not interchangeable.", "assets")
     add("data", "Pipeline input sources", "The committed artifacts every pipeline stage value is read from.", "pipeline.sources")
     add("data", "Signals and features per approach", "The inputs each approach is allowed to use.", "systems[*].signals")
     add("portfolio", "Accounting and transaction costs", "Target weights traded at the entry close against drifted pre-trade weights, 5 bp per dollar traded, first month from cash.", "methodology.settings")
-    add("portfolio", "Native vs common benchmark reconciliation", "How each approach's own benchmark relates to the shared one.", "native_vs_common")
+    add("portfolio", "From each approach's own scoring to the shared one, step by step",
+        "What each shared assumption is worth: verified prices, next-day trading, shared costs, the shared cash "
+        "rate and the move onto the same three funds, one rung at a time.", "native_vs_common")
     add("portfolio", "Portfolio weights by month", "Target, pre-trade and realised weights for every development month.", "pipeline.det / pipeline.jev")
     add("statistics", "Primary contrasts with intervals", "Point estimates, 95% intervals and bootstrap p-values for the headline comparisons.", "dev.primary_contrasts")
     add("statistics", "Bootstrap methodology", "Paired circular block bootstrap, 6-month blocks, 5,000 replications, seed 20261027, delta 2.5.", "methodology.settings")
     add("statistics", "Full performance metric table", "Net CER, annualised return, volatility, Sharpe, maximum drawdown, turnover and cost for every series.", "dev.series")
     add("statistics", "Sensitivity scenario statistics", "Every scenario against 1x, with intervals and p-values.", "sensitivity.systems[*].by_scenario[*].vs_1x")
     add("experiments", "Within-approach experiment results", "Each tested variation, its contrast and its interval.", "experiments")
-    add("experiments", "Signal Value-Added detail", "Counterfactuals, attribution, the influential month and the verification checks.", "signal_value")
+    add("experiments", "Signal Value-Added detail", "Each approach with its signals switched off, the accounting split of the gap between approaches, the one month that drives it and the verification checks.", "signal_value")
     add("experiments", "Forecast-to-allocation detail", "View pipelines, attenuation shares, binding constraints and the correlation decomposition.", "sensitivity")
     add("validation", "Portfolio integrity audit", "An independent rebuild of every monthly return from raw prices.", "audit")
     add("validation", "Validation gate matrix", f"{len(out['validation']['gates'])} gates across the approaches, with current status.", "validation.gates")
     add("validation", "Signal Value verification checks", "The checks run before the signal-value results were read.", "signal_value.checks")
     add("causal-rag", "Reliability gate specifications", "G3a and G3b thresholds, unchanged, and their current measured values.", "ap3_exploratory.gates_failed")
     X = out["ap3_exploratory"]
-    gates = "; ".join(f"{g} ({', '.join(f'{k.replace(chr(95), chr(32))} {v}' for k, v in c.items())})"
+    def gval(k: str, v):
+        """Rates read as percentages, counts as counts: a raw 0.5666666666666667 on the page is not a number
+        anyone can use."""
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            return str(v)
+        return f"{v * 100:.1f}%" if ("rate" in k or "accuracy" in k) and 0.0 <= v <= 1.0 else f"{v:g}"
+    gates = "; ".join(f"{g} ({', '.join(f'{k.replace(chr(95), chr(32))} {gval(k, v)}' for k, v in c.items())})"
                       for g, c in (X.get("gates_failed") or {}).items())
     add("causal-rag", "Why every Causal RAG figure is marked exploratory",
         (f"Its agents did not pass the two pre-registered reliability gates: {gates}. The thresholds were set "
@@ -1091,6 +1116,11 @@ def main() -> int:
                        "historical_test": cfg["windows"]["protected"], "historical_test_status": "sealed",
                        "prospective": "starts after the freeze"},
            "assets": ASSET_NAMES, "primary": PRIMARY, "systems": [], "variants": [],
+           "common_universe": {"assets": list(COMMON), "bond_sleeve": JEV_SLEEVE,
+                               "respecification": json.loads((ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json").read_text())["id"],
+                               "note": ("Every approach holds the same three funds. The Agentic Workflow decides only "
+                                        "the stock-versus-bond split; its bond remainder is divided in this fixed "
+                                        "ratio, which is a rule rather than a forecast.")},
            "dev": {"months": [str(m) for m in dev], "series": {}, "benchmarks": {}}}
 
     cbrep = report["common_benchmark_matched_dev"]
@@ -1196,7 +1226,8 @@ def main() -> int:
                            "Can't be re-run: the model version, prompt and recording tool were not saved"]},
         "rag": {"status": "not run", "checks": ["No results until a real model run passes its reliability checks"]}}
     steps = {}
-    labels = ["As originally scored", "Verified price data", "Trade next trading day", "Shared trading costs", "Shared cash rate"]
+    labels = ["As originally scored", "Verified price data", "Trade next trading day", "Shared trading costs",
+              "Shared cash rate", "Same three funds as the others"]
     for key, src in (("com", "AP2A"), ("jev", "AP2B")):
         rr = report["ap2_execution_attribution"][src]["matched_2019-03_to_2022-12"]
         steps[key] = [{"step": labels[i], "cer": _r(r["cer_delta_2_5"]), "ann_excess_return": _r(r["net_annualized_excess_return"]),

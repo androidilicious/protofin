@@ -105,7 +105,7 @@ def test_committee_plus_jev_is_a_valid_parameter_free_combination(res):
     assert len(recs) == 46
     for r in recs:
         m = r["decision_month"]
-        assert r["generation"]["parameters"] == 0 and list(r["universe"]) == ["SPY", "TLT"]
+        assert r["generation"]["parameters"] == 0 and list(r["universe"]) == ["SPY", "IEF", "LQD"]
         assert r["target_weights"]["SPY"] == pytest.approx(0.5 * (a[m]["target_weights"]["SPY"] + b[m]["target_weights"]["SPY"]), abs=1e-15)
         assert sum(r["target_weights"].values()) == pytest.approx(1.0, abs=1e-12)
         assert pd.Timestamp(r["info_cutoff"]) <= pd.Timestamp(r["decision_time"])          # no look-ahead
@@ -151,7 +151,7 @@ def test_statuses_changed_only_for_experiments_that_actually_ran():
     for k in ("AP3-RE-vs-HD", "AP3-STD", "AP3-NR/RG/PERM/MED", "AP3-VAR"):
         assert st[k] == "planned", k                              # no Causal RAG experiment is called tested
     assert cfg["version"] == cfg["change_log"][-1]["version"], "every version bump is logged"
-    assert cfg["version"] in ("1.8", "1.9")
+    assert cfg["version"] in ("1.8", "1.9", "1.10")
     assert "no experiment definition changed" in cfg["change_log"][-1]["change"]
     # the frozen scientific settings are untouched
     assert cfg["windows"]["protected"] == ["2023-01", "2026-08"] and cfg["costs"]["cost_per_dollar_traded"] == 0.0005

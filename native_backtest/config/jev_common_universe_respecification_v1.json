@@ -2,7 +2,7 @@
   "id": "JEV-3ASSET",
   "version": "1.0",
   "date": "2026-10-30",
-  "title": "Agentic Workflow (JEV) re-specified on the common SPY/IEF/LQD universe",
+  "title": "Agentic Workflow (JEV and the Agent Committee) re-specified on the common SPY/IEF/LQD universe",
   "status": "PRE-REGISTERED BEFORE ANY RESULT WAS COMPUTED",
   "motivation": "Every comparison in this project has carried the caveat that the approaches hold different assets, so differences between them cannot be attributed to the forecasting method. Moving JEV onto the same universe as the Deterministic model and Causal RAG removes that confound for the asset set. It does not remove the remaining differences in forecast horizon and neutral stock weight, which are recorded below as surviving limitations.",
   "what_changes": "The asset set JEV's allocation is expressed over, and nothing else.",
@@ -16,10 +16,22 @@
   "mapping": {
     "stock_weight": "w_SPY is carried over exactly from the native SPY/TLT allocation, to the last bit.",
     "bond_remainder": "1 - w_SPY is split across IEF and LQD at the frozen ratio implied by the Deterministic neutral portfolio, IEF 0.35 and LQD 0.20 of a 0.55 bond sleeve.",
-    "bond_sleeve_proportions": {"IEF": 0.6363636363636364, "LQD": 0.36363636363636365},
+    "bond_sleeve_proportions": {
+      "IEF": 0.6363636363636364,
+      "LQD": 0.36363636363636365
+    },
     "why_this_split": "JEV's agent answers a single stocks-versus-bonds question and says nothing about Treasuries versus corporate bonds. The split is therefore a fixed, frozen rule, not a forecast: no view about IEF against LQD is invented, and the same proportions are used in every month. This is the construction the Signal Value-Added study already uses for its hybrid portfolios.",
-    "native_neutral_weights": {"SPY": 0.6, "IEF": 0.2545454545454545, "LQD": 0.1454545454545455},
-    "neutral_rationale": "JEV's 60/40 stock-bond stance is preserved and expressed over three assets. It is a design choice of the approach, not an artifact of the asset set, so it is not forced to the Deterministic model's 45/35/20."
+    "native_neutral_weights": {
+      "SPY": 0.6,
+      "IEF": 0.2545454545454545,
+      "LQD": 0.1454545454545455
+    },
+    "neutral_rationale": "JEV's 60/40 stock-bond stance is preserved and expressed over three assets. It is a design choice of the approach, not an artifact of the asset set, so it is not forced to the Deterministic model's 45/35/20.",
+    "applies_to": [
+      "AP2B",
+      "AP2A",
+      "AP2_COMBO"
+    ]
   },
   "verification_required_before_any_result_is_read": [
     "The re-specified stock weight equals the archived native stock weight in every month, to within 1e-12.",
@@ -32,7 +44,36 @@
     "Forecast horizon still differs: JEV answers a 12-month question, the Deterministic model forecasts one month ahead, and Causal RAG's calibrated view is one month ahead. This cannot be changed without re-asking the agent, which would require new inference and a changed prompt.",
     "Neutral stock weight still differs: JEV 60%, the Deterministic model and Causal RAG 45%.",
     "Allocation mechanism still differs: JEV applies a capped tilt to its own equilibrium edge; the other two use Black-Litterman.",
-    "The re-specified series is not the authors' original JEV portfolio. It is a documented re-expression of their allocation on a different asset set, and is labelled as such wherever it appears."
+    "The re-specified series is not the authors' original JEV portfolio. It is a documented re-expression of their allocation on a different asset set, and is labelled as such wherever it appears.",
+    "For the Agent Committee the mapping is a larger step than for JEV: its view is specific to long Treasuries, and expressing it over intermediate Treasuries and corporate bonds changes the instrument its bond view is applied to. This is recorded wherever the Committee appears."
   ],
-  "supersedes": "The SPY/TLT expression of JEV in the primary comparison. The archived native records remain in the repository and are still used to verify the stock weight."
+  "supersedes": "The SPY/TLT expression of JEV in the primary comparison. The archived native records remain in the repository and are still used to verify the stock weight.",
+  "systems": {
+    "AP2B": {
+      "role": "primary approach",
+      "native_universe": [
+        "SPY",
+        "TLT"
+      ],
+      "view": "a single stocks-versus-bonds tilt; it says nothing about Treasuries against corporate bonds"
+    },
+    "AP2A": {
+      "role": "within-approach variant",
+      "native_universe": [
+        "SPY",
+        "TLT"
+      ],
+      "view": "an expected total return for SPY and for TLT; it has a long-Treasury view but still says nothing about intermediate Treasuries against corporate bonds",
+      "why_included": "the Committee is mapped with the identical rule so that the Approach 2 family and the Committee + JEV combination experiment stay internally coherent. It remains a variant, not a primary approach."
+    },
+    "AP2_COMBO": {
+      "role": "within-approach experiment (the Committee and JEV averaged)",
+      "native_universe": [
+        "SPY",
+        "TLT"
+      ],
+      "view": "the average of the Committee's and JEV's stock weights",
+      "why_included": "the mapping is linear in the stock weight, so mapping the average gives exactly the same records as averaging the two mapped systems. Mapping it keeps the combination experiment comparable with its two inputs."
+    }
+  }
 }

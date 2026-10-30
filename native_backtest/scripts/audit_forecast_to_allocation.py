@@ -25,8 +25,14 @@ PREREG = ROOT / "native_backtest/config/forecast_to_allocation_sensitivity_prere
 STAGE2_RUN = ROOT / "stage2/results/dev_rerun_v4_portfolio_2026-10-27"
 DEC = ROOT / "native_backtest/out/decisions"
 AUDITED: list = []
+# ASSETS is the space each allocator forms its VIEWS in: the two Agentic Workflow engines reason over stocks
+# against bonds in their own two-asset space and the transmission trace keeps those internals under native names.
 ASSETS = {"AP1": ("SPY", "IEF", "LQD"), "AP2B": ("SPY", "TLT"), "AP2A": ("SPY", "TLT"),
           "AP3": ("SPY", "IEF", "LQD")}
+# PORTFOLIO_ASSETS is the space the resulting ALLOCATION is held and evaluated in. Every approach now holds the
+# same three assets; the Agentic Workflow allocation is re-expressed under the committed pre-registration.
+COMMON = ("SPY", "IEF", "LQD")
+PORTFOLIO_ASSETS = {k: COMMON for k in ASSETS}
 SCEN = ("0x", "0.5x", "1x", "2x")
 TOL = 1e-9
 checks: list = []
@@ -119,7 +125,7 @@ def paired_cer_difference(a: np.ndarray, b: np.ndarray, block: int, reps: int, s
 
 # -------------------------------------------------------------------------------------------------------- audits
 def audit_accounting(system: str, rep: dict) -> None:
-    assets = ASSETS[system]
+    assets = PORTFOLIO_ASSETS[system]
     ret = pd.read_csv(OUT / f"{system.lower()}_scenario_returns.csv")
     for s in SCEN:
         g = ret[ret["scenario"] == s].reset_index(drop=True)
@@ -253,7 +259,7 @@ def audit_reproduction(rep: dict) -> None:
                 j = json.loads(line)
                 recs[j["decision_month"]] = j["target_weights"]
         t = pd.read_csv(OUT / f"{system.lower()}_transmission_trace.csv").query("scenario == '1x'").set_index("decision_month")
-        d = max(abs(t.loc[m, "w_SPY"] - recs[m]["SPY"]) for m in t.index)
+        d = max(abs(t.loc[m, f"w_{a}"] - recs[m][a]) for m in t.index for a in PORTFOLIO_ASSETS[system])
         ok(f"{system} 1x reproduces the archived decision weights", d <= 1e-10, {"max_abs_difference": float(d)})
 
 

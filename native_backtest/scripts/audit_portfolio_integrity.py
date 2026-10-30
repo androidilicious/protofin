@@ -46,7 +46,7 @@ PRICE_FILES = {   # post-2018 segments only: every development entry and exit da
 }
 DTB4WK = ("stage2/data/risk_free/DTB4WK_combined_2001-07-31_to_2026-10-01.csv", "ed2f0bc7e3cc337f1e1ec8f4b2b823a69fed879f2dd6c2c6eefb6e62cd22a66a")
 SYSTEMS = {"AP1": ("Deterministic Quantitative Model", "det", {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}),
-           "AP2B": ("Agentic Workflow - JEV", "jev", {"SPY": 0.60, "TLT": 0.40})}
+           "AP2B": ("Agentic Workflow - JEV", "jev", {"SPY": 0.60, "IEF": 0.40 * 35 / 55, "LQD": 0.40 * 20 / 55})}
 PASSIVE = {"SPY": 0.60, "IEF": 0.40}
 
 
@@ -246,14 +246,14 @@ def main() -> int:
 
     # ---------------------------------------------------------------- decisions and exposures
     wd = d[["w_SPY", "w_IEF", "w_LQD"]]
-    wj = j[["w_SPY", "w_TLT"]]
+    wj = j[["w_SPY", "w_IEF", "w_LQD"]]
     dec = {
         "AP1": {"w_mean": wd.mean().to_dict(), "w_sd": wd.std(ddof=1).to_dict(), "w_min": wd.min().to_dict(), "w_max": wd.max().to_dict(),
                 "distinct_weight_vectors": int(wd.round(10).drop_duplicates().shape[0]),
                 "mean_abs_deviation_from_own_benchmark": float(np.abs(wd.to_numpy() - np.array([0.45, 0.35, 0.20])).sum(axis=1).mean() / 2)},
         "AP2B": {"w_mean": wj.mean().to_dict(), "w_sd": wj.std(ddof=1).to_dict(), "w_min": wj.min().to_dict(), "w_max": wj.max().to_dict(),
                  "distinct_weight_vectors": int(wj.round(10).drop_duplicates().shape[0]),
-                 "mean_abs_deviation_from_own_benchmark": float(np.abs(wj.to_numpy() - np.array([0.60, 0.40])).sum(axis=1).mean() / 2)},
+                 "mean_abs_deviation_from_own_benchmark": float(np.abs(wj.to_numpy() - np.array([0.60, 0.40 * 35 / 55, 0.40 * 20 / 55])).sum(axis=1).mean() / 2)},
         "equity_weight_gap_jev_minus_det": {"mean": float((j["w_SPY"] - d["w_SPY"]).mean()), "min": float((j["w_SPY"] - d["w_SPY"]).min()),
                                             "max": float((j["w_SPY"] - d["w_SPY"]).max())},
         "corr_of_equity_weight_changes": corr(np.diff(d["w_SPY"]), np.diff(j["w_SPY"])),
@@ -281,7 +281,7 @@ def main() -> int:
 
     # ---------------------------------------------------------------- decomposition
     decomp = {}
-    for s, df, cols in (("AP1", d, ["SPY", "IEF", "LQD"]), ("AP2B", j, ["SPY", "TLT"])):
+    for s, df, cols in (("AP1", d, ["SPY", "IEF", "LQD"]), ("AP2B", j, ["SPY", "IEF", "LQD"])):
         W = df[[f"w_{a}" for a in cols]].to_numpy()
         R = np.column_stack([assets[a] for a in cols])
         wbar = W.mean(axis=0)
@@ -298,13 +298,14 @@ def main() -> int:
                      "cumulative_contribution_tilts": float(tilt.sum()), "cumulative_cost": float(cost.sum())}
     # the spread JEV - Det, by source
     eq = (j["w_SPY"] - d["w_SPY"]).to_numpy() * assets["SPY"]
-    bonds = j["w_TLT"].to_numpy() * assets["TLT"] - (d["w_IEF"].to_numpy() * assets["IEF"] + d["w_LQD"].to_numpy() * assets["LQD"])
+    bonds = ((j["w_IEF"].to_numpy() - d["w_IEF"].to_numpy()) * assets["IEF"]
+             + (j["w_LQD"].to_numpy() - d["w_LQD"].to_numpy()) * assets["LQD"])
     costs = -(j["cost"].to_numpy() - d["cost"].to_numpy())
     assert np.allclose(eq + bonds + costs, spread, atol=1e-12)
     v = spread.var(ddof=1)
     decomp["spread_jev_minus_det"] = {
         "equity_weight_difference": {"share_of_variance": float(np.cov(eq, spread)[0, 1] / v), "cumulative": float(eq.sum())},
-        "bond_legs_TLT_vs_IEF_LQD": {"share_of_variance": float(np.cov(bonds, spread)[0, 1] / v), "cumulative": float(bonds.sum())},
+        "bond_legs_same_assets_different_weights": {"share_of_variance": float(np.cov(bonds, spread)[0, 1] / v), "cumulative": float(bonds.sum())},
         "transaction_costs": {"share_of_variance": float(np.cov(costs, spread)[0, 1] / v), "cumulative": float(costs.sum())}}
     # how much of the spread is decisions (tilts) vs the two fixed starting mixes
     nd, nj = sims["AP1_NEUTRAL"]["net"].to_numpy(), sims["AP2B_NEUTRAL"]["net"].to_numpy()
@@ -348,7 +349,11 @@ def main() -> int:
     integ["calendar_year_total_returns_from_adjusted_close"] = annual
     integ["dividend_treatment_evidence"] = ("SPY 2019 from the adjusted close: {:.2%}; the S&P 500's 2019 price-only return was about 28.9% and "
                                             "its total return about 31.5%, so distributions are included".format(annual["SPY"]["2019"]))
-    integ["dividend_treatment"] = "adjusted 'Close' in every price file (distribution-adjusted; Stage 2 gate 5 on issuer records: SPY/IEF/LQD pass; TLT C2 review)"
+    integ["dividend_treatment"] = ("adjusted 'Close' in every price file (distribution-adjusted; Stage 2 gate 5 on "
+                                   "issuer records: SPY/IEF/LQD pass). Every approach now holds only SPY, IEF and "
+                                   "LQD, so the open TLT C2 issuer-record review no longer touches any reported "
+                                   "result; TLT is still priced here for context and still backs the archived "
+                                   "native SPY/TLT records.")
 
     for k, v in cmp_eval.items():
         if v["max_abs_diff_net_return"] > 1e-12 or not v["months_equal"] or not v["entry_exit_equal"]:

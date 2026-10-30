@@ -64,6 +64,15 @@
   const ASSET_VAR = { SPY: '--a-eq', IEF: '--a-gov', TLT: '--a-gov', LQD: '--a-credit' };
   const ASSET_DASH = { SPY: [], IEF: [6, 4], TLT: [6, 4], LQD: [2, 3] };
   const PLAIN = { SPY: 'Stocks', IEF: 'Treasuries', TLT: 'Long Treasuries', LQD: 'Corporate bonds' };
+
+  // The Agentic Workflow decides a stock weight; its bond remainder is split in the fixed ratio published with
+  // the data, so an intermediate stock weight can be shown over the same three assets as the final one.
+  function sleeveFrom(wSpy) {
+    const sl = (D.common_universe || {}).bond_sleeve || {};
+    const rest = 1 - wSpy, out = { SPY: wSpy };
+    Object.keys(sl).forEach(a => { out[a] = rest * sl[a]; });
+    return out;
+  }
   const COMMON_DASH = [7, 4], OWN_DASH = [2, 3];
 
   // Line icons (24 px grid, stroked with the current colour).
@@ -224,12 +233,18 @@
 
   // One shared symmetric axis for every interval bar, so bars compare across pages.
   function ciAxis() {
-    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.concat(s.vs_common.ci95).map(Math.abs)).concat((D.dev.within_contrasts || []).flatMap(c => c.ci95.map(Math.abs)))
-      .concat(D.dev.primary_contrasts.items.filter(c => c.computed).flatMap(c => c.ci95.map(Math.abs)));
+    const X = D.ap3_exploratory || {};
+    const vals = Object.values(D.dev.series).flatMap(s => s.vs_neutral.ci95.concat(s.vs_common.ci95).map(Math.abs))
+      .concat((D.dev.within_contrasts || []).flatMap(c => c.ci95.map(Math.abs)))
+      .concat(D.dev.primary_contrasts.items.filter(c => c.computed).flatMap(c => c.ci95.map(Math.abs)))
+      // the exploratory intervals are wider than the rest; the axis has to hold them or they draw outside the bar
+      .concat(Object.values(X.vs || {}).flatMap(c => (c.ci95 || []).map(Math.abs)))
+      .concat([X.vs_common, X.vs_own_neutral].filter(Boolean).flatMap(c => (c.ci95 || []).map(Math.abs)));
     return Math.max(0.01, Math.ceil(Math.max(...vals) * 100) / 100);
   }
   function ciBar(c, key, leftLabel, rightLabel, axis) {
-    const A = axis || ciAxis(), x = v => ((v + A) / (2 * A) * 100).toFixed(2) + '%';
+    // clamped to the track: an interval wider than the axis is still drawn inside its bar rather than past it
+    const A = axis || ciAxis(), x = v => (Math.min(100, Math.max(0, (v + A) / (2 * A) * 100))).toFixed(2) + '%';
     return `<div class="ci" role="img" aria-label="Difference ${pts(c.cer_difference)}, likely range ${pts(c.ci95[0])} to ${pts(c.ci95[1])}">
       <div class="cibar"><span class="zero" style="left:${x(0)}"></span>
         <span class="range" style="left:${x(c.ci95[0])};width:calc(${x(c.ci95[1])} - ${x(c.ci95[0])});background:${color(key)}"></span>
@@ -504,7 +519,7 @@
     app.innerHTML = `<div class="wrap">
       <section><div class="phead"><h1>Primary comparison</h1>${dataChip('dev')}</div>
         <p class="lede">The three primary approaches on the same ${months.length} development months, the same trade timing, the same ${esc(costLabel())} cost and the same cash rate.</p>
-        <div class="callout">${icon('review')}<div><b>Different native universes.</b> The Deterministic model holds stocks, Treasuries and corporate bonds; JEV holds stocks and long Treasuries. Differences between them are not attributable to the forecasting method alone. ${tipw('A shared reference', 'commonbench')} is drawn for context.</div></div>
+        <div class="callout">${icon('review')}<div><b>Same assets, different questions.</b> All three approaches hold the same three funds: stocks, 7–10 year Treasuries and corporate bonds. What still differs is the question each asks — the Agentic Workflow makes one 12-month stocks-versus-bonds call from a 60% starting stock weight and never chooses between the two bond funds, while the other two forecast each asset one month ahead from a 45% starting stock weight. Differences between them are not attributable to the forecasting method alone. ${tipw('A shared reference', 'commonbench')} is drawn for context.</div></div>
       </section>
       <section aria-label="The approaches"><div class="grid3">${D.systems.map(card).join('')}</div></section>
       <section class="panel">
@@ -573,7 +588,7 @@
             scales: { x: xTicks(months), y: yPct(1) } } }) };
     }
     if (s.key === 'com') {
-      return { html: `<h3>The CIO's 12-month views ${tip('confidence')}</h3><p class="sub">Expected total return over 12 months. Amber dots: confidence lowered by high uncertainty ${tip('regime')}</p><div class="chartbox sm"><canvas id="c-sig" aria-label="Committee 12-month views"></canvas></div>`,
+      return { html: `<h3>The CIO's 12-month views ${tip('confidence')}</h3><p class="sub">Expected total return over 12 months. The agents' bond view is about long Treasuries, while the portfolio holds the same two bond funds as the other approaches. Amber dots: confidence lowered by high uncertainty ${tip('regime')}</p><div class="chartbox sm"><canvas id="c-sig" aria-label="Committee 12-month views"></canvas></div>`,
         draw: () => chart(document.getElementById('c-sig'), { type: 'line', data: { labels: months, datasets: [
           { label: 'Stocks', data: fc.map(f => f.SPY), borderColor: assetColor('SPY'), borderWidth: 2, pointRadius: fc.map(f => f.confidence === 'Low' ? 3.5 : 0), pointBackgroundColor: css('--warn'), pointBorderColor: css('--warn') },
           { label: 'Long Treasuries', data: fc.map(f => f.TLT), borderColor: assetColor('TLT'), borderDash: ASSET_DASH.TLT, borderWidth: 2, pointRadius: 0 }] },
@@ -1021,7 +1036,7 @@
     const steps = [['observe', 'Observation'], ['tests', 'Experiments'], ['results', 'Results'], ['explain', 'Explanation'], ['takeaway', 'Takeaway']];
     const detail = [
       { l: 'Higher equity exposure', sub: '60% vs 45% stocks in the no-signal portfolios', v: P.stock, c: css('--c-bench') },
-      { l: 'Different bond exposure', sub: 'long Treasuries vs Treasuries and corporate bonds', v: P.bond, c: css('--c-bench') },
+      { l: 'Different bond exposure', sub: 'none left: both hold the same two bond funds in the same proportion', v: P.bond, c: css('--c-bench') },
       { l: 'JEV\'s signal contribution', sub: 'vs its own no-signal portfolio', v: P.jev, c: color('jev') },
       { l: 'Avoided Deterministic signal loss', sub: 'the Deterministic signals cost a little', v: P.det, c: color('det') },
       { l: 'Total', sub: 'JEV minus Deterministic', v: g.total.cer_difference, c: css('--c-common'), tot: true }];
@@ -1078,7 +1093,7 @@
         <div class="gapbar" role="img" aria-label="No-signal portfolio difference ${pts(g.mix.cer_difference, 2)}, signal-related difference ${pts(g.signals.cer_difference, 2)}, total ${pts(g.total.cer_difference, 2)}">
           <span style="width:${(g.mix.cer_difference / g.total.cer_difference * 100).toFixed(2)}%;background:${css('--c-bench')}"></span><span style="width:${(g.signals.cer_difference / g.total.cer_difference * 100).toFixed(2)}%;background:${color('jev')}"></span></div>
         <div class="gaplegend">
-          <div><i style="background:${css('--c-bench')}"></i><span><b class="num">${pts(g.mix.cer_difference, 2)}</b> No-signal portfolio <span class="nw">difference (${share(g.mix.cer_difference)}%)&nbsp;${tip('nosignal')}</span><small>JEV's starting mix holds more stocks and longer-term Treasuries</small></span></div>
+          <div><i style="background:${css('--c-bench')}"></i><span><b class="num">${pts(g.mix.cer_difference, 2)}</b> No-signal portfolio <span class="nw">difference (${share(g.mix.cer_difference)}%)&nbsp;${tip('nosignal')}</span><small>JEV's starting mix holds 60% stocks against the baseline's 45%; their bond holdings are now identical</small></span></div>
           <div><i style="background:${color('jev')}"></i><span><b class="num">${pts(g.signals.cer_difference, 2)}</b> Signal-related difference (${share(g.signals.cer_difference)}%)<small>95% interval ${pts(g.signals.ci95[0], 2)} to ${pts(g.signals.ci95[1], 2)}, p = ${g.signals.p.toFixed(2)}: not statistically significant</small></span></div>
           <div class="tot"><span><b class="num">${pts(g.total.cer_difference, 2)}</b> Total</span></div>
         </div>
@@ -1099,7 +1114,7 @@
             <div class="sva-stat"><span class="v num">${pts(im.value_with, 2)} → ${pts(im.value_without, 2)}</span><span class="l">JEV's incremental net CER, with and without the ${monthLabel(im.decision_month)} decision</span></div>
             <ul class="sva-list">
               <li>In the ${monthLabel(im.decision_month)} decision JEV reduced its stock allocation to ${pct(im.jev_spy_weight, 1)}, ${mag(-tilt, 1)} below its ${pct(im.no_signal_spy_weight, 0)} starting weight.</li>
-              <li>That portfolio was held ${fmtDay(im.entry)} – ${fmtDay(im.exit)}, while SPY fell ${pct(-im.spy_return, 1)} and TLT rose ${pct(im.tlt_return, 1)}.</li>
+              <li>That portfolio was held ${fmtDay(im.entry)} – ${fmtDay(im.exit)}, while stocks fell ${pct(-im.spy_return, 1)} and its bond holdings rose ${pct(im.bond_return, 1)}.</li>
               <li>That month added ${pts(im.jev_active_return, 2)} over the no-signal portfolio, more than the ${pts(im.jev_active_sum_all_months, 2)} summed over all 46 months.</li>
             </ul>
           </div>
@@ -1263,7 +1278,8 @@
         <li>The passive 60/40 reference answers a separate investment question. It never enters this family and leaves every difference between approaches unchanged.</li>
         <li>With few months, only large differences are detectable: “not significant” means not enough evidence, not “no difference”.</li></ul></div></details>
       <details class="more"><summary>Why this is not a controlled experiment</summary><div><ul>
-        <li>The Agentic Workflow holds stocks and 20+ year Treasuries; the other two hold stocks, 7–10 year Treasuries and corporate bonds.</li>
+        <li>All three hold the same three funds, but only the Deterministic model and Causal RAG decide how much of each bond fund to hold; the Agentic Workflow's bond split is a fixed ratio it never chooses.</li>
+        <li>Starting points differ: the Agentic Workflow tilts away from 60% stocks, the other two from 45%.</li>
         <li>Horizons differ: 12-month views versus 1-month forecasts.</li>
         <li>Each reads different information, from data surprises to research papers and documents.</li>
         <li>The passive 60/40 reference does not remove these differences either: part of each approach's gap to it comes from the assets it may hold.</li>
@@ -1375,7 +1391,7 @@
 
   function stageBody(key, stage, v) {
     if (key === 'rag') return ragBody(stage, v);
-    const A = key === 'det' ? ['SPY', 'IEF', 'LQD'] : ['SPY', 'TLT'];
+    const A = ['SPY', 'IEF', 'LQD'];
     const ac = a => assetColor(a);
     if (stage === 'data') {
       return key === 'det'
@@ -1431,7 +1447,7 @@
             <div class="pgrid">${vrow('Equilibrium edge', num(v.base_edge, 2) + ' pts', 'input')}${vrow('Signal contribution', num(v.weighted_offset, 2) + ' pts', 'forecast')}${vrow('Edge used', num(v.edge, 2) + ' pts', 'forecast')}</div>
             <p class="sub">edge = baseEdge + confidence × offset. This is JEV's own mechanism; it is not Black–Litterman.</p></div>
           <div><h4>Weights before and after the cap</h4>
-            ${weightCompare(A, { SPY: v.w_unconstrained.SPY, TLT: 1 - v.w_unconstrained.SPY }, v.weights)}
+            ${weightCompare(A, sleeveFrom(v.w_unconstrained.SPY), v.weights)}
             ${vrow('Cap binding (40–80% stocks)', v.binding ? esc(v.binding) : 'none', 'decision')}
             <p class="sub">The unclipped fully invested stock weight, then the native 40–80% clip.</p></div>
         </div>`;
@@ -2010,7 +2026,7 @@ different neutral portfolios, so differences between them are not attributable t
   }
 
   function rpWeights(k, v, reached) {
-    const A = k === 'jev' ? ['SPY', 'TLT'] : ['SPY', 'IEF', 'LQD'];
+    const A = ['SPY', 'IEF', 'LQD'];
     if (!reached) return `<div class="rw-wait">${A.map(() => '<span></span>').join('')}</div>`;
     return `<div class="rw">${A.map(a => `<span class="b" style="background:${assetColor(a)};flex:${Math.max(0.0001, v.weights[a])} 1 0"><b>${(v.weights[a] * 100).toFixed(0)}</b></span>`).join('')}</div>
       <div class="rw-key">${A.map(a => `<span><i style="background:${assetColor(a)}"></i>${esc(PLAIN[a] || a)}</span>`).join('')}</div>`;

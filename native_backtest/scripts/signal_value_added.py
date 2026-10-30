@@ -7,7 +7,9 @@ achieve without them?
 For the Deterministic Quantitative Model (research baseline) and the Agentic Workflow (JEV):
 
 - Signal-disabled counterfactual. Each system's frozen native neutral portfolio (framework_config
-  systems.<id>.native_neutral_weights): Deterministic 45/35/20 SPY/IEF/LQD, JEV 60/40 SPY/TLT. Everything except
+  systems.<id>.native_neutral_weights). All three approaches hold the same three assets: Deterministic
+  45/35/20 SPY/IEF/LQD, JEV 60% SPY with the remaining 40% split at the same frozen bond ratio under the
+  committed re-specification, Causal RAG 45/35/20. Everything except
   the tilts is shared with the strategy: the same decision dates, entry and exit closes, adjusted prices, cash
   (DTB4WK), start from cash, and 5 bp per dollar traded against the drifted weights. Like the strategies, the
   references are rebalanced back to their weights every month. That is the frozen convention of the shared
@@ -64,7 +66,7 @@ SYSTEMS = {"AP1": {"label": "Deterministic Quantitative Model", "short": "Determ
 AP3_DECISIONS = DEC / "AP3_qwen3_reduced_evidence.jsonl"
 AP3_META = {"label": "Agentic Causal RAG", "short": "Causal RAG", "role": "primary approach",
             "exploratory": True, "designation": "EXPLORATORY — RELIABILITY GATES FAILED"}
-ASSETS = ("SPY", "IEF", "LQD", "TLT")
+ASSETS = ("SPY", "IEF", "LQD")      # every approach now holds the same three assets
 VOL_WINDOW, VOL_THRESHOLD = 63, 0.20     # ex-ante regime: trailing 63 trading days of SPY, 20% a year (a round level, not tuned)
 AP3_TRACE = ROOT / "native_backtest/out/sensitivity/ap3_transmission_trace.csv"
 STAGE2_BOUNDS = {"SPY": (0.20, 0.70), "IEF": (0.15, 0.60), "LQD": (0.10, 0.40)}   # stage2_portfolio LOWER / UPPER
@@ -147,11 +149,24 @@ def mblock(sim: pd.DataFrame) -> dict:
             "total_cost": m["total_cost"], "annualized_cost": 12.0 * float(sim["cost"].mean()), "n_months": m["n_months"]}
 
 
+DEGENERATE = 1e-12          # a statistic this small in every replication is zero by construction, not by chance
+
+
 def summarise_draws(point: float, d: np.ndarray) -> dict:
-    return {"point": point, "ci90": [float(np.percentile(d, 5)), float(np.percentile(d, 95))],
-            "ci95": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))],
-            "p_two_sided_bootstrap": float(min(1.0, 2.0 * min(np.mean(d <= 0.0), np.mean(d >= 0.0)))),
-            "share_of_draws_above_zero": float(np.mean(d > 0.0))}
+    out = {"point": point, "ci90": [float(np.percentile(d, 5)), float(np.percentile(d, 95))],
+           "ci95": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))],
+           "p_two_sided_bootstrap": float(min(1.0, 2.0 * min(np.mean(d <= 0.0), np.mean(d >= 0.0)))),
+           "share_of_draws_above_zero": float(np.mean(d > 0.0))}
+    # A statistic that is identically zero in every replication carries no sampling variation, so a bootstrap
+    # p-value computed from floating-point dust would be meaningless. On the common universe the two neutral
+    # mixes share their bond composition, which makes the bond-sleeve term exactly zero by construction.
+    if abs(point) <= DEGENERATE and float(np.abs(d).max()) <= DEGENERATE:
+        out.update({"point": 0.0, "ci90": [0.0, 0.0], "ci95": [0.0, 0.0],
+                    "p_two_sided_bootstrap": None, "share_of_draws_above_zero": 0.0,
+                    "exactly_zero_by_construction": True,
+                    "why": ("this term is identically zero in every bootstrap replication, so it has no sampling "
+                            "distribution and no p-value is reported for it")})
+    return out
 
 
 def joint_bootstrap(x: Dict[str, np.ndarray], stats: Dict[str, Callable[[Dict[str, float]], float]], P: dict) -> dict:
@@ -172,6 +187,8 @@ def joint_bootstrap(x: Dict[str, np.ndarray], stats: Dict[str, Callable[[Dict[st
 
 
 def clear(c: dict) -> bool:
+    if c["p_two_sided_bootstrap"] is None:
+        return False
     return bool(c["p_two_sided_bootstrap"] < 0.05 and (c["ci95"][0] > 0 or c["ci95"][1] < 0))
 
 
@@ -242,6 +259,9 @@ def attribution(S: dict, P: dict) -> dict:
             "four_parts": four, "four_parts_residual": total - sum(four.values()),
             "trading_costs_split": {"rebalancing_the_mixes": mix_costs, "extra_trading_from_tilts": tilt_costs, "residual": costs_all - mix_costs - tilt_costs},
             "mix_before_costs": mix_gross, "mix_before_costs_shapley_residual": mix_gross - stock_g - bond_g, "mix_order_effects_before_costs": order_g,
+            "bond_sleeve_note": ("On the common universe the two no-signal mixes share the same bond composition "
+                                 "by construction, so the bond-sleeve component of the gap is exactly zero and the "
+                                 "whole neutral-portfolio difference is the 60% against 45% stock weight."),
             "two_by_two": two, "two_by_two_residual": total - sum(two.values()),
             "mix_net_of_costs": mix_net, "mix_net_shapley_residual": mix_net - stock_n - bond_n, "mix_order_effects_net": order_n,
             "per_system": per}

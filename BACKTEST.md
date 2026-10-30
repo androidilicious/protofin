@@ -9,7 +9,7 @@ Duke MIDS × BNY CIO Office capstone. This branch (`backtest`) adds a shared, po
 | Role | Approach | What it is |
 |---|---|---|
 | **Research baseline** | Deterministic Quantitative Model | 8 economic-data surprises → walk-forward Ridge → 1-month forecasts → Black–Litterman (SPY/IEF/LQD) |
-| Primary | Agentic Workflow, represented by JEV | An AI decision model's saved monthly answers → capped tilt around 60/40 (SPY/TLT) |
+| Primary | Agentic Workflow, represented by JEV | An AI decision model's saved monthly answers → capped tilt around 60/40 stocks-versus-bonds (SPY/IEF/LQD) |
 | Primary | Agentic Causal RAG | Knowledge graph → Hypothesis Agent → CauseTrace → Testing Agent → calibration → Black–Litterman (SPY/IEF/LQD) |
 | Within-approach experiment | Agent Committee (Agentic Workflow) | Three AI agents set 12-month views; compared only with JEV |
 | Secondary reference | Passive Portfolio Reference: 60% SPY / 40% IEF | Frozen; a passive investment reference, not the research baseline |
@@ -22,14 +22,14 @@ Duke MIDS × BNY CIO Office capstone. This branch (`backtest`) adds a shared, po
   - development runs March 2019 – December 2022;
   - the protected historical test (2023-01..2026-08) is **sealed**, with the primary test January 2024 – August 2026 and 2023 reported separately.
 
-## Status (2026-10-29)
+## Status (2026-10-30)
 
 | | State |
 |---|---|
 | Deterministic (baseline) | Reproduced byte-for-byte natively; development results |
 | JEV | Reproduced natively (272/272 saved answers); development results |
 | Agent Committee | Reproduced natively; development results, compared only with JEV |
-| Causal RAG — Reduced Evidence | Built; engineering-tested end to end on all 95 development months with mock responses (never shown as results). Real-model run on **qwen3:4b on a free Kaggle GPU** ($0; documented substitution for Llama 3.1 70B). **Run 1 failed both reliability checks** (G3b 53% vs 80%; G3a 12/12 months without a final answer); harness defects were found and fixed (protocol 1.1; prompts and thresholds unchanged). By the project lead's decision of 29 Oct the full development backtest now runs **first** in a labelled **exploratory (gate-failed)** mode, with reliability work to follow as a separate experiment (`docs/AP3_EXPLORATORY_BASELINE_2026-10-29.md`) |
+| Causal RAG — Reduced Evidence | **Run complete.** All 95 agent months replayed on **qwen3:4b on a free Kaggle GPU** (2,726 calls, $0; documented substitution for Llama 3.1 70B). Both reliability checks still fail (G3b 56.7% against 80% and 2 opposite-direction errors; G3a 97.7% schema-valid against 98%, 0 failed months), so the 46-month portfolio backtest is reported as an **exploratory diagnostic** of the pipeline, never as evidence of investment skill (`docs/AP3_EXPLORATORY_BACKTEST_2026-10-29.md`) |
 | Causal RAG — With Historical Documents | Built. 474 Fed and Census documents validated; BLS documents (≤ 435) blocked from the cloud environment |
 | Policy-path proxy variant | Built as a separately documented sensitivity variant for the missing fed funds futures; engineering-tested |
 | Historical test | Sealed. `historical_evaluation.py` refuses to run without a signed GO record |
@@ -41,26 +41,30 @@ These are diagnostics on development months, not protected historical results.
 | | Net CER | Sharpe | Worst fall | Volatility | Cumulative | Turnover |
 |---|---|---|---|---|---|---|
 | Deterministic (baseline) | 3.67% | 0.46 | −18.6% | 11.5% | 24.3% | 46% |
-| JEV | 4.67% | 0.51 | −23.8% | 13.7% | 31.2% | 33% |
-| Agent Committee (within-approach) | 5.11% | 0.56 | −23.6% | 13.0% | 32.7% | 113% |
+| JEV | 5.04% | 0.54 | −19.5% | 13.6% | 33.0% | 32% |
+| Causal RAG (exploratory) | 5.12% | 0.61 | −18.7% | 10.8% | 30.8% | 106% |
+| Agent Committee (within-approach) | 5.73% | 0.61 | −19.2% | 12.7% | 35.6% | 113% |
 | Passive 60% SPY / 40% IEF (reference) | 4.98% | 0.55 | −18.8% | 12.9% | 32.0% | 28% |
-| Causal RAG | not run yet: free real-model run pending | | | | | |
 
-- **JEV − Deterministic:** +1.01 pts net CER per year, 95% range −3.42 to +5.27, p = 0.63. Not statistically clear.
-- **Committee − JEV:** +0.44 pts, 95% range −1.85 to +2.90, p = 0.72. Not statistically clear.
+All four now hold the same three funds. The Agentic Workflow's allocation was re-expressed from SPY/TLT onto SPY/IEF/LQD on 30 October under a committed pre-registration, without re-running anything: see [`native_backtest/docs/COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md`](native_backtest/docs/COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md), which measures that step on its own (+0.36 pts for JEV, +0.62 for the Committee).
+
+- **JEV − Deterministic:** +1.37 pts net CER per year, 95% range −0.73 to +3.58, p = 0.20. Not statistically clear.
+- **Causal RAG − Deterministic:** +1.46 pts, −0.29 to +4.75, p = 0.47. Not statistically clear, and exploratory.
+- **Causal RAG − JEV:** +0.08 pts, −3.35 to +4.56, p = 0.98. The two agentic approaches are indistinguishable; before they were put on the same assets this gap read +0.45 pts.
+- **Committee − JEV:** +0.69 pts, 95% range −1.00 to +2.45, p = 0.44. Not statistically clear.
 
 **Within-approach experiments (completed 29 Oct 2026).** Pre-registered first, development months only, none in the primary family.
 - **Conventional financial signals (B1..B5, B-All):** resumed after a written decision and pre-registration. The pre-declared B-All contrast is **−0.046** normalised pooled squared-error improvement (95% −0.139 to +0.001, p = 0.47): no improvement. No component is significant after Holm correction, none passes the robustness rule, and all five lower net CER.
 - **Market regimes:** all four strategies earn far less from 2020 onward at two to three times the volatility; diagnostic only.
-- **Committee + JEV:** net CER 4.93%, between JEV (4.67%) and the Committee (5.11%); clear against neither.
+- **Committee + JEV:** net CER 5.41%, between JEV (5.04%) and the Committee (5.73%); clear against neither.
 
 Report: [`native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md`](native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md).
 
 **Do the signals add value?** Each approach is compared with its own portfolio with the forecasts switched off. These are within-approach counterfactuals, not new approaches: same assets, starting mix, monthly rebalancing, costs and cash.
 - **Deterministic signals:** −0.11 pts net CER (95% range −0.31 to +0.03, p = 0.17).
-- **JEV signals:** +0.31 pts (−0.48 to +1.38, p = 0.59). The gain depends on one month, the February 2020 decision; without it the figure is −0.18 pts.
-- **JEV − Deterministic after accounting for their portfolios:** +0.42 pts (−0.43 to +1.63, p = 0.51).
-- **Where JEV's +1.01 pts lead comes from:** +0.59 pts comes from the two no-signal portfolios. The larger stock weight adds +1.39 pts and the long Treasuries take away 0.79 pts.
+- **JEV signals:** +0.15 pts (−0.47 to +0.98, p = 0.77). The gain depends on one month, the February 2020 decision.
+- **JEV − Deterministic after accounting for their portfolios:** +0.26 pts (−0.41 to +1.22, p = 0.64).
+- **Where JEV's +1.37 pts lead comes from:** +1.12 pts is the starting portfolio alone — its 60% stock weight against the Deterministic model's 45%. Now that both hold the same two bond funds in the same proportion, the bond-composition term is exactly zero. JEV's own signals add +0.15 pts and the Deterministic signals' small loss accounts for the remaining +0.11 pts.
 
 None of these is statistically clear. Report: [`native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md`](native_backtest/docs/SIGNAL_VALUE_ADDED_2026-10-29.md).
 

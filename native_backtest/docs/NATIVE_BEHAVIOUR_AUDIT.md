@@ -22,7 +22,8 @@ Nothing in this file changes any system; it records what each one does today.
 | Model calls | None (Ridge) | OpenAI `gpt-4o` (unpinned alias), temperature 0, seed 42, max_tokens 300; 3 calls: Economist ∥ Risk Manager → CIO. Optional stochastic mode (T 0.2, 5 runs) saved for 18 months only | `typesafe/jev` on Cloudflare Workers AI; version and training cutoff undocumented; no client code in the repo | CauseTrace: local Ollama `qwen3:4b` for question parsing and explanations; causal-rag-mvp assessor: `claude` CLI, `claude-sonnet-5-5` (default sampling) |
 | Output | One-month expected excess return per asset (decimal) | SPY and TLT expected **total** return over 12 months (%), confidence High/Medium/Low (all 272 saved runs say Medium) | P(stocks beat bonds over 12 months), five-way tilt probabilities, confidence, offset | Per-edge status supported / contradicted / insufficient with validated quotes (one event); no forecast |
 | Horizon / rebalancing | 1 month / monthly | 12-month views / monthly | 12-month question / monthly | — |
-| Universe | SPY, IEF, LQD | SPY, TLT | SPY, TLT | — |
+| Universe (native, as the engine decides) | SPY, IEF, LQD | SPY, TLT | SPY, TLT | — |
+| Universe (held and evaluated, from 30 Oct 2026) | SPY, IEF, LQD | SPY, IEF, LQD | SPY, IEF, LQD | SPY, IEF, LQD |
 | Allocator | BL: prior 45/35/20, τ 0.05, δ 2.5, P = I, fixed Ω from development errors, Ledoit–Wolf Σ on 36 monthly excess returns, exact enumeration within SPY 20–70%, IEF 15–60%, LQD 10–40% | BL: prior 60/40, δ 2.5, τ 0.05, P = I, Ω = c·τΣ with c = 0.5/1/2 for High/Medium/Low; confidence lowered one notch when EPU or GPR ≥ 90th pct or both ≥ 80th; Σ = 252-day daily sample covariance ×252; exact two-asset optimum clipped to SPY 40–80%. Replay applies no trade band | Capped tilt: edge = (Π_SPY − Π_TLT)·100 + confidence × offset, offsets strong/lean equities +3/+1.5, neutral 0, lean/strong bonds −1.5/−3; two-asset closed form with the same Σ and δ; SPY clipped to 40–80%. No regime gate | — |
 | Decision timing | 20:00 ET last trading day; executed next trading day's close | Month-end close `as_of`; executed at the same close in the native replay | Same as Committee | — |
 | Costs (native) | 5 bp per dollar traded, drift-aware, starts from cash | 5 bp per unit of SPY-weight change (= 2.5 bp per dollar traded), drift-aware | Same as Committee | — |
@@ -35,7 +36,7 @@ Nothing in this file changes any system; it records what each one does today.
 
 | # | Proposed methodology | Native behaviour | Classification | Resolution in this build |
 |---|---|---|---|---|
-| 1 | All systems on SPY/IEF/LQD | AP2-A and AP2-B trade SPY/TLT | Would materially alter AP2 | **Not adopted.** Each system runs on its native universe |
+| 1 | All systems on SPY/IEF/LQD | AP2-A and AP2-B trade SPY/TLT | Would materially alter AP2 | **Not adopted (Oct 2026), then adopted on 30 Oct 2026 as a re-expression.** The original decision stands as recorded: nothing about AP2 was re-run. Its saved answers, prompts, model and mechanism are untouched and the stock weight it decides carries over exactly; only the asset set the resulting allocation is expressed over changed, at one frozen bond ratio AP2 never chooses. Pre-registered before any result was computed and reported with the universe step measured on its own: [`COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md`](COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md). The native SPY/TLT records are archived beside the mapped ones |
 | 2 | One-month views | AP2-A and AP2-B use 12-month views, rebalanced monthly | Would materially alter AP2 | **Not adopted** |
 | 3 | Committee re-run on Llama 3.1 70B | Native model gpt-4o | Would materially alter AP2-A | **Not adopted.** Saved native gpt-4o runs are used |
 | 4 | 8 macro surprises added to every agent | Committee replay has no surprises | Would materially alter AP2-A | **Not adopted** |
@@ -49,7 +50,15 @@ Nothing in this file changes any system; it records what each one does today.
 
 ## 3. Comparability
 
-AP1 and AP3 trade SPY/IEF/LQD on one-month views. AP2-A and AP2-B trade SPY/TLT on 12-month views. A comparison of net CER across these systems is a comparison of **complete strategies, including their choice of assets and horizon**. It is not a controlled comparison of forecasting skill, because TLT has roughly twice IEF's duration and no credit exposure. Results will therefore also report each system against its own neutral portfolio (45/35/20 for AP1 and AP3, 60/40 SPY/TLT for AP2), so the asset-choice effect can be seen separately.
+All four systems now hold the same three funds, SPY, IEF and LQD. The bond-fund difference that made this section necessary is gone: it was removed on 30 October 2026 by re-expressing AP2's allocation on the common universe under a committed pre-registration, without re-running anything. The step was worth **+0.36 pts** of net CER for AP2-B and **+0.62 pts** for AP2-A over the development window, measured as its own rung of the native-to-common ladder, which is a fair measure of how much the earlier comparison was reading the choice of bond fund rather than forecasting. See [`COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md`](COMMON_UNIVERSE_RESPECIFICATION_2026-10-30.md).
+
+What remains is still **not** a controlled comparison of forecasting skill:
+
+- AP1 and AP3 forecast each asset one month ahead. AP2-A and AP2-B answer one 12-month stocks-versus-bonds question, and their bond split is a frozen constant rather than a view — AP2 never chooses between Treasuries and corporate bonds. AP2-A's view is specifically about long Treasuries and is now expressed over two other bond funds, which is the larger of the two mappings.
+- The neutral stance still differs: 45% stocks for AP1 and AP3, 60% for AP2. On the development window this one parameter accounts for **+1.12 of the +1.37 pts** separating AP2-B from AP1.
+- The systems read different information, use different allocation mechanisms, and AP2's saved answers come from models whose training cut-offs postdate the window.
+
+Results therefore continue to report each system against its own neutral portfolio (45/35/20 for AP1 and AP3; 60% stocks with the frozen bond split for AP2), so the neutral-stance effect can be seen separately.
 
 ## 4. Point-in-time and contamination findings (disclosed, not altered)
 

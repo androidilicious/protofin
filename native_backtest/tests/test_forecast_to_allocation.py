@@ -20,7 +20,8 @@ REPORT = OUT / "forecast_to_allocation_sensitivity.json"
 PREREG = ROOT / "native_backtest/config/forecast_to_allocation_sensitivity_preregistration_v1.json"
 SCEN = ("0x", "0.5x", "1x", "2x")
 LAM = {"0x": 0.0, "0.5x": 0.5, "1x": 1.0, "2x": 2.0}
-ASSETS = {"AP1": ("SPY", "IEF", "LQD"), "AP2B": ("SPY", "TLT"), "AP2A": ("SPY", "TLT")}
+ASSETS = {k: ("SPY", "IEF", "LQD") for k in ("AP1", "AP2B", "AP2A")}      # one common portfolio universe
+VIEW_ASSETS = {"AP1": ("SPY", "IEF", "LQD"), "AP2B": ("SPY", "TLT"), "AP2A": ("SPY", "TLT")}
 COMPUTED = ("AP1", "AP2B", "AP2A")
 
 pytestmark = pytest.mark.skipif(not REPORT.exists(), reason="run python -m native_backtest.scripts.forecast_to_allocation")
@@ -56,7 +57,7 @@ def test_the_scenarios_are_the_pre_registered_ones(rep):
 def test_the_view_transformation_is_the_pre_registered_affine_blend(traces):
     """adjusted view = prior + lambda x (original - prior), at the allocator's own entry point."""
     for s in ("AP1", "AP2A"):
-        a = ASSETS[s]
+        a = VIEW_ASSETS[s]          # views live in the allocator's own space, which is not the portfolio's
         base = part(traces[s], "1x")
         q1 = base[[f"q_adj_{x}" for x in a]].to_numpy(float)
         for sc in SCEN:
@@ -106,7 +107,7 @@ def test_1x_reproduces_the_archived_results_for_every_approach(rep):
 
 def test_0x_is_a_legitimate_signal_neutral_configuration(rep, traces):
     for s in ("AP1", "AP2A"):
-        a = ASSETS[s]
+        a = VIEW_ASSETS[s]
         g = part(traces[s], "0x")
         pi = g[[f"pi_{x}" for x in a]].to_numpy(float)
         assert np.abs(g[[f"q_adj_{x}" for x in a]].to_numpy(float) - pi).max() < 1e-15
@@ -197,8 +198,9 @@ def test_each_approach_keeps_its_own_native_pipeline(rep):
     assert "Black-Litterman" not in jev["kind"], "JEV must not be routed through the Deterministic allocator"
     assert jev["entry_point"] != a1["entry_point"] != cmte["entry_point"]
     assert list(rep["approaches"]["AP1"]["universe"]) == ["SPY", "IEF", "LQD"]
-    assert list(rep["approaches"]["AP2B"]["universe"]) == ["SPY", "TLT"]
-    assert rep["approaches"]["AP2B"]["native_neutral_weights"] == {"SPY": 0.6, "TLT": 0.4}
+    assert list(rep["approaches"]["AP2B"]["universe"]) == ["SPY", "IEF", "LQD"]
+    assert list(rep["approaches"]["AP2B"]["view_space"]) == ["SPY", "TLT"], "its view is still stocks against bonds"
+    assert rep["approaches"]["AP2B"]["native_neutral_weights"]["SPY"] == 0.6
     assert rep["approaches"]["AP1"]["native_neutral_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2}
     mech = rep["cross_approach"]["mechanisms_examined"]
     assert "not_attributable_to_Black_Litterman_alone" in mech

@@ -9,7 +9,14 @@ a time, so the effect of each adjustment is visible:
   V1 pinned prices     as V0 but returns from the pinned, shared price files (same closes)
   V2 next-day trade    as V1 but executed at the next trading day's close (common timing)
   V3 common costs      as V2 but 5 bp per dollar traded, additive, starting from cash (Stage 2 rule)
-  V4 common cash       as V3 but excess returns over DTB4WK accrued from entry = COMMON EVALUATION
+  V4 common cash       as V3 but excess returns over DTB4WK accrued from entry
+  V5 common universe   as V4 but the same stock weight held on the common SPY/IEF/LQD universe, the bond
+                       remainder split at the frozen ratio of the committed re-specification
+                       (jev_common_universe_respecification_v1.json) = COMMON EVALUATION
+
+The system's own decision, its target stock weight, is identical in every rung. V0 to V4 hold the bond leg in
+the native TLT, so the bridge from the native engine's own published numbers stays reproducible; V5 isolates
+the universe re-specification as its own step rather than folding it into another rung.
 
 Development months only (decision months up to 2022-12).
 """
@@ -27,6 +34,8 @@ from native_backtest.framework.market import Market
 from native_backtest.adapters import ap2_native as a
 
 ROOT = Path(__file__).resolve().parents[2]
+BOND_SLEEVE = json.loads((ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json")
+                         .read_text())["mapping"]["bond_sleeve_proportions"]
 
 
 def _native_months() -> Dict[str, dict]:
@@ -96,7 +105,19 @@ def run_variants(weights_by_asof: Dict[str, float], market: Market, months: Sequ
     results.append(_summarise("V3 + common costs (5 bp per $ traded, from cash)", v3, rf_native, 0.5 * notional_total, names))
     # V4 common cash
     rf_dtb = np.array([market.rf_return(m) for m in sel])
-    results.append(_summarise("V4 + DTB4WK cash = common evaluation", v3, rf_dtb, 0.5 * notional_total, names))
+    results.append(_summarise("V4 + DTB4WK cash", v3, rf_dtb, 0.5 * notional_total, names))
+    # V5 the same stock weight, bond remainder on the common universe at the frozen pre-registered ratio
+    bonds = list(BOND_SLEEVE)
+    rb = [market.period_returns(m, bonds) for m in sel]
+    pre5 = np.zeros(1 + len(bonds)); v5, notional5 = [], 0.0
+    for t, rs, rbi in zip(w, r2s, rb):
+        wt = np.array([t] + [(1 - t) * BOND_SLEEVE[b] for b in bonds])
+        rr = np.array([rs] + [rbi[b] for b in bonds])
+        notional = float(np.abs(wt - pre5).sum()); notional5 += notional
+        v5.append(float(wt @ rr) - 5e-4 * notional)
+        grown = wt * (1 + rr); pre5 = grown / grown.sum()
+    results.append(_summarise("V5 + common SPY/IEF/LQD universe = common evaluation",
+                              np.array(v5), rf_dtb, 0.5 * notional5, names))
     for i in range(1, len(results)):
         results[i]["delta_cer_vs_previous"] = results[i]["cer_delta_2_5"] - results[i - 1]["cer_delta_2_5"]
     return results

@@ -196,7 +196,10 @@ h3 { font-size: 14.5px; margin: 0; display: flex; align-items: center; gap: 6px;
 .cibar .zero { position: absolute; top: 3px; bottom: 3px; width: 2px; background: var(--border-strong); }
 .cibar .range { position: absolute; top: 8px; height: 6px; border-radius: 3px; opacity: .45; }
 .cibar .pt { position: absolute; top: 5px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); border: 2px solid var(--surface); }
-.cilabels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); gap: 6px; }
+.cilabels { display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 11.5px; color: var(--muted); gap: 2px 6px; }
+.cilabels > span { min-width: 0; }
+/* inside the axis labels a long system name must wrap rather than push the bar wider than its panel */
+.cilabels .nw { white-space: normal; }
 
 /* primary-comparison diagram */
 .tri { width: 100%; max-width: 560px; justify-self: center; height: auto; overflow: visible; }
@@ -282,7 +285,7 @@ h3 { font-size: 14.5px; margin: 0; display: flex; align-items: center; gap: 6px;
 .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .kpi { background: var(--surface-2); border-radius: 10px; padding: 9px 11px; min-width: 0; }
 .kpi .v { font: 650 18px/1.2 var(--font); font-variant-numeric: tabular-nums; }
-.kpi .l { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 4px; }
+.kpi .l { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; min-width: 0; }
 .kpi.primary { box-shadow: inset 0 0 0 1px var(--accent); }
 .kpis.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 #d-alike h3 { margin-top: 4px; color: var(--text); }
@@ -626,7 +629,7 @@ body.reduced .rw .b { transition: none; }
 .cch b { font-size: 15.5px; }
 .cmetrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 14px; }
 .cmetrics > div { display: grid; gap: 1px; min-width: 0; }
-.cmetrics .l { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 4px; }
+.cmetrics .l { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; min-width: 0; }
 .cmetrics b { font: 650 19px/1.2 var(--font); font-variant-numeric: tabular-nums; }
 
 /* pipeline */
@@ -661,7 +664,7 @@ body.reduced .rw .b { transition: none; }
 .prow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px 12px; align-items: baseline;
   background: var(--surface-2); border-radius: 9px; padding: 8px 11px; font-size: 13px; color: var(--text-2); }
 .prow .l { min-width: 0; }
-.prow b { color: var(--text); font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.prow b { color: var(--text); font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; }
 .prow .k { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 999px; padding: 2px 7px; color: var(--muted); }
 .prow .k-input { background: var(--surface-3); color: var(--muted); }
 .prow .k-forecast { background: var(--accent-soft); color: var(--accent); }
@@ -798,7 +801,8 @@ body.reduced .rw .b { transition: none; }
   .fas-step .arw { right: auto; left: 20px; top: auto; bottom: -10px; transform: rotate(90deg); }
 }
 @media (max-width: 720px) { .sva-split { grid-template-columns: 1fr; } }
-@media (max-width: 560px) { .sva .panel { padding: 16px; } .cerbar { grid-template-columns: 102px minmax(0, 1fr) 50px; font-size: 12.5px; gap: 8px; } .sva-steps li + li::before { display: none; } .sva-stat .v, .sva-delta .big { font-size: 24px; } }
+@media (max-width: 560px) { .prow { grid-template-columns: minmax(0, 1fr); } .prow b { white-space: normal; }
+  .sva .panel { padding: 16px; } .cerbar { grid-template-columns: 102px minmax(0, 1fr) 50px; font-size: 12.5px; gap: 8px; } .sva-steps li + li::before { display: none; } .sva-stat .v, .sva-delta .big { font-size: 24px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media (max-width: 720px) {
   .tree { grid-template-columns: 1fr; gap: 12px; }

@@ -138,10 +138,13 @@ def main() -> int:
         "approach": "Agentic Workflow", "note": cfg["within_approach_contrasts_note"], "computed": within}
     report["research_design"] = cfg["research_design"]
     report["comparability_statement"] = (
-        "AP1 (and AP3) trade SPY/IEF/LQD on one-month views; AP2B (JEV) and its within-approach variant AP2A trade "
-        "SPY/TLT on 12-month views, and the systems read different information. Differences in net CER compare complete strategies, including "
-        "asset choice, horizon and information access; they are not a controlled comparison of forecasting "
-        "skill. Results relative to each system's native neutral portfolio do not remove these differences.")
+        "All three approaches now trade the same three assets, SPY/IEF/LQD. AP1 and AP3 form a view on each asset "
+        "on a one-month horizon; AP2B (JEV) and its within-approach variant AP2A form a single stock-against-bond "
+        "view on a 12-month horizon and their bond split is a frozen constant from the committed re-specification "
+        "rather than a decision. Their neutral stock weight is also 60% against 45%, and the systems read "
+        "different information. Differences in net CER compare complete strategies, including horizon, neutral "
+        "stance and information access; they are not a controlled comparison of forecasting skill. Results "
+        "relative to each system's native neutral portfolio do not remove these differences.")
     (OUT / "development_evaluation_report.json").write_text(json.dumps(report, indent=1, default=float))
     print(json.dumps({"consistency": cons, "AP2A_matched": attribution["AP2A"]["matched_2019-03_to_2022-12"],
                       "AP2B_matched": attribution["AP2B"]["matched_2019-03_to_2022-12"]}, indent=1, default=float)[:6000])

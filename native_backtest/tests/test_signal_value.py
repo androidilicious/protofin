@@ -151,5 +151,9 @@ def test_only_development_months_and_no_new_rules(run):
     assert "monthly rebalancing" in res["conventions"]["rebalancing"] and "sensitivity" in res["conventions"]["rebalancing"]
     cfg = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())
     assert cfg["systems"]["AP1"]["native_neutral_weights"] == {"SPY": 0.45, "IEF": 0.35, "LQD": 0.2}
-    assert cfg["systems"]["AP2B"]["native_neutral_weights"] == {"SPY": 0.6, "TLT": 0.4}
+    jn = cfg["systems"]["AP2B"]["native_neutral_weights"]
+    sleeve = json.loads((ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json")
+                        .read_text())["mapping"]["bond_sleeve_proportions"]
+    assert set(jn) == {"SPY", "IEF", "LQD"} and jn["SPY"] == 0.6                 # the 60/40 stance is untouched
+    assert all(abs(jn[a] - 0.4 * p) <= 1e-15 for a, p in sleeve.items()), jn
     assert set(cfg["systems"]) == {"AP1", "AP2A", "AP2B", "AP3"}       # no new approach was added

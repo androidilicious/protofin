@@ -1,6 +1,6 @@
 {
   "_comment": "Shared evaluation settings for the three-approach backtest (Deterministic, Agentic Workflow represented by JEV, Agentic Causal RAG) and its within-approach Agent Committee variant. Evaluation settings only: no system's forecasting or allocation logic is set here. Paths are relative to the repository root.",
-  "version": "1.9",
+  "version": "1.10",
   "created": "2026-10-28",
   "inherits_stage2_run_spec": {
     "path": "stage2/scoring/stage2_run_spec_dev_v4.json",
@@ -106,31 +106,45 @@
       "role": "primary"
     },
     "AP2A": {
-      "name": "Agentic Workflow — Agent Committee (native gpt-4o, saved runs) — within-approach variant",
+      "name": "Agentic Workflow — Agent Committee (native gpt-4o saved runs, re-expressed on the common SPY/IEF/LQD universe) — within-approach variant",
       "universe": [
         "SPY",
-        "TLT"
+        "IEF",
+        "LQD"
       ],
       "native_neutral_weights": {
         "SPY": 0.6,
-        "TLT": 0.4
+        "IEF": 0.2545454545454545,
+        "LQD": 0.1454545454545455
       },
-      "role": "within_approach_variant"
+      "role": "within_approach_variant",
+      "native_universe_before_respecification": [
+        "SPY",
+        "TLT"
+      ],
+      "universe_respecification": "JEV-3ASSET"
     },
     "AP2B": {
-      "name": "Agentic Workflow — JEV (native saved answers) — primary representative of the Agentic Workflow",
+      "name": "Agentic Workflow — JEV (native saved answers, re-expressed on the common SPY/IEF/LQD universe) — primary representative of the Agentic Workflow",
       "universe": [
         "SPY",
-        "TLT"
+        "IEF",
+        "LQD"
       ],
       "native_neutral_weights": {
         "SPY": 0.6,
-        "TLT": 0.4
+        "IEF": 0.2545454545454545,
+        "LQD": 0.1454545454545455
       },
-      "role": "primary"
+      "role": "primary",
+      "native_universe_before_respecification": [
+        "SPY",
+        "TLT"
+      ],
+      "universe_respecification": "JEV-3ASSET"
     },
     "AP3": {
-      "name": "Agentic Causal RAG — primary; awaiting validation, results unavailable",
+      "name": "Agentic Causal RAG — primary; exploratory results, pre-registered reliability gates did not pass",
       "universe": [
         "SPY",
         "IEF",
@@ -376,6 +390,16 @@
       "version": "1.9",
       "date": "2026-10-29",
       "change": "Within-approach experiment status only: AP3-RE (Causal RAG — Reduced Evidence) moves from awaiting_validation to exploratory. Its full 95-month qwen3:4b agent replay completed and the 46 development months were carried through the native pipeline, but both pre-registered reliability gates still failed (G3b accuracy 0.5667 with 2 opposite-direction errors; G3a schema-valid call rate 0.9771), so the result is a labelled diagnostic and never a validated agent result. No threshold, prompt, model, frozen setting, window, cost, metric, contrast or fingerprint changed; no experiment definition changed; no other experiment status moved."
+    },
+    {
+      "version": "1.10",
+      "date": "2026-10-30",
+      "change": "All three primary approaches now hold the same three assets. The Agentic Workflow records (JEV, the Agent Committee and their combination) are re-expressed from SPY/TLT onto SPY/IEF/LQD under the pre-registration committed at jev_common_universe_respecification_v1.json: the agent's saved answers and the native mechanism are replayed untouched, the stock weight carries over exactly, and the bond remainder is split at the frozen 0.636364/0.363636 ratio implied by the Deterministic neutral portfolio. The native SPY/TLT records are archived unchanged alongside. The neutral stock weight stays at the native 60%, so the Agentic Workflow still differs from the Deterministic model in its neutral stance, its 12-month question horizon and its capped-tilt mechanism. Within this change no experiment definition changed, no threshold moved, no prompt or model was touched and no model call was made: the saved answers are replayed exactly as before and only the asset set the resulting allocation is expressed over differs.",
+      "affects": [
+        "systems.AP2A",
+        "systems.AP2B"
+      ],
+      "preserves": "AP1 and AP3 are untouched. The archived native SPY/TLT decision records and every result computed from them remain in the repository and keep their own names."
     }
   ],
   "common_benchmark": {

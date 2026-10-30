@@ -35,14 +35,21 @@ from native_backtest.scripts import audit_portfolio_integrity as A
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "native_backtest/out/signal_value"
 TOL = 1e-12
-NO_SIGNAL = {"AP1": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}, "AP2B": {"SPY": 0.60, "TLT": 0.40}}
+# Independently re-derived here, not read from the scripts under audit. Every approach holds the same three
+# assets; the Agentic Workflow's bond remainder splits at the Deterministic neutral portfolio's own 35:20 ratio,
+# which is the rule the committed re-specification fixes.
+NO_SIGNAL = {"AP1": {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20},
+             "AP2B": {"SPY": 0.60, "IEF": 0.40 * 35 / 55, "LQD": 0.40 * 20 / 55}}
 # Causal RAG is rebuilt here too once its genuine decisions exist; its own frozen control is the same
 # 45/35/20 portfolio as the Deterministic model's.
 if (ROOT / "native_backtest/out/decisions/AP3_qwen3_reduced_evidence.jsonl").exists():
     NO_SIGNAL["AP3"] = {"SPY": 0.45, "IEF": 0.35, "LQD": 0.20}
+# On the common universe the two neutral mixes share their bond composition, so each hybrid collapses onto one
+# of the two mixes and the bond-sleeve component of the gap is exactly zero. Both are still constructed from
+# their own definition and checked, so the zero is verified rather than assumed.
 HYBRID = {"JEV_STOCKS_DET_BONDS": {"SPY": 0.60, "IEF": 0.40 * 35 / 55, "LQD": 0.40 * 20 / 55},
-          "DET_STOCKS_JEV_BONDS": {"SPY": 0.45, "TLT": 0.55}}
-UNIVERSE = {"AP1": ["SPY", "IEF", "LQD"], "AP2B": ["SPY", "TLT"], "AP3": ["SPY", "IEF", "LQD"]}
+          "DET_STOCKS_JEV_BONDS": {"SPY": 0.45, "IEF": 0.55 * 35 / 55, "LQD": 0.55 * 20 / 55}}
+UNIVERSE = {"AP1": ["SPY", "IEF", "LQD"], "AP2B": ["SPY", "IEF", "LQD"], "AP3": ["SPY", "IEF", "LQD"]}
 
 
 def cer(x, delta: float) -> float:
@@ -66,8 +73,18 @@ def bootstrap(series: dict, stats: dict, P: dict) -> dict:
         for k, f in stats.items():
             d[k][i] = f(c)
     pt = {k: cer(v, P["delta"]) for k, v in series.items()}
-    return {k: {"point": f(pt), "ci90": [np.percentile(d[k], 5), np.percentile(d[k], 95)], "ci95": [np.percentile(d[k], 2.5), np.percentile(d[k], 97.5)],
-                "p_two_sided_bootstrap": min(1.0, 2.0 * min(np.mean(d[k] <= 0), np.mean(d[k] >= 0)))} for k, f in stats.items()}
+    out = {}
+    for k, f in stats.items():
+        # A term that is identically zero in every replication has no sampling distribution, so no p-value is
+        # reported for it. On the common universe the two neutral mixes share their bond composition, which makes
+        # the bond-sleeve term exactly zero by construction; this is re-derived here, not copied.
+        if abs(f(pt)) <= 1e-12 and float(np.abs(d[k]).max()) <= 1e-12:
+            out[k] = {"point": 0.0, "ci90": [0.0, 0.0], "ci95": [0.0, 0.0], "p_two_sided_bootstrap": None}
+        else:
+            out[k] = {"point": f(pt), "ci90": [np.percentile(d[k], 5), np.percentile(d[k], 95)],
+                      "ci95": [np.percentile(d[k], 2.5), np.percentile(d[k], 97.5)],
+                      "p_two_sided_bootstrap": min(1.0, 2.0 * min(np.mean(d[k] <= 0), np.mean(d[k] >= 0)))}
+    return out
 
 
 class Checker:
@@ -103,11 +120,15 @@ def main() -> int:
     C = Checker()
     # the frozen definitions this check states independently
     for s in NO_SIGNAL:
-        C.true(f"{s} no-signal weights are the frozen native neutral weights", cfg["systems"][s]["native_neutral_weights"] == NO_SIGNAL[s])
+        # re-derived here from the frozen rule rather than copied, so compared numerically: the two orders of
+        # multiplication can differ in the last bit.
+        C.true(f"{s} no-signal weights are the frozen native neutral weights",
+               set(cfg["systems"][s]["native_neutral_weights"]) == set(NO_SIGNAL[s])
+               and all(abs(cfg["systems"][s]["native_neutral_weights"][a] - w) <= 1e-15 for a, w in NO_SIGNAL[s].items()))
     C.true("frozen bootstrap settings", (P["block"], P["reps"], P["seed"], P["delta"]) == (6, 5000, 20261027, 2.5))
     C.true("frozen cost", cfg["costs"]["cost_per_dollar_traded"] == A.COST)
 
-    prices = {a: A.load_close(a) for a in ("SPY", "IEF", "LQD", "TLT")}
+    prices = {a: A.load_close(a) for a in ("SPY", "IEF", "LQD")}
     cal, dtb = A.calendar(prices), A.load_dtb4wk()
     months = [str(p) for p in pd.period_range(A.DEV[0], A.DEV[1], freq="M")]
     C.true("months", rep["months"] == [months[0], months[-1], len(months)])
@@ -202,9 +223,10 @@ def main() -> int:
         C.num(f"attribution 2x2 {k}", v, att["two_by_two"][k])
     C.num("2x2 parts add up to the total", sum(two.values()), total)
     ra = rep["attribution_mean_return"]
-    r = {a: next(sims[k][f"r_{a}"].to_numpy() for k in sims if f"r_{a}" in sims[k]) for a in ("SPY", "IEF", "LQD", "TLT")}
+    r = {a: next(sims[k][f"r_{a}"].to_numpy() for k in sims if f"r_{a}" in sims[k]) for a in ("SPY", "IEF", "LQD")}
     bd = (35 * r["IEF"] + 20 * r["LQD"]) / 55
-    parts = {"mix_stock_weight": 0.15 * (r["SPY"] - bd), "mix_bond_sleeve": 0.40 * (r["TLT"] - bd),
+    bj = (35 * r["IEF"] + 20 * r["LQD"]) / 55     # the same sleeve on the common universe, so this part is zero
+    parts = {"mix_stock_weight": 0.15 * (r["SPY"] - bd), "mix_bond_sleeve": 0.40 * (bj - bd),
              "jev_tilts": sims[J1]["gross"].to_numpy() - sims[J0]["gross"].to_numpy(), "minus_deterministic_tilts": -(sims[D1]["gross"].to_numpy() - sims[D0]["gross"].to_numpy()),
              "trading_costs": -(sims[J1]["cost"].to_numpy() - sims[D1]["cost"].to_numpy())}
     for k, v in parts.items():

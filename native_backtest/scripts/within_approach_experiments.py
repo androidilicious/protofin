@@ -14,7 +14,8 @@ window 2023-01..2026-08 is never scored.
 2. Market regimes (REG): a date split and a VIX >= 20 split at the decision date, both known at the decision
    time, for the Deterministic model, JEV, the Committee and the passive 60/40 reference. Diagnostic only.
 3. Committee + JEV (AP2-COMBO): the equal-weight average of the two saved SPY target weights, evaluated on the
-   shared evaluator against each component and against its own 60/40 SPY/TLT benchmark.
+   shared evaluator against each component and against its own 60/40 stock-bond benchmark, held on the common
+   SPY/IEF/LQD universe under the committed re-specification.
 
 Usage (repository root): python -m native_backtest.scripts.within_approach_experiments
 """
@@ -42,6 +43,17 @@ RUN = ROOT / "stage2/results/dev_rerun_v5_within_approach_2026-10-29"
 ARCHIVE = ROOT / "stage2/results/dev_rerun_v4_portfolio_2026-10-27"
 OUT = ROOT / "native_backtest/out/within_approach"
 DEC = ROOT / "native_backtest/out/decisions"
+# The Agentic Workflow decides a stock weight in its own two-asset space; the allocation is held on the common
+# three-asset universe under the pre-registration committed at jev_common_universe_respecification_v1.json.
+JEV_PREREG = ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json"
+BOND_SLEEVE = json.loads(JEV_PREREG.read_text())["mapping"]["bond_sleeve_proportions"]
+COMMON = ("SPY", *BOND_SLEEVE)
+
+
+def common_universe_weights(w_spy: float) -> Dict[str, float]:
+    """The pre-registered mapping: the stock weight carries over, the bond remainder splits at the frozen ratio."""
+    rest = 1.0 - float(w_spy)
+    return {"SPY": float(w_spy), **{a: rest * pr for a, pr in BOND_SLEEVE.items()}}
 VIX = ROOT / "stage2/data/_pinned/mediator_VIX_cboe.csv"
 ASSETS = ("SPY", "IEF", "LQD")
 B_SYSTEMS = {"B1": "credit spread level", "B2": "credit spread 3-month change", "B3": "10Y-3M Treasury slope",
@@ -261,7 +273,7 @@ def combo(cfg, mk, dev, P: dict) -> dict:
     rows = []
     for m in months:
         a, b = recs["AP2A"][m], recs["AP2B"][m]
-        checks["same_universe"].append(list(a.universe) == list(b.universe) == ["SPY", "TLT"])
+        checks["same_universe"].append(list(a.universe) == list(b.universe) == list(COMMON))
         checks["same_decision_dates"].append(a.decision_time == b.decision_time
                                              and pd.Timestamp(a.decision_time).date() == mk.decision_dates[pd.Period(m, "M")].date())
         checks["cutoff_at_or_before_decision"].append(pd.Timestamp(a.info_cutoff) <= pd.Timestamp(a.decision_time) and pd.Timestamp(b.info_cutoff) <= pd.Timestamp(b.decision_time))
@@ -270,9 +282,14 @@ def combo(cfg, mk, dev, P: dict) -> dict:
         rows.append({"decision_month": m, "committee_spy": float(a.target_weights["SPY"]), "jev_spy": float(b.target_weights["SPY"]), "combo_spy": spy})
         out_recs.append(DecisionRecord(
             system_id="AP2-COMBO", decision_month=m, decision_time=a.decision_time, info_cutoff=max(a.info_cutoff, b.info_cutoff),
-            universe=["SPY", "TLT"], target_weights={"SPY": spy, "TLT": 1.0 - spy},
+            universe=list(COMMON), target_weights=common_universe_weights(spy),
             generation={"mode": "computed_native", "rule": "equal-weight average of the saved Committee and JEV SPY target weights",
-                        "components": {"AP2A": a.generation.get("mode"), "AP2B": b.generation.get("mode")}, "parameters": 0},
+                        "components": {"AP2A": a.generation.get("mode"), "AP2B": b.generation.get("mode")}, "parameters": 0,
+                        "respecification": json.loads(JEV_PREREG.read_text())["id"],
+                        "respecification_version": json.loads(JEV_PREREG.read_text())["version"],
+                        "native_universe": ["SPY", "TLT"],
+                        "note": ("the components' saved answers and the native mechanism are unchanged; the averaged "
+                                 "stock weight is held on the common universe per the committed pre-registration")},
             forecast={"horizon_months": 12, "kind": "combined_target_weight",
                       "values": {"committee_spy": float(a.target_weights["SPY"]), "jev_spy": float(b.target_weights["SPY"])}},
             confidence=None, native_detail=None))
@@ -284,7 +301,7 @@ def combo(cfg, mk, dev, P: dict) -> dict:
     sims["own_benchmark"] = simulate_records(static_portfolio_records("AP2_COMBO_NEUTRAL", neutral, out_recs), mk, dev, cost_per_dollar=cost)
     mb = lambda sim: {**M.metrics(sim), "cumulative_return": B.cumulative_return(sim)}
     comparisons = {}
-    for name, other in (("vs JEV", "jev"), ("vs Committee", "com"), ("vs its own 60/40 SPY/TLT benchmark", "own_benchmark")):
+    for name, other in (("vs JEV", "jev"), ("vs Committee", "com"), ("vs its own 60/40 stock-bond benchmark", "own_benchmark")):
         c = M.paired_cer_contrast(sims["combo"], sims[other], delta=P["delta"], block=P["block"], reps=P["reps"], seed=P["seed"])
         comparisons[name] = {"net_cer_difference": c["cer_difference"], "ci90": c["ci90"], "ci95": c["ci95"],
                              "p_two_sided_bootstrap": c["p_two_sided_bootstrap"],

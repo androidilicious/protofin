@@ -68,7 +68,20 @@ LABELS = {0.0: "Neutral (0x)", 0.5: "Weaker (0.5x)", 1.0: "Original (1x)", 2.0: 
 RATIO_FLOOR = 1e-6               # pre-registered: no transmission ratio is formed below this weight change
 REPRO_TOL = 1e-10                # pre-registered reproduction tolerance for the 1x scenario
 AP1_ASSETS = ("SPY", "IEF", "LQD")
-AP2_ASSETS = ("SPY", "TLT")
+# The Agentic Workflow engines decide in their own two-asset space and the trace keeps those internals under
+# their native names. The allocation they produce is expressed on the common universe under the pre-registration
+# at native_backtest/config/jev_common_universe_respecification_v1.json, the same frozen rule the archived
+# decision records use, so the scenarios are evaluated over the same three assets as the other two approaches.
+AP2_NATIVE_ASSETS = ("SPY", "TLT")
+JEV_PREREG = ROOT / "native_backtest/config/jev_common_universe_respecification_v1.json"
+BOND_SLEEVE = json.loads(JEV_PREREG.read_text())["mapping"]["bond_sleeve_proportions"]
+AP2_ASSETS = ("SPY", *BOND_SLEEVE)
+
+
+def common_universe_weights(w_spy: float) -> dict:
+    """The pre-registered mapping: the stock weight carries over, the bond remainder splits at the frozen ratio."""
+    rest = 1.0 - w_spy
+    return {"SPY": w_spy, **{a: rest * pr for a, pr in BOND_SLEEVE.items()}}
 
 
 def key(lam: float) -> str:
@@ -169,7 +182,9 @@ def ap2_scenarios(system: str) -> dict:
         for r in raw["scenarios"][f"{lam:g}"]:
             w = float(r["w_spy"])
             x = r.get("x_raw")
-            rows.append({"scenario": key(lam), "lambda": lam, "as_of": r["as_of"], "w_SPY": w, "w_TLT": 1.0 - w,
+            rows.append({"scenario": key(lam), "lambda": lam, "as_of": r["as_of"],
+                         **{f"w_{a}": v for a, v in common_universe_weights(w).items()},
+                         "w_native_TLT": 1.0 - w,
                          "w_unconstrained_SPY": None if x is None else float(x),
                          "n_bounds_binding": int(abs(w - raw["bounds"]["min_spy"]) < 1e-12 or abs(w - raw["bounds"]["max_spy"]) < 1e-12),
                          "bounds_binding": ("SPY:lower" if abs(w - raw["bounds"]["min_spy"]) < 1e-12 else
@@ -275,8 +290,12 @@ def view_pipeline(traces: Dict[str, pd.DataFrame], approach: str, assets) -> dic
                      "model's own out-of-sample errors, is what shrinks the view, not any position limit")}
 
 
-def transmission(traces: Dict[str, pd.DataFrame], approach: str, assets) -> dict:
-    """Forecast change -> intermediate weight change -> final weight change, per scenario against 1x."""
+def transmission(traces: Dict[str, pd.DataFrame], approach: str, assets, view_assets=None) -> dict:
+    """Forecast change -> intermediate weight change -> final weight change, per scenario against 1x.
+
+    assets is the space the allocation is held in; view_assets is the space the allocator forms its views in.
+    They differ for the Agentic Workflow, which decides over stocks against bonds and holds the common universe."""
+    view_assets = assets if view_assets is None else view_assets
     base = traces[key(1.0)]
     unit = "edge points" if approach == "AP2B" else "basis points a month"
     w_cols = [f"w_{x}" for x in assets]
@@ -284,7 +303,7 @@ def transmission(traces: Dict[str, pd.DataFrame], approach: str, assets) -> dict
     per = {}
     for lam in LAMBDAS:
         t = traces[key(lam)]
-        dv = view_magnitude(t, approach, assets) - view_magnitude(base, approach, assets)
+        dv = view_magnitude(t, approach, view_assets) - view_magnitude(base, approach, view_assets)
         if approach == "AP1":
             du = np.abs(t[[f"w_unconstrained_{x}" for x in assets]].to_numpy(float)
                         - base[[f"w_unconstrained_{x}" for x in assets]].to_numpy(float)).max(axis=1)
@@ -307,7 +326,7 @@ def transmission(traces: Dict[str, pd.DataFrame], approach: str, assets) -> dict
             "binding_bound_counts": {k: int(v) for k, v in t.loc[t["bounds_binding"] != "", "bounds_binding"].value_counts().items()},
         }
     hi, lo = traces[key(2.0)], traces[key(0.5)]
-    vh, vl = view_magnitude(hi, approach, assets), view_magnitude(lo, approach, assets)
+    vh, vl = view_magnitude(hi, approach, view_assets), view_magnitude(lo, approach, view_assets)
     if approach == "AP1":
         wh = hi[w_cols].to_numpy(float)
         wl = lo[w_cols].to_numpy(float)
@@ -413,8 +432,7 @@ def ap2_block(system: str, mk, dev, cost: float, cfg: dict) -> dict:
         t["decision_month"] = t["as_of"].map(day)
         t = t[t["decision_month"].notna()].set_index("decision_month").loc[months].reset_index()
         tr[key(lam)] = t
-        w = {m: {"SPY": float(t.loc[t["decision_month"] == m, "w_SPY"].iloc[0]),
-                 "TLT": float(t.loc[t["decision_month"] == m, "w_TLT"].iloc[0])} for m in months}
+        w = {m: {a: float(t.loc[t["decision_month"] == m, f"w_{a}"].iloc[0]) for a in AP2_ASSETS} for m in months}
         recs[key(lam)] = records_from_weights(system, key(lam), w, template)
         sims[key(lam)] = evaluate(recs[key(lam)], mk, dev, cost)
     neutral = cfg["systems"][system]["native_neutral_weights"]
@@ -434,7 +452,8 @@ def ap2_block(system: str, mk, dev, cost: float, cfg: dict) -> dict:
                     "lambda = 0 scenario and its native no-signal control are the same portfolio"),
             "months_without_a_native_view": int((~tr[key(1.0)]["view_present"]).sum())}
     return {"trace": tr, "sims": sims, "controls": ctrl, "reproduction": repro, "zero_scenario_checks": zero,
-            "neutral": neutral, "assets": AP2_ASSETS, "meta": sc["meta"],
+            "neutral": neutral, "assets": AP2_ASSETS, "view_assets": AP2_NATIVE_ASSETS,
+            "universe_respecification": json.loads(JEV_PREREG.read_text())["id"], "meta": sc["meta"],
             "allocator": {"kind": ("capped tilt on the stock-minus-bond edge" if system == "AP2B"
                                    else "Black-Litterman on the engine's own two-asset equilibrium, then the same cap"),
                           "entry_point": ("livebacktest.js: edge = baseEdge + confidence x offset" if system == "AP2B"
@@ -613,11 +632,13 @@ def ap3_block(mk, dev, cost: float, cfg: dict, S3: dict) -> dict:
 def approach_block(name: str, short: str, role: str, block: dict, P: dict, approach: str) -> dict:
     return {"name": name, "short": short, "role": role, "status": "computed",
             "universe": list(block["assets"]), "native_neutral_weights": block["neutral"],
+            **({"view_space": list(block["view_assets"]),
+                "universe_respecification": block["universe_respecification"]} if "view_assets" in block else {}),
             "allocator": block["allocator"],
             "reproduction_of_1x": block["reproduction"], "zero_scenario_checks": block["zero_scenario_checks"],
             "performance": performance(block),
-            "transmission": transmission(block["trace"], approach, block["assets"]),
-            "view_pipeline": view_pipeline(block["trace"], approach, block["assets"]),
+            "transmission": transmission(block["trace"], approach, block["assets"], block.get("view_assets")),
+            "view_pipeline": view_pipeline(block["trace"], approach, block.get("view_assets") or block["assets"]),
             "signal_share_of_allocation": signal_share(block["trace"], approach, block["assets"], block["neutral"]),
             "statistics": scenario_statistics(block, P)}
 
@@ -755,7 +776,11 @@ def main(argv=None) -> int:
             "Four scenarios for each of three allocators were examined. No multiplicity correction is applied and no bootstrap p-value here is a claim of significance.",
             "The 2x scenario is a diagnostic stress test. It is not a recommendation, and it was not selected on any criterion.",
             "This experiment measures signal transmission, not signal predictive quality. A portfolio can respond strongly to an uninformative view, and a useful view can be attenuated to nothing.",
-            "The approaches hold different assets (SPY/IEF/LQD against SPY/TLT) with different neutral portfolios and different risk structures, so weight responses are comparable only in relative terms.",
+            ("All three approaches now hold the same three assets. The Agentic Workflow still decides in its own "
+             "two-asset space and its allocation is re-expressed on SPY/IEF/LQD under a frozen pre-registered rule, "
+             "so its bond split is a fixed constant rather than a decision; its neutral stock weight is also 60% "
+             "against the other two approaches' 45%, and its question has a 12-month horizon. Weight responses "
+             "remain comparable only in relative terms."),
             ("Causal RAG is included only as an EXPLORATORY diagnostic: its genuine qwen3:4b outputs failed both "
              "pre-registered reliability gates, so its scenarios describe how its allocator transmits a view, not "
              "whether that view is trustworthy."
