@@ -1,0 +1,38 @@
+{
+  "id": "JEV-3ASSET",
+  "version": "1.0",
+  "date": "2026-10-30",
+  "title": "Agentic Workflow (JEV) re-specified on the common SPY/IEF/LQD universe",
+  "status": "PRE-REGISTERED BEFORE ANY RESULT WAS COMPUTED",
+  "motivation": "Every comparison in this project has carried the caveat that the approaches hold different assets, so differences between them cannot be attributed to the forecasting method. Moving JEV onto the same universe as the Deterministic model and Causal RAG removes that confound for the asset set. It does not remove the remaining differences in forecast horizon and neutral stock weight, which are recorded below as surviving limitations.",
+  "what_changes": "The asset set JEV's allocation is expressed over, and nothing else.",
+  "what_does_not_change": [
+    "The saved agent answers: the five-way tilt distribution, the chosen tilt, the probability that stocks beat bonds and the stated confidence are replayed byte-for-byte.",
+    "The native mechanism: edge = baseEdge + confidence x offset, and the stock weight it produces, including the 40-80% clip.",
+    "The 12-month forecast horizon, which is a property of the question the agent was asked and cannot be altered without re-asking it.",
+    "The Deterministic model and Causal RAG, which already hold SPY/IEF/LQD and are not recomputed.",
+    "Decision timestamps, entry and exit dates, the shared evaluator, transaction costs and the sealed protected window."
+  ],
+  "mapping": {
+    "stock_weight": "w_SPY is carried over exactly from the native SPY/TLT allocation, to the last bit.",
+    "bond_remainder": "1 - w_SPY is split across IEF and LQD at the frozen ratio implied by the Deterministic neutral portfolio, IEF 0.35 and LQD 0.20 of a 0.55 bond sleeve.",
+    "bond_sleeve_proportions": {"IEF": 0.6363636363636364, "LQD": 0.36363636363636365},
+    "why_this_split": "JEV's agent answers a single stocks-versus-bonds question and says nothing about Treasuries versus corporate bonds. The split is therefore a fixed, frozen rule, not a forecast: no view about IEF against LQD is invented, and the same proportions are used in every month. This is the construction the Signal Value-Added study already uses for its hybrid portfolios.",
+    "native_neutral_weights": {"SPY": 0.6, "IEF": 0.2545454545454545, "LQD": 0.1454545454545455},
+    "neutral_rationale": "JEV's 60/40 stock-bond stance is preserved and expressed over three assets. It is a design choice of the approach, not an artifact of the asset set, so it is not forced to the Deterministic model's 45/35/20."
+  },
+  "verification_required_before_any_result_is_read": [
+    "The re-specified stock weight equals the archived native stock weight in every month, to within 1e-12.",
+    "Weights are fully invested and non-negative in every month.",
+    "The bond sleeve proportions are identical in every month.",
+    "Decision months, decision times, entry and exit dates are unchanged from the archived records.",
+    "No month at or after the protected window start enters any scored series."
+  ],
+  "surviving_limitations": [
+    "Forecast horizon still differs: JEV answers a 12-month question, the Deterministic model forecasts one month ahead, and Causal RAG's calibrated view is one month ahead. This cannot be changed without re-asking the agent, which would require new inference and a changed prompt.",
+    "Neutral stock weight still differs: JEV 60%, the Deterministic model and Causal RAG 45%.",
+    "Allocation mechanism still differs: JEV applies a capped tilt to its own equilibrium edge; the other two use Black-Litterman.",
+    "The re-specified series is not the authors' original JEV portfolio. It is a documented re-expression of their allocation on a different asset set, and is labelled as such wherever it appears."
+  ],
+  "supersedes": "The SPY/TLT expression of JEV in the primary comparison. The archived native records remain in the repository and are still used to verify the stock weight."
+}
