@@ -67,7 +67,10 @@ def signals_jev(path: Path) -> pd.DataFrame:
     rows = {}
     for as_of, j in json.loads(path.read_text(encoding="utf-8"))["months"].items():
         rows[month_of(as_of)] = {"p_stocks_beat_bonds": j["p"], "expected_tilt": j["offset"], "confidence": j["confidence"]}
-    return pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    # stated direction, sign-preserving mode: Jev's tilt is relative (stocks vs bonds), so +tilt for SPY, -tilt for TLT
+    df.attrs["stated"] = {"SPY": df["expected_tilt"], "TLT": -df["expected_tilt"]}
+    return df
 
 
 def signals_committee(path: Path) -> pd.DataFrame:
@@ -75,14 +78,28 @@ def signals_committee(path: Path) -> pd.DataFrame:
     for as_of, c in json.loads(path.read_text(encoding="utf-8"))["months"].items():
         f = c["cio"]
         ok = not c["problems"]
-        rows[month_of(as_of)] = {"cio_spy_12m": f["spy_q"] if ok else np.nan, "cio_tlt_12m": f["tlt_q"] if ok else np.nan,
+        rows[month_of(as_of)] = {"cio_spy": f["spy_q"] if ok else np.nan, "cio_tlt": f["tlt_q"] if ok else np.nan,
                                  "confidence": CONF_NUM.get(f["confidence"], np.nan) if ok else np.nan}
-    return pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df.attrs["stated"] = {"SPY": df["cio_spy"], "TLT": df["cio_tlt"]}   # the CIO's own number per fund
+    return df
 
 
 # ------------------------------------------------------------------ views and Omega (identical learner)
-def view_and_omega(X: pd.DataFrame | None, y: pd.Series, dm: pd.Period, train_start: pd.Period):
-    """Q and Omega for one fund at decision month dm. X None = placebo (historical average)."""
+def _scale_fit(v: np.ndarray, y: np.ndarray) -> float:
+    """Least-squares scale k >= 0 of y on centred v: the approach's direction is kept, only the size is learned."""
+    vc = v - v.mean()
+    den = float(vc @ vc)
+    return max(0.0, float(vc @ (y - y.mean()) / den)) if den > 0 else 0.0
+
+
+def view_and_omega(X: pd.DataFrame | None, y: pd.Series, dm: pd.Period, train_start: pd.Period, asset: str = "", mapping: str = "ridge"):
+    """Q and Omega for one fund at decision month dm. X None = placebo (historical average).
+
+    mapping "ridge": Stage 2 Ridge on all of the approach's raw numbers (may learn any sign).
+    mapping "sign": Q = average + k * (stated view - its mean), k >= 0 fitted on past months; the stated
+    direction can never be inverted, and an anti-predictive signal collapses to the placebo (k = 0).
+    """
     last = dm - 2
     months = [m for m in y.index if train_start <= m <= last and np.isfinite(y[m])]
     ytr = y.loc[months].to_numpy(dtype=float)
@@ -90,6 +107,16 @@ def view_and_omega(X: pd.DataFrame | None, y: pd.Series, dm: pd.Period, train_st
         q = float(ytr.mean())
         errs = [(ytr[j] - ytr[tr].mean()) ** 2 for tr, j in s2.inner_splits(len(ytr))]
         return q, float(np.mean(errs)), "INTERCEPT_ONLY", len(ytr)
+    if mapping == "sign" and "stated" in X.attrs:
+        v_all = X.attrs["stated"][asset]
+        v = v_all.reindex(months).to_numpy(dtype=float)
+        v = np.where(np.isfinite(v), v, np.nanmean(v))          # an unusable month counts as "no view"
+        x = float(v_all.get(dm, np.nan)); x = x if np.isfinite(x) else float(v.mean())
+        errs = []
+        for tr, j in s2.inner_splits(len(ytr)):
+            k = _scale_fit(v[tr], ytr[tr]); errs.append((ytr[j] - (ytr[tr].mean() + k * (v[j] - v[tr].mean()))) ** 2)
+        k = _scale_fit(v, ytr)
+        return float(ytr.mean() + k * (x - v.mean())), float(np.mean(errs)), f"k={k:.4g}", len(ytr)
     Xtr = X.reindex(months).to_numpy(dtype=float)
     x = X.reindex([dm]).to_numpy(dtype=float)[0]
     alpha, _, losses = s2.choose_alpha(Xtr, ytr)
@@ -132,7 +159,7 @@ def allocate(sigma, q, omega, prior, lo, hi, delta, tau):
 
 
 # ------------------------------------------------------------------ run
-def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset) -> Dict:
+def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset, mapping: str = "ridge") -> Dict:
     assets = cfg["assets"]
     prior = np.array([prior_spy, 1 - prior_spy])
     band = cfg["bounds_band"]
@@ -149,7 +176,7 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset) -> D
         for name, X in raw.items():
             q, om, al = np.zeros(2), np.zeros(2), []
             for i, a in enumerate(assets):
-                q[i], om[i], alpha, n = view_and_omega(X, excess[a], dm, train_start)
+                q[i], om[i], alpha, n = view_and_omega(X, excess[a], dm, train_start, a, mapping)
                 al.append(str(alpha))
             w, pi, mu = allocate(sigma, q, om, prior, lo, hi, cfg["delta"], cfg["tau"])
             recs[name].append(rc.DecisionRecord(
@@ -180,7 +207,7 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset) -> D
     vs_static = {k: paired_cer_contrast(sims[k], sims["STATIC"], **kw) for k in approaches + ["PLACEBO"]}
     vs_placebo = {k: paired_cer_contrast(sims[k], sims["PLACEBO"], **kw) for k in approaches}
     vs_det = {k: paired_cer_contrast(sims[k], sims["DET"], **kw) for k in approaches if k != "DET"} if "DET" in sims else {}
-    return {"prior_spy": prior_spy, "metrics": table,
+    return {"prior_spy": prior_spy, "mapping": mapping, "metrics": table,
             "vs_static": vs_static, "vs_static_holm": holm({k: vs_static[k]["p_two_sided_bootstrap"] for k in primary}),
             "vs_placebo": vs_placebo, "vs_det": vs_det, "vs_det_holm": holm({k: vs_det[k]["p_two_sided_bootstrap"] for k in primary if k != "DET"}),
             "_detail": pd.DataFrame(detail_rows), "_sims": sims}
@@ -189,6 +216,7 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset) -> D
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--grid", action="store_true", help="also run the other prior mixes in config.json")
+    ap.add_argument("--mapping", default="both", choices=["ridge", "sign", "both"], help="how raw signals become views (see view_and_omega)")
     args = ap.parse_args(argv)
     cfg = json.loads((HERE / "config.json").read_text())
     fcfg = mk.load_config()
@@ -215,9 +243,10 @@ def main(argv=None) -> int:
     out_dir = HERE / "out"; out_dir.mkdir(exist_ok=True)
     mixes = [cfg["prior_weights"]["SPY"]] + ([p for p in cfg["prior_grid"] if abs(p - cfg["prior_weights"]["SPY"]) > 1e-9] if args.grid else [])
     summary = {}
-    for p in mixes:
-        res = run(cfg, p, market, spec, months, raw, y)
-        tag = f"spy{int(round(p * 100))}"
+    mappings = ["ridge", "sign"] if args.mapping == "both" else [args.mapping]
+    for p, mapping in itertools.product(mixes, mappings):
+        res = run(cfg, p, market, spec, months, raw, y, mapping)
+        tag = f"spy{int(round(p * 100))}_{mapping}"
         res.pop("_detail").to_csv(out_dir / f"views_weights_{tag}.csv", index=False)
         pd.concat(res.pop("_sims").values()).to_csv(out_dir / f"returns_{tag}.csv", index=False)
         summary[tag] = res

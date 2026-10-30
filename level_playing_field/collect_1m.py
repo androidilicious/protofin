@@ -95,7 +95,7 @@ def append(path, rec):
 def run_committee(env_path, workers, per_minute):
     from dotenv import load_dotenv
     from openai import OpenAI
-    load_dotenv(env_path)
+    load_dotenv(env_path, override=True)
     client = OpenAI(max_retries=8)
     cache_path = RAW / "committee_1m.jsonl"
     cache = load_cache(cache_path)

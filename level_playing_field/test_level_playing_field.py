@@ -40,3 +40,17 @@ def test_weights_sum_to_one_and_respect_bounds():
         w, pi, mu = allocate(sigma, np.array(q), np.array([1e-6, 1e-6]), prior, lo, hi, 2.5, 0.05)
         assert np.isclose(w.sum(), 1.0) and (w >= lo - 1e-12).all() and (w <= hi + 1e-12).all()
     assert np.allclose(pi, 2.5 * sigma @ prior)
+
+
+def test_sign_mapping_never_inverts_the_stated_direction():
+    X, y = _data()
+    dm = pd.Period("2019-03", "M")
+    # a signal that is reliably WRONG: stated view moves opposite to the next-month return
+    stated = -y.shift(0) + 0.0   # same month as the label it tries to predict, flipped
+    X.attrs["stated"] = {"SPY": stated}
+    q, omega, k, n = view_and_omega(X, y, dm, MONTHS[0], "SPY", "sign")
+    assert k == "k=0" and np.isclose(q, y.loc[MONTHS[0]:dm - 2].mean())   # collapses to the placebo
+    # a signal that is reliably RIGHT keeps its direction and scales up
+    X.attrs["stated"] = {"SPY": y + 0.0}
+    q2, _, k2, _ = view_and_omega(X, y, dm, MONTHS[0], "SPY", "sign")
+    assert float(k2[2:]) > 0 and (q2 - y.loc[MONTHS[0]:dm - 2].mean()) * (y[dm] - y.loc[MONTHS[0]:dm - 2].mean()) > 0
