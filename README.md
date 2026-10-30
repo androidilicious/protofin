@@ -3,7 +3,9 @@
 An AI investment committee inside a rule-based allocator. Two large-language-model personas give independent views on the macro picture, a CIO persona synthesises them, and Black-Litterman plus a constrained optimizer turn that into a stock/bond split. Every step is measurable, every input has full point-in-time history, and the public demo runs entirely in the browser with no API key anywhere.
 
 - **Live demo:** https://protofin.pages.dev
-- **Live backtest:** https://protofin.pages.dev/backtest-live.html
+- **The story (start here):** https://protofin.pages.dev/story/
+- **Level playing field (all approaches, one pipeline):** https://protofin.pages.dev/level/
+- **Backtest replay:** https://protofin.pages.dev/backtest-live.html
 - **Static backtest report:** https://protofin.pages.dev/backtest.html
 - **How a decision is made, step by step, in plain language:** [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md), or filled in live from any saved run at https://protofin.pages.dev/how.html
 - **Design note:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
@@ -97,6 +99,10 @@ deploy.cmd              # rebuilds signals + a fresh committee run from the loca
 
 ---
 
+## Level playing field (branch `level-playing-field`)
+
+Every approach (deterministic model, AI committee, Jev, Causal RAG) goes through one identical pipeline: same funds, dates, Black-Litterman settings, bounds, 5 bp costs and scoring, compared against holding the fixed mix and against a placebo (historical-average views). Jev and the committee were re-asked a one-month question for every month since 2015 so they forecast what is scored. Two fund sets: SPY/TLT 60/40 and SPY/IEF/LQD 45/35/20. On the 46 development months (Mar 2019 – Dec 2022) no approach beats holding the mix; the 2023–2026 window stays sealed. Code and results: `level_playing_field/` on that branch; the literature behind the findings is in `docs/LITERATURE.md`.
+
 ## Evaluation
 
 ### Backtest harness (Python, daily resolution)
@@ -141,7 +147,7 @@ python research/run_saved_committee.py --export     # rebuild the site files fro
 | Path | Purpose |
 | --- | --- |
 | `server.py` | Flask backend for the local dashboard (`/api/run_pipeline`) |
-| `mvp_dashboard.html` | Dashboard source; `site/index.html` is generated from it |
+| `mvp_dashboard.html` | Dashboard source; `site/dashboard.html` is generated from it (`site/index.html` is the plain-language overview) |
 | `signals.py` | Data collection and prompt building shared by the server and the site builder |
 | `committee.py` | Persona prompts, tolerant parsers, parallel orchestration |
 | `allocation.py` | Black-Litterman, constrained optimizer, trade policy (shared with the backtester) |
