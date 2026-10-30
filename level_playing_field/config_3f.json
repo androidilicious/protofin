@@ -1,0 +1,56 @@
+{
+  "_comment": "Three-fund level field: SPY / IEF / LQD at 45/35/20 with Stage 2's bounds, the universe of the deterministic model and Causal RAG. The committee and Jev were re-asked the one-month question about these three funds (collect_3f.py).",
+  "fund_set": "spy_ief_lqd",
+  "tag": "f3",
+  "out_dir": "out3",
+  "assets": [
+    "SPY",
+    "IEF",
+    "LQD"
+  ],
+  "prior_weights": {
+    "SPY": 0.45,
+    "IEF": 0.35,
+    "LQD": 0.2
+  },
+  "bounds": {
+    "SPY": [
+      0.2,
+      0.7
+    ],
+    "IEF": [
+      0.15,
+      0.6
+    ],
+    "LQD": [
+      0.1,
+      0.4
+    ]
+  },
+  "delta": 2.5,
+  "tau": 0.05,
+  "cov_window_months": 36,
+  "covariance": "ledoit_wolf",
+  "cost_per_dollar": 0.0005,
+  "train_start": "2015-02",
+  "development": [
+    "2019-03",
+    "2022-12"
+  ],
+  "bootstrap": {
+    "block_months": 6,
+    "reps": 5000,
+    "seed": 20261027
+  },
+  "sources": {
+    "jev": "level_playing_field/data/jev_3f.json",
+    "committee": "level_playing_field/data/committee_3f.json",
+    "causal_rag": "level_playing_field/data/causal_rag_qwen3_3f.json"
+  },
+  "primary": [
+    "DET",
+    "JEV",
+    "COMMITTEE"
+  ],
+  "_covariance_note": "ledoit_wolf, as Stage 2 for three funds (moderate shrinkage, about 30%). With IEF and LQD correlated about 0.7, the unshrunk sample covariance made the optimizer overreact (placebo -1.02 pts vs -0.59)."
+}

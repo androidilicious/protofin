@@ -96,6 +96,37 @@ def signals_causal_rag(path: Path) -> pd.DataFrame:
     return df
 
 
+def signals_committee_3f(path: Path) -> pd.DataFrame:
+    rows = {}
+    for as_of, c in json.loads(path.read_text(encoding="utf-8"))["months"].items():
+        f, ok = c["cio"], not c["problems"]
+        rows[month_of(as_of)] = {**{f"cio_{a.lower()}": (f[a] if ok else np.nan) for a in ("SPY", "IEF", "LQD")},
+                                 "confidence": CONF_NUM.get(f["confidence"], np.nan) if ok else np.nan}
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df.attrs["stated"] = {a: df[f"cio_{a.lower()}"] for a in ("SPY", "IEF", "LQD")}   # the CIO's own number per fund
+    return df
+
+
+def signals_jev_3f(path: Path) -> pd.DataFrame:
+    rows = {}
+    for as_of, j in json.loads(path.read_text(encoding="utf-8"))["months"].items():
+        rows[month_of(as_of)] = {"p_spy_ief": j["p_spy_ief"], "p_lqd_ief": j["p_lqd_ief"], "confidence": j["confidence"],
+                                 **{f"best_{a.lower()}": j["probs"][a] for a in ("SPY", "IEF", "LQD")}}
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    # stated direction per fund: how much more likely than an even 1-in-3 Jev thinks it is to be next month's best fund
+    df.attrs["stated"] = {a: df[f"best_{a.lower()}"] - 1 / 3 for a in ("SPY", "IEF", "LQD")}
+    return df
+
+
+def signals_causal_rag_3f(path: Path) -> pd.DataFrame:
+    rows = {}
+    for m, v in json.loads(path.read_text(encoding="utf-8"))["months"].items():
+        rows[pd.Period(m, "M")] = {f"{a.lower()}_{k[-1]}": v[a][k] for a in ("SPY", "IEF", "LQD") for k in ("F_S", "F_C", "F_I")}
+    df = pd.DataFrame.from_dict(rows, orient="index").sort_index()
+    df.attrs["stated"] = {a: df[f"{a.lower()}_S"] for a in ("SPY", "IEF", "LQD")}
+    return df
+
+
 # ------------------------------------------------------------------ views and Omega (identical learner)
 def _scale_fit(v: np.ndarray, y: np.ndarray) -> float:
     """Least-squares scale k >= 0 of y on centred v: the approach's direction is kept, only the size is learned."""
@@ -172,9 +203,12 @@ def allocate(sigma, q, omega, prior, lo, hi, delta, tau):
 # ------------------------------------------------------------------ run
 def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset, mapping: str = "ridge") -> Dict:
     assets = cfg["assets"]
-    prior = np.array([prior_spy, 1 - prior_spy])
-    band = cfg["bounds_band"]
-    lo, hi = np.clip(prior - band, 0, 1), np.clip(prior + band, 0, 1)
+    prior = np.array([prior_spy, 1 - prior_spy]) if len(assets) == 2 else np.array([cfg["prior_weights"][a] for a in assets])
+    if "bounds" in cfg:
+        lo, hi = np.array([cfg["bounds"][a][0] for a in assets]), np.array([cfg["bounds"][a][1] for a in assets])
+    else:
+        band = cfg["bounds_band"]
+        lo, hi = np.clip(prior - band, 0, 1), np.clip(prior + band, 0, 1)
     train_start = pd.Period(cfg["train_start"], "M")
     excess = pd.DataFrame({a: y_by_asset[a] for a in assets})
     recs: Dict[str, List[rc.DecisionRecord]] = {k: [] for k in raw}
@@ -186,7 +220,7 @@ def run(cfg: dict, prior_spy: float, market, spec, months, raw, y_by_asset, mapp
         day = market.decision_dates[dm]
         t = mk.decision_time_iso(day)
         for name, X in raw.items():
-            q, om, al = np.zeros(2), np.zeros(2), []
+            q, om, al = np.zeros(len(assets)), np.zeros(len(assets)), []
             for i, a in enumerate(assets):
                 q[i], om[i], alpha, n = view_and_omega(X, excess[a], dm, train_start, a, mapping)
                 al.append(str(alpha))
@@ -229,8 +263,9 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--grid", action="store_true", help="also run the other prior mixes in config.json")
     ap.add_argument("--mapping", default="both", choices=["ridge", "sign", "both"], help="how raw signals become views (see view_and_omega)")
+    ap.add_argument("--config", default="config.json", help="config.json (SPY/TLT 60/40) or config_3f.json (SPY/IEF/LQD 45/35/20)")
     args = ap.parse_args(argv)
-    cfg = json.loads((HERE / "config.json").read_text())
+    cfg = json.loads((HERE / args.config).read_text())
     fcfg = mk.load_config()
     market = mk.load_market(fcfg)
     spec = json.loads((ROOT / fcfg["inherits_stage2_run_spec"]["path"]).read_text())
@@ -242,9 +277,13 @@ def main(argv=None) -> int:
     label_months = mk.months_between("2012-01", d1)   # labels for training (from 2015-02) and the 36-month covariance
     y = {a: pd.Series({m: market.period_returns(m, [a])[a] - market.rf_return(m) for m in label_months}) for a in cfg["assets"]}
     src = cfg["sources"]
-    raw = {"DET": signals_det(spec), "JEV": signals_jev(ROOT / src["jev_1m"]), "COMMITTEE": signals_committee(ROOT / src["committee_1m"]),
-           "JEV_12M": signals_jev(ROOT / src["jev_12m"]), "COMMITTEE_12M": signals_committee(ROOT / src["committee_12m"]),
-           "CAUSAL_RAG": signals_causal_rag(ROOT / src["causal_rag"]), "PLACEBO": None}
+    if cfg.get("fund_set") == "spy_ief_lqd":
+        raw = {"DET": signals_det(spec), "JEV": signals_jev_3f(ROOT / src["jev"]), "COMMITTEE": signals_committee_3f(ROOT / src["committee"]),
+               "CAUSAL_RAG": signals_causal_rag_3f(ROOT / src["causal_rag"]), "PLACEBO": None}
+    else:
+        raw = {"DET": signals_det(spec), "JEV": signals_jev(ROOT / src["jev_1m"]), "COMMITTEE": signals_committee(ROOT / src["committee_1m"]),
+               "JEV_12M": signals_jev(ROOT / src["jev_12m"]), "COMMITTEE_12M": signals_committee(ROOT / src["committee_12m"]),
+               "CAUSAL_RAG": signals_causal_rag(ROOT / src["causal_rag"]), "PLACEBO": None}
     # a source with no answers would silently act as the placebo; skip it loudly instead
     need = mk.months_between(cfg["train_start"], d1)
     for name in [k for k, X in raw.items() if X is not None]:
@@ -253,18 +292,18 @@ def main(argv=None) -> int:
             print(f"SKIPPED {name}: answers for only {cov:.0%} of {need[0]}..{need[-1]} (need 90%); run collect_1m.py first")
             del raw[name]
     cfg["primary"] = [k for k in cfg["primary"] if k in raw]
-    out_dir = HERE / "out"; out_dir.mkdir(exist_ok=True)
-    mixes = [cfg["prior_weights"]["SPY"]] + ([p for p in cfg["prior_grid"] if abs(p - cfg["prior_weights"]["SPY"]) > 1e-9] if args.grid else [])
+    out_dir = HERE / cfg.get("out_dir", "out"); out_dir.mkdir(exist_ok=True)
+    mixes = [cfg["prior_weights"]["SPY"]] + ([p for p in cfg.get("prior_grid", []) if abs(p - cfg["prior_weights"]["SPY"]) > 1e-9] if args.grid else [])
     summary = {}
     mappings = ["ridge", "sign"] if args.mapping == "both" else [args.mapping]
     for p, mapping in itertools.product(mixes, mappings):
         res = run(cfg, p, market, spec, months, raw, y, mapping)
-        tag = f"spy{int(round(p * 100))}_{mapping}"
+        tag = f"{cfg['tag']}_{mapping}" if "tag" in cfg else f"spy{int(round(p * 100))}_{mapping}"
         res.pop("_detail").to_csv(out_dir / f"views_weights_{tag}.csv", index=False)
         pd.concat(res.pop("_sims").values()).to_csv(out_dir / f"returns_{tag}.csv", index=False)
         summary[tag] = res
         m = res["metrics"]
-        print(f"\nprior {p:.0%} SPY / {1 - p:.0%} TLT  ({len(months)} development months)")
+        print(f"\nprior {' / '.join(f'{a} {cfg[chr(112) + "rior_weights"].get(a, 1 - p) if len(cfg["assets"]) > 2 else (p if a == "SPY" else 1 - p):.0%}' for a in cfg['assets'])}, mapping={mapping}  ({len(months)} development months)")
         for k in [k for k in ["STATIC", "PLACEBO", "DET", "JEV", "COMMITTEE", "CAUSAL_RAG", "JEV_12M", "COMMITTEE_12M"] if k in m]:
             line = f"  {k:13s} net CER {m[k]['net_cer'] * 100:6.2f}%  SPY {m[k]['min_spy_weight'] * 100:4.1f}-{m[k]['max_spy_weight'] * 100:4.1f}%"
             if k in res["vs_static"]:
