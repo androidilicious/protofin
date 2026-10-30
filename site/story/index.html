@@ -78,7 +78,7 @@ a { color: var(--com); }
 @media (max-width: 900px) {
   .scrolly { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .fig { order: -1; top: 58px; height: 50vh; z-index: 5; background: var(--bg); padding: 8px 0; }
-  .fig > .card { padding: 14px; }
+  .fig > .card { padding: 14px; overflow: auto; }
   .steps { padding: 4vh 0 20vh; }
   .step { min-height: 60vh; }
   .step > div { background: color-mix(in srgb, var(--paper) 94%, transparent); }
@@ -152,6 +152,46 @@ a { color: var(--com); }
 .closing blockquote { font-family: var(--display); font-size: clamp(26px, 3.6vw, 38px); line-height: 1.25; margin: 0; text-wrap: balance; }
 .closing p { color: var(--muted); margin: 18px 0 0; }
 .foot { max-width: 1100px; margin: 0 auto; padding: 30px max(16px, env(safe-area-inset-right, 0px)) 80px max(16px, env(safe-area-inset-left, 0px)); color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); }
+:root { --eq: #4b5f86; --view: #b26a00; --post: #0f7a6c; }
+html:not(.light) { --eq: #a3b4d6; --view: #f0a83a; --post: #43c3ad; }
+.ctl { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+.ctl label { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.ctl label b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+.ctl input[type=range] { width: 100%; accent-color: var(--com); }
+.sigrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.sigrow .v { font-family: var(--display); font-size: 24px; line-height: 1.1; }
+.revrow { display: grid; grid-template-columns: 44px minmax(0, 1fr) 72px; gap: 10px; align-items: center; margin-top: 8px; }
+.revrow .nm { font-weight: 600; font-size: 14px; }
+.revrow .stack { position: relative; height: 22px; background: var(--soft); border-radius: 5px; display: flex; overflow: visible; }
+.revrow .seg { height: 100%; transition: width .5s cubic-bezier(.2,.8,.2,1), margin .5s; }
+.revrow .seg.own { background: var(--eq); border-radius: 5px 0 0 5px; }
+.revrow .seg.cross { background: var(--det); }
+.revrow .seg.cross.neg { background: repeating-linear-gradient(45deg, var(--neg) 0 4px, transparent 4px 8px); border: 1px solid var(--neg); }
+.revrow .pv { font-family: var(--mono); font-size: 14px; text-align: right; }
+.revcap { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 3px 0 0 54px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.legend i.own { background: var(--eq); } .legend i.cross { background: var(--det); }
+.trip { margin-top: 16px; transition: opacity .4s; }
+.tripbox { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--mono); font-size: 13px; }
+.tripbox span { padding: 6px 10px; border-radius: 8px; background: var(--soft); }
+.tripbox span.arr { background: transparent; color: var(--muted); padding: 0; }
+.tripbox span.ok { background: color-mix(in srgb, var(--pos) 18%, var(--paper)); color: var(--pos); }
+.nl { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 10px; align-items: center; margin-top: 10px; }
+.nl .nm { font-weight: 600; font-size: 14px; }
+.nl .axis { position: relative; height: 26px; border-bottom: 1px solid var(--rule); }
+.nl .zero { position: absolute; top: 0; bottom: -4px; width: 1px; background: var(--muted); }
+.nl .mk { position: absolute; top: 6px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; transition: left .6s cubic-bezier(.2,.8,.2,1); border: 2px solid var(--paper); }
+.nl .mk.eq { background: var(--eq); } .nl .mk.view { background: var(--view); border-radius: 3px; transform: rotate(45deg); } .nl .mk.post { background: var(--post); width: 18px; height: 18px; margin-left: -9px; top: 4px; }
+.nl .vals { grid-column: 2; display: flex; gap: 14px; font-family: var(--mono); font-size: 12px; margin-top: 4px; }
+.dial { display: flex; align-items: center; gap: 18px; margin-top: 14px; }
+.rgraph .strand { stroke-dasharray: 6 5; animation: flow 1.6s linear infinite; transition: stroke .5s, stroke-opacity .3s; }
+.rgraph .strand.dim { stroke-opacity: .08; }
+@keyframes flow { to { stroke-dashoffset: -22; } }
+.hchips { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.hchip { font-size: 12px; padding: 5px 9px; border-radius: 8px; border: 1px solid var(--rule); background: var(--soft); cursor: pointer; transition: border-color .4s; }
+.tally { display: flex; height: 22px; border-radius: 6px; overflow: hidden; margin-top: 6px; font-size: 11px; color: #fff; font-family: var(--mono); }
+.tally div { display: flex; align-items: center; padding-left: 6px; white-space: nowrap; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -198,9 +238,39 @@ a { color: var(--com); }
   </div>
 </section>
 
+<!-- REV -->
+<section class="chapter" id="cRev" data-title="03 · The baseline">
+  <div class="chapter-head"><div class="n">03</div><div class="rule"></div><h2>Start from the answer, work backwards.</h2><p>Before any forecast, the machine needs a neutral starting point. It gets one by running the optimizer in reverse: assume 60/40 is right, and ask what returns would make it right.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="rev" data-s="0"><div><h3>Reverse optimisation</h3><p>A normal optimizer takes expected returns and gives weights. Here we already know the weights we want as a default, 60/40, so we run it backwards to get the returns.</p><div class="f">π = δ × Σ × w</div><p>π is the <b>implied equilibrium return</b>: the baseline every view is measured against.</p></div></div>
+      <div class="step" data-fig="rev" data-s="1"><div><h3>Each fund pays for the risk it adds</h3><p>Σ × w is the risk each fund adds to the 60/40 portfolio: its own swings, plus how it moves with the other fund.</p><p>Stocks and these bonds tended to move <b>opposite</b> ways, so TLT lowers the portfolio's risk and needs less return to earn its place.</p></div></div>
+      <div class="step" data-fig="rev" data-s="2"><div><h3>Change the mix, change the baseline</h3><p>Ask for 80/20 instead and stocks carry more of the portfolio's risk, so the return they must be expected to earn goes up. The baseline is the mix, restated as returns.</p></div></div>
+      <div class="step" data-fig="rev" data-s="3"><div><h3>Risk aversion scales it all</h3><p>δ says how much return one unit of risk must pay. Raise it from 2.5 to 4 and every baseline return rises in proportion; the mix they imply does not change.</p></div></div>
+      <div class="step" data-fig="rev" data-s="4"><div><h3>The round trip</h3><p>Feed π back into the optimizer and it returns exactly the mix you started from. That is the point: with no view, the machine holds 60/40. Only a view can move it.</p><p>Try the sliders: any mix you set comes back unchanged.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figRev"></div></div>
+  </div>
+</section>
+
+<!-- ALLOC -->
+<section class="chapter" id="cAlloc" data-title="04 · Moving the dial">
+  <div class="chapter-head"><div class="n">04</div><div class="rule"></div><h2>A view moves the dial only as far as it is trusted.</h2><p>Black-Litterman blends the baseline with a view, weighted by how reliable that kind of view has been. Then the optimizer turns the blend into weights.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="alloc" data-s="0"><div><h3>Three numbers per fund</h3><p>The <b style="color:var(--eq)">baseline π</b>, the <b style="color:var(--view)">view Q</b>, and the <b style="color:var(--post)">blend μ</b>. Here Q is the committee's view for March 2019, after the shared translation step.</p><div class="f">μ = π + [τΣ ÷ (τΣ + Ω)] × (Q − π)</div></div></div>
+      <div class="step" data-fig="alloc" data-s="1"><div><h3>Normal trust: the blend barely moves</h3><p>Ω is the view's past squared miss. A monthly forecast typically misses by several percent, far more than the baseline's uncertainty τΣ, so the view gets only a few percent of the say.</p></div></div>
+      <div class="step" data-fig="alloc" data-s="2"><div><h3>Trust it a hundred times more</h3><p>Shrink Ω and the blend jumps to the view, and the weights swing. This is what an overconfident forecaster would do.</p></div></div>
+      <div class="step" data-fig="alloc" data-s="3"><div><h3>A bold view, normal trust</h3><p>A 3% one-month stock forecast is huge. With normal trust only a few percent of it gets into the blend, yet that small nudge still moves the dial noticeably: the optimizer reacts to the <i>gap</i> between stocks and bonds, and with this month's covariance even a fraction of a point of extra expected return buys a lot of stock.</p><p>That sensitivity is why trust matters so much.</p></div></div>
+      <div class="step" data-fig="alloc" data-s="4"><div><h3>The bounds catch the rest</h3><p>Trust a bold view fully and the optimizer wants far more stock than 80%. The bound stops it there.</p><div class="f">x = ((μ<sub>SPY</sub> − μ<sub>TLT</sub>)/δ + Σ<sub>TT</sub> − Σ<sub>ST</sub>) ÷ (Σ<sub>SS</sub> + Σ<sub>TT</sub> − 2Σ<sub>ST</sub>), kept within 40–80%</div><p>Play with the sliders to feel it.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figAlloc"></div></div>
+  </div>
+</section>
+
 <!-- 03 -->
-<section class="chapter" id="c3" data-title="03 · The mask">
-  <div class="chapter-head"><div class="n">03</div><div class="rule"></div><h2>A model that has read history can cheat.</h2><p>GPT-4o was trained on years of market news. Show it "March 2019" and it may simply remember what happened next. So the AI never sees the month.</p></div>
+<section class="chapter" id="c3" data-title="05 · The mask">
+  <div class="chapter-head"><div class="n">05</div><div class="rule"></div><h2>A model that has read history can cheat.</h2><p>GPT-4o was trained on years of market news. Show it "March 2019" and it may simply remember what happened next. So the AI never sees the month.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="mask" data-s="0"><div><h3>What the AI is shown</h3><p>A short block of relative numbers: returns over 1, 3 and 12 months, volatility, correlation, where rates and the policy- and geopolitical-risk indexes sit against their last ten years, and how far long yields moved.</p></div></div>
@@ -211,9 +281,24 @@ a { color: var(--com); }
   </div>
 </section>
 
+<!-- SHOCK -->
+<section class="chapter" id="cShock" data-title="06 · Shocks and regimes">
+  <div class="chapter-head"><div class="n">06</div><div class="rule"></div><h2>Two of the inputs: rate shocks and risk regimes.</h2><p>Among the numbers every month carries are how sharply long rates just moved and how high policy and geopolitical uncertainty sit. Here they are for every month since 2004.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="shock" data-s="0"><div><h3>The rate shock</h3><p>How far the 10-year Treasury yield sits from its own average over the previous three months, in basis points. Blue bars: yields jumped (bad for long bonds). Red bars: yields fell (bonds rallied).</p><div class="f">shock = 10y yield today − its 63-day average</div></div></div>
+      <div class="step" data-fig="shock" data-s="1"><div><h3>2008: the flight to safety</h3><p>In late 2008 yields collapsed as money ran into Treasuries: the largest downward shock in the sample.</p></div></div>
+      <div class="step" data-fig="shock" data-s="2"><div><h3>2013: the taper tantrum</h3><p>When the Fed hinted it would slow bond buying, the 10-year yield jumped about a full point in weeks.</p></div></div>
+      <div class="step" data-fig="shock" data-s="3"><div><h3>2020 and 2022</h3><p>The pandemic drove yields to record lows; in 2022 inflation drove them up month after month, the steepest run of upward shocks since the data begins.</p></div></div>
+      <div class="step" data-fig="shock" data-s="4"><div><h3>The regime band</h3><p>The shaded months are an <b>elevated regime</b>: economic-policy uncertainty or geopolitical risk at its 90th percentile of the last ten years, or both at the 80th.</p><p>In the original committee pipeline an elevated regime lowered the committee's confidence one step. On the level playing field, shocks and regime are simply part of the masked numbers every approach sees.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figShock"></div></div>
+  </div>
+</section>
+
 <!-- 04 -->
-<section class="chapter" id="c4" data-title="04 · The deterministic model">
-  <div class="chapter-head"><div class="n">04</div><div class="rule" style="border-color:var(--det)"></div><h2>Approach one: a classic quant model.</h2><p>No AI. Eight economic releases, a regression, and a rule for when to ignore it. It is the transparent baseline every other approach must beat.</p></div>
+<section class="chapter" id="c4" data-title="07 · The deterministic model">
+  <div class="chapter-head"><div class="n">07</div><div class="rule" style="border-color:var(--det)"></div><h2>Approach one: a classic quant model.</h2><p>No AI. Eight economic releases, a regression, and a rule for when to ignore it. It is the transparent baseline every other approach must beat.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="det" data-s="0"><div><h3>Eight surprises</h3><p>For each release (jobs, retail sales, industrial production, ISM, CPI, core CPI, PPI, hourly earnings) take what was reported minus what economists expected, from Bloomberg, and scale it by how big surprises usually are.</p><div class="f">z = (actual − consensus) ÷ std of the last 12 surprises</div><p>March 2019 had a big jobs miss (−2.45) and a soft core CPI (−1.66).</p></div></div>
@@ -226,8 +311,8 @@ a { color: var(--com); }
 </section>
 
 <!-- 05 -->
-<section class="chapter" id="c5" data-title="05 · The AI committee">
-  <div class="chapter-head"><div class="n">05</div><div class="rule" style="border-color:var(--com)"></div><h2>Approach two: an investment committee of AIs.</h2><p>Three GPT-4o roles read the masked numbers. Two argue independently; one decides. Everything they said was recorded once and is replayed here word for word.</p></div>
+<section class="chapter" id="c5" data-title="08 · The AI committee">
+  <div class="chapter-head"><div class="n">08</div><div class="rule" style="border-color:var(--com)"></div><h2>Approach two: an investment committee of AIs.</h2><p>Three GPT-4o roles read the masked numbers. Two argue independently; one decides. Everything they said was recorded once and is replayed here word for word.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="com" data-s="0"><div><h3>The economist</h3><p>Asked for a macro view and a next-month return for each fund. It cannot see what anyone else says.</p></div></div>
@@ -240,8 +325,8 @@ a { color: var(--com); }
 </section>
 
 <!-- 06 -->
-<section class="chapter" id="c6" data-title="06 · Jev">
-  <div class="chapter-head"><div class="n">06</div><div class="rule" style="border-color:var(--jev)"></div><h2>Approach three: a model that answers in numbers.</h2><p>Jev, from TypeSafe, is a decision model. Instead of prose it returns calibrated probabilities to typed questions. It reads the same masked block.</p></div>
+<section class="chapter" id="c6" data-title="09 · Jev">
+  <div class="chapter-head"><div class="n">09</div><div class="rule" style="border-color:var(--jev)"></div><h2>Approach three: a model that answers in numbers.</h2><p>Jev, from TypeSafe, is a decision model. Instead of prose it returns calibrated probabilities to typed questions. It reads the same masked block.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="jev" data-s="0"><div><h3>Question one: a yes/no, as a probability</h3><p>"Over the next month, will SPY beat TLT?" Jev answered <b>37%</b>: leaning no.</p></div></div>
@@ -254,14 +339,14 @@ a { color: var(--com); }
 </section>
 
 <!-- 07 -->
-<section class="chapter" id="c7" data-title="07 · Causal RAG">
-  <div class="chapter-head"><div class="n">07</div><div class="rule" style="border-color:var(--rag)"></div><h2>Approach four: make the AI show its reasoning.</h2><p>A plain answer can be insight or a hunch. Causal RAG forces the AI to name a chain of cause and effect, then tests every link against evidence from before the decision.</p></div>
+<section class="chapter" id="c7" data-title="10 · Causal RAG">
+  <div class="chapter-head"><div class="n">10</div><div class="rule" style="border-color:var(--rag)"></div><h2>Approach four: make the AI show its reasoning.</h2><p>A plain answer can be insight or a hunch. Causal RAG forces the AI to name a chain of cause and effect, then tests every link against evidence from before the decision.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="rag" data-s="0"><div><h3>A map of what economists claim</h3><p>CauseTrace mined <b id="ragClaims">347,571</b> cause → effect claims from economics papers. Each claim is an edge: "rate hikes → lower equity valuations".</p><p>Edges carry no sign: papers that disagree land on the same edge, and the agents must argue it out.</p></div></div>
       <div class="step" data-fig="rag" data-s="1"><div><h3>One map per year</h3><p>The graph is rebuilt for each decision year from papers dated before it, so 2015 decisions use only what was published by 2014. Twelve vintages, 2015 to 2026.</p></div></div>
-      <div class="step" data-fig="rag" data-s="2"><div><h3>The Hypothesis Agent</h3><p>Given this month's trigger, a CPI surprise or an FOMC statement, it picks a path through the graph and states a signed prediction: "hot CPI → 2-year yield up → stocks down this month."</p></div></div>
-      <div class="step" data-fig="rag" data-s="3"><div><h3>The Testing Agent</h3><p>It checks each link against verbatim quotes and against the data: did the 2-year yield actually rise? It also tests the opposite story. Verdict, by majority of three runs: Supported, Contradicted or Insufficient.</p></div></div>
+      <div class="step" data-fig="rag" data-s="2"><div><h3>The Hypothesis Agent</h3><p>Given this month's triggers (a jobs miss, a soft core CPI, an FOMC meeting, a stressed market), it walks the graph and proposes signed chains. In March 2019 it proposed six, each ending at stock returns.</p><p>Shown here is the real output for that month, from the run on the stand-in model. Hover a chain to follow it.</p></div></div>
+      <div class="step" data-fig="rag" data-s="3"><div><h3>The Testing Agent</h3><p>Each chain predicts how rates should have moved (the 2-year and 10-year yields, the curve). The Testing Agent checks those moves in the data and looks for verbatim support in the evidence, three times. March 2019: four chains Supported, one Contradicted, one Insufficient, with all three runs agreeing.</p><p>Across all 95 months, about half the chains end Insufficient: support needs a verbatim quote, and quotes are scarce. Only 6% are Contradicted.</p></div></div>
       <div class="step" data-fig="rag" data-s="4"><div><h3>Where it stands</h3><p>To keep the cost at zero, it has so far run on a small free open model, qwen3:4b, as a stand-in. OpenAI's models are the planned choice. On that stand-in it has completed all 95 development months (2,726 model calls).</p><p>It has not yet passed its reliability gates: 57% accuracy on labelled cases against 80% required, and 97.7% well-formed answers against 98%. So its results are exploratory and are not counted in the verdict.</p><p>When it passes, its verdicts plug into the same machine as everyone else's.</p></div></div>
     </div>
     <div class="fig"><div class="card" id="figRag"></div></div>
@@ -269,8 +354,8 @@ a { color: var(--com); }
 </section>
 
 <!-- 08 -->
-<section class="chapter" id="c8" data-title="08 · A fair fight">
-  <div class="chapter-head"><div class="n">08</div><div class="rule"></div><h2>A fair fight means everything else is identical.</h2><p>The first comparisons were not fair: different funds, different starting mixes, a 12-month question scored over one month. We levelled each one.</p></div>
+<section class="chapter" id="c8" data-title="11 · A fair fight">
+  <div class="chapter-head"><div class="n">11</div><div class="rule"></div><h2>A fair fight means everything else is identical.</h2><p>The first comparisons were not fair: different funds, different starting mixes, a 12-month question scored over one month. We levelled each one.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="fair" data-s="0"><div><h3>Same funds, same mix</h3><p>Every approach allocates between SPY and TLT around 60/40, bounded at 40–80% stocks. Earlier, the deterministic model held a different mix, and most of Jev's apparent lead came from simply holding more stocks.</p></div></div>
@@ -283,8 +368,8 @@ a { color: var(--com); }
 </section>
 
 <!-- 09 race -->
-<section class="chapter" id="c9" data-title="09 · The race">
-  <div class="chapter-head"><div class="n">09</div><div class="rule"></div><h2>Forty-six months, all at once.</h2><p>Scroll to move through time. Each line is 100 invested in March 2019 under one approach, after costs.</p></div>
+<section class="chapter" id="c9" data-title="12 · The race">
+  <div class="chapter-head"><div class="n">12</div><div class="rule"></div><h2>Forty-six months, all at once.</h2><p>Scroll to move through time. Each line is 100 invested in March 2019 under one approach, after costs.</p></div>
   <div class="race-wrap" id="raceWrap">
     <div class="race-stick">
       <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><div class="big mono" id="raceMonth" style="font-size:clamp(28px,4vw,44px)">2019-04</div><div class="seg" id="raceSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><canvas id="raceCanvas" height="380"></canvas></div>
@@ -294,13 +379,13 @@ a { color: var(--com); }
 </section>
 
 <!-- 10 verdict -->
-<section class="chapter" id="c10" data-title="10 · The verdict">
-  <div class="chapter-head"><div class="n">10</div><div class="rule"></div><h2>Nobody beat doing nothing.</h2><p>Every approach, under either translation rule and at every starting mix we tried, scored below static 60/40.</p></div>
+<section class="chapter" id="c10" data-title="13 · The verdict">
+  <div class="chapter-head"><div class="n">13</div><div class="rule"></div><h2>Nobody beat doing nothing.</h2><p>Every approach, under either translation rule and at every starting mix we tried, scored below static 60/40.</p></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="ver" data-s="0"><div><h3>Read the chart</h3><p>Each dot is an approach's score minus static 60/40, in points a year. The line is its 95% range. Left of zero is worse than doing nothing.</p></div></div>
-      <div class="step" data-fig="ver" data-s="1"><div><h3>The machine alone costs 0.4 points</h3><p>The placebo, which only tilts on historical averages, loses about 0.4 points a year. It trades no more than static 60/40, so the loss is the tilting itself: small moves away from 60/40 that carry no information. That is the hurdle before any signal can show value. The deterministic model lands on top of it.</p></div></div>
-      <div class="step" data-fig="ver" data-s="2"><div><h3>The committee came closest</h3><p>About −0.2 points: it beat the placebo, mainly through its bond calls. But its range runs from about −1.1 to +0.7, so it cannot be told apart from zero.</p></div></div>
+      <div class="step" data-fig="ver" data-s="1"><div><h3>The machine alone costs half a point</h3><p>The placebo, which only tilts on historical averages, loses about 0.5 points a year, and that loss is statistically clear (p 0.01). It trades no more than static 60/40, so the loss is the tilting itself: small moves away from 60/40 that carry no information. That is the hurdle before any signal can show value. The deterministic model lands on top of it.</p></div></div>
+      <div class="step" data-fig="ver" data-s="2"><div><h3>The committee came closest</h3><p>About −0.4 points with its direction kept (−0.3 when its numbers may be read freely). It beat the placebo, mainly through its bond calls, but its range runs from about −1.1 to +0.3, so it cannot be told apart from zero.</p></div></div>
       <div class="step" data-fig="ver" data-s="3"><div><h3>Jev had nothing to add</h3><p>With its direction kept, Jev is the placebo. Allowed to be read in reverse, it lost a further 0.7 points.</p></div></div>
     </div>
     <div class="fig"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="label">Difference vs static 60/40 · points a year · 95% range</div><div class="seg" id="verSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><div id="ciChart" style="margin-top:12px"></div></div></div>
@@ -308,8 +393,8 @@ a { color: var(--com); }
 </section>
 
 <!-- 11 why -->
-<section class="chapter" id="c11" data-title="11 · Why">
-  <div class="chapter-head"><div class="n">11</div><div class="rule"></div><h2>Why nothing won.</h2></div>
+<section class="chapter" id="c11" data-title="14 · Why">
+  <div class="chapter-head"><div class="n">14</div><div class="rule"></div><h2>Why nothing won.</h2></div>
   <div class="scrolly">
     <div class="steps">
       <div class="step" data-fig="why" data-s="0"><div><h3>The inputs were already in the price</h3><p>Every approach saw numbers the market priced weeks earlier: returns, volatility, rate ranks, surprises traded within minutes. There was little left to forecast at a one-month horizon. The placebo matching the deterministic model shows it.</p></div></div>
@@ -322,22 +407,22 @@ a { color: var(--com); }
 </section>
 
 <!-- 12 papers -->
-<section class="chapter" id="c12" data-title="12 · What others found">
-  <div class="chapter-head"><div class="n">12</div><div class="rule"></div><h2>The careful studies agree.</h2><p>Recent papers on AI allocation report big gains in short windows and small or no gains in long or careful ones.</p></div>
+<section class="chapter" id="c12" data-title="15 · What others found">
+  <div class="chapter-head"><div class="n">15</div><div class="rule"></div><h2>The careful studies agree.</h2><p>Recent papers on AI allocation report big gains in short windows and small or no gains in long or careful ones.</p></div>
   <div class="papers" style="margin-top:28px">
     <div class="p"><div class="y">2026 · commodity ETFs · 124 weeks</div><h4>Macro economists in the machine</h4><p>LLM agents against a deterministic rule agent, same macro inputs, same engine: our design. Gain of 0.03–0.04 Sharpe, p 0.07–0.13, confidence interval includes zero.</p><a href="https://arxiv.org/abs/2606.08283">arXiv 2606.08283</a></div>
     <div class="p"><div class="y">CIKM '25 · 50 stocks · 10 months</div><h4>LLM-enhanced Black-Litterman</h4><p>View = mean of 100 LLM answers, uncertainty = their variance. Sharpe 1.06–1.23 against 0.89 for equal weight, in one bullish window, with no significance tests.</p><a href="https://arxiv.org/abs/2504.14345">arXiv 2504.14345</a></div>
     <div class="p"><div class="y">KDD '26 · S&amp;P 500 · 2004–2024</div><h4>Can LLM strategies win in the long run?</h4><p>Agent trading strategies tested over twenty years and the whole index. Short-window gains disappear; buy-and-hold matches or wins; no CAPM alpha.</p><a href="https://arxiv.org/abs/2505.07078">arXiv 2505.07078</a></div>
-    <div class="p us"><div class="y">This project · SPY/TLT · 46 months</div><h4>Protofin</h4><p>Four approaches through one machine, with masked inputs (stricter than any of the above). No approach beats static 60/40; the committee comes closest at about −0.2 points.</p><a href="../level/">See the replay</a></div>
+    <div class="p us"><div class="y">This project · SPY/TLT · 46 months</div><h4>Protofin</h4><p>Four approaches through one machine, with masked inputs (stricter than any of the above). No approach beats static 60/40; the committee comes closest at about −0.3 to −0.4 points.</p><a href="../level/">See the replay</a></div>
   </div>
 </section>
 
 <!-- 13 next -->
-<section class="chapter" id="c13" data-title="13 · What next">
-  <div class="chapter-head"><div class="n">13</div><div class="rule"></div><h2>What would change the answer.</h2></div>
+<section class="chapter" id="c13" data-title="16 · What next">
+  <div class="chapter-head"><div class="n">16</div><div class="rule"></div><h2>What would change the answer.</h2></div>
   <ol class="next" style="margin-top:20px;padding:0">
     <li><div><h4>Give the AI something the price does not know yet</h4><p>Text dated inside the month: FOMC statements, earnings calls, the Causal RAG document corpus. This is how quant firms use language models today: to read, not to forecast.</p></div></li>
-    <li><div><h4>Let it say "no view"</h4><p>A no-trade band, so months without a strong view keep exactly 60/40. The placebo's 0.4-point loss comes entirely from small tilts that carry no information.</p></div></li>
+    <li><div><h4>Let it say "no view"</h4><p>A no-trade band, so months without a strong view keep exactly 60/40. The placebo's half-point loss comes entirely from small tilts that carry no information.</p></div></li>
     <li><div><h4>Use its disagreement as uncertainty</h4><p>Ask the committee five times; when its answers scatter, trust it less. Farnoosh Memari's empirical-uncertainty method does exactly this.</p></div></li>
     <li><div><h4>More months</h4><p>The AI answers already go back to 2004. A longer Bloomberg export of the surprises would let every approach run 2004–2022: about 220 months instead of 46.</p></div></li>
     <li><div><h4>Open the sealed window once</h4><p>2023–2026 has never been scored. After the team signs off the design, it is opened one time, and that result is the one that counts.</p></div></li>
@@ -472,6 +557,8 @@ function figRag(s) {
       <div class="nums"><div><div class="label">claims kept, 2015</div><div class="v">${G[0].claims.toLocaleString('en-US')}</div></div><div><div class="label">claims kept, ${G.at(-1).year}</div><div class="v">${G.at(-1).claims.toLocaleString('en-US')}</div></div><div><div class="label">papers, 2015</div><div class="v">${G[0].papers.toLocaleString('en-US')}</div></div></div>
       <div class="label" style="margin-top:16px">Paths from triggers to assets, 2015 graph</div><div class="bars" style="margin-top:8px">${chOrder.map(([k, n]) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="left:0;width:${(ch[k] / chMax * 100).toFixed(0)}%;background:var(--rag)"></div></div><span class="num">${ch[k]}</span></div>`).join('')}</div>`;
   } else if (s <= 3) {
+    $('figRag').innerHTML = html.replace(/<div class="label">[^<]*<\/div>$/, `<div class="label">${s === 2 ? 'March 2019 · six chains proposed' : 'March 2019 · verdicts'} · graph vintage ${RM.vintage}</div>`) + ragGraph(s); ragHover(); return;
+  } else if (false) {
     html += `<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">${chain.map((c, i) => `<div style="display:flex;align-items:center;gap:12px"><div style="flex:1;padding:12px 14px;border-radius:10px;border:1px solid ${s === 3 && i > 0 && i < 3 ? 'var(--rag)' : 'var(--rule)'};background:var(--soft)"><div class="label">${c[1]}</div><div style="font-weight:600">${c[0]}</div></div>${s === 3 && i > 0 && i < 3 ? `<span class="chip" style="border-color:var(--rag);color:var(--rag)">${i === 1 ? 'yield rose? check data' : 'quote on the page? check'}</span>` : ''}</div>${i < 3 ? '<div style="text-align:center;color:var(--muted)">↓</div>' : ''}`).join('')}</div>
       ${s === 3 ? `<div class="label" style="margin-top:14px">Verdict, majority of 3 runs · plus the opposite story</div><div class="chips" style="margin-top:8px">${verdict.map(v => `<span class="chip">${v}</span>`).join('')}</div>` : ''}`;
   } else {
@@ -543,8 +630,152 @@ function figWhy(s) {
   $('figWhy').innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${cards.map((c, i) => `<div style="padding:16px;border-radius:12px;border:1px solid ${i === s ? 'var(--com)' : 'var(--rule)'};background:${i === s ? 'color-mix(in srgb, var(--com) 8%, var(--paper))' : 'var(--soft)'};opacity:${i === s ? 1 : .4};transition:all .4s"><div class="v" style="font-family:var(--display);font-size:30px;line-height:1.1">${c[0]}</div><div class="label" style="margin-top:4px">${c[1]}</div><div style="font-size:14px;color:var(--ink-2);margin-top:6px">${c[2]}</div></div>`).join('')}</div>`;
 }
 
+
+// ---------------------------------------------------------------- reverse optimisation
+const SIG = S.sigma, DELTA = 2.5, TAU = 0.05;
+const volS = Math.sqrt(SIG[0][0]), volT = Math.sqrt(SIG[1][1]), corr = SIG[0][1] / (volS * volT);
+const rev = { w: 0.6, d: 2.5 };
+const REV_PRESET = [{ w: .6, d: 2.5 }, { w: .6, d: 2.5 }, { w: .8, d: 2.5 }, { w: .6, d: 4 }, { w: .6, d: 2.5 }];
+function revBuild() {
+  $('figRev').innerHTML = `<div class="label">March 2019 · SPY and TLT, 36 months to ${S.sigma_window[1]}</div>
+    <div class="sigrow"><div><div class="label">SPY swing</div><div class="v">${(volS * 100).toFixed(2)}%</div></div><div><div class="label">TLT swing</div><div class="v">${(volT * 100).toFixed(2)}%</div></div><div><div class="label">correlation</div><div class="v">${corr.toFixed(2)}</div></div><div><div class="label">a month</div><div class="v" style="font-size:14px;color:var(--muted)">monthly returns above cash</div></div></div>
+    <div class="ctl"><label for="revW">Prior weights w <b id="revWv"></b></label><input type="range" id="revW" min="40" max="80" step="1"></div>
+    <div class="ctl"><label for="revD">Risk aversion δ <b id="revDv"></b></label><input type="range" id="revD" min="1" max="5" step="0.1"></div>
+    <div id="revBars"></div>
+    <div class="trip" id="revTrip"></div>`;
+  $('revW').addEventListener('input', e => { rev.w = +e.target.value / 100; revDraw(-1); });
+  $('revD').addEventListener('input', e => { rev.d = +e.target.value; revDraw(-1); });
+}
+function revDraw(s) {
+  const w = [rev.w, 1 - rev.w], d = rev.d;
+  $('revW').value = Math.round(rev.w * 100); $('revD').value = rev.d;
+  $('revWv').textContent = `${Math.round(w[0] * 100)} / ${Math.round(w[1] * 100)}`; $('revDv').textContent = d.toFixed(1);
+  const own = [SIG[0][0] * w[0], SIG[1][1] * w[1]], cross = [SIG[0][1] * w[1], SIG[1][0] * w[0]];
+  const pi = [d * (own[0] + cross[0]), d * (own[1] + cross[1])];
+  const scale = 0.0035, X = v => (v / scale * 100).toFixed(1);
+  const row = (i, name) => {
+    const o = d * own[i], c = d * cross[i];
+    return `<div class="revrow"><div class="nm">${name}</div><div class="stack">
+      <div class="seg own" style="width:${X(Math.max(0, o))}%" title="own variance part"></div>
+      <div class="seg cross ${c < 0 ? 'neg' : ''}" style="width:${X(Math.abs(c))}%;${c < 0 ? 'margin-left:-' + X(Math.abs(c)) + '%' : ''}" title="co-movement part"></div></div>
+      <div class="pv">${pct(pi[i], 3)}</div></div>
+      <div class="revcap">${(own[i] * d * 100).toFixed(3)}% own swings ${c < 0 ? '−' : '+'} ${Math.abs(c * 100).toFixed(3)}% ${c < 0 ? 'hedging' : 'co-movement'} = π a month</div>`;
+  };
+  $('revBars').innerHTML = `<div class="label" style="margin:14px 0 6px">Implied equilibrium return π = δ × Σ × w</div>${row(0, 'SPY')}${row(1, 'TLT')}
+    <div class="legend"><span><i class="own"></i>own swings × weight</span><span><i class="cross"></i>co-movement × the other weight (hatched: negative)</span></div>`;
+  // round trip: unconstrained fully-invested optimum on pi gives back w
+  const x = ((pi[0] - pi[1]) / d + SIG[1][1] - SIG[0][1]) / (SIG[0][0] + SIG[1][1] - 2 * SIG[0][1]);
+  $('revTrip').innerHTML = `<div class="tripbox"><span>w ${Math.round(w[0] * 100)}/${Math.round(w[1] * 100)}</span><span class="arr">→ reverse →</span><span>π</span><span class="arr">→ optimizer →</span><span class="${Math.abs(x - w[0]) < 1e-9 ? 'ok' : ''}">${(x * 100).toFixed(1)} / ${((1 - x) * 100).toFixed(1)}</span></div>`;
+  [...document.querySelectorAll('#figRev .revrow')].forEach((el, i) => el.classList.toggle('hl', s === 1 || s < 0 || s !== 1));
+  $('revTrip').style.opacity = (s === 4 || s < 0) ? 1 : .3;
+  document.querySelectorAll('#figRev .seg.cross').forEach(el => el.style.opacity = (s === 1 || s < 0 || s >= 2) ? 1 : .25);
+}
+function figRev(s) { if (!$('revW')) revBuild(); Object.assign(rev, REV_PRESET[s]); revDraw(s); }
+
+// ---------------------------------------------------------------- allocation (Black-Litterman blend and the weight dial)
+const COMQ = [S.example_ridge.COMMITTEE.q_spy, S.example_ridge.COMMITTEE.q_tlt], OM = S.omega_committee;
+const al = { q: [...COMQ], k: 1 };
+const AL_PRESET = [{ q: [...COMQ], k: 1 }, { q: [...COMQ], k: 1 }, { q: [...COMQ], k: 0.01 }, { q: [0.03, COMQ[1]], k: 1 }, { q: [0.03, COMQ[1]], k: 0.01 }];
+const inv2 = m => { const [[a, b], [c, d]] = m, det = a * d - b * c; return [[d / det, -b / det], [-c / det, a / det]]; };
+const mv = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1], m[1][0] * v[0] + m[1][1] * v[1]];
+const madd = (a, b) => a.map((r, i) => r.map((x, j) => x + b[i][j]));
+function blend(q, k) {
+  const pi = mv(SIG, [0.6, 0.4]).map(x => x * DELTA), ts = SIG.map(r => r.map(x => x * TAU)), tsI = inv2(ts), oI = [[1 / (OM[0] * k), 0], [0, 1 / (OM[1] * k)]];
+  const M = inv2(madd(tsI, oI)), a = mv(tsI, pi), b = mv(oI, q), mu = mv(M, [a[0] + b[0], a[1] + b[1]]), SB = madd(SIG, M);
+  const raw = ((mu[0] - mu[1]) / DELTA + SB[1][1] - SB[0][1]) / (SB[0][0] + SB[1][1] - 2 * SB[0][1]);
+  return { pi, mu, raw, w: Math.min(0.8, Math.max(0.4, raw)) };
+}
+function alBuild() {
+  $('figAlloc').innerHTML = `<div class="label">March 2019 · the committee's view · 60/40 prior</div>
+    <div class="ctl"><label for="alQ">SPY view Q, next month <b id="alQv"></b></label><input type="range" id="alQ" min="-3" max="4" step="0.01"></div>
+    <div class="ctl"><label for="alK">Trust in the view <b id="alKv"></b></label><input type="range" id="alK" min="-2" max="1" step="0.01"></div>
+    <div id="alLines"></div>
+    <div class="dial"><svg viewBox="0 0 220 128" width="220"><path d="M20,110 A90,90 0 0 1 200,110" fill="none" stroke="var(--rule)" stroke-width="14"/><path id="alBand" fill="none" stroke="var(--com)" stroke-opacity=".18" stroke-width="14"/><line id="alNeedle" x1="110" y1="110" x2="110" y2="30" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" style="transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-origin:110px 110px"/><circle cx="110" cy="110" r="6" fill="var(--ink)"/><text x="20" y="126" font-size="10" font-family="var(--mono)" fill="var(--muted)" text-anchor="middle">0%</text><text x="200" y="126" font-size="10" font-family="var(--mono)" fill="var(--muted)" text-anchor="middle">100%</text></svg>
+      <div><div class="label">SPY weight</div><div class="big" id="alW" style="font-size:44px">60%</div><div id="alNote" style="font-size:13px;color:var(--ink-2)"></div></div></div>`;
+  const a0 = 0.4 * Math.PI, a1 = 0.8 * Math.PI, P = t => [110 - 90 * Math.cos(t), 110 - 90 * Math.sin(t)];
+  const [x0, y0] = P(a0), [x1, y1] = P(a1); $('alBand').setAttribute('d', `M${x0},${y0} A90,90 0 0 1 ${x1},${y1}`);
+  $('alQ').addEventListener('input', e => { al.q[0] = +e.target.value / 100; alDraw(); });
+  $('alK').addEventListener('input', e => { al.k = Math.pow(10, +e.target.value); alDraw(); });
+}
+function alDraw() {
+  const r = blend(al.q, al.k);
+  $('alQ').value = (al.q[0] * 100).toFixed(2); $('alK').value = Math.log10(al.k).toFixed(2);
+  $('alQv').textContent = pct(al.q[0], 2); $('alKv').textContent = al.k >= 1 ? `normal × ${(1 / al.k).toFixed(al.k > 1 ? 2 : 0)}` : `× ${(1 / al.k).toFixed(0)} more`;
+  const lo = -0.01, hi = 0.035, X = v => Math.min(100, Math.max(0, (v - lo) / (hi - lo) * 100)).toFixed(1);
+  const line = (i, nm) => `<div class="nl"><div class="nm">${nm}</div><div class="axis"><div class="zero" style="left:${X(0)}%"></div>
+      <div class="mk eq" style="left:${X(r.pi[i])}%" title="π"></div><div class="mk view" style="left:${X(al.q[i])}%" title="Q"></div><div class="mk post" style="left:${X(r.mu[i])}%" title="μ"></div></div>
+      <div class="vals"><span style="color:var(--eq)">π ${pct(r.pi[i], 3)}</span><span style="color:var(--view)">Q ${pct(al.q[i], 3)}</span><span style="color:var(--post)">μ ${pct(r.mu[i], 3)}</span></div></div>`;
+  const share = Math.abs(al.q[0] - r.pi[0]) > 1e-9 ? (r.mu[0] - r.pi[0]) / (al.q[0] - r.pi[0]) : 0;
+  $('alLines').innerHTML = `<div class="label" style="margin:14px 0 4px">monthly return above cash · −1% to +3.5%</div>${line(0, 'SPY')}${line(1, 'TLT')}<div style="font-size:13px;color:var(--ink-2);margin-top:4px">The SPY blend moved <b>${(share * 100).toFixed(1)}%</b> of the way from π to Q.</div>`;
+  const ang = -90 + r.w * 180; $('alNeedle').style.transform = `rotate(${ang}deg)`;
+  $('alW').textContent = (r.w * 100).toFixed(1) + '%';
+  $('alNote').textContent = r.raw > 0.8 ? `the optimizer wanted ${(r.raw * 100).toFixed(0)}%; capped at 80%` : r.raw < 0.4 ? `the optimizer wanted ${(r.raw * 100).toFixed(0)}%; floored at 40%` : 'inside the 40–80% band';
+}
+function figAlloc(s) { if (!$('alQ')) alBuild(); const p = AL_PRESET[s]; al.q = [...p.q]; al.k = p.k; alDraw(); }
+
+// ---------------------------------------------------------------- rate shocks and regimes, 2004 onward
+const SH = S.shock;
+const EPIS = [null, ['2008-08', '2009-02'], ['2013-04', '2013-09'], ['2020-01', '2022-12'], null];
+function figShock(s) {
+  const W = 620, H = 300, n = SH.length, mx = Math.max(...SH.map(x => Math.abs(x.bps))), bw = (W - 40) / n;
+  const X = i => 30 + i * bw, Y0 = 170, Yk = 120 / mx;
+  const ep = EPIS[s], inEp = m => ep && m >= ep[0] && m <= ep[1];
+  let bars = '', reg = '';
+  SH.forEach((x, i) => {
+    const h = Math.abs(x.bps) * Yk, on = !ep || inEp(x.m);
+    bars += `<rect x="${X(i).toFixed(1)}" y="${(x.bps >= 0 ? Y0 - h : Y0).toFixed(1)}" width="${Math.max(1, bw - 0.6).toFixed(1)}" height="${Math.max(0.6, h).toFixed(1)}" fill="${x.bps >= 0 ? 'var(--com)' : 'var(--neg)'}" opacity="${on ? .95 : .18}"><title>${x.m}: ${x.bps > 0 ? '+' : ''}${x.bps.toFixed(0)} bps</title></rect>`;
+    if (x.regime === 'elevated') reg += `<rect x="${X(i).toFixed(1)}" y="20" width="${bw.toFixed(1)}" height="14" fill="var(--det)" opacity="${s === 4 ? .9 : .35}"/>`;
+  });
+  const years = []; SH.forEach((x, i) => { if (x.m.endsWith('-01') && +x.m.slice(0, 4) % 2 === 0) years.push(`<text x="${X(i)}" y="${H - 14}" font-size="10" font-family="var(--mono)" fill="var(--muted)">${x.m.slice(0, 4)}</text>`); });
+  const ext = ep ? SH.filter(x => inEp(x.m)).reduce((a, b) => Math.abs(b.bps) > Math.abs(a.bps) ? b : a) : null;
+  const nElev = SH.filter(x => x.regime === 'elevated').length;
+  $('figShock').innerHTML = `<div class="label">Rate shock, bps · ${SH[0].m} to ${SH.at(-1).m} · ${n} months</div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="margin-top:8px">
+      <text x="30" y="14" font-size="10" font-family="var(--mono)" fill="var(--muted)">elevated uncertainty regime (${nElev} months)</text>${reg}
+      <line x1="30" x2="${W - 10}" y1="${Y0}" y2="${Y0}" stroke="var(--rule)"/>
+      <text x="4" y="${Y0 - 120 + 4}" font-size="10" font-family="var(--mono)" fill="var(--muted)">+${mx.toFixed(0)}</text><text x="4" y="${Y0 + 120}" font-size="10" font-family="var(--mono)" fill="var(--muted)">−${mx.toFixed(0)}</text>
+      ${bars}${years.join('')}</svg>
+    <div style="font-size:14px;color:var(--ink-2);min-height:2.6em">${ext ? `Largest move in this stretch: <b>${ext.bps > 0 ? '+' : ''}${ext.bps.toFixed(0)} bps</b> in ${ext.m}.` : s === 4 ? 'Elevated months cluster around 2008–09, 2011–12, 2016, 2020 and 2022.' : 'Each bar is one month-end decision.'}</div>`;
+}
+
+// ---------------------------------------------------------------- the causal graph Causal RAG built for March 2019
+const RM = S.rag_month, STC = { Supported: 'var(--pos)', Contradicted: 'var(--neg)', Insufficient: 'var(--muted)' };
+const TRIG = { AHE: 'Hourly earnings', CORE_CPI: 'Core CPI', NFP: 'Jobs report', FOMC: 'FOMC', MARKET_STRESS: 'Market stress', CPI: 'CPI', PPI: 'PPI', RETAIL_SALES: 'Retail sales', INDUSTRIAL_PRODUCTION: 'Industrial production', ISM_MANUFACTURING: 'ISM' };
+function ragGraph(s) {
+  const Hs = RM.hypotheses, col = {}, edges = [];
+  Hs.forEach(h => { const seq = ['T:' + h.trigger, ...h.chain.map(c => c.toLowerCase())]; seq.forEach((v, i) => { if (i) edges.push([seq[i - 1], v]); }); col['T:' + h.trigger] = 0; });
+  for (let it = 0; it < 12; it++) edges.forEach(([u, v]) => { col[v] = Math.max(col[v] ?? 0, (col[u] ?? 0) + 1); });
+  const cols = {}; Object.entries(col).forEach(([k, c]) => (cols[c] ||= []).push(k));
+  const W = 780, H = 360, nc = Math.max(...Object.keys(cols).map(Number)) + 1, pos = {};
+  Object.entries(cols).forEach(([c, ks]) => { ks.sort(); ks.forEach((k, i) => { pos[k] = [78 + (+c) / (nc - 1) * (W - 156), 30 + (i + 1) / (ks.length + 1) * (H - 50)]; }); });
+  const lab = k => k.startsWith('T:') ? TRIG[k.slice(2)] || k.slice(2) : k;
+  let paths = '';
+  Hs.forEach((h, hi) => {
+    const seq = ['T:' + h.trigger, ...h.chain.map(c => c.toLowerCase())], off = (hi - (Hs.length - 1) / 2) * 3.2;
+    let d = ''; seq.forEach((v, i) => { const [x, y] = pos[v]; if (!i) d = `M${x},${y + off}`; else { const [px, py] = pos[seq[i - 1]], mx = (px + x) / 2; d += ` C${mx},${py + off} ${mx},${y + off} ${x},${y + off}`; } });
+    const c = s >= 3 ? STC[h.status] : 'var(--rag)';
+    paths += `<path class="strand" data-h="${hi}" d="${d}" fill="none" stroke="${c}" stroke-width="2.4" stroke-opacity=".85"/>`;
+  });
+  let nodes = '';
+  Object.entries(pos).forEach(([k, [x, y]]) => {
+    const t = lab(k), tw = Math.max(48, t.length * 6.6 + 14), trig = k.startsWith('T:');
+    const ev = trig ? RM.events.find(e => e.trigger === k.slice(2) && e.z != null) : null;
+    nodes += `<g class="node"><rect x="${x - tw / 2}" y="${y - 12}" width="${tw}" height="24" rx="12" fill="${trig ? 'var(--rag)' : 'var(--paper)'}" stroke="${trig ? 'var(--rag)' : 'var(--rule)'}"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-family="var(--body)" fill="${trig ? '#fff' : 'var(--ink)'}">${t}</text>${ev ? `<text x="${x}" y="${y + 24}" text-anchor="middle" font-size="9" font-family="var(--mono)" fill="var(--muted)">${ev.z > 0 ? '+' : ''}${ev.z.toFixed(1)}σ</text>` : ''}</g>`;
+  });
+  const chips = Hs.map((h, hi) => `<span class="hchip" data-h="${hi}" style="border-color:${s >= 3 ? STC[h.status] : 'var(--rule)'}"><b>H${hi + 1}</b> ${lab('T:' + h.trigger)} → ${h.chain.slice(1).join(' → ')}${s >= 3 ? ` · <span style="color:${STC[h.status]}">${h.status}</span>` : ''}</span>`).join('');
+  const T = S.rag_tally.status, tot = T.Supported + T.Contradicted + T.Insufficient;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" class="rgraph">${paths}${nodes}</svg><div class="hchips">${chips}</div>
+    ${s >= 3 ? `<div class="label" style="margin-top:12px">All ${S.rag_tally.months} months · ${tot} hypotheses tested</div><div class="tally"><div style="width:${T.Supported / tot * 100}%;background:var(--pos)">${T.Supported} supported</div><div style="width:${T.Contradicted / tot * 100}%;background:var(--neg)">${T.Contradicted}</div><div style="width:${T.Insufficient / tot * 100}%;background:var(--muted)">${T.Insufficient} insufficient</div></div>` : ''}`;
+}
+function ragHover() {
+  document.querySelectorAll('#figRag .hchip').forEach(ch => {
+    const on = v => document.querySelectorAll('#figRag .strand').forEach(p => p.classList.toggle('dim', v && p.dataset.h !== ch.dataset.h));
+    ch.addEventListener('mouseenter', () => on(true)); ch.addEventListener('mouseleave', () => on(false)); ch.addEventListener('click', () => on(true));
+  });
+}
+
 // ---------------------------------------------------------------- step engine
-const FIGS = { q: figQ, pipe: figPipe, mask: figMask, det: figDet, com: figCom, jev: figJev, rag: figRag, fair: figFair, ver: figVer, why: figWhy };
+const FIGS = { q: figQ, pipe: figPipe, rev: figRev, alloc: figAlloc, shock: figShock, mask: figMask, det: figDet, com: figCom, jev: figJev, rag: figRag, fair: figFair, ver: figVer, why: figWhy };
 const current = {};
 const io = new IntersectionObserver(entries => {
   entries.forEach(en => { if (!en.isIntersecting) return; const el = en.target, f = el.dataset.fig, s = +el.dataset.s;
