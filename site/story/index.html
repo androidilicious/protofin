@@ -369,10 +369,10 @@ html:not(.light) { --eq: #a3b4d6; --view: #f0a83a; --post: #43c3ad; }
 
 <!-- 09 race -->
 <section class="chapter" id="c9" data-title="12 · The race">
-  <div class="chapter-head"><div class="n">12</div><div class="rule"></div><h2>Forty-six months, all at once.</h2><p>Scroll to move through time. Each line is 100 invested in March 2019 under one approach, after costs.</p></div>
+  <div class="chapter-head"><div class="n">12</div><div class="rule"></div><h2>Forty-six months, all at once.</h2><p>Scroll to move through time. Each line is 100 invested in March 2019 under one approach, after costs. Switch between the two fund sets. *Causal RAG is exploratory.</p></div>
   <div class="race-wrap" id="raceWrap">
     <div class="race-stick">
-      <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><div class="big mono" id="raceMonth" style="font-size:clamp(28px,4vw,44px)">2019-04</div><div class="seg" id="raceSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><canvas id="raceCanvas" height="380"></canvas></div>
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><div class="big mono" id="raceMonth" style="font-size:clamp(28px,4vw,44px)">2019-04</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="raceFund"><button data-v="2" class="on">SPY / TLT 60/40</button><button data-v="3">SPY / IEF / LQD 45/35/20</button></div><div class="seg" id="raceSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div></div><canvas id="raceCanvas" height="380"></canvas></div>
       <div class="card"><div class="label">Standing</div><div class="lb" id="lb" style="margin-top:10px"></div><div class="label" style="margin-top:18px">What happened</div><div class="event" id="event"></div></div>
     </div>
   </div>
@@ -386,9 +386,10 @@ html:not(.light) { --eq: #a3b4d6; --view: #f0a83a; --post: #43c3ad; }
       <div class="step" data-fig="ver" data-s="0"><div><h3>Read the chart</h3><p>Each dot is an approach's score minus static 60/40, in points a year. The line is its 95% range. Left of zero is worse than doing nothing.</p></div></div>
       <div class="step" data-fig="ver" data-s="1"><div><h3>The machine alone costs half a point</h3><p>The placebo, which only tilts on historical averages, loses about 0.5 points a year, and that loss is statistically clear (p 0.01). It trades no more than static 60/40, so the loss is the tilting itself: small moves away from 60/40 that carry no information. That is the hurdle before any signal can show value. The deterministic model lands on top of it.</p></div></div>
       <div class="step" data-fig="ver" data-s="2"><div><h3>The committee came closest</h3><p>About −0.4 points with its direction kept (−0.3 when its numbers may be read freely). It beat the placebo, mainly through its bond calls, but its range runs from about −1.1 to +0.3, so it cannot be told apart from zero.</p></div></div>
-      <div class="step" data-fig="ver" data-s="3"><div><h3>Jev had nothing to add</h3><p>With its direction kept, Jev is the placebo. Allowed to be read in reverse, it lost a further 0.7 points.</p></div></div>
+      <div class="step" data-fig="ver" data-s="3"><div><h3>Jev and Causal RAG had nothing to add</h3><p>With its direction kept, Jev is the placebo. Allowed to be read in reverse, it lost a further 0.7 points.</p><p>Causal RAG (*exploratory: run on a free stand-in model whose reliability checks failed) also lands on the placebo when its direction is kept.</p></div></div>
+      <div class="step" data-fig="ver" data-s="4"><div><h3>Three funds: the same answer, more clearly</h3><p>We also ran everything on SPY, IEF and LQD at 45/35/20: the deterministic model's and Causal RAG's own funds, with Jev and the committee asked again about them.</p><p>Every approach loses about 0.6 to 1.0 points a year, and every range sits below zero: all are clearly worse than doing nothing. Use the switch to compare.</p></div></div>
     </div>
-    <div class="fig"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="label">Difference vs static 60/40 · points a year · 95% range</div><div class="seg" id="verSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><div id="ciChart" style="margin-top:12px"></div></div></div>
+    <div class="fig"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="label" id="verLabel">Difference vs doing nothing · points a year · 95% range</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="verFund"><button data-v="2" class="on">SPY / TLT 60/40</button><button data-v="3">SPY / IEF / LQD 45/35/20</button></div><div class="seg" id="verSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div></div><div id="ciChart" style="margin-top:12px"></div></div></div>
   </div>
 </section>
 
@@ -463,12 +464,14 @@ $('themeBtn').textContent = document.documentElement.classList.contains('light')
 $('themeBtn').addEventListener('click', () => setTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
 
 const [L, S] = await Promise.all([fetch('../data/level.json', { cache: 'no-store' }).then(r => r.json()), fetch('../data/story.json', { cache: 'no-store' }).then(r => r.json())]);
-const run = m => L.runs[`spy60_${m}`];
+let fundSet = '2';
+const run = (m, f = fundSet) => L.runs[f === '3' ? `f3_${m}` : `spy60_${m}`];
+const mixName = (f = fundSet) => f === '3' ? '45/35/20' : '60/40';
 const pct = (x, d = 2) => (x * 100).toFixed(d) + '%';
 const sgn = (x, d = 2) => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(d);
-const COLOR = { STATIC: '--static', PLACEBO: '--placebo', DET: '--det', JEV: '--jev', COMMITTEE: '--com' };
-const NAME = { STATIC: 'Static 60/40', PLACEBO: 'Placebo', DET: 'Deterministic', JEV: 'Jev', COMMITTEE: 'AI committee' };
-const KEYS = ['STATIC', 'PLACEBO', 'DET', 'JEV', 'COMMITTEE'];
+const COLOR = { STATIC: '--static', PLACEBO: '--placebo', DET: '--det', JEV: '--jev', COMMITTEE: '--com', CAUSAL_RAG: '--rag' };
+const NAME = { STATIC: 'Doing nothing', PLACEBO: 'Placebo', DET: 'Deterministic', JEV: 'Jev', COMMITTEE: 'AI committee', CAUSAL_RAG: 'Causal RAG*' };
+const KEYS = ['STATIC', 'PLACEBO', 'DET', 'JEV', 'COMMITTEE', 'CAUSAL_RAG'];
 
 // ---------------------------------------------------------------- chapter chrome: index, dots, progress, title
 const chapters = [...document.querySelectorAll('section.chapter')];
@@ -482,7 +485,7 @@ addEventListener('scroll', () => {
 }, { passive: true });
 
 // ---------------------------------------------------------------- 01 the question
-const st = run('sign').systems.STATIC;
+const st = run('sign', '2').systems.STATIC;
 $('staticCer').textContent = pct(st.net_cer);
 function figQ(s) {
   const nav = st.nav, months = run('sign').months, W = 520, H = 230, lo = Math.min(...nav) * 100 - 3, hi = Math.max(...nav) * 100 + 3;
@@ -608,7 +611,7 @@ function drawRace() {
     g.fillStyle = css(COLOR[k]); g.beginPath(); g.arc(X(idx), Y(nav[idx] * 100), 3.5, 0, 7); g.fill();
   });
   const rows = KEYS.map(k => ({ k, v: S2[k].nav[idx] * 100, w: S2[k].w_spy[idx] * 100 })).sort((a, b) => b.v - a.v);
-  $('raceMonth').textContent = R.months[idx].slice(0, 7);
+  $('raceMonth').textContent = R.months[idx].slice(0, 7) + (fundSet === '3' ? ' · 45/35/20' : ' · 60/40');
   $('lb').innerHTML = rows.map(r => `<div class="row"><i style="background:var(${COLOR[r.k]})"></i><span>${NAME[r.k]} <span class="mono" style="color:var(--muted);font-size:12px">· ${r.w.toFixed(0)}% SPY</span></span><span class="v">${r.v.toFixed(1)}</span></div>`).join('');
   let ev = EVENTS[0][1]; for (const [i, t] of EVENTS) if (idx >= i) ev = t; $('event').textContent = ev;
 }
@@ -622,20 +625,24 @@ $('raceSeg').addEventListener('click', e => { if (!e.target.dataset.v) return; r
 // ---------------------------------------------------------------- 10 verdict
 let verMap = 'sign', verStep = 0;
 function figVer(s) {
-  verStep = s; const R = run(verMap).systems, keys = ['PLACEBO', 'DET', 'JEV', 'COMMITTEE'];
+  verStep = s; const f = s === 4 ? '3' : fundSet; const R = run(verMap, f).systems, keys = ['PLACEBO', 'DET', 'JEV', 'COMMITTEE', 'CAUSAL_RAG'];
+  $('verLabel').textContent = `Difference vs doing nothing (${f === '3' ? 'SPY/IEF/LQD 45/35/20' : 'SPY/TLT 60/40'}) · points a year · 95% range`;
+  [...$('verFund').children].forEach(b => b.classList.toggle('on', b.dataset.v === f));
   const lo = -0.04, hi = 0.025, W = 520, rowH = 54, X = v => 140 + (v - lo) / (hi - lo) * (W - 160);
-  const focus = { 0: keys, 1: ['PLACEBO', 'DET'], 2: ['COMMITTEE'], 3: ['JEV'] }[s];
-  let svg = `<svg viewBox="0 -18 ${W} ${keys.length * rowH + 58}" width="100%"><line x1="${X(0)}" x2="${X(0)}" y1="6" y2="${keys.length * rowH + 10}" stroke="var(--ink)" stroke-width="1.2"/><text x="${X(0)}" y="-4" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">static 60/40</text><text x="${X(0)}" y="${keys.length * rowH + 30}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">0</text>`;
+  const focus = { 0: keys, 1: ['PLACEBO', 'DET'], 2: ['COMMITTEE'], 3: ['JEV', 'CAUSAL_RAG'], 4: keys }[s];
+  let svg = `<svg viewBox="0 -18 ${W} ${keys.length * rowH + 58}" width="100%"><line x1="${X(0)}" x2="${X(0)}" y1="6" y2="${keys.length * rowH + 10}" stroke="var(--ink)" stroke-width="1.2"/><text x="${X(0)}" y="-4" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">doing nothing</text><text x="${X(0)}" y="${keys.length * rowH + 30}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">0</text>`;
   [-0.03, -0.02, -0.01, 0.01, 0.02].forEach(v => { svg += `<line x1="${X(v)}" x2="${X(v)}" y1="6" y2="${keys.length * rowH + 10}" stroke="var(--rule)" stroke-dasharray="3 4"/><text x="${X(v)}" y="${keys.length * rowH + 30}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">${v > 0 ? '+' : ''}${(v * 100).toFixed(0)}</text>`; });
   keys.forEach((k, i) => { const c = R[k].vs_static, y = 24 + i * rowH, on = focus.includes(k);
     svg += `<g opacity="${on ? 1 : .25}"><text x="0" y="${y + 4}" font-family="var(--body)" font-size="13" fill="var(${COLOR[k]})" font-weight="600">${NAME[k]}</text><line x1="${X(Math.max(lo, c.lo))}" x2="${X(Math.min(hi, c.hi))}" y1="${y}" y2="${y}" stroke="var(${COLOR[k]})" stroke-width="3" stroke-linecap="round"/><circle cx="${X(c.d)}" cy="${y}" r="7" fill="var(${COLOR[k]})"/><text x="0" y="${y + 20}" font-family="var(--mono)" font-size="11" fill="var(--ink-2)">${sgn(c.d)} pts · p ${c.p.toFixed(2)}</text></g>`; });
-  $('ciChart').innerHTML = svg + '</svg>' + `<div class="nums"><div><div class="label">static 60/40</div><div class="v">${pct(R.STATIC.net_cer)}</div></div><div><div class="label">best approach</div><div class="v" style="color:var(--com)">${pct(Math.max(...keys.map(k => R[k].net_cer)))}</div></div></div>`;
+  $('ciChart').innerHTML = svg + '</svg>' + `<div class="nums"><div><div class="label">doing nothing (${mixName(f)})</div><div class="v">${pct(R.STATIC.net_cer)}</div></div><div><div class="label">best approach</div><div class="v" style="color:var(--com)">${pct(Math.max(...keys.map(k => R[k].net_cer)))}</div></div></div>`;
 }
+$('verFund').addEventListener('click', e => { if (!e.target.dataset.v) return; fundSet = e.target.dataset.v; figVer(verStep === 4 ? 0 : verStep); drawRace(); [...$('raceFund').children].forEach(b => b.classList.toggle('on', b.dataset.v === fundSet)); });
+$('raceFund').addEventListener('click', e => { if (!e.target.dataset.v) return; fundSet = e.target.dataset.v; [...$('raceFund').children].forEach(b => b.classList.toggle('on', b === e.target)); drawRace(); });
 $('verSeg').addEventListener('click', e => { if (!e.target.dataset.v) return; verMap = e.target.dataset.v; [...$('verSeg').children].forEach(b => b.classList.toggle('on', b === e.target)); figVer(verStep); });
 
 // ---------------------------------------------------------------- 11 why
 function figWhy(s) {
-  const R = run('sign').systems;
+  const R = run('sign', '2').systems;
   const cards = [
     ['46 / 46', 'months the deterministic model ignored the surprises for SPY', 'The news was already in the price.'],
     [`${R.COMMITTEE.turnover.toFixed(2)}× vs ${R.STATIC.turnover.toFixed(2)}×`, 'yearly trading, committee vs static 60/40', `The placebo alone lost ${sgn(R.PLACEBO.vs_static.d)} points from tilting on averages, while trading ${R.PLACEBO.turnover.toFixed(2)}× a year.`],
