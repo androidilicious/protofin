@@ -24,7 +24,7 @@ def stamp(path):
 
 def main():
     total = 0
-    for name in ("index.html", "backtest-live.html", "how.html", os.path.join("jev", "index.html"), os.path.join("uncertainty", "index.html")):
+    for name in ("index.html", "dashboard.html", "backtest-live.html", "how.html", os.path.join("jev", "index.html"), os.path.join("uncertainty", "index.html")):
         total += stamp(os.path.join(SITE, name))
     for name in os.listdir(os.path.join(SITE, "js")):
         if name.endswith(".js"):

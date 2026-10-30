@@ -1,7 +1,7 @@
 // Browser mirror of stochastic_views.decide_from_runs (Farnoosh Memari, docs/EMPIRICAL_UNCERTAINTY.md):
 // aggregate N committee runs on identical input, measure run-to-run dispersion, and feed it into
 // Black-Litterman's view uncertainty:  Omega = c(label)·tau·Sigma + diag(s²).
-import { allocate, TAU } from './allocation.js?v=202610300029';
+import { allocate, TAU } from './allocation.js?v=202610300036';
 
 export const ORDER = ['Low', 'Medium', 'High'];          // ties in the modal label go to the lower one
 const DOWN = { High: 'Medium', Medium: 'Low', Low: 'Low' };

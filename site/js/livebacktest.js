@@ -2,8 +2,8 @@
 // the saved answers (gpt-4o committee or Jev; recorded once, no model is called from the site), and
 // scores every decision with the realised next-month returns. Benchmarks computed alongside:
 // fixed 60/40 and prior-only (no views). Costs: flat bps per unit one-way turnover.
-import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202610300029';
-import { DOWNGRADE } from './pipeline.js?v=202610300029';
+import { allocate, EQUILIBRIUM_SPY, DELTA, MIN_SPY, MAX_SPY } from './allocation.js?v=202610300036';
+import { DOWNGRADE } from './pipeline.js?v=202610300036';
 
 // Jev answers are read defensively: find each question's block wherever the response nests it.
 const TILT_OFFSET = { strong_equities: 3, lean_equities: 1.5, neutral: 0, lean_bonds: -1.5, strong_bonds: -3 };   // points added to the stock-minus-bond edge

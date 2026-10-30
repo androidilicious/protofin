@@ -3,7 +3,7 @@
 // local GPU they execute back to back but still never see each other), then a CIO synthesis.
 // Providers: 'saved' replays the stored replies (no key, no network); 'browser' runs a small open
 // model locally with WebLLM (WebGPU). No API keys anywhere.
-import { allocate } from './allocation.js?v=202610300029';
+import { allocate } from './allocation.js?v=202610300036';
 
 export const DOWNGRADE = { High: 'Medium', Medium: 'Low', Low: 'Low' };
 

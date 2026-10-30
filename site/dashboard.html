@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin Macro Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', corePlugins: { preflight: true } }
+    </script>
+    <style>
+        /* ---------- theme tokens: every color on the page comes from here ---------- */
+        :root {
+            --bg: #0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(45,212,191,.10), transparent 55%);
+            --surface: #111a2e; --surface-2: #0d1526; --surface-3: #18233a; --border: #263250; --border-strong: #33415f;
+            --text: #e8ecf5; --text-2: #b4bdd1; --muted: #7b869f; --faint: #566178;
+            --accent: #5b96ff; --accent-soft: rgba(91,150,255,.14); --accent-2: #2dd4bf;
+            --pos: #34d399; --neg: #f87171; --warn: #fbbf24; --purple: #b79cff; --orange: #fb923c; --teal: #2dd4bf;
+            --shadow: 0 10px 30px rgba(0,0,0,.35); --glow: 0 0 0 1px rgba(91,150,255,.45), 0 0 24px rgba(91,150,255,.25);
+            --font: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+        }
+        html.light {
+            --bg: #f3f5f9; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(13,148,136,.08), transparent 55%);
+            --surface: #ffffff; --surface-2: #f7f9fc; --surface-3: #eef2f8; --border: #dfe4ee; --border-strong: #c9d2e0;
+            --text: #0f172a; --text-2: #3b465c; --muted: #6b7486; --faint: #8b94a7;
+            --accent: #2563eb; --accent-soft: rgba(37,99,235,.10); --accent-2: #0d9488;
+            --pos: #15803d; --neg: #b91c1c; --warn: #b45309; --purple: #6d28d9; --orange: #c2410c; --teal: #0f766e;
+            --shadow: 0 8px 24px rgba(15,23,42,.08); --glow: 0 0 0 1px rgba(37,99,235,.35), 0 0 22px rgba(37,99,235,.15);
+        }
+        html, body { background: var(--bg); color: var(--text); font-family: var(--font); }
+        body { background-image: var(--bg-grad); background-attachment: fixed; }
+        .mono { font-family: var(--mono); }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); transition: box-shadow .4s, border-color .4s, opacity .5s; }
+        .card.glow { box-shadow: var(--glow); border-color: var(--accent); }
+        .inner { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+        .inner:hover { border-color: var(--border-strong); }
+        .t1 { color: var(--text); } .t2 { color: var(--text-2); } .muted { color: var(--muted); } .faint { color: var(--faint); }
+        .accent { color: var(--accent); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); }
+        .purple { color: var(--purple); } .orange { color: var(--orange); } .teal { color: var(--teal); }
+        .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+        .cardhead { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px currentColor; }
+        .kpi { font-family: var(--mono); font-size: 30px; font-weight: 600; letter-spacing: -.01em; }
+        .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); font-family: var(--mono); }
+        .chip.accent { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+        .chip.warn { border-color: var(--warn); color: var(--warn); }
+        .chip.teal { border-color: var(--teal); color: var(--teal); }
+        .btn { border-radius: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; padding: 10px 22px; transition: transform .15s, box-shadow .2s, background .2s; }
+        .btn:active { transform: translateY(1px); }
+        .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 6px 18px rgba(91,150,255,.35); }
+        .btn-primary:hover { filter: brightness(1.08); }
+        .btn-primary:disabled { opacity: .7; cursor: wait; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--text-2); }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-ghost:disabled { opacity: .45; cursor: not-allowed; }
+        select, input[type=text], input[type=password] { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+        .bubble { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; font-size: 15px; line-height: 1.55; color: var(--text); }
+        .bubble.econ { border-left: 3px solid var(--accent); }
+        .bubble.risk { border-left: 3px solid var(--neg); }
+        .bubble.cio { border-left: 3px solid var(--purple); background: var(--surface-3); font-size: 17px; font-weight: 500; }
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline:before { content: ''; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
+        .tmark { position: absolute; left: -28px; top: 4px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 16px; background: color-mix(in srgb, var(--surface) 85%, transparent); z-index: 10; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+        .gauge { height: 14px; border-radius: 999px; position: relative; overflow: hidden; border: 1px solid var(--border); background: linear-gradient(90deg, rgba(52,211,153,.55), transparent 50%, rgba(248,113,113,.55)); }
+        .gauge .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--muted); }
+        .gauge .needle { position: absolute; top: -2px; bottom: -2px; width: 8px; border-radius: 4px; background: var(--orange); box-shadow: 0 0 10px var(--orange); transition: left 1s; }
+        .splitbar { height: 18px; border-radius: 999px; overflow: hidden; display: flex; border: 1px solid var(--border); }
+        .splitbar > div { transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
+        .tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; width: 17rem; padding: 10px 12px; background: var(--surface-3); color: var(--text-2); font-size: 11px; line-height: 1.45; border-radius: 10px; border: 1px solid var(--border-strong); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50; text-align: left; box-shadow: var(--shadow); }
+        .group:hover > .tooltip { opacity: 1; }
+        .info-icon { display: inline-block; margin-left: 4px; width: 15px; height: 15px; border-radius: 50%; background: var(--surface-3); color: var(--muted); font-size: 10px; line-height: 15px; text-align: center; border: 1px solid var(--border); }
+        .modal-bg { position: fixed; inset: 0; background: rgba(2,6,23,.55); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; }
+        .modal { width: 100%; max-width: 1000px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; box-shadow: var(--shadow); }
+        .tab { padding: 8px 14px; border-radius: 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--muted); cursor: pointer; border: 1px solid transparent; }
+        .tab.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+        pre.prompt { white-space: pre-wrap; word-break: break-word; font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-height: 60vh; overflow: auto; }
+        .mermaid-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; overflow-x: auto; }
+        .mermaid-box { display:flex; justify-content:center; } .mermaid-box svg { max-width: none; height: auto; }
+        .fres { opacity: 0; transform: translateX(6px); transition: all .3s; }
+        .fres.show { opacity: 1; transform: none; }
+        .note { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; text-align: center; }
+        .note.ok { color: var(--teal); } .note.warn { color: var(--warn); }
+        .status-chip { margin-top: 12px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; text-align: center; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-strong); color: var(--text-2); }
+        .status-chip.warn { border-color: var(--warn); color: var(--warn); }
+        .status-chip.accent { border-color: var(--accent); color: var(--accent); }
+        .krow { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 11px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+        .krow:last-child { border-bottom: 0; }
+        .headline-list li { display: flex; gap: 8px; align-items: flex-start; line-height: 1.35; }
+        .headline-list .sq { width: 8px; height: 8px; border-radius: 2px; margin-top: 5px; flex: none; background: var(--muted); }
+        .headline-list .sq.positive { background: var(--pos); } .headline-list .sq.negative { background: var(--neg); }
+        .topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(10px); background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 1px solid var(--border); }
+        .brand { font-weight: 800; letter-spacing: .04em; font-size: 20px; }
+        .brand span { color: var(--accent); }
+        .hero-num { font-family: var(--mono); font-size: 56px; font-weight: 600; line-height: 1; letter-spacing: -.02em; }
+        @media (max-width: 1024px) { .hero-num { font-size: 40px; } }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+
+    <!-- ---------- top bar ---------- -->
+    <div class="topbar">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-4">
+            <div>
+                <div class="brand"><span>Protofin</span> Macro Intelligence</div>
+                <div class="eyebrow">Autonomous Black-Litterman engine · prototype</div>
+            </div>
+            <div class="flex-1"></div>
+            <a id="backtestLink" href="./backtest.html" target="_blank" class="btn btn-ghost">Backtest</a>
+            <a href="./index.html" class="btn btn-ghost">Overview</a>
+            <a id="liveBacktestLink" href="./backtest-live.html" class="btn btn-ghost">Backtest</a>
+            <a href="./jev/" class="btn btn-ghost">Jev</a>
+            <a href="./uncertainty/" class="btn btn-ghost">Uncertainty</a>
+            <a href="./level/" class="btn btn-ghost">Level field</a>
+            <a id="howLink" href="./how.html" target="_blank" class="btn btn-ghost" title="Every step of this decision, with the arithmetic">How it works</a>
+            <button id="promptBtn" type="button" class="btn btn-ghost" title="See the exact prompt, how the committee runs, and the raw reply">&#9432; Prompt &amp; flow</button>
+            <button id="themeBtn" type="button" class="btn btn-ghost" title="Switch light / dark">Light mode</button>
+            <button id="replayBtn" class="btn btn-ghost" disabled>&#9654; Replay flow</button>
+            <button id="runBtn" class="btn btn-primary">Run pipeline</button>
+            <button id="forceBtn" class="hidden" title="Bypass the stored decision and call the LLM again on the same evidence">Force re-run</button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
+        <section id="settings" class="card p-4 text-xs">
+            <div class="flex flex-wrap items-end gap-4">
+                <label class="flex flex-col gap-1"><span class="eyebrow">Committee</span>
+                    <select id="provider">
+                        <option value="saved">Saved run (gpt-4o reply stored at build time)</option>
+                        <option value="browser">In-browser model (WebGPU, runs on your machine)</option>
+                    </select></label>
+                <label id="runWrap" class="flex flex-col gap-1"><span class="eyebrow">Run</span>
+                    <select id="runSel" class="w-80"><option value="latest">latest</option></select></label>
+                <label id="browserWrap" class="flex flex-col gap-1 hidden"><span class="eyebrow">Browser model</span>
+                    <select id="browserModel">
+                        <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen2.5 1.5B (about 1 GB download, once)</option>
+                        <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (about 0.7 GB)</option>
+                        <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen2.5 0.5B (about 0.4 GB)</option>
+                    </select></label>
+                <label class="flex items-center gap-2 t2"><input id="remember" type="checkbox"> remember on this device</label>
+                <span class="flex-1"></span>
+                <span id="signalsNote" class="muted"></span>
+            </div>
+            <p id="settingsNote" class="mt-2 muted">Saved runs replay a real committee reply recorded when the signals were built, so the page needs no key and makes no model call. The in-browser option runs a small open model locally through WebGPU; nothing leaves your machine. URL options: <span class="mono">?provider=browser</span>, <span class="mono">?run=&lt;id&gt;</span>, <span class="mono">?theme=light</span>.</p>
+        </section>
+
+        <!-- ---------- decision summary ---------- -->
+        <section id="heroCard" class="card p-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                <div class="lg:col-span-2">
+                    <div class="eyebrow mb-2">Decision</div>
+                    <div class="flex items-baseline gap-3">
+                        <span id="heroSpy" class="hero-num pos">--</span><span class="muted text-lg">stocks</span>
+                        <span class="faint text-2xl">/</span>
+                        <span id="heroTlt" class="hero-num neg">--</span><span class="muted text-lg">bonds</span>
+                    </div>
+                    <div class="splitbar mt-4"><div id="heroBarSpy" style="width:60%; background:var(--pos)"></div><div id="heroBarTlt" style="width:40%; background:var(--neg)"></div></div>
+                    <div class="mt-2 flex justify-between text-[11px] mono muted"><span>60/40 anchor · band 40–80% stocks</span><span id="heroAsOf"></span></div>
+                    <a id="whyLink" href="./how.html" target="_blank" class="inline-block mt-3 text-xs accent underline underline-offset-4">Why this split? Every step with the arithmetic &rarr;</a>
+                </div>
+                <div class="lg:col-span-3">
+                    <div id="heroChips" class="flex flex-wrap gap-2 mb-3"></div>
+                    <p id="heroSummary" class="t1 text-base leading-relaxed"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------- pipeline flow ---------- -->
+        <section id="diagramWrap" class="card p-5">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div class="cardhead t2"><span class="dot" style="color:var(--accent)"></span> Pipeline flow <span class="muted normal-case tracking-normal font-normal">each step lights as its values arrive</span></div>
+                <div class="flex items-center gap-3 text-[11px]">
+                    <span id="diagramStatus" class="muted"></span>
+                    <a href="./protofin-pipeline.html" target="_blank" class="accent underline underline-offset-2">full diagram</a>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <div id="diagramHost" class="inner p-2 min-h-[200px]"></div>
+                <ol id="flowResults" class="inner p-4 text-xs mono space-y-2 min-h-[200px]">
+                    <li class="faint italic">Run the pipeline to see each step's values here.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ---------- signals row ---------- -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section id="step1" class="card p-5 opacity-30 relative min-h-[220px]">
+                <div class="cardhead accent mb-4"><span class="dot"></span> 1 · Market data</div>
+                <div id="spinner1" class="spinner hidden">Fetching market data…</div>
+                <div id="dataContent" class="hidden space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative group inner p-3 text-center">
+                            <div class="eyebrow">10Y yield <span class="info-icon">i</span></div>
+                            <div id="yieldData" class="kpi neg">--</div>
+                            <div class="tooltip"><b class="accent">Source:</b> Yahoo Finance (^TNX), latest daily close.</div>
+                        </div>
+                        <div class="relative group inner p-3 text-center">
+                            <div class="eyebrow">SPY 1-month <span class="info-icon">i</span></div>
+                            <div id="spyData" class="kpi accent">--</div>
+                            <div class="tooltip"><b class="accent">Source:</b> Yahoo Finance (SPY), close today versus 21 trading days ago.</div>
+                        </div>
+                    </div>
+                    <div class="inner p-3 flex justify-between items-center">
+                        <span class="eyebrow">Cash (13-week T-bill)</span><span id="rfData" class="mono t1">--</span>
+                    </div>
+                    <div class="inner p-3 flex justify-between items-center">
+                        <span class="eyebrow">Covariance</span><span class="mono t2 text-xs">1y daily returns, annualised</span>
+                    </div>
+                    <p id="newsData" class="faint italic text-[11px] leading-tight">--</p>
+                </div>
+            </section>
+
+            <section id="step2" class="card p-5 opacity-30 relative min-h-[220px]">
+                <div class="cardhead orange mb-4"><span class="dot"></span> 2 · Shock &amp; uncertainty</div>
+                <div id="spinner2" class="spinner hidden" style="color:var(--orange)">Computing shocks…</div>
+                <div id="svarContent" class="hidden relative group">
+                    <p id="svarText" class="mono orange text-xs text-center mb-4 leading-relaxed"></p>
+                    <div class="gauge"><div class="mid"></div><div id="svarNeedle" class="needle" style="left:50%"></div></div>
+                    <div class="flex justify-between eyebrow mt-2"><span>Dovish</span><span>Hawkish</span></div>
+                    <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+                        <div class="inner p-2"><div class="eyebrow">EPU 30d</div><div id="epuVal" class="mono orange text-base">--</div><div id="epuPct" class="faint text-[10px]"></div></div>
+                        <div class="inner p-2"><div class="eyebrow">GPR 30d</div><div id="gprVal" class="mono orange text-base">--</div><div id="gprPct" class="faint text-[10px]"></div></div>
+                        <div class="inner p-2"><div class="eyebrow">Regime</div><div id="regimeVal" class="mono text-base">--</div><div class="faint text-[10px]">trust gate</div></div>
+                    </div>
+                    <div class="tooltip" style="bottom:auto; top:100%; margin-top:8px"><b class="orange">Shock:</b> 10Y yield minus its 3-month average, in bps; &plusmn;100 bps fills the gauge. <b class="orange">EPU / GPR:</b> policy-uncertainty and geopolitical-risk indexes as 30-day means ranked against 10 years. An elevated regime lowers the committee's confidence one notch.</div>
+                </div>
+            </section>
+
+            <section id="stepNews" class="card p-5 relative min-h-[220px]">
+                <div class="cardhead teal mb-4"><span class="dot"></span> Policy text <span id="newsMode" class="chip"></span></div>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="inner p-3 text-center"><div class="eyebrow">FOMC stance</div><div id="fomcScore" class="kpi teal" style="font-size:24px">--</div><div id="fomcDate" class="faint text-[10px]"></div></div>
+                    <div class="inner p-3 text-center"><div class="eyebrow">Headline tone</div><div id="newsSent" class="kpi teal" style="font-size:24px">--</div><div id="newsCount" class="faint text-[10px]"></div></div>
+                </div>
+                <p id="newsRead" class="t2 italic text-xs leading-snug mb-2"></p>
+                <ul id="newsList" class="headline-list t2 text-xs space-y-1"></ul>
+                <div class="tooltip" style="bottom:auto; top:100%; margin-top:8px"><b class="teal">Sources:</b> latest FOMC statement scored hawkish/dovish by FOMC-RoBERTa; macro headlines from Google News scored by FinBERT with an LLM read. Headlines are display only; the FOMC stance is in the decision.</div>
+            </section>
+        </div>
+
+        <!-- ---------- committee ---------- -->
+        <section id="step3" class="card p-6 opacity-30 relative min-h-[260px]">
+            <div class="cardhead purple mb-1"><span class="dot"></span> 3 · Investment committee</div>
+            <p id="modelLine" class="eyebrow mb-4"></p>
+            <div id="spinner3" class="spinner hidden" style="color:var(--purple)">Convening the committee…</div>
+            <div id="aiContent" class="hidden space-y-4">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="stage1Chip" class="chip accent">stage 1 · two independent views</span>
+                    <span id="stage1Mode" class="chip"></span>
+                    <span class="muted text-xs">neither persona sees the other</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div id="econBlock" class="inner p-4 relative transition-opacity duration-500" style="border-left:3px solid var(--accent)">
+                        <div class="flex items-center justify-between mb-1">
+                            <div><div class="eyebrow accent">Macro economist</div><div class="faint text-[11px]">chief economist at an asset manager</div></div>
+                            <span id="econTime" class="chip"></span>
+                        </div>
+                        <div id="econSpin" class="muted text-xs italic animate-pulse hidden">thinking…</div>
+                        <p class="t1 text-sm leading-relaxed"><span id="econText"></span></p>
+                        <div id="econNums" class="mono text-[11px] muted mt-2"></div>
+                    </div>
+                    <div id="riskBlock" class="inner p-4 relative transition-opacity duration-500" style="border-left:3px solid var(--neg)">
+                        <div class="flex items-center justify-between mb-1">
+                            <div><div class="eyebrow neg">Risk manager</div><div class="faint text-[11px]">head of risk at a bank's investment arm</div></div>
+                            <span id="riskTime" class="chip"></span>
+                        </div>
+                        <div id="riskSpin" class="muted text-xs italic animate-pulse hidden">thinking…</div>
+                        <p class="t1 text-sm leading-relaxed"><span id="riskText"></span></p>
+                        <div id="riskNums" class="mono text-[11px] muted mt-2"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1" style="height:1px; background:var(--border)"></div>
+                    <span id="stage2Chip" class="chip">stage 2 · CIO reads both views and decides</span>
+                    <div class="flex-1" style="height:1px; background:var(--border)"></div>
+                </div>
+                <div id="cioBlock" class="bubble cio relative transition-opacity duration-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <div><div class="eyebrow purple">Chief investment officer</div><div class="faint text-[11px]">weighs both, resolves disagreement, sets the numbers</div></div>
+                        <span id="cioTime" class="chip"></span>
+                    </div>
+                    <div id="cioSpin" class="muted text-xs italic animate-pulse hidden">synthesising…</div>
+                    "<span id="cioText"></span>"
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------- views + allocation ---------- -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section id="step4" class="card p-5 opacity-30 relative">
+                <div class="cardhead teal mb-4"><span class="dot"></span> 4 · Views &amp; trust</div>
+                <div id="spinner4" class="spinner hidden" style="color:var(--teal)">Extracting views…</div>
+                <div id="viewsContent" class="hidden space-y-3">
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="relative group inner p-4"><div class="eyebrow">SPY, 12-month <span class="info-icon">i</span></div><div id="spyQ" class="kpi pos"></div><div class="tooltip">Total-return view parsed from the CIO's reply. Converted to excess over cash before blending.</div></div>
+                        <div class="relative group inner p-4"><div class="eyebrow">TLT, 12-month <span class="info-icon">i</span></div><div id="tltQ" class="kpi neg"></div><div class="tooltip">Total-return view parsed from the CIO's reply. Below cash means a bearish bond view.</div></div>
+                    </div>
+                    <div class="relative group inner p-4 flex justify-between items-center">
+                        <span class="eyebrow">Confidence · reported → used <span class="info-icon">i</span></span>
+                        <span id="cioConf" class="chip teal" style="font-size:13px"></span>
+                        <div class="tooltip">High halves the view uncertainty, Low doubles it. An elevated EPU/GPR regime downgrades the reported confidence one notch before use.</div>
+                    </div>
+                    <p id="viewNote" class="note"></p>
+                    <div class="inner p-4">
+                        <div class="eyebrow mb-1">Grounding</div>
+                        <p id="groundingText" class="t2 italic text-sm leading-snug"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="step5" class="card p-5 opacity-30 relative">
+                <div class="cardhead pos mb-4"><span class="dot"></span> 5 · Black-Litterman allocation <span class="info-icon group relative">i<div class="tooltip" style="width:20rem"><b class="pos">Math:</b> prior from 60/40 and Σ; posterior E[R] = [(τΣ)⁻¹ + Ω⁻¹]⁻¹ [(τΣ)⁻¹Π + Ω⁻¹Q]; then the exact long-only optimum inside a 40–80% SPY band. Prototype mode applies the target directly.</div></span></div>
+                <div id="spinner5" class="spinner hidden" style="color:var(--pos)">Running optimizer…</div>
+                <div id="chartContent" class="hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                        <div class="w-44 h-44 relative mx-auto">
+                            <canvas id="allocationChart"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                                <span id="chartLabel" class="mono t1 text-3xl font-semibold"></span>
+                                <span class="eyebrow">stocks</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mono text-sm mb-3"><span class="pos font-semibold">SPY <span id="lblSpy"></span></span><span class="neg font-semibold">TLT <span id="lblTlt"></span></span></div>
+                            <div class="krow"><span class="muted">Prior excess (SPY/TLT)</span><span id="bdPrior" class="t2"></span></div>
+                            <div class="krow"><span class="muted">Posterior excess</span><span id="bdPost" class="t2"></span></div>
+                            <div class="krow"><span class="muted">Unconstrained weights</span><span id="bdUnc" class="t2"></span></div>
+                            <div class="krow"><span class="muted">Target (40–80 band)</span><span id="bdTarget" class="t1 font-semibold"></span></div>
+                            <div class="krow"><span class="muted">Previous holding</span><span id="bdPrev" class="t2"></span></div>
+                        </div>
+                    </div>
+                    <div id="tradeStatus" class="status-chip"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="promptModal" class="modal-bg hidden">
+        <div class="modal">
+            <div class="flex items-center gap-3 p-4 border-b" style="border-color:var(--border)">
+                <div class="cardhead t2"><span class="dot" style="color:var(--accent)"></span> Prompt &amp; flow</div>
+                <div class="flex gap-2 ml-4">
+                    <span class="tab on" data-tab="flow">How it runs</span>
+                    <span class="tab" data-tab="prompt">Exact prompt</span>
+                    <span class="tab" data-tab="raw">Raw reply</span>
+                </div>
+                <span class="flex-1"></span>
+                <button id="promptClose" class="btn btn-ghost">Close</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div id="tab-flow">
+                    <p class="t2 text-sm leading-relaxed mb-3"><b class="t1">Two independent views, then a decision.</b> The economist and the risk manager are separate model calls with different personas and the same data; neither sees the other. For saved gpt-4o runs the two calls are made concurrently. For the in-browser model they are still independent but execute one after the other, because one GPU generates one reply at a time. The CIO then receives both replies verbatim and sets the numbers that feed Black-Litterman.</p>
+                    <div id="mermaidBox" class="mermaid-box"></div>
+                    <p class="muted text-xs mt-3">Signals are gathered first (four data sources, deterministic). The model call is the only non-deterministic step, run at temperature 0. Everything after the reply is closed-form mathematics.</p>
+                </div>
+                <div id="tab-prompt" class="hidden">
+                    <p class="muted text-xs mb-2">Three user messages, one per persona; there is no separate system prompt for the hosted model (the in-browser model gets a short format-only system line). The CIO prompt is shown with the two views inserted, exactly as sent. <span id="promptWhich"></span></p>
+                    <div class="flex gap-2 mb-2"><span class="tab on" data-p="economist">Economist</span><span class="tab" data-p="risk">Risk manager</span><span class="tab" data-p="cio">CIO</span></div>
+                    <pre id="promptText" class="prompt">Run the pipeline to see the prompts for a run.</pre>
+                </div>
+                <div id="tab-raw" class="hidden">
+                    <p class="muted text-xs mb-2">Verbatim model output for each persona. If a small model ignores the format, the CIO's numbers are rejected and the 60/40 prior is used; this is where to see why. <span id="rawWhich"></span></p>
+                    <div class="flex gap-2 mb-2"><span class="tab on" data-r="economist">Economist</span><span class="tab" data-r="risk">Risk manager</span><span class="tab" data-r="cio">CIO</span></div>
+                    <pre id="rawText" class="prompt">Run the pipeline to see the model's replies.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { loadSettings, saveSettings, runPipeline, listRuns, loadRun } from "./js/pipeline.js?v=202610300036";
+        // ---------- theme ----------
+        function applyTheme(mode) {
+            document.documentElement.classList.toggle('light', mode === 'light');
+            document.documentElement.classList.toggle('dark', mode !== 'light');
+            const b = document.getElementById('themeBtn'); if (b) b.innerText = mode === 'light' ? 'Dark mode' : 'Light mode';
+            const host = document.getElementById('diagramHost');
+            const wrap = host && host.shadowRoot && host.shadowRoot.querySelector('[data-theme]');
+            if (wrap) wrap.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
+            try { localStorage.setItem('protofin.theme', mode); } catch (e) {}
+            if (window.myChart && lastRun) drawChart(lastRun);
+            if (document.getElementById('promptModal') && !document.getElementById('promptModal').classList.contains('hidden')) renderFlow();
+        }
+        function currentTheme() {
+            const q = new URLSearchParams(location.search).get('theme'); if (q === 'light' || q === 'dark') return q;
+            try { const t = localStorage.getItem('protofin.theme'); if (t) return t; } catch (e) {}
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        applyTheme(currentTheme());
+        document.getElementById('themeBtn').addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+        async function typeWriter(elementId, text, speed=10) {
+            document.getElementById(elementId).innerHTML = '';
+            let i = 0;
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    document.getElementById(elementId).innerHTML += text.charAt(i);
+                    i++;
+                    if (i >= text.length) { clearInterval(interval); resolve(); }
+                }, speed);
+            });
+        }
+
+        // ---------- inline archify diagram + step player ----------
+        const STEPS = ['run', 'ingest', 'shock', 'regime', 'fomc', 'committee', 'allocate', 'render'];
+        const STEP_LABEL = { run: 'Run', ingest: 'Yahoo Finance', shock: 'Rate shock', regime: 'EPU / GPR', fomc: 'FOMC stance',
+                             committee: 'Committee (economist &#8741; risk &rarr; CIO)', allocate: 'Black-Litterman', render: 'Render' };
+        let lastRun = null, diagramWrapEl = null;
+        async function loadDiagram() {
+            const html = await (await fetch('./protofin-pipeline.html', { cache: 'no-store' })).text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const svg = doc.querySelector('svg');
+            if (!svg) return null;
+            const css = Array.from(doc.querySelectorAll('style')).map(x => x.textContent).join('\n').replace(/:root/g, '[data-theme]');
+            const host = document.getElementById('diagramHost');
+            const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
+            root.innerHTML = '';
+            const style = document.createElement('style');
+            style.textContent = css + `
+                :host { display:block; }
+                svg { width:100%; height:auto; display:block; }
+                .pf-dim [data-node-id], .pf-dim [data-edge-id], .pf-dim [data-edge-key] { opacity:.18; transition: opacity .35s; }
+                .pf-dim [data-node-id].pf-on, .pf-dim [data-edge-id].pf-on, .pf-dim [data-edge-key].pf-on { opacity:1; }
+                [data-node-id].pf-on { filter: drop-shadow(0 0 7px rgba(96,165,250,.95)); }
+                [data-node-id].pf-done { filter: drop-shadow(0 0 3px rgba(56,189,248,.6)); }`;
+            const wrap = document.createElement('div');
+            wrap.setAttribute('data-theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+            wrap.appendChild(svg.cloneNode(true));
+            root.append(style, wrap);
+            diagramWrapEl = wrap;
+            requestAnimationFrame(() => {
+                try {
+                    const svgEl = wrap.querySelector('svg');
+                    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+                    svgEl.querySelectorAll('[data-node-id], [data-edge-id], [data-edge-key], .c-lane, text').forEach(el => {
+                        const b = el.getBBox(); if (!b.width && !b.height) return;
+                        x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+                    });
+                    if (x1 > x0 && y1 > y0) svgEl.setAttribute('viewBox', `${x0 - 12} ${y0 - 12} ${x1 - x0 + 24} ${y1 - y0 + 24}`);
+                } catch (e) { /* keep the original viewBox */ }
+            });
+            return wrap;
+        }
+        function stepValues(d) {
+            const f = (d.news || {}).fomc, e = d.epu, g = d.gpr;
+            const pct = v => v ? `${v.percentile_10y.toFixed(0)}th pct` : 'n/a';
+            const sg = v => (v > 0 ? '+' : '') + v;
+            return {
+                run:       `clicked &middot; data as of ${d.as_of}`,
+                ingest:    `10Y ${d.yield} &middot; cash ${d.risk_free}% &middot; SPY 1m ${d.spy_return} &middot; covariance from 1y daily returns`,
+                shock:     `${sg(d.svar_value.toFixed(0))} bps vs 3-month average`,
+                regime:    `EPU ${pct(e)} &middot; GPR ${pct(g)} &middot; regime ${d.uncertainty_regime.toUpperCase()}`,
+                fomc:      f ? `hawkish ${sg(f.score.toFixed(2))} (statement ${f.date})` : 'unavailable',
+                committee: `${d.economist_q && d.economist_q[0] != null ? 'economist ' + d.economist_q[0] + '/' + d.economist_q[1] + ' &#8741; risk ' + d.risk_q[0] + '/' + d.risk_q[1] + ' &rarr; ' : ''}CIO SPY ${d.spy_q}% &middot; TLT ${d.tlt_q}% &middot; confidence ${d.confidence_reported}${d.confidence !== d.confidence_reported ? ' &rarr; ' + d.confidence + ' (regime)' : ''}`,
+                allocate:  `prior ${d.prior_spy}/${d.prior_tlt} + views &rarr; posterior ${d.posterior_spy}/${d.posterior_tlt} &rarr; target ${d.target_spy} / ${d.target_tlt}`,
+                render:    `SPY ${d.spy_weight}% / TLT ${d.tlt_weight}%${d.prototype_mode ? '' : ' &middot; ' + d.trade_status}`,
+            };
+        }
+        async function playDiagram(d) {
+            if (!diagramWrapEl) await loadDiagram();
+            const wrap = diagramWrapEl; if (!wrap) return;
+            const list = document.getElementById('flowResults'); list.innerHTML = '';
+            wrap.classList.add('pf-dim');
+            wrap.querySelectorAll('.pf-on, .pf-done').forEach(x => x.classList.remove('pf-on', 'pf-done'));
+            const vals = stepValues(d);
+            for (let i = 0; i < STEPS.length; i++) {
+                const id = STEPS[i];
+                wrap.querySelectorAll(`[data-edge-to="${id}"]`).forEach(x => x.classList.add('pf-on'));
+                const node = wrap.querySelector(`[data-node-id="${id}"]`);
+                if (node) node.classList.add('pf-on');
+                const li = document.createElement('li'); li.className = 'fres';
+                li.innerHTML = `<span class="muted">${i + 1}. ${STEP_LABEL[id]}</span><br><span class="t1">${vals[id]}</span>`;
+                list.appendChild(li); requestAnimationFrame(() => li.classList.add('show'));
+                await new Promise(r => setTimeout(r, 650));
+                if (node) { node.classList.remove('pf-on'); node.classList.add('pf-done', 'pf-on'); }
+            }
+        }
+        async function refreshDiagram() {
+            document.getElementById('diagramStatus').innerText = 'diagram labels: latest saved run; values on the right are this run';
+        }
+        document.getElementById('replayBtn').addEventListener('click', () => { if (lastRun) playDiagram(lastRun); });
+        loadDiagram();
+
+        // ---------- committee lanes ----------
+        const fmtMs = ms => ms == null ? '' : (ms >= 1000 ? (ms / 1000).toFixed(1) + ' s' : ms + ' ms');
+        const fmtPair = (q, label) => (q && q[0] != null) ? `${label}: SPY ${q[0] > 0 ? '+' : ''}${q[0]}% · TLT ${q[1] > 0 ? '+' : ''}${q[1]}%` : '';
+        function committeeReset() {
+            ['econText', 'riskText', 'cioText', 'econNums', 'riskNums', 'econTime', 'riskTime', 'cioTime', 'stage1Mode'].forEach(id => document.getElementById(id).innerText = '');
+            ['econSpin', 'riskSpin', 'cioSpin'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['econBlock', 'riskBlock', 'cioBlock'].forEach(id => document.getElementById(id).style.opacity = '.35');
+        }
+        function laneStart(role) {
+            const k = role === 'economist' ? 'econ' : role === 'risk' ? 'risk' : 'cio';
+            document.getElementById(k + 'Spin').classList.remove('hidden');
+            document.getElementById(k + 'Block').style.opacity = '1';
+        }
+        async function laneDone(role, text, q, ms, speed = 4) {
+            const k = role === 'economist' ? 'econ' : role === 'risk' ? 'risk' : 'cio';
+            document.getElementById(k + 'Spin').classList.add('hidden');
+            document.getElementById(k + 'Block').style.opacity = '1';
+            if (ms != null) document.getElementById(k + 'Time').innerText = fmtMs(ms);
+            if (k !== 'cio') document.getElementById(k + 'Nums').innerText = fmtPair(q, 'own view');
+            await typeWriter(k + 'Text', text || '', speed);
+        }
+        function stageMode(parallel, legacy) {
+            const el = document.getElementById('stage1Mode');
+            el.innerText = legacy ? 'legacy single reply' : parallel ? 'ran concurrently' : 'independent, executed back to back on one GPU';
+            el.className = 'chip ' + (parallel ? 'teal' : '');
+        }
+        // server mode: the whole result arrives at once; animate both lanes together, then the CIO
+        async function animateCommittee(d) {
+            committeeReset();
+            const t = d.committee_timing || {};
+            stageMode(!!t.parallel, !d.economist_raw);
+            laneStart('economist'); laneStart('risk');
+            await new Promise(r => setTimeout(r, 400));
+            await Promise.all([laneDone('economist', d.economist, d.economist_q, t.economist_ms), laneDone('risk', d.risk, d.risk_q, t.risk_ms)]);
+            await new Promise(r => setTimeout(r, 300));
+            laneStart('cio');
+            await new Promise(r => setTimeout(r, 400));
+            await laneDone('cio', d.cio, null, t.cio_ms);
+        }
+        // site mode: pipeline.js emits events while the committee is actually running
+        let committeeLive = false;
+        function committeeEvent(name, payload) {
+            committeeLive = true;
+            if (name === 'stage1-start') { document.getElementById('spinner3').classList.add('hidden'); document.getElementById('aiContent').classList.remove('hidden'); document.getElementById('step3').classList.remove('opacity-30'); document.getElementById('step3').classList.add('glow'); committeeReset(); stageMode(!!payload.parallel, !!payload.legacy); laneStart('economist'); laneStart('risk'); }
+            if (name === 'economist' || name === 'risk') laneDone(name, payload.view.text, [payload.view.spy, payload.view.tlt], null, 3);
+            if (name === 'cio-start') laneStart('cio');
+            if (name === 'cio') laneDone('cio', payload.fields.cio || payload.raw, null, null, 3);
+        }
+
+        // ---------- decision summary ----------
+        function fillHero(d) {
+            const hero = document.getElementById('heroCard'); hero.classList.remove('hidden');
+            document.getElementById('heroSpy').innerText = `${d.spy_weight.toFixed(0)}%`;
+            document.getElementById('heroTlt').innerText = `${d.tlt_weight.toFixed(0)}%`;
+            document.getElementById('heroBarSpy').style.width = `${d.spy_weight}%`;
+            document.getElementById('heroBarTlt').style.width = `${d.tlt_weight}%`;
+            document.getElementById('heroAsOf').innerText = `data as of ${d.as_of}`;
+            const f = (d.news || {}).fomc;
+            const chips = [
+                ['accent', d.model_used ? `model ${d.model_used}` : 'gpt-4o committee'],
+                [d.uncertainty_regime === 'elevated' ? 'warn' : 'teal', `uncertainty ${d.uncertainty_regime}`],
+                ['', `rate shock ${d.svar_value > 0 ? '+' : ''}${d.svar_value.toFixed(0)} bps`],
+                ['', f ? `FOMC ${f.score > 0 ? 'hawkish' : 'dovish'} ${f.score > 0 ? '+' : ''}${f.score.toFixed(2)}` : 'FOMC n/a'],
+                ['', `confidence ${d.confidence_reported}${d.confidence !== d.confidence_reported ? ' → ' + d.confidence : ''}`],
+            ];
+            document.getElementById('heroChips').innerHTML = chips.map(([c, t]) => `<span class="chip ${c}">${t}</span>`).join('');
+            const tilt = d.spy_weight - 60;
+            const dir = Math.abs(tilt) < 1 ? 'stays at the 60/40 anchor' : tilt > 0 ? `tilts ${tilt.toFixed(0)} points toward stocks` : `tilts ${Math.abs(tilt).toFixed(0)} points toward bonds`;
+            const trust = d.confidence === 'Low' ? 'a low weight' : d.confidence === 'High' ? 'a high weight' : 'an equal weight';
+            const why = d.llm_parse_ok
+                ? `The committee expects stocks to return ${d.spy_q}% and bonds ${d.tlt_q}% over 12 months, which is ${d.spy_q_excess > 0 ? '+' : ''}${d.spy_q_excess} and ${d.tlt_q_excess > 0 ? '+' : ''}${d.tlt_q_excess} points over cash. Given ${trust} on that view${d.confidence !== d.confidence_reported ? ' after the uncertainty downgrade' : ''}, the blended forecast ${dir}.`
+                : `The committee's reply could not be parsed, so the safe 60/40 baseline was used on its own.`;
+            document.getElementById('heroSummary').innerText = why;
+        }
+        function drawChart(d) {
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            if (window.myChart) window.myChart.destroy();
+            window.myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: ['Stocks (SPY)', 'Bonds (TLT)'], datasets: [{ data: [d.spy_weight, d.tlt_weight], backgroundColor: [cssVar('--pos'), cssVar('--neg')], borderColor: cssVar('--surface'), borderWidth: 3, hoverOffset: 4 }] },
+                options: { cutout: '78%', responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: { animateScale: true, animateRotate: true } }
+            });
+        }
+
+        // ---------- prompt & flow modal ----------
+        const FLOW_DIAGRAM_OLD = `flowchart TB
+  S["Signals<br/>yields · rate shock · EPU/GPR · FOMC stance"] --> P["One prompt<br/>(single user message)"]
+  P --> M[("Model<br/>gpt-4o saved reply, or local model<br/>one call · temperature 0")]
+  M --> R["One reply, seven labelled lines"]
+  subgraph seq ["Inside the reply, in order"]
+    direction LR
+    E["1 · Economist"] --> K["2 · Risk manager"] --> C["3 · CIO decision"] --> N["4 · SPY % · TLT % · confidence"]
+  end
+  R --> E
+  N --> G{"Uncertainty<br/>regime elevated?"}
+  G -- yes --> D["Confidence −1 notch"] --> B
+  G -- no --> B["Black-Litterman blend<br/>+ constrained optimizer"]
+  B --> O["Split · rendered"]`;
+        const FLOW_DIAGRAM = `flowchart TB
+  S["Signals<br/>yields · rate shock · EPU/GPR · FOMC stance"] --> P1["Economist prompt"]
+  S --> P2["Risk-manager prompt"]
+  subgraph par ["Stage 1 · independent, in parallel (concurrent API calls; back to back on one local GPU)"]
+    direction LR
+    P1 --> E[("Macro economist<br/>own view + SPY/TLT numbers")]
+    P2 --> K[("Risk manager<br/>own view + SPY/TLT numbers")]
+  end
+  E --> C
+  K --> C
+  S --> C
+  subgraph cio ["Stage 2 · synthesis"]
+    C[("CIO<br/>reads both views verbatim, decides")] --> N["SPY % · TLT % · confidence"]
+  end
+  N --> G{"Uncertainty<br/>regime elevated?"}
+  G -- yes --> D["Confidence −1 notch"] --> B
+  G -- no --> B["Black-Litterman blend<br/>+ constrained optimizer"]
+  B --> O["Split · rendered"]`;
+        let mermaidReady = null;
+        async function renderFlow() {
+            const box = document.getElementById('mermaidBox');
+            try {
+                if (!mermaidReady) mermaidReady = import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs').then(m => m.default);
+                const mermaid = await mermaidReady;
+                const light = document.documentElement.classList.contains('light');
+                mermaid.initialize({ startOnLoad: false, flowchart: { useMaxWidth: false, nodeSpacing: 40, rankSpacing: 36, htmlLabels: true }, theme: 'base', themeVariables: light
+                    ? { primaryColor: '#eef2f8', primaryTextColor: '#0f172a', primaryBorderColor: '#94a3b8', lineColor: '#2563eb', secondaryColor: '#f7f9fc', tertiaryColor: '#f7f9fc', fontFamily: 'Inter, sans-serif', fontSize: '13px', clusterBkg: '#f7f9fc', clusterBorder: '#c9d2e0', edgeLabelBackground: '#ffffff' }
+                    : { primaryColor: '#18233a', primaryTextColor: '#e8ecf5', primaryBorderColor: '#33415f', lineColor: '#5b96ff', secondaryColor: '#0d1526', tertiaryColor: '#0d1526', fontFamily: 'Inter, sans-serif', fontSize: '13px', clusterBkg: '#0d1526', clusterBorder: '#33415f', edgeLabelBackground: '#111a2e' } });
+                const { svg } = await mermaid.render('pfFlow' + Date.now(), FLOW_DIAGRAM);
+                box.innerHTML = svg;
+            } catch (e) { box.innerHTML = '<p class="muted text-xs">Diagram could not load (offline?). ' + e.message + '</p>'; }
+        }
+        let modalPrompts = null, modalRaws = null;
+        function fillPromptModal(d) {
+            const prompts = (d && d.prompts) || window.CURRENT_PROMPTS || null;
+            if (prompts) {
+                modalPrompts = { economist: prompts.economist, risk: prompts.risk, cio: (d && d.cio_prompt) || prompts.cio };
+                document.getElementById('promptWhich').innerText = d && d.as_of ? `Run with data as of ${d.as_of}.` : '';
+                showPrompt('economist');
+            } else if (d && d.prompt) { modalPrompts = { economist: d.prompt, risk: '(legacy single-call run)', cio: '(legacy single-call run)' }; showPrompt('economist'); }
+            if (d && d.llm_raw !== undefined) {
+                modalRaws = { economist: d.economist_raw || d.llm_raw, risk: d.risk_raw || d.llm_raw, cio: d.cio_raw || d.llm_raw };
+                document.getElementById('rawWhich').innerText = `${d.model_used || ''}${d.llm_parse_ok ? ' · CIO numbers parsed OK' : ' · CIO REJECTED: ' + (d.llm_problems || []).join('; ')}`;
+                showRaw('cio');
+            }
+        }
+        function showPrompt(k) { if (!modalPrompts) return; document.querySelectorAll('#tab-prompt .tab').forEach(t => t.classList.toggle('on', t.dataset.p === k)); document.getElementById('promptText').innerText = modalPrompts[k] || ''; }
+        function showRaw(k) { if (!modalRaws) return; document.querySelectorAll('#tab-raw .tab').forEach(t => t.classList.toggle('on', t.dataset.r === k)); document.getElementById('rawText').innerText = modalRaws[k] || '(empty reply)'; }
+        document.querySelectorAll('#tab-prompt .tab').forEach(t => t.addEventListener('click', () => showPrompt(t.dataset.p)));
+        document.querySelectorAll('#tab-raw .tab').forEach(t => t.addEventListener('click', () => showRaw(t.dataset.r)));
+        function showTab(name) {
+            document.querySelectorAll('#promptModal .tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+            ['flow', 'prompt', 'raw'].forEach(n => document.getElementById('tab-' + n).classList.toggle('hidden', n !== name));
+            if (name === 'flow') renderFlow();
+        }
+        document.querySelectorAll('#promptModal .tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+        document.getElementById('promptBtn').addEventListener('click', () => { fillPromptModal(lastRun); document.getElementById('promptModal').classList.remove('hidden'); showTab(new URLSearchParams(location.search).get('tab') || 'flow'); });
+        document.getElementById('promptClose').addEventListener('click', () => document.getElementById('promptModal').classList.add('hidden'));
+        document.getElementById('promptModal').addEventListener('click', e => { if (e.target.id === 'promptModal') e.target.classList.add('hidden'); });
+        window.addEventListener('load', () => { if (new URLSearchParams(location.search).get('show') === 'prompt') document.getElementById('promptBtn').click(); });
+        let forceNext = false;
+        let RUN = null, RUNS = [];
+        const $ = id => document.getElementById(id);
+        const settings = loadSettings();
+        function showSettings() {
+            $('provider').value = settings.provider; $('browserModel').value = settings.browserModel;
+            $('browserWrap').classList.toggle('hidden', settings.provider !== 'browser');
+            if ([...$('runSel').options].some(o => o.value === settings.run)) $('runSel').value = settings.run;
+        }
+        function readSettings() {
+            settings.provider = $('provider').value; settings.browserModel = $('browserModel').value; settings.run = $('runSel').value;
+            if ($('remember').checked) saveSettings(settings); else { try { localStorage.removeItem('protofin.settings'); } catch (e) {} }
+        }
+        ['provider', 'browserModel', 'remember'].forEach(id => $(id).addEventListener('change', () => { readSettings(); showSettings(); }));
+        $('runSel').addEventListener('change', async () => { readSettings(); await loadSelectedRun(); });
+        try { $('remember').checked = !!localStorage.getItem('protofin.settings'); } catch (e) {}
+        async function loadSelectedRun() {
+            RUN = await loadRun(settings.run);
+            window.CURRENT_PROMPT = RUN.prompt; window.CURRENT_PROMPTS = RUN.prompts || null;
+            $('whyLink').href = './how.html?run=' + encodeURIComponent(settings.run || 'latest');
+            $('signalsNote').textContent = `run built ${RUN.generated_at.slice(0, 16).replace('T', ' ')} UTC · data as of ${RUN.as_of} · regime ${RUN.uncertainty_regime}`;
+        }
+        async function initRuns() {
+            RUNS = await listRuns();
+            const sel = $('runSel'); sel.innerHTML = '<option value="latest">latest</option>';
+            for (const r of RUNS) { const o = document.createElement('option'); o.value = r.id; o.textContent = `${r.as_of} · built ${r.generated_at.slice(0, 16).replace('T', ' ')} · ${r.regime} · ${r.model}`; sel.appendChild(o); }
+            showSettings();
+            await loadSelectedRun();
+        }
+        initRuns();
+        // ?autorun=1 starts the pipeline on load (used for screenshots and demos)
+        window.addEventListener('load', () => {
+            const q = new URLSearchParams(location.search);
+            if (q.get('autorun') === '1') document.getElementById(q.get('force') === '1' ? 'forceBtn' : 'runBtn').click();
+        });
+        document.getElementById('forceBtn').addEventListener('click', () => { forceNext = true; document.getElementById('runBtn').click(); });
+        document.getElementById('runBtn').addEventListener('click', async () => {
+            [1,2,3,4,5].forEach(i => { document.getElementById(`step${i}`).classList.remove('glow'); document.getElementById(`step${i}`).classList.add('opacity-30'); });
+            ['dataContent', 'svarContent', 'aiContent', 'viewsContent', 'chartContent', 'spinner1', 'spinner2', 'spinner3', 'spinner4', 'spinner5'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            committeeReset();
+            document.getElementById('heroCard').classList.add('hidden');
+
+            const btn = document.getElementById('runBtn');
+            btn.disabled = true; btn.innerText = 'Running…'; btn.classList.add('animate-pulse');
+
+            document.getElementById('step1').classList.remove('opacity-30'); document.getElementById('step2').classList.remove('opacity-30');
+            document.getElementById('step1').classList.add('glow'); document.getElementById('step2').classList.add('glow');
+            document.getElementById('spinner1').classList.remove('hidden'); document.getElementById('spinner2').classList.remove('hidden');
+
+            try {
+                forceNext = false;
+                if (!RUN) await loadSelectedRun();
+                readSettings();
+                const data = await runPipeline(RUN, settings, msg => { btn.innerText = msg.slice(0, 60); }, committeeEvent);
+                lastRun = data; document.getElementById('replayBtn').disabled = false;
+                await playDiagram(data);
+                refreshDiagram();
+
+                document.getElementById('spinner1').classList.add('hidden'); document.getElementById('spinner2').classList.add('hidden');
+                document.getElementById('dataContent').classList.remove('hidden'); document.getElementById('svarContent').classList.remove('hidden');
+
+                document.getElementById('yieldData').innerText = data.yield;
+                document.getElementById('spyData').innerText = data.spy_return;
+                document.getElementById('rfData').innerText = `${data.risk_free}%`;
+                document.getElementById('newsData').innerText = `Yahoo (old single-headline input, not used): "${data.headline}"`;
+                const nw = data.news || {};
+                const nm = document.getElementById('newsMode');
+                nm.innerText = nw.headlines_in_decision ? 'headlines in decision' : 'FOMC in decision · headlines display only';
+                nm.className = 'chip ' + (nw.headlines_in_decision ? 'warn' : '');
+                document.getElementById('fomcScore').innerText = nw.fomc ? (nw.fomc.score > 0 ? '+' : '') + nw.fomc.score.toFixed(2) : 'n/a';
+                document.getElementById('fomcDate').innerText = nw.fomc ? `statement ${nw.fomc.date}` : '';
+                document.getElementById('newsSent').innerText = (nw.sentiment === null || nw.sentiment === undefined) ? 'n/a' : (nw.sentiment > 0 ? '+' : '') + nw.sentiment.toFixed(2);
+                document.getElementById('newsCount').innerText = nw.headline_count ? `${nw.headline_count} macro headlines, FinBERT` : '';
+                const ex = nw.extraction;
+                document.getElementById('newsRead').innerText = ex ? `Read: growth ${ex.growth}, inflation ${ex.inflation}, policy ${ex.policy}, ${ex.nature}. ${ex.summary || ''}` : '';
+                document.getElementById('newsList').innerHTML = (nw.headlines || []).slice(0, 5).map(h => `<li><span class="sq ${h.label}"></span><span>${h.title.replace(/</g, '&lt;')}</span></li>`).join('');
+
+                document.getElementById('svarText').innerText = data.svar_shock;
+                let percent = 50 + (parseFloat(data.svar_value) / 2);
+                if (percent < 5) percent = 5; if (percent > 95) percent = 95;
+                document.getElementById('svarNeedle').style.left = `calc(${percent}% - 4px)`;
+                const fmtIdx = (snap, v, pEl) => { document.getElementById(v).innerText = snap ? snap.mean_30d.toFixed(0) : 'n/a'; document.getElementById(pEl).innerText = snap ? `${snap.percentile_10y.toFixed(0)}th pct of 10y` : 'unavailable'; };
+                fmtIdx(data.epu, 'epuVal', 'epuPct'); fmtIdx(data.gpr, 'gprVal', 'gprPct');
+                const rg = document.getElementById('regimeVal'); rg.innerText = data.uncertainty_regime.toUpperCase();
+                rg.className = 'mono text-base ' + (data.uncertainty_regime === 'elevated' ? 'warn' : 'teal');
+
+                await new Promise(r => setTimeout(r, 900));
+                document.getElementById('step1').classList.remove('glow'); document.getElementById('step2').classList.remove('glow');
+
+                // --- committee ---
+                document.getElementById('modelLine').innerText = data.model_used ? `model: ${data.model_used} · ${data.model_source}` : 'gpt-4o · temperature 0 · two independent views, then the CIO';
+                if (!committeeLive) {
+                    document.getElementById('step3').classList.remove('opacity-30'); document.getElementById('step3').classList.add('glow');
+                    document.getElementById('spinner3').classList.remove('hidden');
+                    await new Promise(r => setTimeout(r, 400));
+                    document.getElementById('spinner3').classList.add('hidden');
+                    document.getElementById('aiContent').classList.remove('hidden');
+                    await animateCommittee(data);
+                } else {
+                    const t = data.committee_timing || {};
+                    ['economist', 'risk', 'cio'].forEach(role => { const k = role === 'economist' ? 'econ' : role; const ms = t[role + '_ms']; if (ms != null) document.getElementById(k + 'Time').innerText = fmtMs(ms); });
+                }
+                committeeLive = false;
+                await new Promise(r => setTimeout(r, 500));
+                document.getElementById('step3').classList.remove('glow');
+
+                // --- views ---
+                document.getElementById('step4').classList.remove('opacity-30'); document.getElementById('step4').classList.add('glow');
+                document.getElementById('spinner4').classList.remove('hidden');
+                await new Promise(r => setTimeout(r, 400));
+                document.getElementById('spinner4').classList.add('hidden');
+                document.getElementById('viewsContent').classList.remove('hidden');
+                const fmtQ = v => (v === null || v === undefined) ? 'n/a' : `${v > 0 ? '+' : ''}${v}%`;
+                document.getElementById('spyQ').innerText = fmtQ(data.spy_q);
+                document.getElementById('tltQ').innerText = fmtQ(data.tlt_q);
+                document.getElementById('cioConf').innerText = data.confidence_reported && data.confidence_reported !== data.confidence
+                    ? `${data.confidence_reported} → ${data.confidence}` : data.confidence;
+                document.getElementById('groundingText').innerText = data.grounding;
+                const vn = document.getElementById('viewNote');
+                vn.innerText = data.view_note; vn.className = 'note ' + (data.llm_parse_ok ? 'ok' : 'warn');
+                await new Promise(r => setTimeout(r, 600));
+                document.getElementById('step4').classList.remove('glow');
+
+                // --- allocation ---
+                document.getElementById('step5').classList.remove('opacity-30'); document.getElementById('step5').classList.add('glow');
+                document.getElementById('spinner5').classList.remove('hidden');
+                await new Promise(r => setTimeout(r, 400));
+                document.getElementById('spinner5').classList.add('hidden');
+                document.getElementById('chartContent').classList.remove('hidden');
+                document.getElementById('chartLabel').innerText = `${data.spy_weight.toFixed(0)}%`;
+                document.getElementById('lblSpy').innerText = `${data.spy_weight.toFixed(1)}%`;
+                document.getElementById('lblTlt').innerText = `${data.tlt_weight.toFixed(1)}%`;
+                document.getElementById('bdPrior').innerText = `${data.prior_spy} / ${data.prior_tlt}`;
+                document.getElementById('bdPost').innerText = `${data.posterior_spy} / ${data.posterior_tlt}`;
+                document.getElementById('bdUnc').innerText = `${data.unconstrained_spy.toFixed(1)} / ${data.unconstrained_tlt.toFixed(1)}`;
+                document.getElementById('bdTarget').innerText = `${data.target_spy.toFixed(1)} / ${data.target_tlt.toFixed(1)}`;
+                document.getElementById('bdPrev').innerText = data.prototype_mode ? 'n/a (prototype)' : data.previous_spy === null ? 'none' : `${data.previous_spy.toFixed(1)} / ${(100 - data.previous_spy).toFixed(1)}`;
+                if (data.prototype_mode) document.getElementById('forceBtn').style.display = 'none';
+                const ts = document.getElementById('tradeStatus');
+                ts.innerText = (data.cached ? 'cached · ' : '') + data.trade_status;
+                ts.className = 'status-chip ' + (data.cached ? 'accent' : data.trade_status.startsWith('held') ? '' : data.prototype_mode ? '' : 'warn');
+                drawChart(data);
+                fillHero(data);
+                fillPromptModal(data);
+                document.getElementById('step5').classList.remove('glow');
+            } catch (e) {
+                alert("Pipeline Error: " + e.message);
+            }
+            btn.disabled = false; btn.innerText = 'Run pipeline'; btn.classList.remove('animate-pulse');
+        });
+    </script>
+</body>
+</html>
