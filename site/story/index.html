@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Protofin · The story</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a long scroll in numbered chapters. Text steps on the left, a sticky figure on the right that
+   changes as each step reaches the middle of the screen. On phones the figure sticks to the top half. */
+:root {
+  --bg: #f4f2ee; --paper: #fbfaf7; --ink: #1b1f27; --ink-2: #4a5160; --muted: #7c8392; --rule: #dedad2; --soft: #ece8e0;
+  --static: #6b7280; --placebo: #a3a9b5; --det: #b8730a; --jev: #7c3aed; --com: #2563eb; --rag: #0f766e;
+  --pos: #15803d; --neg: #b91c1c; --hi: #fff3c4;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+html:not(.light) {
+  --bg: #0e1116; --paper: #151a22; --ink: #e8ebf1; --ink-2: #b3bac7; --muted: #7d8696; --rule: #262e3a; --soft: #1b222c;
+  --static: #9aa3b2; --placebo: #5f6878; --det: #f0a63a; --jev: #b18cff; --com: #6ea2ff; --rag: #3cc4ae;
+  --pos: #4fd08a; --neg: #f27a7a; --hi: #3a3320;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+a { color: var(--com); }
+.mono { font-family: var(--mono); }
+.top { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; gap: 14px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); }
+.top .brand { font-family: var(--display); font-size: 20px; font-weight: 600; text-decoration: none; color: var(--ink); }
+.top .brand b { color: var(--com); font-weight: 600; }
+.top .chap { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.top .sp { flex: 1; }
+.top a.lk, .top button { font: 500 12px var(--body); color: var(--ink-2); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.top a.lk:hover, .top button:hover { border-color: var(--com); color: var(--com); }
+.progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--com); z-index: 60; width: 0; }
+.dots { position: fixed; right: max(12px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; gap: 8px; }
+.dots a { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); display: block; }
+.dots a.on { background: var(--com); transform: scale(1.4); }
+@media (max-width: 900px) { .dots { display: none; } .top .chap { display: none; } }
+
+.hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 120px max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px)); max-width: 1100px; margin: 0 auto; }
+.hero .k { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.hero h1 { font-family: var(--display); font-weight: 500; font-size: clamp(44px, 8vw, 96px); line-height: 1.02; margin: 18px 0 22px; letter-spacing: -0.02em; text-wrap: balance; }
+.hero h1 em { font-style: italic; color: var(--com); }
+.hero p { font-size: 19px; color: var(--ink-2); max-width: 46ch; margin: 0; }
+.hero .scrollcue { margin-top: 56px; font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; animation: bob 2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(6px) } }
+.index { max-width: 1100px; margin: 0 auto 80px; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+.index a { display: flex; gap: 12px; padding: 14px 4px; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-size: 15px; }
+.index a span { font-family: var(--mono); color: var(--muted); font-size: 13px; padding-top: 2px; }
+.index a:hover { color: var(--com); }
+
+.chapter-head { max-width: 1100px; margin: 0 auto; padding: 110px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+.chapter-head .n { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+.chapter-head .rule { border-top: 1px dashed var(--rule); margin: 10px 0 18px; }
+.chapter-head h2 { font-family: var(--display); font-weight: 500; font-size: clamp(32px, 5vw, 54px); line-height: 1.08; margin: 0; letter-spacing: -0.015em; text-wrap: balance; max-width: 20ch; }
+.chapter-head p { color: var(--ink-2); font-size: 18px; max-width: 56ch; margin: 14px 0 0; }
+
+.scrolly { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 48px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.steps { padding: 30vh 0 40vh; }
+.step { min-height: 70vh; display: flex; align-items: center; }
+.step > div { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 22px 24px; opacity: .35; transition: opacity .35s; max-width: 46ch; }
+.step.on > div { opacity: 1; }
+.step h3 { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.2; margin: 0 0 8px; }
+.step p { margin: 0 0 10px; color: var(--ink-2); font-size: 16px; }
+.step p:last-child { margin-bottom: 0; }
+.step .f { font-family: var(--mono); font-size: 13.5px; background: var(--soft); border-radius: 8px; padding: 9px 12px; margin: 10px 0; color: var(--ink); overflow-x: auto; white-space: nowrap; }
+.step b { color: var(--ink); }
+.fig { position: sticky; top: 12vh; height: 76vh; display: flex; align-items: center; justify-content: center; }
+.fig > .card { width: 100%; max-height: 100%; background: var(--paper); border: 1px solid var(--rule); border-radius: 18px; padding: 24px; overflow: hidden; position: relative; }
+.fig canvas, #raceCanvas { width: 100%; display: block; }
+@media (max-width: 900px) {
+  .scrolly { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .fig { order: -1; top: 58px; height: 50vh; z-index: 5; background: var(--bg); padding: 8px 0; }
+  .fig > .card { padding: 14px; }
+  .steps { padding: 4vh 0 20vh; }
+  .step { min-height: 60vh; }
+  .step > div { background: color-mix(in srgb, var(--paper) 94%, transparent); }
+}
+.prose { max-width: 720px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.prose p { font-size: 18px; color: var(--ink-2); }
+
+/* figure pieces */
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.big { font-family: var(--display); font-size: clamp(40px, 6vw, 72px); line-height: 1; font-weight: 500; }
+.layers { display: flex; flex-direction: column; gap: 6px; }
+.layer { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--soft); opacity: .25; transform: translateX(14px); transition: opacity .4s, transform .4s, border-color .4s, background .4s; }
+.layer.built { opacity: .75; transform: none; }
+.layer.now { opacity: 1; border-color: var(--com); background: color-mix(in srgb, var(--com) 9%, var(--paper)); }
+.layer .i { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.layer .t { font-weight: 600; font-size: 14px; }
+.layer .t small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.layer .v { font-family: var(--mono); font-size: 13px; color: var(--ink); text-align: right; }
+.layer.change { border-style: dashed; border-color: var(--det); }
+.mask { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 600px) { .mask { grid-template-columns: minmax(0, 1fr); } }
+.mask pre { white-space: pre-wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; margin: 6px 0 0; color: var(--ink); max-height: 54vh; overflow: auto; }
+.hidden-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.hidden-list li { font-size: 14px; padding: 8px 10px; border-radius: 8px; background: var(--soft); transition: all .4s; }
+.hidden-list li s { color: var(--neg); text-decoration-thickness: 2px; }
+.hidden-list li.off { opacity: .25; }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: grid; grid-template-columns: 150px minmax(0, 1fr) 54px; gap: 10px; align-items: center; font-size: 13px; }
+.bar .track { position: relative; height: 18px; background: var(--soft); border-radius: 4px; }
+.bar .track .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+.bar .track .fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; transition: all .6s cubic-bezier(.2, .8, .2, 1); }
+.bar .num { font-family: var(--mono); text-align: right; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--mono); font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); transition: all .35s; }
+.chip.win { background: var(--com); border-color: var(--com); color: #fff; }
+.quote { border-left: 3px solid var(--rule); padding: 8px 12px; margin: 8px 0; font-size: 13.5px; color: var(--ink-2); transition: all .4s; opacity: .3; }
+.quote.on { opacity: 1; border-left-color: var(--com); }
+.quote .who { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.nums { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 10px; }
+.nums div { min-width: 0; }
+.nums .v { font-family: var(--display); font-size: 34px; line-height: 1.05; }
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.checks li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 14px; padding: 8px 10px; border-radius: 8px; background: var(--soft); opacity: .3; transition: all .35s; }
+.checks li.on { opacity: 1; }
+.checks li .ok { color: var(--pos); font-weight: 700; }
+.checks li .x { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; }
+.seg button { font: 500 12px var(--body); border: 0; background: transparent; color: var(--ink-2); padding: 5px 12px; cursor: pointer; }
+.seg button.on { background: var(--com); color: #fff; }
+.race-wrap { position: relative; height: 420vh; }
+.race-stick { position: sticky; top: 9vh; height: 82vh; max-width: 1180px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+@media (max-width: 900px) { .race-stick { grid-template-columns: minmax(0, 1fr); top: 64px; height: auto; } }
+.race-stick .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 18px; padding: 18px; }
+.lb { display: flex; flex-direction: column; gap: 8px; }
+.lb .row { display: grid; grid-template-columns: 12px minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 14px; transition: transform .25s; }
+.lb .row i { width: 12px; height: 12px; border-radius: 3px; }
+.lb .row .v { font-family: var(--mono); text-align: right; }
+.event { font-size: 14px; color: var(--ink-2); min-height: 3.2em; margin-top: 12px; }
+.papers { max-width: 1100px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.papers .p { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 18px; }
+.papers .p .y { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.papers .p h4 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 6px 0 8px; line-height: 1.25; }
+.papers .p p { font-size: 14px; color: var(--ink-2); margin: 0 0 6px; }
+.papers .p.us { border-color: var(--com); }
+.next { max-width: 1100px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); counter-reset: n; }
+.next li { list-style: none; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.next li::before { counter-increment: n; content: counter(n, decimal-leading-zero); font-family: var(--mono); color: var(--muted); padding-top: 4px; }
+.next h4 { margin: 0; font-family: var(--display); font-size: 21px; font-weight: 600; }
+.next p { margin: 4px 0 0; color: var(--ink-2); }
+.closing { max-width: 820px; margin: 120px auto 80px; padding: 48px max(24px, env(safe-area-inset-right, 0px)) 48px max(24px, env(safe-area-inset-left, 0px)); background: var(--paper); border: 1px solid var(--rule); border-radius: 22px; text-align: center; }
+.closing blockquote { font-family: var(--display); font-size: clamp(26px, 3.6vw, 38px); line-height: 1.25; margin: 0; text-wrap: balance; }
+.closing p { color: var(--muted); margin: 18px 0 0; }
+.foot { max-width: 1100px; margin: 0 auto; padding: 30px max(16px, env(safe-area-inset-right, 0px)) 80px max(16px, env(safe-area-inset-left, 0px)); color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="top">
+  <a class="brand" href="../index.html"><b>Proto</b>fin</a>
+  <span class="chap" id="chapName">The story</span>
+  <span class="sp"></span>
+  <a class="lk" href="../level/">Level field</a>
+  <a class="lk" href="../index.html">Overview</a>
+  <button id="themeBtn">Light</button>
+</div>
+<nav class="dots" id="dots" aria-label="Chapters"></nav>
+
+<header class="hero">
+  <div class="k">A Duke capstone with the BNY CIO office · 2026</div>
+  <h1>Can an AI beat <em>sixty-forty?</em></h1>
+  <p>We built one allocation engine, plugged in four ways of forecasting the market, and gave every one of them the same data, the same rules and the same scorecard. This is what each approach does, how we kept the contest fair, and what happened.</p>
+  <div class="scrollcue">Scroll to begin ↓</div>
+</header>
+
+<nav class="index" id="index"></nav>
+
+<!-- 01 -->
+<section class="chapter" id="c1" data-title="01 · The question">
+  <div class="chapter-head"><div class="n">01</div><div class="rule"></div><h2>The question is older than AI.</h2><p>Hold 60% stocks and 40% bonds, rebalance once a month, and stop thinking. Investors have used it for decades because it is very hard to beat after costs.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="q" data-s="0"><div><h3>Two funds, one dial</h3><p>Every approach in this project turns one dial: how much of the money sits in <b>SPY</b> (the 500 largest US companies) and how much in <b>TLT</b> (US government bonds that mature in 20+ years).</p><p>The dial starts at 60/40 and may move between 40% and 80% stocks.</p></div></div>
+      <div class="step" data-fig="q" data-s="1"><div><h3>Doing nothing is the benchmark</h3><p>The static 60/40 portfolio is rebalanced to 60/40 each month and pays a small cost when it trades. It never forecasts anything.</p><p>An approach earns its place only if it beats this, after its own costs.</p></div></div>
+      <div class="step" data-fig="q" data-s="2"><div><h3>Four years of doing nothing</h3><p>Over the 46 test months, March 2019 to December 2022, 60/40 turned 100 into about 130, through a pandemic crash and the 2022 bond rout.</p><div class="f">net CER = 12 × (mean monthly return above cash − 1.25 × its variance)</div><p>Its score, a yearly return penalised for bumpiness, is <b id="staticCer">4.37%</b>. That is the number to beat.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figQ"></div></div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="chapter" id="c2" data-title="02 · The machine">
+  <div class="chapter-head"><div class="n">02</div><div class="rule"></div><h2>One machine, built in nine layers.</h2><p>Each month-end the same machine runs from data to a score. Only one layer differs between approaches: where the forecast comes from. Follow March 2019 through it.</p></div>
+  <div class="scrolly">
+    <div class="steps" id="pipeSteps"></div>
+    <div class="fig"><div class="card"><div class="label" style="margin-bottom:10px">March 2019 · the deterministic model</div><div class="layers" id="layers"></div></div></div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="chapter" id="c3" data-title="03 · The mask">
+  <div class="chapter-head"><div class="n">03</div><div class="rule"></div><h2>A model that has read history can cheat.</h2><p>GPT-4o was trained on years of market news. Show it "March 2019" and it may simply remember what happened next. So the AI never sees the month.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="mask" data-s="0"><div><h3>What the AI is shown</h3><p>A short block of relative numbers: returns over 1, 3 and 12 months, volatility, correlation, where rates and the policy- and geopolitical-risk indexes sit against their last ten years, and how far long yields moved.</p></div></div>
+      <div class="step" data-fig="mask" data-s="1"><div><h3>What is taken away</h3><p>No dates. No index names beyond "SPY" and "TLT". No price levels. No headlines. Each one could identify the month.</p></div></div>
+      <div class="step" data-fig="mask" data-s="2"><div><h3>Checking the mask holds</h3><p>A separate probe asks the model to guess the year from each masked block. Chance is about 13% within a year. It did no better, except around the 2008 crisis, whose numbers are too extreme to hide.</p><p>A mirror test flips stocks and bonds; a model that only reads the numbers should flip its view too.</p></div></div>
+    </div>
+    <div class="fig"><div class="card"><div class="mask"><div><div class="label">What the AI sees · March 2019</div><pre id="payload"></pre></div><div><div class="label">Never shown</div><ul class="hidden-list" id="hiddenList"></ul></div></div></div></div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="chapter" id="c4" data-title="04 · The deterministic model">
+  <div class="chapter-head"><div class="n">04</div><div class="rule" style="border-color:var(--det)"></div><h2>Approach one: a classic quant model.</h2><p>No AI. Eight economic releases, a regression, and a rule for when to ignore it. It is the transparent baseline every other approach must beat.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="det" data-s="0"><div><h3>Eight surprises</h3><p>For each release (jobs, retail sales, industrial production, ISM, CPI, core CPI, PPI, hourly earnings) take what was reported minus what economists expected, from Bloomberg, and scale it by how big surprises usually are.</p><div class="f">z = (actual − consensus) ÷ std of the last 12 surprises</div><p>March 2019 had a big jobs miss (−2.45) and a soft core CPI (−1.66).</p></div></div>
+      <div class="step" data-fig="det" data-s="1"><div><h3>A regression that can say "no"</h3><p>Ridge regression learns how past surprises lined up with the next month's returns. Its one setting, α, decides how far to trust what it learned.</p><div class="f">Q = average + b₁z₁ + … + b₈z₈ &nbsp;·&nbsp; minimise Σ(y − Q)² + α Σb²</div><p>Each month it replays past months to pick α. One option is "ignore the data": all b = 0.</p></div></div>
+      <div class="step" data-fig="det" data-s="2"><div><h3>For stocks, it always said no</h3><p>"Ignore the data" won for SPY in <b>46 of 46</b> months. The surprises never had a track record of predicting next month's stock return, so the forecast was simply the historical average, 0.75% a month.</p><p>For bonds it did use them, in <b id="detTlt">30</b> of 46 months.</p></div></div>
+      <div class="step" data-fig="det" data-s="3"><div><h3>Why that is not a failure</h3><p>Markets react to a surprise within minutes of 8:30 am. By month-end the news is in the price. A model that refuses to overfit stale news is behaving correctly, and it makes the deterministic model an honest floor.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figDet"></div></div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="chapter" id="c5" data-title="05 · The AI committee">
+  <div class="chapter-head"><div class="n">05</div><div class="rule" style="border-color:var(--com)"></div><h2>Approach two: an investment committee of AIs.</h2><p>Three GPT-4o roles read the masked numbers. Two argue independently; one decides. Everything they said was recorded once and is replayed here word for word.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="com" data-s="0"><div><h3>The economist</h3><p>Asked for a macro view and a next-month return for each fund. It cannot see what anyone else says.</p></div></div>
+      <div class="step" data-fig="com" data-s="1"><div><h3>The risk manager</h3><p>Same numbers, different job: what could go wrong. It runs at the same time as the economist, so neither can anchor on the other.</p></div></div>
+      <div class="step" data-fig="com" data-s="2"><div><h3>The CIO decides</h3><p>Reads both views, says where it sided with whom and why, and sets the numbers: next-month SPY and TLT returns and a confidence word.</p><p>Temperature 0 and a fixed seed, so the same month gives the same answer and every decision can be audited.</p></div></div>
+      <div class="step" data-fig="com" data-s="3"><div><h3>From words to a view</h3><p>The CIO's numbers are not used raw. Like every approach, they are read the way they have worked on past months.</p><p>With the strict rule (direction kept), the committee's SPY call had no track record of being right (k = 0 in all 46 months), but its <b>bond</b> call did, in all 46.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figCom"></div></div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="chapter" id="c6" data-title="06 · Jev">
+  <div class="chapter-head"><div class="n">06</div><div class="rule" style="border-color:var(--jev)"></div><h2>Approach three: a model that answers in numbers.</h2><p>Jev, from TypeSafe, is a decision model. Instead of prose it returns calibrated probabilities to typed questions. It reads the same masked block.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="jev" data-s="0"><div><h3>Question one: a yes/no, as a probability</h3><p>"Over the next month, will SPY beat TLT?" Jev answered <b>37%</b>: leaning no.</p></div></div>
+      <div class="step" data-fig="jev" data-s="1"><div><h3>Question two: pick a tilt</h3><p>Five options from strong equities to strong bonds. Jev put 57% on lean bonds, with a confidence of 0.46.</p><div class="f">expected tilt = Σ P(option) × points = −1.23</div></div></div>
+      <div class="step" data-fig="jev" data-s="2"><div><h3>Read in reverse</h3><p>In 2015–2019, Jev's bearish months were followed by <i>good</i> stock months. A regression free to choose any sign learned to flip Jev: its "lean bonds" became a bullish 1.41% stock view.</p><p>The flip did not hold in 2019–2022, and cost money.</p></div></div>
+      <div class="step" data-fig="jev" data-s="3"><div><h3>With the direction kept</h3><p>Forbid the flip and Jev's view has nothing left: k = 0 in nearly every month, and Jev becomes the placebo.</p><p>Across 139 months it leaned stocks 48 times, bonds 50 and stayed neutral 41, never with more than 0.51 confidence.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figJev"></div></div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="chapter" id="c7" data-title="07 · Causal RAG">
+  <div class="chapter-head"><div class="n">07</div><div class="rule" style="border-color:var(--rag)"></div><h2>Approach four: make the AI show its reasoning.</h2><p>A plain answer can be insight or a hunch. Causal RAG forces the AI to name a chain of cause and effect, then tests every link against evidence from before the decision.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="rag" data-s="0"><div><h3>A map of what economists claim</h3><p>CauseTrace mined <b id="ragClaims">347,571</b> cause → effect claims from economics papers. Each claim is an edge: "rate hikes → lower equity valuations".</p><p>Edges carry no sign: papers that disagree land on the same edge, and the agents must argue it out.</p></div></div>
+      <div class="step" data-fig="rag" data-s="1"><div><h3>One map per year</h3><p>The graph is rebuilt for each decision year from papers dated before it, so 2015 decisions use only what was published by 2014. Twelve vintages, 2015 to 2026.</p></div></div>
+      <div class="step" data-fig="rag" data-s="2"><div><h3>The Hypothesis Agent</h3><p>Given this month's trigger, a CPI surprise or an FOMC statement, it picks a path through the graph and states a signed prediction: "hot CPI → 2-year yield up → stocks down this month."</p></div></div>
+      <div class="step" data-fig="rag" data-s="3"><div><h3>The Testing Agent</h3><p>It checks each link against verbatim quotes and against the data: did the 2-year yield actually rise? It also tests the opposite story. Verdict, by majority of three runs: Supported, Contradicted or Insufficient.</p></div></div>
+      <div class="step" data-fig="rag" data-s="4"><div><h3>Where it stands</h3><p>Built and tested end to end with a stand-in model. The first run with a real model (qwen3:4b, on a free GPU) failed its reliability gates: no final answer in 12 of 12 months, 53% accuracy on labelled cases against 80% required.</p><p>When it passes, its verdicts plug into the same machine as everyone else's.</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figRag"></div></div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="chapter" id="c8" data-title="08 · A fair fight">
+  <div class="chapter-head"><div class="n">08</div><div class="rule"></div><h2>A fair fight means everything else is identical.</h2><p>The first comparisons were not fair: different funds, different starting mixes, a 12-month question scored over one month. We levelled each one.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="fair" data-s="0"><div><h3>Same funds, same mix</h3><p>Every approach allocates between SPY and TLT around 60/40, bounded at 40–80% stocks. Earlier, the deterministic model held a different mix, and most of Jev's apparent lead came from simply holding more stocks.</p></div></div>
+      <div class="step" data-fig="fair" data-s="1"><div><h3>Same question</h3><p>The committee and Jev were originally asked about the next 12 months but scored on the next one. We asked both again, for every month since 2015, about the next month only.</p></div></div>
+      <div class="step" data-fig="fair" data-s="2"><div><h3>Same translation, same trust</h3><p>One rule turns any signal into a view, learned only on past months. One rule sets trust, Ω, from each approach's own past misses. No approach sets its own confidence.</p></div></div>
+      <div class="step" data-fig="fair" data-s="3"><div><h3>Same scorecard, plus a placebo</h3><p>Same trading days, prices, cash rate and 5 bp cost. And a placebo: the whole machine run on the historical average. If an approach cannot beat the placebo, its signal added nothing.</p></div></div>
+    </div>
+    <div class="fig"><div class="card"><div class="label" style="margin-bottom:10px">Held identical for every approach</div><ul class="checks" id="checks"></ul></div></div>
+  </div>
+</section>
+
+<!-- 09 race -->
+<section class="chapter" id="c9" data-title="09 · The race">
+  <div class="chapter-head"><div class="n">09</div><div class="rule"></div><h2>Forty-six months, all at once.</h2><p>Scroll to move through time. Each line is 100 invested in March 2019 under one approach, after costs.</p></div>
+  <div class="race-wrap" id="raceWrap">
+    <div class="race-stick">
+      <div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><div class="big mono" id="raceMonth" style="font-size:clamp(28px,4vw,44px)">2019-04</div><div class="seg" id="raceSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><canvas id="raceCanvas" height="380"></canvas></div>
+      <div class="card"><div class="label">Standing</div><div class="lb" id="lb" style="margin-top:10px"></div><div class="label" style="margin-top:18px">What happened</div><div class="event" id="event"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 verdict -->
+<section class="chapter" id="c10" data-title="10 · The verdict">
+  <div class="chapter-head"><div class="n">10</div><div class="rule"></div><h2>Nobody beat doing nothing.</h2><p>Every approach, under either translation rule and at every starting mix we tried, scored below static 60/40.</p></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="ver" data-s="0"><div><h3>Read the chart</h3><p>Each dot is an approach's score minus static 60/40, in points a year. The line is its 95% range. Left of zero is worse than doing nothing.</p></div></div>
+      <div class="step" data-fig="ver" data-s="1"><div><h3>The machine alone costs 0.4 points</h3><p>The placebo, which only tilts on historical averages, loses about 0.4 points a year. It trades no more than static 60/40, so the loss is the tilting itself: small moves away from 60/40 that carry no information. That is the hurdle before any signal can show value. The deterministic model lands on top of it.</p></div></div>
+      <div class="step" data-fig="ver" data-s="2"><div><h3>The committee came closest</h3><p>About −0.2 points: it beat the placebo, mainly through its bond calls. But its range runs from about −1.1 to +0.7, so it cannot be told apart from zero.</p></div></div>
+      <div class="step" data-fig="ver" data-s="3"><div><h3>Jev had nothing to add</h3><p>With its direction kept, Jev is the placebo. Allowed to be read in reverse, it lost a further 0.7 points.</p></div></div>
+    </div>
+    <div class="fig"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="label">Difference vs static 60/40 · points a year · 95% range</div><div class="seg" id="verSeg"><button data-v="sign" class="on">direction kept</button><button data-v="ridge">any sign</button></div></div><div id="ciChart" style="margin-top:12px"></div></div></div>
+  </div>
+</section>
+
+<!-- 11 why -->
+<section class="chapter" id="c11" data-title="11 · Why">
+  <div class="chapter-head"><div class="n">11</div><div class="rule"></div><h2>Why nothing won.</h2></div>
+  <div class="scrolly">
+    <div class="steps">
+      <div class="step" data-fig="why" data-s="0"><div><h3>The inputs were already in the price</h3><p>Every approach saw numbers the market priced weeks earlier: returns, volatility, rate ranks, surprises traded within minutes. There was little left to forecast at a one-month horizon. The placebo matching the deterministic model shows it.</p></div></div>
+      <div class="step" data-fig="why" data-s="1"><div><h3>Every tilt costs money</h3><p>Tilting on a view with no information loses on average, even before costs: the placebo shows it. Tilting harder costs more: the committee traded about 0.5 times its portfolio a year against 0.3 for static 60/40.</p></div></div>
+      <div class="step" data-fig="why" data-s="2"><div><h3>One month is short</h3><p>Macro and valuation effects, where they exist, play out over quarters and years. Next month's stock-versus-bond return is close to a coin toss.</p></div></div>
+      <div class="step" data-fig="why" data-s="3"><div><h3>Four years cannot see a small edge</h3><p>The error bars are 1 to 3 points wide. A real 0.5-point edge would be invisible. "Nobody won" means "nobody won by enough to show in 46 months".</p></div></div>
+    </div>
+    <div class="fig"><div class="card" id="figWhy"></div></div>
+  </div>
+</section>
+
+<!-- 12 papers -->
+<section class="chapter" id="c12" data-title="12 · What others found">
+  <div class="chapter-head"><div class="n">12</div><div class="rule"></div><h2>The careful studies agree.</h2><p>Recent papers on AI allocation report big gains in short windows and small or no gains in long or careful ones.</p></div>
+  <div class="papers" style="margin-top:28px">
+    <div class="p"><div class="y">2026 · commodity ETFs · 124 weeks</div><h4>Macro economists in the machine</h4><p>LLM agents against a deterministic rule agent, same macro inputs, same engine: our design. Gain of 0.03–0.04 Sharpe, p 0.07–0.13, confidence interval includes zero.</p><a href="https://arxiv.org/abs/2606.08283">arXiv 2606.08283</a></div>
+    <div class="p"><div class="y">CIKM '25 · 50 stocks · 10 months</div><h4>LLM-enhanced Black-Litterman</h4><p>View = mean of 100 LLM answers, uncertainty = their variance. Sharpe 1.06–1.23 against 0.89 for equal weight, in one bullish window, with no significance tests.</p><a href="https://arxiv.org/abs/2504.14345">arXiv 2504.14345</a></div>
+    <div class="p"><div class="y">KDD '26 · S&amp;P 500 · 2004–2024</div><h4>Can LLM strategies win in the long run?</h4><p>Agent trading strategies tested over twenty years and the whole index. Short-window gains disappear; buy-and-hold matches or wins; no CAPM alpha.</p><a href="https://arxiv.org/abs/2505.07078">arXiv 2505.07078</a></div>
+    <div class="p us"><div class="y">This project · SPY/TLT · 46 months</div><h4>Protofin</h4><p>Four approaches through one machine, with masked inputs (stricter than any of the above). No approach beats static 60/40; the committee comes closest at about −0.2 points.</p><a href="../level/">See the replay</a></div>
+  </div>
+</section>
+
+<!-- 13 next -->
+<section class="chapter" id="c13" data-title="13 · What next">
+  <div class="chapter-head"><div class="n">13</div><div class="rule"></div><h2>What would change the answer.</h2></div>
+  <ol class="next" style="margin-top:20px;padding:0">
+    <li><div><h4>Give the AI something the price does not know yet</h4><p>Text dated inside the month: FOMC statements, earnings calls, the Causal RAG document corpus. This is how quant firms use language models today: to read, not to forecast.</p></div></li>
+    <li><div><h4>Let it say "no view"</h4><p>A no-trade band, so months without a strong view keep exactly 60/40. The placebo's 0.4-point loss comes entirely from small tilts that carry no information.</p></div></li>
+    <li><div><h4>Use its disagreement as uncertainty</h4><p>Ask the committee five times; when its answers scatter, trust it less. Farnoosh Memari's empirical-uncertainty method does exactly this.</p></div></li>
+    <li><div><h4>More months</h4><p>The AI answers already go back to 2004. A longer Bloomberg export of the surprises would let every approach run 2004–2022: about 220 months instead of 46.</p></div></li>
+    <li><div><h4>Open the sealed window once</h4><p>2023–2026 has never been scored. After the team signs off the design, it is opened one time, and that result is the one that counts.</p></div></li>
+  </ol>
+</section>
+
+<div class="closing">
+  <blockquote>"No evidence of an edge, under strict controls" is a result too. It tells a CIO exactly how much to pay for an AI forecast today.</blockquote>
+  <p>Diwas Puri · Farnoosh Memari · Adler · Amy · Grace · Karnoush · mentor David · BNY CIO office</p>
+</div>
+<div class="foot">Every number on this page comes from saved outputs: the level-playing-field run (<span class="mono">site/data/level.json</span>) and the recorded answers for March 2019 (<span class="mono">site/data/story.json</span>). Nothing here calls a model and there is no API behind it. Settings: δ 2.5 · τ 0.05 · prior 60/40 · bounds 40–80% · 36-month Ledoit–Wolf covariance · 5 bp per dollar traded.</div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// theme (shares the site's preference)
+function setTheme(m) { document.documentElement.classList.toggle('light', m === 'light'); $('themeBtn').textContent = m === 'light' ? 'Dark' : 'Light'; try { localStorage.setItem('protofin.theme', m); } catch (e) {} redrawAll(); }
+let saved = null; try { saved = localStorage.getItem('protofin.theme'); } catch (e) {}
+document.documentElement.classList.toggle('light', (saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')) === 'light');
+$('themeBtn').textContent = document.documentElement.classList.contains('light') ? 'Dark' : 'Light';
+$('themeBtn').addEventListener('click', () => setTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+
+const [L, S] = await Promise.all([fetch('../data/level.json', { cache: 'no-store' }).then(r => r.json()), fetch('../data/story.json', { cache: 'no-store' }).then(r => r.json())]);
+const run = m => L.runs[`spy60_${m}`];
+const pct = (x, d = 2) => (x * 100).toFixed(d) + '%';
+const sgn = (x, d = 2) => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(d);
+const COLOR = { STATIC: '--static', PLACEBO: '--placebo', DET: '--det', JEV: '--jev', COMMITTEE: '--com' };
+const NAME = { STATIC: 'Static 60/40', PLACEBO: 'Placebo', DET: 'Deterministic', JEV: 'Jev', COMMITTEE: 'AI committee' };
+const KEYS = ['STATIC', 'PLACEBO', 'DET', 'JEV', 'COMMITTEE'];
+
+// ---------------------------------------------------------------- chapter chrome: index, dots, progress, title
+const chapters = [...document.querySelectorAll('section.chapter')];
+$('index').innerHTML = chapters.map(c => { const [n, t] = c.dataset.title.split(' · '); return `<a href="#${c.id}"><span>${n}</span>${t}</a>`; }).join('');
+$('dots').innerHTML = chapters.map(c => `<a href="#${c.id}" title="${c.dataset.title}"></a>`).join('');
+addEventListener('scroll', () => {
+  const h = document.documentElement; $('progress').style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+  let cur = null; for (const c of chapters) if (c.getBoundingClientRect().top < innerHeight * 0.4) cur = c;
+  $('chapName').textContent = cur ? cur.dataset.title : 'The story';
+  [...$('dots').children].forEach((d, i) => d.classList.toggle('on', chapters[i] === cur));
+}, { passive: true });
+
+// ---------------------------------------------------------------- 01 the question
+const st = run('sign').systems.STATIC;
+$('staticCer').textContent = pct(st.net_cer);
+function figQ(s) {
+  const nav = st.nav, months = run('sign').months, W = 520, H = 230, lo = Math.min(...nav) * 100 - 3, hi = Math.max(...nav) * 100 + 3;
+  const x = i => 30 + i / (nav.length - 1) * (W - 40), y = v => H - 24 - (v - lo) / (hi - lo) * (H - 44);
+  const path = nav.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v * 100).toFixed(1)}`).join('');
+  const donut = (frac, r, col) => { const c = 2 * Math.PI * r; return `<circle r="${r}" cx="80" cy="80" fill="none" stroke="${col}" stroke-width="26" stroke-dasharray="${(frac * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 80 80)"/>`; };
+  $('figQ').innerHTML = `<div style="display:grid;grid-template-columns:160px minmax(0,1fr);gap:18px;align-items:center">
+    <svg viewBox="0 0 160 160" width="160" height="160"><circle r="54" cx="80" cy="80" fill="none" stroke="var(--rule)" stroke-width="26"/>${donut(.6, 54, 'var(--com)')}<text x="80" y="76" text-anchor="middle" font-family="var(--display)" font-size="28" fill="var(--ink)">60/40</text><text x="80" y="96" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">SPY / TLT</text></svg>
+    <div><div class="label">${s === 0 ? 'The dial' : s === 1 ? 'Rebalanced every month' : 'Growth of 100, after costs'}</div>
+      <div class="big" style="margin-top:6px">${s === 2 ? (nav.at(-1) * 100).toFixed(0) : s === 1 ? '12×' : '40–80%'}</div>
+      <div style="color:var(--ink-2);font-size:14px;margin-top:6px">${s === 2 ? `net CER ${pct(st.net_cer)} · worst drop ${pct(st.maxdd, 1)}` : s === 1 ? 'a year, back to 60/40, paying 5 bp per dollar traded' : 'the range every approach may move SPY within'}</div></div></div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="margin-top:18px;opacity:${s === 2 ? 1 : .25};transition:opacity .5s">
+      <line x1="30" x2="${W - 10}" y1="${y(100)}" y2="${y(100)}" stroke="var(--rule)" stroke-dasharray="4 4"/><text x="${W - 10}" y="${y(100) - 6}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">100</text>
+      <path d="${path}" fill="none" stroke="var(--static)" stroke-width="2.5"/>
+      <text x="30" y="${H - 6}" font-size="10" font-family="var(--mono)" fill="var(--muted)">${months[0]}</text><text x="${W - 10}" y="${H - 6}" text-anchor="end" font-size="10" font-family="var(--mono)" fill="var(--muted)">${months.at(-1)}</text></svg>`;
+}
+
+// ---------------------------------------------------------------- 02 the machine
+const ed = S.example_sign.DET;
+const LAYERS = [
+  ['Data', 'prices, rates, risk indexes, 8 surprises, at month-end', 'Mar 29, 2019', 'Everything known at 8 pm on the last trading day of the month. Nothing later.'],
+  ['Mask', 'dates, names and levels removed for the AI', 'no date shown', 'The AI approaches see only relative numbers, so they cannot recognise the month (chapter 03).'],
+  ['Forecast', 'the only layer that differs between approaches', 'Ridge on surprises', 'Here the deterministic model; in other chapters the committee, Jev or Causal RAG. Everything above and below is shared.', true],
+  ['View Q', 'next month\'s return above cash, per fund', `SPY ${pct(ed.q_spy, 3)}`, 'Each raw signal is translated into a view by the same rule, learned only on past months.'],
+  ['Uncertainty Ω', 'how far such forecasts have missed before', `SPY ${ed.omega_spy.toFixed(5)}`, 'The average squared miss when the rule replays past months. It sets how much the view is trusted.'],
+  ['Baseline π', 'the returns that make 60/40 the best mix', `SPY ${pct(ed.pi_spy, 3)}`, 'π = δ × Σ × w: risk aversion times covariance times the 60/40 weights. Not a forecast; the starting point.'],
+  ['Blend μ', 'Black-Litterman: move from π toward Q by trust', `SPY ${pct(ed.mu_spy, 3)}`, 'μ = π + [τΣ ÷ (τΣ + Ω)] × (Q − π). With an uncertain view, μ stays near π.'],
+  ['Weights', 'best return per unit of risk, 40–80% SPY', `SPY ${pct(ed.w_spy, 1)}`, 'Maximise wᵀμ − (δ/2) wᵀΣw. Feed in π alone and you get back roughly 60/40.'],
+  ['Score', 'hold a month, pay 5 bp on trades, compare', 'vs 60/40', 'Repeat for 46 months and compare the track record with static 60/40, with bootstrap error bars.'],
+];
+$('layers').innerHTML = LAYERS.map((l, i) => `<div class="layer${l[4] ? ' change' : ''}" data-i="${i}"><span class="i">${String(i + 1).padStart(2, '0')}</span><span class="t">${l[0]}<small>${l[1]}</small></span><span class="v">${l[2]}</span></div>`).join('');
+$('pipeSteps').innerHTML = LAYERS.map((l, i) => `<div class="step" data-fig="pipe" data-s="${i}"><div><h3>${String(i + 1).padStart(2, '0')} · ${l[0]}</h3><p>${l[3]}</p></div></div>`).join('');
+function figPipe(s) { [...$('layers').children].forEach((el, i) => { el.classList.toggle('built', i <= s); el.classList.toggle('now', i === s); }); }
+
+// ---------------------------------------------------------------- 03 mask
+$('payload').textContent = S.payload.text;
+const HIDDEN = [['The date', 'March 29, 2019'], ['Index names', 'S&P 500 · 20+ year Treasuries'], ['Price levels', 'SPY near $282'], ['Headlines', 'Fed signals no more hikes in 2019'], ['Anything after the decision', 'April 2019 returns']];
+$('hiddenList').innerHTML = HIDDEN.map(h => `<li><b>${h[0]}</b><br><s>${h[1]}</s></li>`).join('');
+function figMask(s) { [...$('hiddenList').children].forEach(li => li.classList.toggle('off', s === 0)); $('payload').style.opacity = s === 2 ? .6 : 1; }
+
+// ---------------------------------------------------------------- 04 deterministic
+$('detTlt').textContent = S.example_ridge.DET.months_signal_used_tlt;
+function figDet(s) {
+  const A = ['0.0001', '0.01', '1', '100', '10,000', '10⁶', '10⁸', '10¹⁰', 'ignore the data'];
+  $('figDet').innerHTML = `<div class="label">${s === 0 ? 'March 2019 surprises (z-scores)' : s === 1 ? 'Ridge picks α by replaying past months' : s === 2 ? 'The forecast for SPY' : 'What a surprise is worth by month-end'}</div>
+    <div class="bars" style="margin-top:12px;${s >= 2 ? 'opacity:.3' : ''}">${S.surprises.map(v => { const w = Math.min(50, Math.abs(v.z) / 3 * 50); return `<div class="bar"><span>${v.name}</span><div class="track"><div class="mid"></div><div class="fill" style="left:${v.z < 0 ? 50 - w : 50}%;width:${w}%;background:${v.z < 0 ? 'var(--neg)' : 'var(--pos)'}"></div></div><span class="num">${v.z > 0 ? '+' : ''}${v.z.toFixed(2)}</span></div>`; }).join('')}</div>
+    <div style="margin-top:18px;${s === 0 ? 'opacity:.25' : ''}"><div class="label">α candidates · winner for SPY</div><div class="chips" style="margin-top:8px">${A.map(a => `<span class="chip${s >= 1 && a === 'ignore the data' ? ' win' : ''}">${a}</span>`).join('')}</div></div>
+    <div class="nums" style="${s < 2 ? 'opacity:.25' : ''}"><div><div class="label">SPY view Q</div><div class="v">${pct(ed.q_spy, 3)}</div></div><div><div class="label">= historical average</div><div class="v">46 / 46</div></div><div><div class="label">months it used surprises for TLT</div><div class="v">${S.example_ridge.DET.months_signal_used_tlt} / 46</div></div></div>
+    ${s === 3 ? '<div class="quote on" style="margin-top:16px"><div class="who">why</div>A surprise moves prices within minutes of release. By the end of the month there is nothing left in it to forecast.</div>' : ''}`;
+}
+
+// ---------------------------------------------------------------- 05 committee
+const C = S.committee, ec = S.example_sign.COMMITTEE, er = S.example_ridge.COMMITTEE;
+function figCom(s) {
+  $('figCom').innerHTML = `<div class="label">March 2019 · gpt-4o · one-month question · recorded once</div>
+    <div class="quote${s >= 0 ? ' on' : ''}"><div class="who">Economist · SPY ${C.economist.spy}% · TLT ${C.economist.tlt}%</div>${C.economist.text}</div>
+    <div class="quote${s >= 1 ? ' on' : ''}"><div class="who">Risk manager · SPY ${C.risk.spy}% · TLT ${C.risk.tlt}%</div>${C.risk.text}</div>
+    <div class="quote${s >= 2 ? ' on' : ''}" style="${s >= 2 ? 'border-left-color:var(--com)' : ''}"><div class="who">CIO · SPY ${C.cio.spy_q}% · TLT ${C.cio.tlt_q}% · ${C.cio.confidence}</div>${C.cio.cio}</div>
+    <div class="nums" style="${s < 3 ? 'opacity:.2' : ''}"><div><div class="label">SPY view, direction kept</div><div class="v">${pct(ec.q_spy, 3)}</div></div><div><div class="label">bond view used</div><div class="v">${ec.months_signal_used_tlt} / 46</div></div><div><div class="label">SPY weight</div><div class="v">${pct(ec.w_spy, 1)}</div></div></div>`;
+}
+
+// ---------------------------------------------------------------- 06 Jev
+const J = S.jev, js = S.jev_summary, jr = S.example_ridge.JEV, jk = S.example_sign.JEV;
+function figJev(s) {
+  const opts = [['strong_equities', 'Strong equities'], ['lean_equities', 'Lean equities'], ['neutral', 'Neutral'], ['lean_bonds', 'Lean bonds'], ['strong_bonds', 'Strong bonds']];
+  $('figJev').innerHTML = `<div class="label">March 2019 · typesafe/jev · one-month question</div>
+    <div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:18px;align-items:center;margin-top:12px">
+      <svg viewBox="0 0 140 90" width="140"><path d="M10,80 A60,60 0 0 1 130,80" fill="none" stroke="var(--rule)" stroke-width="12"/><path d="M10,80 A60,60 0 0 1 130,80" fill="none" stroke="var(--jev)" stroke-width="12" stroke-dasharray="${(J.p * 188.5).toFixed(1)} 188.5"/><text x="70" y="72" text-anchor="middle" font-family="var(--display)" font-size="26" fill="var(--ink)">${Math.round(J.p * 100)}%</text></svg>
+      <div><div class="label">P(SPY beats TLT next month)</div><div style="color:var(--ink-2);font-size:14px;margin-top:4px">${J.p < .5 ? 'leans no: bonds' : 'leans yes: stocks'}</div></div></div>
+    <div class="bars" style="margin-top:14px;${s < 1 ? 'opacity:.25' : ''}">${opts.map(([k, n]) => `<div class="bar"><span${k === J.choice ? ' style="font-weight:600;color:var(--jev)"' : ''}>${n}</span><div class="track"><div class="fill" style="left:0;width:${(J.probs[k] || 0) * 100}%;background:var(--jev);opacity:${k === J.choice ? 1 : .45}"></div></div><span class="num">${Math.round((J.probs[k] || 0) * 100)}%</span></div>`).join('')}</div>
+    <div class="nums" style="${s < 1 ? 'opacity:.25' : ''}"><div><div class="label">confidence</div><div class="v">${J.confidence.toFixed(2)}</div></div><div><div class="label">expected tilt</div><div class="v">${J.offset.toFixed(2)}</div></div>
+      <div style="${s < 2 ? 'opacity:.2' : ''}"><div class="label">SPY view, any sign</div><div class="v" style="color:var(--jev)">${pct(jr.q_spy, 2)}</div></div>
+      <div style="${s < 3 ? 'opacity:.2' : ''}"><div class="label">SPY view, direction kept</div><div class="v">${pct(jk.q_spy, 2)}</div></div></div>
+    ${s === 3 ? `<div style="margin-top:12px;font-size:13px;color:var(--ink-2)">139 months: ${js.lean_equities} toward stocks · ${js.lean_bonds} toward bonds · ${js.neutral} neutral · confidence ${js.conf_min.toFixed(2)}–${js.conf_max.toFixed(2)}</div>` : ''}`;
+}
+
+// ---------------------------------------------------------------- 07 Causal RAG
+$('ragClaims').textContent = S.graph_total_claims.toLocaleString('en-US');
+function figRag(s) {
+  const G = S.graph, maxC = Math.max(...G.map(g => g.claims)), ch = G[0].channels;
+  const chOrder = [['growth', 'Growth'], ['inflation', 'Inflation'], ['policy_rates', 'Policy rates'], ['other', 'Other'], ['risk_credit', 'Risk and credit'], ['direct', 'Direct']], chMax = Math.max(...Object.values(ch));
+  const chain = [['CPI surprise', 'trigger'], ['2-year yield ↑', 'mediator'], ['Equity valuations ↓', 'effect'], ['SPY down', 'prediction']];
+  const verdict = ['Supported', 'Contradicted', 'Insufficient'];
+  let html = `<div class="label">${['The CauseTrace claim graph', 'One graph per decision year', 'A hypothesis: a signed path', 'The test', 'Reliability gates'][s]}</div>`;
+  if (s <= 1) {
+    html += `<div style="display:flex;align-items:flex-end;gap:6px;height:180px;margin-top:16px">${G.map(g => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;height:${(g.claims / maxC * 150).toFixed(0)}px;background:var(--rag);opacity:${s === 1 ? .9 : .35};border-radius:4px 4px 0 0;transition:all .5s"></div><span class="mono" style="font-size:9px;color:var(--muted)">${String(g.year).slice(2)}</span></div>`).join('')}</div>
+      <div class="nums"><div><div class="label">claims kept, 2015</div><div class="v">${G[0].claims.toLocaleString('en-US')}</div></div><div><div class="label">claims kept, ${G.at(-1).year}</div><div class="v">${G.at(-1).claims.toLocaleString('en-US')}</div></div><div><div class="label">papers, 2015</div><div class="v">${G[0].papers.toLocaleString('en-US')}</div></div></div>
+      <div class="label" style="margin-top:16px">Paths from triggers to assets, 2015 graph</div><div class="bars" style="margin-top:8px">${chOrder.map(([k, n]) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="left:0;width:${(ch[k] / chMax * 100).toFixed(0)}%;background:var(--rag)"></div></div><span class="num">${ch[k]}</span></div>`).join('')}</div>`;
+  } else if (s <= 3) {
+    html += `<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">${chain.map((c, i) => `<div style="display:flex;align-items:center;gap:12px"><div style="flex:1;padding:12px 14px;border-radius:10px;border:1px solid ${s === 3 && i > 0 && i < 3 ? 'var(--rag)' : 'var(--rule)'};background:var(--soft)"><div class="label">${c[1]}</div><div style="font-weight:600">${c[0]}</div></div>${s === 3 && i > 0 && i < 3 ? `<span class="chip" style="border-color:var(--rag);color:var(--rag)">${i === 1 ? 'yield rose? check data' : 'quote on the page? check'}</span>` : ''}</div>${i < 3 ? '<div style="text-align:center;color:var(--muted)">↓</div>' : ''}`).join('')}</div>
+      ${s === 3 ? `<div class="label" style="margin-top:14px">Verdict, majority of 3 runs · plus the opposite story</div><div class="chips" style="margin-top:8px">${verdict.map(v => `<span class="chip">${v}</span>`).join('')}</div>` : ''}`;
+  } else {
+    const gates = [['G3a · 12 months parse and answer', '0 / 12 final answers', false], ['G3b · 30 labelled test cases', '53% (80% needed)', false], ['Point-in-time checks', '0 violations', true], ['Fabricated quotes accepted', '0 of 279', true], ['Graph vintages rebuild identically', '12 / 12', true]];
+    html += `<ul class="checks" style="margin-top:14px">${gates.map(g => `<li class="on"><span class="${g[2] ? 'ok' : ''}" style="${g[2] ? '' : 'color:var(--neg);font-weight:700'}">${g[2] ? '✓' : '✗'}</span><span>${g[0]}</span><span class="x">${g[1]}</span></li>`).join('')}</ul><div style="margin-top:12px;font-size:13px;color:var(--ink-2)">Model: qwen3:4b on a free Kaggle GPU, standing in for Llama 3.1 70B. Pipeline defects were fixed; the rerun is pending.</div>`;
+  }
+  $('figRag').innerHTML = html;
+}
+
+// ---------------------------------------------------------------- 08 fair fight
+const CHECKS = [['Funds', 'SPY and TLT', 0], ['Starting mix and bounds', '60/40 · 40–80%', 0], ['Decision and trade dates', 'month-end · next close', 0], ['Question asked', 'next month only', 1], ['Training window', 'from Feb 2015', 1], ['Signal → view', 'one rule, past months only', 2], ['Trust Ω', 'own past misses', 2], ['Black-Litterman and optimizer', 'δ 2.5 · τ 0.05', 2], ['Prices, cash, costs', 'pinned · T-bill · 5 bp', 3], ['Score and error bars', 'net CER · block bootstrap', 3], ['Placebo control', 'historical average', 3]];
+$('checks').innerHTML = CHECKS.map(c => `<li data-s="${c[2]}"><span class="ok">✓</span><span>${c[0]}</span><span class="x">${c[1]}</span></li>`).join('');
+function figFair(s) { [...$('checks').children].forEach(li => li.classList.toggle('on', +li.dataset.s <= s)); }
+
+// ---------------------------------------------------------------- 09 race (scroll-driven)
+let raceMap = 'sign', raceIdx = 0;
+const EVENTS = [[0, 'The race starts in April 2019. Every approach holds roughly 60/40.'], [11, 'March 2020: the pandemic crash. Stocks fall about 20% in a month; long Treasuries rally.'], [13, 'Spring 2020: a fast recovery. Approaches that held more bonds in the crash fall behind as stocks rebound.'], [22, '2021: a steady bull market. Small tilts toward stocks are rewarded, small tilts away are not.'], [33, '2022: the bond rout. TLT falls more than 30%; for once stocks and bonds fall together and 60/40 has nowhere to hide.'], [44, 'December 2022. The lines end within a few points of each other; the differences are smaller than the noise.']];
+function drawRace() {
+  const cv = $('raceCanvas'), dpr = devicePixelRatio || 1, w = cv.clientWidth, h = Math.min(380, Math.max(240, innerHeight * 0.5));
+  cv.width = w * dpr; cv.height = h * dpr; cv.style.height = h + 'px';
+  const g = cv.getContext('2d'); g.scale(dpr, dpr); g.clearRect(0, 0, w, h);
+  const R = run(raceMap), S2 = R.systems, n = R.months.length, idx = Math.min(n - 1, raceIdx);
+  const all = KEYS.flatMap(k => S2[k].nav.map(v => v * 100)), lo = Math.floor(Math.min(...all) / 5) * 5, hi = Math.ceil(Math.max(...all) / 5) * 5;
+  const X = i => 40 + i / (n - 1) * (w - 56), Y = v => h - 24 - (v - lo) / (hi - lo) * (h - 40);
+  g.font = '10px JetBrains Mono, monospace'; g.fillStyle = css('--muted'); g.strokeStyle = css('--rule'); g.lineWidth = 1;
+  for (let v = lo; v <= hi; v += 10) { g.beginPath(); g.moveTo(40, Y(v)); g.lineTo(w - 16, Y(v)); g.stroke(); g.fillText(v, 8, Y(v) + 3); }
+  [0, 12, 24, 36].forEach(i => { if (i < n) g.fillText(R.months[i].slice(0, 7), X(i) - 18, h - 6); });
+  g.strokeStyle = css('--com'); g.globalAlpha = .25; g.beginPath(); g.moveTo(X(idx), 10); g.lineTo(X(idx), h - 24); g.stroke(); g.globalAlpha = 1;
+  KEYS.forEach(k => {
+    const nav = S2[k].nav; g.strokeStyle = css(COLOR[k]); g.lineWidth = k === 'STATIC' ? 2 : 2.4; g.setLineDash(k === 'STATIC' ? [5, 4] : k === 'PLACEBO' ? [2, 3] : []);
+    g.beginPath(); for (let i = 0; i <= idx; i++) { const xx = X(i), yy = Y(nav[i] * 100); i ? g.lineTo(xx, yy) : g.moveTo(xx, yy); } g.stroke(); g.setLineDash([]);
+    g.fillStyle = css(COLOR[k]); g.beginPath(); g.arc(X(idx), Y(nav[idx] * 100), 3.5, 0, 7); g.fill();
+  });
+  const rows = KEYS.map(k => ({ k, v: S2[k].nav[idx] * 100, w: S2[k].w_spy[idx] * 100 })).sort((a, b) => b.v - a.v);
+  $('raceMonth').textContent = R.months[idx].slice(0, 7);
+  $('lb').innerHTML = rows.map(r => `<div class="row"><i style="background:var(${COLOR[r.k]})"></i><span>${NAME[r.k]} <span class="mono" style="color:var(--muted);font-size:12px">· ${r.w.toFixed(0)}% SPY</span></span><span class="v">${r.v.toFixed(1)}</span></div>`).join('');
+  let ev = EVENTS[0][1]; for (const [i, t] of EVENTS) if (idx >= i) ev = t; $('event').textContent = ev;
+}
+function onRaceScroll() {
+  const r = $('raceWrap').getBoundingClientRect(), total = r.height - innerHeight, p = Math.min(1, Math.max(0, -r.top / total));
+  const idx = Math.round(p * (run(raceMap).months.length - 1)); if (idx !== raceIdx) { raceIdx = idx; drawRace(); }
+}
+addEventListener('scroll', onRaceScroll, { passive: true });
+$('raceSeg').addEventListener('click', e => { if (!e.target.dataset.v) return; raceMap = e.target.dataset.v; [...$('raceSeg').children].forEach(b => b.classList.toggle('on', b === e.target)); drawRace(); });
+
+// ---------------------------------------------------------------- 10 verdict
+let verMap = 'sign', verStep = 0;
+function figVer(s) {
+  verStep = s; const R = run(verMap).systems, keys = ['PLACEBO', 'DET', 'JEV', 'COMMITTEE'];
+  const lo = -0.04, hi = 0.025, W = 520, rowH = 54, X = v => 140 + (v - lo) / (hi - lo) * (W - 160);
+  const focus = { 0: keys, 1: ['PLACEBO', 'DET'], 2: ['COMMITTEE'], 3: ['JEV'] }[s];
+  let svg = `<svg viewBox="0 -18 ${W} ${keys.length * rowH + 58}" width="100%"><line x1="${X(0)}" x2="${X(0)}" y1="6" y2="${keys.length * rowH + 10}" stroke="var(--ink)" stroke-width="1.2"/><text x="${X(0)}" y="-4" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">static 60/40</text><text x="${X(0)}" y="${keys.length * rowH + 30}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">0</text>`;
+  [-0.03, -0.02, -0.01, 0.01, 0.02].forEach(v => { svg += `<line x1="${X(v)}" x2="${X(v)}" y1="6" y2="${keys.length * rowH + 10}" stroke="var(--rule)" stroke-dasharray="3 4"/><text x="${X(v)}" y="${keys.length * rowH + 30}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--muted)">${v > 0 ? '+' : ''}${(v * 100).toFixed(0)}</text>`; });
+  keys.forEach((k, i) => { const c = R[k].vs_static, y = 24 + i * rowH, on = focus.includes(k);
+    svg += `<g opacity="${on ? 1 : .25}"><text x="0" y="${y + 4}" font-family="var(--body)" font-size="13" fill="var(${COLOR[k]})" font-weight="600">${NAME[k]}</text><line x1="${X(Math.max(lo, c.lo))}" x2="${X(Math.min(hi, c.hi))}" y1="${y}" y2="${y}" stroke="var(${COLOR[k]})" stroke-width="3" stroke-linecap="round"/><circle cx="${X(c.d)}" cy="${y}" r="7" fill="var(${COLOR[k]})"/><text x="0" y="${y + 20}" font-family="var(--mono)" font-size="11" fill="var(--ink-2)">${sgn(c.d)} pts · p ${c.p.toFixed(2)}</text></g>`; });
+  $('ciChart').innerHTML = svg + '</svg>' + `<div class="nums"><div><div class="label">static 60/40</div><div class="v">${pct(R.STATIC.net_cer)}</div></div><div><div class="label">best approach</div><div class="v" style="color:var(--com)">${pct(Math.max(...keys.map(k => R[k].net_cer)))}</div></div></div>`;
+}
+$('verSeg').addEventListener('click', e => { if (!e.target.dataset.v) return; verMap = e.target.dataset.v; [...$('verSeg').children].forEach(b => b.classList.toggle('on', b === e.target)); figVer(verStep); });
+
+// ---------------------------------------------------------------- 11 why
+function figWhy(s) {
+  const R = run('sign').systems;
+  const cards = [
+    ['46 / 46', 'months the deterministic model ignored the surprises for SPY', 'The news was already in the price.'],
+    [`${R.COMMITTEE.turnover.toFixed(2)}× vs ${R.STATIC.turnover.toFixed(2)}×`, 'yearly trading, committee vs static 60/40', `The placebo alone lost ${sgn(R.PLACEBO.vs_static.d)} points from tilting on averages, while trading ${R.PLACEBO.turnover.toFixed(2)}× a year.`],
+    ['1 month', 'the horizon every approach forecast', 'Macro effects show up over quarters and years, not next month.'],
+    [`${sgn(R.COMMITTEE.vs_static.lo)} to ${sgn(R.COMMITTEE.vs_static.hi)}`, 'the committee\'s 95% range, points a year', 'Too wide to see a real edge of half a point.'],
+  ];
+  $('figWhy').innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${cards.map((c, i) => `<div style="padding:16px;border-radius:12px;border:1px solid ${i === s ? 'var(--com)' : 'var(--rule)'};background:${i === s ? 'color-mix(in srgb, var(--com) 8%, var(--paper))' : 'var(--soft)'};opacity:${i === s ? 1 : .4};transition:all .4s"><div class="v" style="font-family:var(--display);font-size:30px;line-height:1.1">${c[0]}</div><div class="label" style="margin-top:4px">${c[1]}</div><div style="font-size:14px;color:var(--ink-2);margin-top:6px">${c[2]}</div></div>`).join('')}</div>`;
+}
+
+// ---------------------------------------------------------------- step engine
+const FIGS = { q: figQ, pipe: figPipe, mask: figMask, det: figDet, com: figCom, jev: figJev, rag: figRag, fair: figFair, ver: figVer, why: figWhy };
+const current = {};
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (!en.isIntersecting) return; const el = en.target, f = el.dataset.fig, s = +el.dataset.s;
+    el.parentElement.querySelectorAll('.step').forEach(x => x.classList.toggle('on', x === el));
+    if (current[f] !== s) { current[f] = s; FIGS[f](s); } });
+}, { rootMargin: '-45% 0px -45% 0px' });
+document.querySelectorAll('.step').forEach(el => io.observe(el));
+function redrawAll() { if (!L) return; Object.entries(FIGS).forEach(([f, fn]) => fn(current[f] ?? 0)); drawRace(); }
+Object.entries(FIGS).forEach(([f, fn]) => { current[f] = 0; fn(0); });
+document.querySelectorAll('.steps').forEach(s => s.querySelector('.step')?.classList.add('on'));
+drawRace(); addEventListener('resize', drawRace);
+</script>
+</body>
+</html>
