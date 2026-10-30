@@ -34,6 +34,7 @@ Usage (repository root): python -m native_backtest.scripts.forecast_to_allocatio
 from __future__ import annotations
 
 import dataclasses
+import itertools
 import json
 import subprocess
 import sys
@@ -483,6 +484,132 @@ def performance(block: dict) -> dict:
     return {"by_scenario": rows, "monthly_net_return_correlation": net.corr().round(10).to_dict()}
 
 
+
+# ------------------------------------------------------------------------- Agentic Causal RAG (Approach 3)
+AP3_EVAL = ROOT / "native_backtest/out/ap3/qwen3_runs/evaluation"
+AP3_BUNDLE = ROOT / "native_backtest/out/ap3/qwen3_runs"
+AP3_ASSETS = ("SPY", "IEF", "LQD")
+
+
+def ap3_inputs(dev) -> dict | None:
+    """AP3's own calibrated views, its own Omega and the covariances its native allocator builds.
+
+    Everything here comes from the imported exploratory evaluation and from AP3's own allocation module, so the
+    scenarios run through the same code that produced the archived weights. Returns None when no genuine
+    development-window outputs exist, and the caller then reports AP3 as pending rather than inventing a series."""
+    if not (AP3_EVAL / "predictions.csv").exists() or not (AP3_EVAL / "weights.json").exists():
+        return None
+    summary = json.loads((AP3_BUNDLE / "summary.json").read_text())
+    if summary.get("n_months") != summary.get("target_months"):
+        return None
+    from native_backtest.ap3 import allocation as A
+    from native_backtest.scripts import ap3_dev_replay as rp
+
+    months = [str(m) for m in dev]
+    pred = pd.read_csv(AP3_EVAL / "predictions.csv")
+    pred["decision_month"] = pred["decision_month"].astype(str)
+    if sorted(pred["decision_month"].unique()) != months:
+        raise SystemExit("the imported Causal RAG predictions do not cover the configured development window")
+    labels = rp.labels_frame(months_between(rp.AGENT_MONTHS[0], rp.AGENT_MONTHS[1]))
+    omega = A.omega_from_development_errors(pred, labels, months)
+    piv = pred.pivot(index="decision_month", columns="asset", values="prediction_excess_return")[list(AP3_ASSETS)]
+    archived = json.loads((AP3_EVAL / "weights.json").read_text())
+    sigma = {}
+    pidx = labels.index
+    for m in months:
+        w = labels[(pidx >= pd.Period("2015-02", "M")) & (pidx <= pd.Period(m, "M") - 2)][list(AP3_ASSETS)].tail(A.s2p.COV_WINDOW)
+        if len(w) != A.s2p.COV_WINDOW:
+            raise SystemExit(f"{m}: {len(w)} labels for the Causal RAG covariance, need {A.s2p.COV_WINDOW}")
+        sigma[m] = A.s2p.ledoit_wolf_cov(w.to_numpy(float))
+    return {"P": A.s2p, "A": A, "assets": list(AP3_ASSETS), "months": months, "sigma": sigma, "q": piv,
+            "omega": omega, "archived": archived, "summary": summary,
+            "exploratory": bool((summary.get("exploratory") or {}).get("label"))}
+
+
+def ap3_scenarios(S3: dict) -> dict:
+    """The same pre-registered transformation, applied to AP3's calibrated numerical view only.
+
+    The categorical assessments are never scaled: Supported, Contradicted and Insufficient are encoded and
+    calibrated into a numerical view upstream, exactly as in the archived run, and only that view is rescaled."""
+    P, assets, lo, up = S3["P"], S3["assets"], S3["P"].LOWER, S3["P"].UPPER
+    rows, repro = [], {"max_abs_weight": 0.0}
+    for m in S3["months"]:
+        sig = S3["sigma"][m]
+        q = S3["q"].loc[m].to_numpy(float)
+        pi, _, _ = P.bl_posterior(sig, q, S3["omega"])
+        for lam in LAMBDAS:
+            qs = pi + lam * (q - pi)
+            _, mu, post = P.bl_posterior(sig, qs, S3["omega"])
+            w = P.optimal_weights(mu, post)
+            unc = fully_invested(mu, post, P.DELTA)
+            at_lo = np.isclose(w, lo, atol=1e-9)
+            at_up = np.isclose(w, up, atol=1e-9)
+            rows.append({"scenario": key(lam), "lambda": lam, "decision_month": m,
+                         **{f"q_orig_{x}": float(q[i]) for i, x in enumerate(assets)},
+                         **{f"pi_{x}": float(pi[i]) for i, x in enumerate(assets)},
+                         **{f"q_adj_{x}": float(qs[i]) for i, x in enumerate(assets)},
+                         **{f"mu_bl_{x}": float(mu[i]) for i, x in enumerate(assets)},
+                         **{f"w_unconstrained_{x}": float(unc[i]) for i, x in enumerate(assets)},
+                         **{f"w_{x}": float(w[i]) for i, x in enumerate(assets)},
+                         "n_bounds_binding": int(at_lo.sum() + at_up.sum()),
+                         "bounds_binding": ",".join([f"{assets[i]}:lower" for i in np.where(at_lo)[0]] +
+                                                    [f"{assets[i]}:upper" for i in np.where(at_up)[0]]),
+                         "unconstrained_feasible": bool(((unc >= lo - 1e-9) & (unc <= up + 1e-9)).all()),
+                         "view_present": True})
+            if lam == 1.0:
+                a = np.array([S3["archived"][m][x] for x in assets], float)
+                repro["max_abs_weight"] = max(repro["max_abs_weight"], float(np.abs(w - a).max()))
+    return {"trace": pd.DataFrame(rows), "reproduction": repro}
+
+
+def ap3_block(mk, dev, cost: float, cfg: dict, S3: dict) -> dict:
+    sc = ap3_scenarios(S3)
+    months = [str(m) for m in dev]
+    tr = {k: g.set_index("decision_month").loc[months].reset_index() for k, g in sc["trace"].groupby("scenario")}
+    template = sorted([r for r in read_jsonl(DEC / "AP3_qwen3_reduced_evidence.jsonl") if r.decision_month in set(months)],
+                      key=lambda r: r.decision_month)
+    if len(template) != len(months):
+        raise SystemExit("the imported Causal RAG decision records do not cover the development window")
+    sims = {}
+    for lam in LAMBDAS:
+        t = tr[key(lam)]
+        w = {m: {a: float(t.loc[t["decision_month"] == m, f"w_{a}"].iloc[0]) for a in AP3_ASSETS} for m in months}
+        sims[key(lam)] = evaluate(records_from_weights("AP3", key(lam), w, template), mk, dev, cost)
+    neutral = cfg["systems"]["AP3"]["native_neutral_weights"]
+    ctrl = {"native_neutral_static": evaluate(static_portfolio_records("AP3_NO_SIGNAL", neutral, template), mk, dev, cost)}
+    arch = evaluate(template, mk, dev, cost)
+    repro = dict(sc["reproduction"])
+    repro["max_abs_archived_native_weight"] = repro.pop("max_abs_weight")
+    repro["max_abs_shared_evaluator_net_excess_vs_archived_records"] = float(
+        np.abs(sims[key(1.0)]["net_excess_return"].to_numpy(float) - arch["net_excess_return"].to_numpy(float)).max())
+    repro["tolerance"] = REPRO_TOL
+    repro["within_tolerance"] = bool(max(repro["max_abs_archived_native_weight"],
+                                         repro["max_abs_shared_evaluator_net_excess_vs_archived_records"]) <= REPRO_TOL)
+    t0 = tr[key(0.0)]
+    zero = {
+        "mu_bl_equals_pi_max_abs": float(np.abs(t0[[f"mu_bl_{a}" for a in AP3_ASSETS]].to_numpy(float)
+                                                - t0[[f"pi_{a}" for a in AP3_ASSETS]].to_numpy(float)).max()),
+        "adjusted_view_equals_pi_max_abs": float(np.abs(t0[[f"q_adj_{a}" for a in AP3_ASSETS]].to_numpy(float)
+                                                        - t0[[f"pi_{a}" for a in AP3_ASSETS]].to_numpy(float)).max()),
+        "vs_native_neutral_static_weights": {
+            "max_abs_weight_difference": float(np.abs(t0[[f"w_{a}" for a in AP3_ASSETS]].to_numpy(float)
+                                                      - np.array([neutral[a] for a in AP3_ASSETS])).max()),
+            "mean_abs_weight_difference": float(np.abs(t0[[f"w_{a}" for a in AP3_ASSETS]].to_numpy(float)
+                                                       - np.array([neutral[a] for a in AP3_ASSETS])).mean()),
+            "why": ("the same pre-registered Sigma + M effect as the Deterministic model: at lambda = 0 the posterior "
+                    "mean is exactly the allocator's own equilibrium pi, but the optimizer maximises against "
+                    "Sigma_post = Sigma + M. Nothing is corrected; both references are reported."),
+            "interpretation": "lambda = 0 is the native allocator with no incremental view, not the static neutral portfolio"}}
+    return {"trace": tr, "sims": sims, "controls": ctrl, "reproduction": repro, "zero_scenario_checks": zero,
+            "neutral": neutral, "assets": list(AP3_ASSETS),
+            "allocator": {"kind": "Black-Litterman with a bounded fully invested mean-variance optimum (Causal RAG's own Q and Omega)",
+                          "entry_point": "native_backtest/ap3/allocation.py::weights_for_months -> bl_posterior argument q",
+                          "bounds": {a: [float(S3["P"].LOWER[i]), float(S3["P"].UPPER[i])] for i, a in enumerate(AP3_ASSETS)},
+                          "tau": S3["P"].TAU, "delta": S3["P"].DELTA, "cov_window": S3["P"].COV_WINDOW,
+                          "omega_diag": {a: float(S3["omega"][i]) for i, a in enumerate(AP3_ASSETS)},
+                          "intermediate_stage": "the optimizer's own all-free candidate: the fully invested optimum with the bounds ignored"}}
+
+
 def approach_block(name: str, short: str, role: str, block: dict, P: dict, approach: str) -> dict:
     return {"name": name, "short": short, "role": role, "status": "computed",
             "universe": list(block["assets"]), "native_neutral_weights": block["neutral"],
@@ -524,7 +651,7 @@ def cross_approach(blocks: dict, approaches: dict) -> dict:
     r = lambda k, s: blocks[k]["sims"][s]["net_excess_return"].to_numpy(float)
     ctrl = lambda k: blocks[k]["controls"]["native_neutral_static"]["net_excess_return"].to_numpy(float)
     pair = {}
-    for a, b in (("AP1", "AP2B"), ("AP1", "AP2A"), ("AP2B", "AP2A")):
+    for a, b in [(x, y) for x, y in itertools.combinations(("AP1", "AP2B", "AP2A", "AP3"), 2) if x in blocks and y in blocks]:
         s_a, s_b = r(a, key(1.0)) - r(a, key(0.0)), r(b, key(1.0)) - r(b, key(0.0))
         pair[f"{a}_vs_{b}"] = {
             "monthly_net_return_correlation_1x": float(np.corrcoef(r(a, key(1.0)), r(b, key(1.0)))[0, 1]),
@@ -580,9 +707,32 @@ def main(argv=None) -> int:
               "AP2A": ap2_block("AP2A", mk, dev, cost, cfg)}
     meta = {"AP1": ("Deterministic Quantitative Model", "Deterministic", "primary (research baseline)"),
             "AP2B": ("Agentic Workflow - JEV", "JEV", "primary representative of the Agentic Workflow"),
-            "AP2A": ("Agentic Workflow - Agent Committee", "Committee", "secondary within-approach variant")}
+            "AP2A": ("Agentic Workflow - Agent Committee", "Committee", "secondary within-approach variant"),
+            "AP3": ("Agentic Causal RAG", "Causal RAG", "primary")}
+    S3 = ap3_inputs(dev)
+    if S3 is not None:
+        blocks["AP3"] = ap3_block(mk, dev, cost, cfg, S3)
     approaches = {k: approach_block(*meta[k], blocks[k], P, k) for k in blocks}
-    approaches["AP3"] = ap3_status()
+    if S3 is None:
+        approaches["AP3"] = ap3_status()
+    else:
+        # genuine outputs exist, but the gates still failed: the scenarios are computed and stay labelled as such
+        from native_backtest.ap3 import exploratory as X
+        g = (S3["summary"].get("gates") or {})
+        approaches["AP3"].update({
+            "status": "COMPUTED - EXPLORATORY, RELIABILITY GATES FAILED" if S3["exploratory"] else "computed",
+            "designation": X.LABEL,
+            "validated": False,
+            "gates": {k2: v.get("pass") for k2, v in g.items()},
+            "gates_failed": {k2: v.get("checks") for k2, v in g.items() if v.get("pass") is False},
+            "model_substitution": S3["summary"].get("model_substitution"),
+            "agent_months": S3["summary"].get("n_months"),
+            "caveat": ("These scenarios run on genuine qwen3:4b agent outputs that did NOT pass the pre-registered "
+                       "reliability gates. They are diagnostics of signal transmission, not evidence that the agents "
+                       "are reliable or that AI adds investment value."),
+            "categorical_note": ("Supported, Contradicted and Insufficient were never scaled. They are encoded and "
+                                 "calibrated into a numerical view upstream exactly as in the archived run; only that "
+                                 "view is rescaled.")})
 
     bad = [k for k, v in blocks.items() if not v["reproduction"]["within_tolerance"]]
     if bad:
@@ -606,7 +756,11 @@ def main(argv=None) -> int:
             "The 2x scenario is a diagnostic stress test. It is not a recommendation, and it was not selected on any criterion.",
             "This experiment measures signal transmission, not signal predictive quality. A portfolio can respond strongly to an uninformative view, and a useful view can be attenuated to nothing.",
             "The approaches hold different assets (SPY/IEF/LQD against SPY/TLT) with different neutral portfolios and different risk structures, so weight responses are comparable only in relative terms.",
-            "Causal RAG is not included: no calibrated view series exists for the development window.",
+            ("Causal RAG is included only as an EXPLORATORY diagnostic: its genuine qwen3:4b outputs failed both "
+             "pre-registered reliability gates, so its scenarios describe how its allocator transmits a view, not "
+             "whether that view is trustworthy."
+             if "AP3" in blocks else
+             "Causal RAG is not included: no calibrated view series exists for the development window."),
         ],
     }
     (OUT / "forecast_to_allocation_sensitivity.json").write_text(json.dumps(report, indent=1, default=float) + "\n")

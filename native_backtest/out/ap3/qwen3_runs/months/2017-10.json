@@ -1,0 +1,2877 @@
+{
+ "month": "2017-10",
+ "decision_time": "2017-10-31T20:00:00-04:00",
+ "graph_vintage": 2016,
+ "event": [
+  {
+   "description": "Average hourly earnings release",
+   "direction": "above consensus",
+   "surprise_z": 2.218,
+   "trigger": "AHE"
+  },
+  {
+   "description": "ISM manufacturing survey",
+   "direction": "above consensus",
+   "surprise_z": 1.748,
+   "trigger": "ISM_MANUFACTURING"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "below consensus",
+   "surprise_z": -2.859,
+   "trigger": "NFP"
+  },
+  {
+   "change": 0.1,
+   "date": "2017-10-20",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.84
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 2.218,
+  "CORE_CPI": -0.339,
+  "CPI": -0.635,
+  "INDUSTRIAL_PRODUCTION": 0.422,
+  "ISM_MANUFACTURING": 1.748,
+  "NFP": -2.859,
+  "PPI": -0.247,
+  "RETAIL_SALES": -0.224
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "paths",
+    "args": {
+     "source": "AHE",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "AHE",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "AHE",
+     "limit": 10
+    },
+    "repeat_of": 1
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "average hourly earnings",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "average hourly earnings",
+     "limit": 10
+    },
+    "repeat_of": 3
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "nominal wages",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "nominal wages",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "S&P 500",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "S&P 500",
+     "limit": 10
+    },
+    "repeat_of": 10
+   }
+  ],
+  "turns": 13,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 3,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "AHE",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2524,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "AHE",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2650,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "AHE",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2700,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "average hourly earnings",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2787,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "average hourly earnings",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2883,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "nominal wages",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2971,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "nominal wages",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3259,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3382,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3664,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3963,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "S&P 500",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4013,
+     "completion_tokens": 45
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 11,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "S&P 500",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4405,
+     "completion_tokens": 45
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 12,
+    "action": "final",
+    "hypotheses": 4,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4497,
+     "completion_tokens": 655
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2017-10-H1",
+   "trigger": "AHE",
+   "channel": "inflation",
+   "mechanism": "Nominal wages increase leads to higher inflation, which increases stock returns through output growth",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2016-152ed42a609b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP6429",
+     "year": 2007,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 40,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 20
+    },
+    "sha256": "cfaef046b85027899c51895f0533c4092df646c48e58886de6e8b406b6acf997",
+    "latest_available_at": "2017-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year U.S. Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases, contradicting the hypothesis that nominal wages increase leads to higher inflation and higher stock returns"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases, contradicting the hypothesis that higher inflation increases stock returns through output growth"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases, contradicting the hypothesis that higher inflation increases stock returns"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If IEF increases, contradicting the hypothesis that higher inflation increases stock returns"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% and VIX < 15 in 2017-10",
+       "SPY > 2500 and IEF < 100 in 2017-10"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% and VIX > 15 in 2017-10",
+       "SPY < 2500 and IEF > 100 in 2017-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2017-10-31#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000",
+       "DN_BEI5Y_AHE_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.03 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.03 after AHE release, indicating higher inflation expectations, which supports the mechanism of nominal wage increases leading to higher inflation and increased stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.03 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.03 after AHE release, suggesting higher inflation expectations, which could lead to decreased Treasury prices (IEF) as investors seek higher returns in equities.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "AHE release was significantly above consensus, indicating strong wage growth, which could drive inflation and equity returns through the mechanism described.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "AHE release was significantly above consensus, suggesting higher inflation expectations that could lead to decreased Treasury prices (IEF) as investors shift funds to equities.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) increases",
+       "would_contradict": "If UST10Y decreases, it contradicts the hypothesis that nominal wages increase leads to higher inflation, which increases stock returns through output growth."
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases, it contradicts the hypothesis that nominal wages increase leads to higher inflation, which increases stock returns through output growth."
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases, it contradicts the hypothesis that nominal wages increase leads to higher inflation, which increases stock returns through output growth."
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that nominal wages increase leads to higher inflation, which increases stock returns through output growth."
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% and VIX < 15 in 2017-10",
+       "SPY > 2500 and IEF < 100 in 2017-10"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% and VIX > 15 in 2017-10",
+       "SPY < 2500 and IEF > 100 in 2017-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2017-10-31#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000",
+       "DN_BEI5Y_AHE_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 2.2 std above consensus, supporting the link's mechanism (wages increase -> inflation -> equity returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 2.2 std above consensus, supporting the link's mechanism (wages increase -> inflation -> equity returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 2.2 std above consensus, supporting the link's mechanism (wages -> unemployment -> inflation -> equity returns).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 2.2 std above consensus, supporting the link's mechanism (wages -> unemployment -> inflation -> equity returns).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign -1) instead of increasing (sign 1) as predicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign -1) instead of decreasing (sign -1) as predicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2017-10-01 AND UST10Y < 2017-10-31",
+       "VIX < 2017-10-01 AND VIX > 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2017-10-01 AND UST10Y > 2017-10-31",
+       "VIX > 2017-10-01 AND VIX < 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2017-10-31#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000",
+       "DN_BEI5Y_AHE_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The AHE release was significantly above consensus, suggesting a strong wage increase signal. However, no direct evidence on SPY movement is provided in the excerpts.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.08 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Both excerpts show a decline in the credit spread proxy, but neither directly links to IEF price changes or provides evidence on the direction of Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 2.2 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.08 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The AHE release was above consensus, but no evidence on SPY movement or the mechanism's intermediate steps is provided.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.08 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Both excerpts show a decline in the credit spread proxy, but neither directly links to IEF price changes or provides evidence on the direction of Treasury prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-10-H2",
+   "trigger": "ISM_MANUFACTURING",
+   "channel": "growth",
+   "mechanism": "Manufacturing growth increases output, which boosts stock returns through inflation channels",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2016-a7aba33b0b6a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0949",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6541",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w13328",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 15,
+     "data_note": 20
+    },
+    "sha256": "6b12f89e21d903239b07a9599cacee19b96a296ee6ff6163b078f948117d161c",
+    "latest_available_at": "2017-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-8346f359463c",
+      "mechanism": "output growth -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-10",
+       "VIX in 2017-10",
+       "SPY returns in 2017-10"
+      ],
+      "contradicting": [
+       "UST10Y increases in 2017-10",
+       "VIX increases in 2017-10",
+       "SPY decreases in 2017-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The ISM manufacturing survey data shows a surprise, but does not indicate direction of impact on SPY prices over next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey shows a surprise, but does not indicate direction of impact on IEF prices over next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey shows a surprise, but does not indicate direction of impact on SPY prices over next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey shows a surprise, but does not indicate direction of impact on IEF prices over next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign should be -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1) then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-8346f359463c",
+      "mechanism": "output growth -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-10",
+       "VIX in 2017-10",
+       "SPY returns in 2017-10"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-10",
+       "VIX in 2017-10",
+       "SPY returns in 2017-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was above consensus, suggesting positive manufacturing activity, which could drive equity prices (SPY) via the hypothesised inflation channel.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to IEF (7-10yr Treasury prices) movements. Excerpts describe yield spreads but not IEF-specific changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2017-10-06",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread fell, indicating lower long-term yields, which contradicts the mechanism that output growth would increase inflation and thus reduce SPY prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2017-10-06",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell, suggesting lower long-term yields, which aligns with the mechanism that output growth would increase inflation and thus increase IEF (7-10yr Treasury prices).",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) decreases",
+       "would_contradict": "If VIX increases instead of decreases"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases instead of increases"
+      },
+      {
+       "observable": "IEF (10-year Treasury ETF) decreases",
+       "would_contradict": "If IEF increases instead of decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-8346f359463c",
+      "mechanism": "output growth -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2017-10-01 to 2017-10-31",
+       "VIX from 2017-10-01 to 2017-10-31",
+       "SPY from 2017-10-01 to 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y from 2017-10-01 to 2017-10-31",
+       "VIX from 2017-10-01 to 2017-10-31",
+       "SPY from 2017-10-01 to 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was above expectations, suggesting positive manufacturing activity that could boost equity prices via output growth and inflation channels.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link ISM manufacturing to IEF (7-10 year Treasury prices) movements. Excerpts focus on spreads and yields but do not specify IEF behavior.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2017-10-31",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 1.7 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "ISM manufacturing survey exceeded expectations, implying output growth that could drive inflation and nominal interest rates, supporting stock price increases.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts describe yield spreads but do not connect ISM manufacturing to IEF (7-10 year Treasury prices) movements. No evidence of inverse relationship.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-10-H3",
+   "trigger": "NFP",
+   "channel": "inflation",
+   "mechanism": "Lower unemployment leads to higher inflation, which increases stock returns through output growth",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2016-bac70b16a909": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 42,
+    "by_kind": {
+     "research_claim": 22,
+     "data_note": 20
+    },
+    "sha256": "34fb2042d005815749b8667417b22794f7a99e4d6f8489239b9abb218890c1cd",
+    "latest_available_at": "2017-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign 1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2017-01-01 to 2017-10-31",
+       "VIX from 2017-01-01 to 2017-10-31",
+       "SPY from 2017-01-01 to 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y from 2017-01-01 to 2017-10-31",
+       "VIX from 2017-01-01 to 2017-10-31",
+       "SPY from 2017-01-01 to 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_UST2Y_NFP_2017-10-06#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2017-10-31#c000",
+       "DN_BEI5Y_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread fell by -0.02 over the period, indicating a compression, which may support the link as lower unemployment (from NFP) could lead to higher inflation and thus higher equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread fell by -0.02, suggesting compression, which may support the link as lower unemployment (from NFP) could lead to higher inflation and thus higher equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread fell by -0.02, indicating compression, which may support the link as lower unemployment (from NFP) could lead to higher inflation and thus higher equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread fell by -0.02, suggesting compression, which may support the link as lower unemployment (from NFP) could lead to higher inflation and thus higher equity returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX increases (sign should be -1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-1bc9fd0f84ce",
+      "mechanism": "employment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-10",
+       "VIX in 2017-10",
+       "SPY returns in 2017-10"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-10",
+       "VIX in 2017-10",
+       "SPY returns in 2017-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2017-10-31#c000",
+       "DN_UST2Y_NFP_2017-10-06#c000",
+       "DN_BEI5Y_NFP_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The excerpt indicates the NFP release was significantly below consensus (2.9 std dev), suggesting strong market reaction. However, it does not directly link to SPY price changes over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.09 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The NFP release caused a small decrease in the 10Y-3M yield spread (supporting IEF decrease), but 2Y yield increased (contradicting IEF decrease).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The NFP release was significantly below consensus (2.9 std dev), suggesting strong market reaction to higher employment, which could increase equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.03 (-0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.09 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The NFP release caused a small decrease in the 10Y-3M yield spread (supporting IEF decrease), but 2Y yield increased (contradicting IEF decrease).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y rises (sign +1) instead of falling (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX rises (sign +1) instead of falling (sign -1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY falls instead of rising"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF rises instead of falling"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-fa515942ddcb",
+      "mechanism": "unemployment -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2017-10-01 to 2017-10-31",
+       "VIX < 15 in 2017-10-01 to 2017-10-31",
+       "SPY > 200 in 2017-10-01 to 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2017-10-01 to 2017-10-31",
+       "VIX > 15 in 2017-10-01 to 2017-10-31",
+       "SPY < 200 in 2017-10-01 to 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_NFP_2017-10-31#c000",
+       "DN_UST2Y_NFP_2017-10-06#c000",
+       "DN_BEI5Y_NFP_2017-10-06#c000",
+       "DN_CPI_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The NFP release was significantly below consensus, suggesting strong labor market impact, but the quote doesn't directly link to SPY movements. No other excerpts mention SPY.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The NFP release was significantly below consensus, but no excerpts directly link it to IEF movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The NFP release was significantly below consensus, but no excerpts directly link it to SPY movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_NFP_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Nonfarm payrolls release: the latest release before the decision time came in 2.9 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The NFP release was significantly below consensus, but no excerpts directly link it to IEF movements.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-10-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "inflation",
+   "mechanism": "Market stress increases volatility, which drives inflation and output growth, boosting stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2016-6517235006e4": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 39,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 20
+    },
+    "sha256": "924a6222b6774536a3c34b31998ca75b4d6731057fccc20f05f08525ade140dd",
+    "latest_available_at": "2017-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year U.S. Treasury yield)",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index)",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF)",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign +1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF)",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-02cb13cc390b",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2017-01-01 to 2017-10-31",
+       "VIX from 2017-01-01 to 2017-10-31",
+       "SPY from 2017-01-01 to 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y from 2017-01-01 to 2017-10-31",
+       "VIX from 2017-01-01 to 2017-10-31",
+       "SPY from 2017-01-01 to 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_UST2Y_NFP_2017-10-06#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_NFP_2017-10-06#c000",
+       "DN_BEI5Y_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.09 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread fell slightly (-0.02pp), while 2Y yield rose (+0.09pp). Both are market data notes but describe different yields without connecting to market stress or SPY.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series rose by +0.09 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread fell slightly (-0.02pp), while 2Y yield rose (+0.09pp). Both are market data notes but describe different yields without connecting to market stress or IEF.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2017-10-01 and 2017-10-30 the series rose by +0.09 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5Y breakeven inflation rose (+0.09pp), while credit spreads fell (-0.08pp). Both are market data notes but describe different indicators without connecting to market stress or SPY.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2017-10-01 and 2017-10-30 the series rose by +0.09 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_NFP_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Nonfarm payrolls release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5Y breakeven inflation rose (+0.09pp), while credit spreads fell (-0.08pp). Both are market data notes but describe different indicators without connecting to market stress or IEF.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1) then hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1) then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-02cb13cc390b",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0.01 AND VIX > 0.01 AND SPY > 0.01 AND IEF < 0.01",
+       "UST10Y < 0.01 AND VIX < 0.01 AND SPY < 0.01 AND IEF > 0.01"
+      ],
+      "contradicting": [
+       "UST10Y > 0.01 AND VIX < 0.01 AND SPY < 0.01 AND IEF > 0.01",
+       "UST10Y < 0.01 AND VIX > 0.01 AND SPY > 0.01 AND IEF < 0.01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2017-10-01 and 2017-10-30 the series rose by +0.09 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "Quotes describe yield spread and inflation rate changes but do not directly link market stress to SPY movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-10-01 and 2017-10-30 the series fell by -0.08 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2017-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2017-10-01 and 2017-10-30 the series rose by +0.11 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-10-31 18:00 ET."
+        }
+       ],
+       "explanation": "Quotes describe credit spreads and yield changes but do not directly link market stress to IEF movements.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No relevant quotes found for the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No relevant quotes found for the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-02cb13cc390b",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-10-01 to 2017-10-31",
+       "VIX in 2017-10-01 to 2017-10-31",
+       "SPY returns in 2017-10-01 to 2017-10-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-10-01 to 2017-10-31",
+       "VIX in 2017-10-01 to 2017-10-31",
+       "SPY returns in 2017-10-01 to 2017-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2017-10-31#c000",
+       "DN_BEI5Y_2017-10-31#c000",
+       "DN_SLOPE_10Y3M_2017-10-31#c000",
+       "DN_IG_SPREAD_2017-10-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_NFP_2017-10-06#c000",
+       "DN_SLOPE_10Y3M_AHE_2017-10-06#c000",
+       "DN_IG_SPREAD_NFP_2017-10-06#c000",
+       "DN_IG_SPREAD_AHE_2017-10-06#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_NFP_2017-10-06#c000",
+       "DN_UST2Y_AHE_2017-10-06#c000",
+       "DN_BEI5Y_NFP_2017-10-06#c000",
+       "DN_BEI5Y_AHE_2017-10-06#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a decline in credit spread (negative change) from pre-AHE release to decision time, consistent with market stress reducing credit risk, which could support higher equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread decline indicates market stress, which could lead to lower Treasury prices (higher yields) as investors seek safety, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread decline suggests market stress reducing credit risk, which could boost equity returns via increased risk appetite, supporting the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_AHE_2017-10-06#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Average hourly earnings release on 2017-10-06 (08:30 ET) to the latest value published by the decision time (2017-10-30), the series fell by -0.08 (-0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread decline implies market stress, which could lead to lower Treasury prices (higher yields) as investors shift to equities, supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-30",
+       "change": 0.040000000000000036,
+       "z": 0.21310125794657964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2017-10-01",
+       "window_end": "2017-10-31",
+       "change": 0.6699999999999999,
+       "z": 0.15239827944127396,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Supported"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 2.0
+  },
+  "IEF": {
+   "F_S": -2.0,
+   "F_C": 0.0,
+   "F_I": -2.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "ef8edb1f268075d841031f61f8c32908c4c29dc06580d65f5e69a1fe429433fe",
+ "packet_sha256": "b30d1cea8830e835b0cdb1f696d4709f3a1a6050d3ac71e6636d3dc3946654f7",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

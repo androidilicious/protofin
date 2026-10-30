@@ -1,0 +1,2494 @@
+{
+ "month": "2022-08",
+ "decision_time": "2022-08-31T20:00:00-04:00",
+ "graph_vintage": 2021,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.625,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "CPI release",
+   "direction": "below consensus",
+   "surprise_z": -2.486,
+   "trigger": "CPI"
+  },
+  {
+   "description": "Nonfarm payrolls release",
+   "direction": "above consensus",
+   "surprise_z": 1.244,
+   "trigger": "NFP"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -3.648,
+   "trigger": "PPI"
+  },
+  {
+   "change": -0.22,
+   "date": "2022-08-01",
+   "days_at_or_above_threshold": 6,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -3.94
+  },
+  {
+   "change": -0.09,
+   "date": "2022-08-02",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": -2.29
+  },
+  {
+   "change": 0.15,
+   "date": "2022-08-02",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.71
+  },
+  {
+   "change": 0.21,
+   "date": "2022-08-05",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 4.46
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.863,
+  "CORE_CPI": -1.625,
+  "CPI": -2.486,
+  "INDUSTRIAL_PRODUCTION": 0.39,
+  "ISM_MANUFACTURING": 0.745,
+  "NFP": 1.244,
+  "PPI": -3.648,
+  "RETAIL_SALES": -0.163
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "stock returns",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "stock returns",
+     "max_paths": 25
+    },
+    "repeat_of": 1
+   }
+  ],
+  "turns": 4,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4282,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "stock returns",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4570,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "stock returns",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4766,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4860,
+     "completion_tokens": 992
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2022-08-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "Core inflation below consensus leads to lower expected inflation, reducing output growth and stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-0bc0fbcf0535": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w22948",
+     "year": 2016,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1077",
+     "year": 1983,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w22140",
+     "year": 2016,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP1995",
+     "year": 1998,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 45,
+    "by_kind": {
+     "research_claim": 17,
+     "data_note": 28
+    },
+    "sha256": "29e55ae0a252db841b1a8b5fa7a34329545fcd074e5c8590ebc5f74e9a03dc67",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduces stock returns."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduces stock returns."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduces stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduces stock returns."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduces stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-08-31",
+       "UST10Y in 2022-08-31",
+       "SPY returns in 2022-08-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-08-31",
+       "UST10Y in 2022-08-31",
+       "SPY returns in 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_IG_SPREAD_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_NFP_2022-08-05#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after CPI release, indicating market stress that could reflect expectations of lower inflation post-release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise after CPI release suggests market stress that could indicate lower Treasury prices due to inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after Core CPI release, indicating lower corporate bond prices (LQD) as expected.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after CPI release, indicating market stress that could reflect lower equity prices (SPY) due to inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise after CPI release suggests market stress that could indicate lower Treasury prices (IEF) due to inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after Core CPI release, indicating lower corporate bond prices (LQD) as expected.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreases, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-08-31",
+       "UST10Y in 2022-08-31",
+       "SPY returns in 2022-08-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M increases in 2022-08-31",
+       "UST10Y increases in 2022-08-31",
+       "SPY increases in 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_IG_SPREAD_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_NFP_2022-08-05#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose by +4.10 points after Core CPI release, indicating increased market stress, which aligns with the mechanism where core inflation below consensus leads to lower expected inflation and reduced stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.09 percentage points after Core CPI release, indicating lower risk premiums, consistent with core inflation below consensus reducing expected inflation and stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.21 percentage points over the period, indicating lower investment-grade corporate bond prices, supporting the mechanism where core inflation below consensus reduces expected inflation and stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose by +4.10 points after CPI release, indicating increased market stress, which aligns with the mechanism where core inflation below consensus leads to lower expected inflation and reduced equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.21 percentage points over the period, indicating lower investment-grade corporate bond prices, supporting the mechanism where core inflation below consensus reduces expected inflation and equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.21 percentage points over the period, indicating lower investment-grade corporate bond prices, consistent with the mechanism where core inflation below consensus reduces expected inflation and equity returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduced stock returns."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduced stock returns."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduced stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduced stock returns."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (positive) instead of decreasing, it contradicts the hypothesis that core inflation below consensus leads to lower expected inflation and reduced stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-7658a3d76299",
+      "mechanism": "core inflation -> output gap -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "core inflation below consensus in 2022-08",
+       "SLOPE_10Y3M trend in 2022-08",
+       "UST10Y rates in 2022-08"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M increasing in 2022-08",
+       "UST10Y decreasing in 2022-08",
+       "SPY increasing in 2022-08"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000",
+       "DN_BEI5Y_PPI_2022-08-11#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_VIX_2022-08-31#c000",
+       "DN_IG_SPREAD_2022-08-31#c000",
+       "DN_UST2Y_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.18 after Core CPI release, indicating higher risk aversion, which supports the link to lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.18 after Core CPI release, indicating higher risk aversion, which supports the link to lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.09 after Core CPI release, indicating lower risk, which supports the link to lower corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose by +4.10 after Core CPI release, indicating increased market volatility, which supports the link to lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.18 after Core CPI release, indicating higher risk aversion, which supports the link to lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.09 after Core CPI release, indicating lower risk, which supports the link to lower corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-08-H2",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "CPI below consensus leads to lower expected inflation, reducing output growth and stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-0bc0fbcf0535": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w22948",
+     "year": 2016,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1077",
+     "year": 1983,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w22140",
+     "year": 2016,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP1995",
+     "year": 1998,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 44,
+    "by_kind": {
+     "research_claim": 16,
+     "data_note": 28
+    },
+    "sha256": "ae1075b9552dccc5a09e0374410c0eb80ddd48a4a6030775d367ba44571b44f9",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation and reduces output growth and stock returns."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation and reduces output growth and stock returns."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation and reduces output growth and stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation and reduces output growth and stock returns."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation and reduces output growth and stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-34dc68cf1c0b",
+      "mechanism": "inflation -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "CPI below consensus in 2022-08, SLOPE_10Y3M",
+       "CPI below consensus in 2022-08, UST10Y",
+       "CPI below consensus in 2022-08, SPY returns"
+      ],
+      "contradicting": [
+       "CPI below consensus in 2022-08, SLOPE_10Y3M increasing",
+       "CPI below consensus in 2022-08, UST10Y increasing",
+       "CPI below consensus in 2022-08, SPY increasing"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_CPI_2022-08-31#c000",
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_PPI_2022-08-31#c000",
+       "DN_RETAIL_SALES_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000",
+       "DN_VIX_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release was 2.5 std below consensus, suggesting lower inflation expectations which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.01 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rose slightly after CPI release, indicating potential lower inflation expectations affecting Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after CPI release, suggesting lower corporate bond prices due to reduced inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after CPI release, indicating increased market stress which could reflect lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.01 (+0.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rose slightly after CPI release, suggesting potential lower Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after CPI release, indicating lower corporate bond prices due to reduced inflation expectations.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation, reducing output growth and stock returns."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation, reducing output growth and stock returns."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation, reducing output growth and stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation, reducing output growth and stock returns."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (positive) instead of decreasing, it contradicts the hypothesis that CPI below consensus leads to lower expected inflation, reducing output growth and stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "CPI below consensus in 2022-08, SLOPE_10Y3M",
+       "CPI below consensus in 2022-08, UST10Y",
+       "CPI below consensus in 2022-08, SPY returns"
+      ],
+      "contradicting": [
+       "CPI below consensus in 2022-08, SLOPE_10Y3M increasing",
+       "CPI below consensus in 2022-08, UST10Y decreasing",
+       "CPI below consensus in 2022-08, SPY increasing"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_CPI_2022-08-31#c000",
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_PPI_2022-08-31#c000",
+       "DN_RETAIL_SALES_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000",
+       "DN_VIX_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CPI_2022-08-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release was 2.5 std below consensus, suggesting lower inflation expectations, which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release below consensus implies lower inflation expectations, which could reduce Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices, consistent with lower inflation expectations.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release below consensus suggests lower inflation expectations, which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 2.5 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "CPI release below consensus implies lower inflation expectations, which could reduce Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series fell by -0.09 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices, consistent with lower inflation expectations.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreases, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-08-31",
+       "UST10Y in 2022-08-31",
+       "SPY returns in 2022-08-31"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2022-08-31",
+       "UST10Y > 0 in 2022-08-31",
+       "SPY > 0 in 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_IG_SPREAD_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000",
+       "DN_VIX_NFP_2022-08-05#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-08-31#c000",
+       "DN_CORE_CPI_2022-08-31#c000",
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX rose significantly after Core CPI release, indicating increased market stress and potential negative reaction to inflation data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yield rose after Core CPI release, suggesting potential bond market reaction to inflation data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after CPI release, indicating potential decrease in corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after Core CPI release, indicating market stress and potential negative reaction to inflation data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-30), the series rose by +0.18 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yield rose after Core CPI release, suggesting potential bond market reaction to inflation data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell after CPI release, indicating potential decrease in corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.1,
+       "z": 0.35559006633067636,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-08-H3",
+   "trigger": "NFP",
+   "channel": "growth",
+   "mechanism": "Nonfarm payrolls above consensus leads to higher unemployment, increasing inflation and stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-bac70b16a909": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w7328",
+     "year": 1999,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w8940",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w17044",
+     "year": 2011,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP10567",
+     "year": 2015,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25512",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP15210",
+     "year": 2020,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    },
+    {
+     "paper_id": "w28005",
+     "year": 2020,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP16557",
+     "year": 2021,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 36,
+    "by_kind": {
+     "research_claim": 8,
+     "data_note": 28
+    },
+    "sha256": "da460d231ba6dcc22d81ed94c0f417ceea1e293182fefae80d8cd83d54164acf",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-08-H3_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-08-H4",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "PPI below consensus leads to lower expected inflation, reducing output growth and stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-0bc0fbcf0535": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w22948",
+     "year": 2016,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1077",
+     "year": 1983,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w22140",
+     "year": 2016,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP1995",
+     "year": 1998,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 44,
+    "by_kind": {
+     "research_claim": 16,
+     "data_note": 28
+    },
+    "sha256": "ae1075b9552dccc5a09e0374410c0eb80ddd48a4a6030775d367ba44571b44f9",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-08-H4_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-08-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia and lower bond prices",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 49,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 28
+    },
+    "sha256": "4dae204b2340a7ec84f8b7253b5420b077c0a887041f9ad4616211a859273477",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2022-08-H5_s2: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-08-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia and lower bond prices",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 53,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 33
+    },
+    "sha256": "59fc4fb90082ff9c2a3d2395e943345e9f8e03338e64a5b1dea118d3b04899e3",
+    "latest_available_at": "2022-08-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases, then the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases, then the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-6517235006e4",
+      "mechanism": "volatility -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-08-31",
+       "SPY in 2022-08-31",
+       "IEF in 2022-08-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2022-08-31",
+       "SPY in 2022-08-31",
+       "IEF in 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_SLOPE_10Y3M_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-08-31#c000",
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_PPI_2022-08-11#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-08-01 and 2022-08-31 the series rose by +3.03 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 3.03 points over the period, indicating market stress that could lead to lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2022-08-01 and 2022-08-30 the series rose by +0.56 (+2.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yield rose significantly, suggesting market stress could lower bond prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices (LQD) due to market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-08-01 and 2022-08-31 the series rose by +3.03 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose, indicating market stress that could lead to lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2022-08-01 and 2022-08-30 the series rose by +0.56 (+2.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yield rose significantly, suggesting market stress could lower bond prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices (LQD) due to market stress.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign +1) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-6517235006e4",
+      "mechanism": "volatility -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2022-08-31",
+       "SPY in 2022-08-31",
+       "IEF in 2022-08-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2022-08-31",
+       "SPY in 2022-08-31",
+       "IEF in 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_SLOPE_10Y3M_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-08-31#c000",
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_PPI_2022-08-11#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-08-01 and 2022-08-31 the series rose by +3.03 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +3.03 points over the period, indicating market stress that could lead to lower equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices, consistent with market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-08-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower corporate bond prices, consistent with market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No evidence of volatility -> inflation -> output -> stock returns mechanism in provided data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No evidence of volatility -> inflation -> output -> stock returns mechanism in provided data.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No evidence of volatility -> inflation -> output -> stock returns mechanism in provided data.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that market stress increases volatility leading to higher risk premia and lower bond prices (as UST10Y should decrease)."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases, it contradicts the hypothesis that market stress leads to lower stock prices (as SPY should decrease)."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that market stress leads to lower bond prices (as IEF should decrease)."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases, it contradicts the hypothesis that market stress leads to lower bond prices (as LQD should decrease)."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y < 2022-08-31",
+       "SPY < 2022-08-31",
+       "IEF < 2022-08-31"
+      ],
+      "contradicting": [
+       "UST10Y > 2022-08-31",
+       "SPY > 2022-08-31",
+       "IEF > 2022-08-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-08-31#c000",
+       "DN_UST2Y_2022-08-31#c000",
+       "DN_BEI5Y_2022-08-31#c000",
+       "DN_SLOPE_10Y3M_2022-08-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-08-31#c000",
+       "DN_VIX_CPI_2022-08-10#c000",
+       "DN_VIX_PPI_2022-08-11#c000",
+       "DN_VIX_CORE_CPI_2022-08-10#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_CPI_2022-08-10#c000",
+       "DN_UST2Y_PPI_2022-08-11#c000",
+       "DN_UST2Y_CORE_CPI_2022-08-10#c000",
+       "DN_BEI5Y_CPI_2022-08-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 4.10 points after CPI release, indicating market stress. This supports the link where market stress (large moves) leads to lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 4.10 points after CPI release, indicating market stress. This supports the link where market stress leads to lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premia, which supports market stress leading to lower corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by 4.10 points after CPI release, indicating market stress which contradicts the link where market stress leads to higher equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-08-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-08-10 (08:30 ET) to the latest value published by the decision time (2022-08-31), the series rose by +4.10 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose by 4.10 points after CPI release, indicating market stress which contradicts the link where market stress leads to higher Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-08-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-08-01 and 2022-08-30 the series fell by -0.21 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Credit spread fell, indicating lower risk premia, which contradicts the link where market stress leads to higher corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-08-01",
+       "window_end": "2022-08-30",
+       "change": 0.5099999999999998,
+       "z": 2.1838680827796146,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -6.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -6.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -6.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "879b0de945ec0418c1438014c6f49f73c61379b52170564c7653b1cbb06918c1",
+ "packet_sha256": "17c56a9f64496aa1431ad449e449b0eff16cfd6fee4836bec9fd696be7dcc488",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

@@ -1,0 +1,3490 @@
+{
+ "month": "2016-09",
+ "decision_time": "2016-09-30T20:00:00-04:00",
+ "graph_vintage": 2015,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "above consensus",
+   "surprise_z": 1.354,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "CPI release",
+   "direction": "above consensus",
+   "surprise_z": 1.625,
+   "trigger": "CPI"
+  },
+  {
+   "description": "ISM manufacturing survey",
+   "direction": "below consensus",
+   "surprise_z": -2.312,
+   "trigger": "ISM_MANUFACTURING"
+  },
+  {
+   "date": "2016-09-21",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 4.99,
+   "date": "2016-09-09",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": 3.44
+  },
+  {
+   "change": -0.1,
+   "date": "2016-09-26",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.15
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.565,
+  "CORE_CPI": 1.354,
+  "CPI": 1.625,
+  "INDUSTRIAL_PRODUCTION": -0.49,
+  "ISM_MANUFACTURING": -2.312,
+  "NFP": -0.546,
+  "PPI": -0.111,
+  "RETAIL_SALES": -0.709
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing survey",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing survey",
+     "limit": 10
+    },
+    "repeat_of": 4
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core cpi",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "repeat_of": 9
+   }
+  ],
+  "turns": 12,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 3,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3399,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3477,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3760,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3810,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing survey",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3897,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "ISM manufacturing survey",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3948,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4036,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4340,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core cpi",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4644,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4772,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4851,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 11,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4940,
+     "completion_tokens": 966
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2016-09-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "Inflation leads to monetary policy adjustments, which affect output and stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 24
+    },
+    "sha256": "b8dd2e784747366edc3f3402c49ce55ac83c7e8062a75433fc1bcf56d8a94429",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index)",
+       "would_contradict": "If VIX decreases instead of increases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY (S&P 500 ETF)",
+       "would_contradict": "If SPY decreases instead of increases, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities)",
+       "would_contradict": "If IEF increases instead of decreases, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+       "DN_IG_SPREAD_CORE_CPI_2016-09-16#c000",
+       "DN_CPI_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.4 std above consensus, suggesting inflationary pressure that could drive monetary policy adjustments and stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M Treasury yield spread fell by 0.12 pp, indicating tighter market conditions that could lower Treasury prices (IEF) as inflation rises.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was 1.4 std above consensus, suggesting inflationary pressure that could drive monetary policy adjustments and stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M Treasury yield spread fell by 0.12 pp, indicating tighter market conditions that could lower Treasury prices (IEF) as inflation rises.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1, but it rises)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be +1, but it falls)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be +1, but it falls)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1, but it rises)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+       "DN_IG_SPREAD_CORE_CPI_2016-09-16#c000",
+       "DN_CPI_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) from CPI release to decision time, indicating rising inflation expectations, which supports the link via monetary policy adjustments.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell by -0.12 (0.9 std dev) from Core CPI release to decision time, indicating tighter Treasury market conditions, supporting the link via monetary policy adjustments.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev), indicating rising inflation expectations, which supports the mechanism through monetary policy adjustments.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell by -0.12 (0.9 std dev), indicating tighter Treasury market conditions, supporting the mechanism through monetary policy adjustments.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) instead of decreasing"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) instead of increasing"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign: 1) instead of increasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign: -1) instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+       "DN_IG_SPREAD_CORE_CPI_2016-09-16#c000",
+       "DN_CPI_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) after Core CPI release, suggesting inflation expectations increased, which could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) after Core CPI release, indicating higher inflation expectations which typically decrease long-term Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) after Core CPI release, suggesting inflation expectations increased, which could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) after Core CPI release, indicating higher inflation expectations which typically decrease long-term Treasury prices (IEF).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-09-H2",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "Inflation drives monetary policy changes, impacting output and stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 24
+    },
+    "sha256": "b8dd2e784747366edc3f3402c49ce55ac83c7e8062a75433fc1bcf56d8a94429",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that inflation drives monetary policy changes leading to lower 10-year yields"
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases, it contradicts the hypothesis that inflation leads to higher volatility"
+      },
+      {
+       "observable": "SPY (S&P 500) increases",
+       "would_contradict": "If SPY decreases, it contradicts the hypothesis that inflation leads to higher stock returns"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that inflation leads to lower IEF returns"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-09-30#c000",
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        },
+        {
+         "chunk_id": "DN_CORE_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both CPI and Core CPI releases were significantly above consensus expectations, indicating strong inflationary pressure that could drive monetary policy changes, supporting the link to increased equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread increased by 0.06 percentage points, suggesting higher long-term yields, which could indicate a decline in Treasury prices (IEF), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, CPI release: the latest release before the decision time came in 1.6 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        },
+        {
+         "chunk_id": "DN_CORE_CPI_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.4 standard deviations above the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both CPI and Core CPI releases were significantly above consensus, indicating strong inflationary pressure that could drive monetary policy changes, supporting the link to increased equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread increased by 0.06 percentage points, suggesting higher long-term yields, which could indicate a decline in Treasury prices (IEF), supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury bond futures) decreases",
+       "would_contradict": "If IEF increases, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-09-30#c000",
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) from CPI release to decision time, indicating rising inflation expectations, which supports the link via inflation-driven monetary policy changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by -0.12 (0.9 std dev) from Core CPI release to decision time, indicating a narrowing spread, which supports the link via inflation-driven monetary policy changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) from CPI release to decision time, indicating rising inflation expectations, which supports the link via inflation->money growth->output->stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by -0.12 (0.9 std dev) from Core CPI release to decision time, indicating a narrowing spread, which supports the link via inflation->money growth->output->stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index)",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1) as predicted"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF)",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign 1) as predicted"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF)",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) as predicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2016-09-30#c000",
+       "DN_CORE_CPI_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-09-01 and 2016-09-29 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show a positive rise in 5-year breakeven inflation rate (0.13 and 0.20) from Core CPI release to decision time, indicating inflationary pressure that could drive equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts indicate a negative yield spread (falling by 0.12) from CPI release to decision time, suggesting higher Treasury prices (IEF) as inflation rises.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.01 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_UST2Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2016-09-01 and 2016-09-29 the series fell by -0.05 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yields fell (0.01 and 0.05), indicating rising bond prices, which could correlate with equity price increases (SPY) due to inflationary pressure.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell (0.12) from Core CPI release, indicating higher 10-year Treasury prices (IEF) as inflation rises.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 4,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 4,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-09-H3",
+   "trigger": "ISM_MANUFACTURING",
+   "channel": "growth",
+   "mechanism": "Manufacturing activity decline reduces output, leading to lower stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "Medium",
+   "confidence_applied": "Medium",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2015-a7aba33b0b6a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4846",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0949",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6541",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w13328",
+     "year": 2007,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "w14191",
+     "year": 2008,
+     "evidence_class": "causal_method_tagged",
+     "method": "iv"
+    }
+   ],
+   "evidence_pool": {
+    "n": 43,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 24
+    },
+    "sha256": "65dfa1ddede3055e72ff3e4cf1798bc16907763f041c67fb830611e4d33e56b0",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "If SPY increases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) remains stable",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ Short-Term Treasury Bond ETF) remains stable",
+       "would_contradict": "If LQD decreases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-587a7806365e",
+      "mechanism": "output growth -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y trend in 2016-09-30",
+       "VIX trend in 2016-09-30",
+       "SPY trend in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y increase in 2016-09-30",
+       "VIX decrease in 2016-09-30",
+       "SPY increase in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The ISM manufacturing survey data shows a significant decline (2.3 std dev below consensus) but does not directly link to SPY price changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey decline is noted but no direct link to SPY price changes is provided in the excerpts.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "ISM manufacturing survey decline is noted but no direct link to IEF (Treasury prices) is provided in the excerpts.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index) increases",
+       "would_contradict": "If VIX decreases, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) returns decrease",
+       "would_contradict": "If SPY returns increase, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) returns remain stable",
+       "would_contradict": "If IEF returns decrease, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ US Aggregate Bond ETF) returns remain stable",
+       "would_contradict": "If LQD returns decrease, it contradicts the hypothesis that manufacturing activity decline reduces output and leads to lower stock returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-8346f359463c",
+      "mechanism": "output growth -> inflation -> nominal interest rates -> stock prices",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2016-09-01 to 2016-09-30",
+       "VIX from 2016-09-01 to 2016-09-30",
+       "SPY returns from 2016-09-01 to 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y from 2016-09-01 to 2016-09-30",
+       "VIX from 2016-09-01 to 2016-09-30",
+       "SPY returns from 2016-09-01 to 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The ISM manufacturing survey release was 2.3 std deviations below consensus, indicating a significant decline in manufacturing activity, which aligns with the mechanism of reduced output leading to lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-09-01 and 2016-09-29 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.01 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The 5-year breakeven inflation rate rose significantly (+1.6 std dev), suggesting inflation pressure, but the 2-year Treasury yield fell slightly (-0.1 std dev), indicating potential rate cuts. Neither clearly dominates the link mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of staying flat (sign 0)"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign +1) instead of staying flat (sign 0)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-587a7806365e",
+      "mechanism": "output growth -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_ISM_MANUFACTURING_2016-09-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The ISM manufacturing survey quote indicates a significant decline (2.3 std dev below consensus), supporting the mechanism where manufacturing activity decline reduces stock returns. However, the same quote does not directly contradict the link, so conflict arises from the need to interpret the evidence.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_ISM_MANUFACTURING_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, ISM manufacturing survey: the latest release before the decision time came in 2.3 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "explanation": "The ISM survey quote shows a significant decline but does not connect it to inflation, output gap, or risk premia as per the mechanism. No other excerpts provide evidence for the alternative mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-09-H4",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "FOMC decisions influence monetary policy, affecting output and inflation",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2015-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 11,
+     "data_note": 24
+    },
+    "sha256": "0765698ba201edfa320615af0e1122d43a111af01f47c9648a19f0baf089bead",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y rises (sign +1) instead of falling (sign -1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "VIX (CBOE Volatility Index)",
+       "would_contradict": "If VIX falls (sign -1) instead of rising (sign +1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF)",
+       "would_contradict": "If SPY falls (sign -1) instead of rising (sign 1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF)",
+       "would_contradict": "If IEF rises (sign +1) instead of falling (sign -1) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2016-09-01 to 2016-09-30",
+       "VIX from 2016-09-01 to 2016-09-30",
+       "SPY from 2016-09-01 to 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y from 2016-09-01 to 2016-09-30",
+       "VIX from 2016-09-01 to 2016-09-30",
+       "SPY from 2016-09-01 to 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_IG_SPREAD_FOMC_2016-09-21#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread increased by 0.06pp over the period, suggesting tighter market conditions which typically correlate with rising equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread decreased by 0.09pp post-FOMC, indicating a potential shift in market expectations that could support IEF (treasury prices) as yields rise.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread increased by 0.06pp, which typically correlates with rising equity prices (SPY) as tighter market conditions may indicate stronger economic fundamentals.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread decreased by 0.09pp post-FOMC, suggesting a potential shift in market expectations that could lead to lower IEF (treasury prices) as yields rise.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY returns in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_IG_SPREAD_FOMC_2016-09-21#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.13 (1.3 std dev) from CPI release to decision time, indicating inflation expectations increased, which may support higher equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.03 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell by -0.03 (0.5 std dev) from FOMC to decision time, suggesting tighter credit conditions, which may support lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.11 (+1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rose by +0.11 (1.4 std dev) post-FOMC, indicating higher inflation expectations, which may drive SPY up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread fell by -0.09 (0.9 std dev) post-FOMC, indicating shorter-term yields rose relative to long-term, which may support lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreasing"
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases instead of increasing"
+      },
+      {
+       "observable": "SPY (S&P 500 index) increases",
+       "would_contradict": "If SPY decreases instead of increasing"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-3d43afcc584e",
+      "mechanism": "monetary policy shocks -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_IG_SPREAD_FOMC_2016-09-21#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-09-01 and 2016-09-29 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show rising 5-year breakeven inflation rates from 2016-09-01 to 2016-09-29, indicating increased inflation expectations, which may support higher equity prices (SPY) following FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by -0.09 from FOMC decision on 2016-09-21 to 2016-09-29, indicating a decrease in yield spread, which may support higher IEF (7-10 year Treasury prices) following FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-09-01 and 2016-09-29 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show rising 5-year breakeven inflation rates from 2016-09-01 to 2016-09-29, indicating increased inflation expectations, which may support higher equity prices (SPY) following FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by -0.09 from FOMC decision on 2016-09-21 to 2016-09-29, indicating a decrease in yield spread, which may support higher IEF (7-10 year Treasury prices) following FOMC decisions.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 4,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 4,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-09-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility and risk premia, lowering bond prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-792fcac4da25": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP890",
+     "year": 1994,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 24
+    },
+    "sha256": "27ba2012fbabdc45b5a49b31fb4b757bfbb10333f92cc22b9f875e80f388c203",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign +1) instead of staying flat (sign 0)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-6517235006e4",
+      "mechanism": "volatility -> inflation -> aggregate demand -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.06 over the period, indicating market stress (as per mechanism). This supports the link where market stress lowers equity prices (SPY) via volatility.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2016-09-01 and 2016-09-29 the series rose by +0.06 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.06, indicating market stress that lowers Treasury prices (IEF), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or their impact on SPY over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or their impact on IEF over the next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: +1) instead of decreasing (sign: -1) during market stress"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: -1) instead of increasing (sign: 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign: -1) instead of increasing (sign: 1) during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign: +1) instead of decreasing (sign: -1) during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign: -1) instead of staying flat (sign: 0) during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-6517235006e4",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y increase in 2016-09-30",
+       "VIX decrease in 2016-09-30",
+       "SPY decrease in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose significantly, indicating market stress that could drive equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell, suggesting market stress that could lower bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose, indicating market stress that could drive equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.12 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell, suggesting market stress that could lower bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign +1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign +1) instead of staying flat (sign 0)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2015-6517235006e4",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ],
+      "contradicting": [
+       "UST10Y in 2016-09-30",
+       "VIX in 2016-09-30",
+       "SPY in 2016-09-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2016-09-30#c000",
+       "DN_BEI5Y_2016-09-30#c000",
+       "DN_SLOPE_10Y3M_2016-09-30#c000",
+       "DN_IG_SPREAD_2016-09-30#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_CPI_2016-09-16#c000",
+       "DN_UST2Y_CORE_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CPI_2016-09-16#c000",
+       "DN_BEI5Y_CORE_CPI_2016-09-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2016-09-21#c000",
+       "DN_BEI5Y_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+       "DN_SLOPE_10Y3M_CPI_2016-09-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2016-09-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2016-09-01 and 2016-09-29 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2016-09-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts indicate a rise in 5-year breakeven inflation rate (from Core CPI release to decision time), suggesting market stress increased inflation expectations, which could drive equity prices up.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell by -0.09, indicating lower bond prices (as yield spreads decrease), which aligns with market stress lowering bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2016-09-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2016-09-16 (08:30 ET) to the latest value published by the decision time (2016-09-29), the series rose by +0.13 (+1.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Rise in 5-year breakeven inflation rate suggests higher inflation expectations, which could drive equity prices up via the mechanism of uncertainty increasing inflation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2016-09-21#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2016-09-21 (14:00 ET) to the latest value published by the decision time (2016-09-29), the series fell by -0.09 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread fell, indicating lower bond prices, which aligns with market stress lowering bond prices via the uncertainty mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-29",
+       "change": -0.010000000000000009,
+       "z": -0.05987066931537536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2016-09-01",
+       "window_end": "2016-09-30",
+       "change": -0.19000000000000128,
+       "z": -0.042678346794744026,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2016-09-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2015-6517235006e4": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 24
+    },
+    "sha256": "27ba2012fbabdc45b5a49b31fb4b757bfbb10333f92cc22b9f875e80f388c203",
+    "latest_available_at": "2016-09-30T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2016-09-H6_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 4.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "IEF": {
+   "F_S": -4.0,
+   "F_C": 0.0,
+   "F_I": -1.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "b3b89eecd741987cf94b25309fe0169a497f9ed7ceccaac6f9d178b75d619b73",
+ "packet_sha256": "d0bdbc6b9f319e6b41768cdf8d51b14ded209b8f3abde96f81ff106ca00d55fc",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

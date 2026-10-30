@@ -1,0 +1,3350 @@
+{
+ "month": "2021-12",
+ "decision_time": "2021-12-31T20:00:00-05:00",
+ "graph_vintage": 2020,
+ "event": [
+  {
+   "description": "Average hourly earnings release",
+   "direction": "below consensus",
+   "surprise_z": -1.018,
+   "trigger": "AHE"
+  },
+  {
+   "date": "2021-12-15",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": -0.1,
+   "date": "2021-12-01",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.43
+  },
+  {
+   "change": -0.1,
+   "date": "2021-12-03",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.05
+  },
+  {
+   "change": -5.29,
+   "date": "2021-12-07",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": -2.1
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -1.018,
+  "CORE_CPI": -0.361,
+  "CPI": -0.165,
+  "INDUSTRIAL_PRODUCTION": 0.116,
+  "ISM_MANUFACTURING": -0.217,
+  "NFP": -0.764,
+  "PPI": 0.251,
+  "RETAIL_SALES": -0.474
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "fomc communication",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 5,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "FOMC",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3062,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "fomc communication",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3365,
+     "completion_tokens": 51
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3489,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3539,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3626,
+     "completion_tokens": 902
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2021-12-H1",
+   "trigger": "AHE",
+   "channel": "inflation",
+   "mechanism": "Wages below consensus lead to lower inflation expectations, reducing equity returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 0,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-152ed42a609b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP6429",
+     "year": 2007,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 15,
+     "data_note": 20
+    },
+    "sha256": "de85f4b9a25d4aeb4433eb3e6200d2af85a35822df6778dfdb65fe964b3acff0",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) decreases",
+       "would_contradict": "BEI5Y increases"
+      },
+      {
+       "observable": "UST10Y (10-year bond yield) decreases",
+       "would_contradict": "UST10Y increases"
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "SPY increases"
+      },
+      {
+       "observable": "IEF (10-year Treasury inflation-protected securities) remains stable",
+       "would_contradict": "IEF increases or decreases"
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ Liquid Short-Term Bond ETF) remains stable",
+       "would_contradict": "LQD increases or decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-11cbb3ecefea",
+      "mechanism": "wages -> unemployment -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2021-12-31",
+       "UST10Y in 2021-12-31",
+       "SPY in 2021-12-31"
+      ],
+      "contradicting": [
+       "BEI5Y in 2021-12-31",
+       "UST10Y in 2021-12-31",
+       "SPY in 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_UST2Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_IG_SPREAD_2021-12-31#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_IG_SPREAD_AHE_2021-12-03#c000",
+       "DN_CPI_2021-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 1.0 std below consensus, indicating lower wages than expected, which aligns with the mechanism of lower inflation expectations reducing equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 1.0 std below consensus, supporting both mechanisms through lower wages leading to lower inflation expectations.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1299999999999999,
+       "z": 0.5537516925667706,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) decreases",
+       "would_contradict": "If BEI5Y increases"
+      },
+      {
+       "observable": "UST10Y (10-year bond yield) decreases",
+       "would_contradict": "If UST10Y increases"
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "If SPY increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-41bde8eeef9f",
+      "mechanism": "wages -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2021-12-01 to 2021-12-31",
+       "UST10Y in 2021-12-01 to 2021-12-31",
+       "SPY in 2021-12-01 to 2021-12-31"
+      ],
+      "contradicting": [
+       "BEI5Y in 2021-12-01 to 2021-12-31 with increase",
+       "UST10Y in 2021-12-01 to 2021-12-31 with increase",
+       "SPY in 2021-12-01 to 2021-12-31 with increase"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_IG_SPREAD_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_IG_SPREAD_AHE_2021-12-03#c000",
+       "DN_CPI_2021-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 1.0 std below consensus, suggesting lower wages than expected, which aligns with the mechanism of reduced inflation expectations leading to lower equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release being 1.0 std below consensus supports the mechanism where lower wages lead to reduced inflation expectations, affecting equity returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1299999999999999,
+       "z": 0.5537516925667706,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "BEI5Y (5-year bond yield) decreases",
+       "would_contradict": "BEI5Y increases"
+      },
+      {
+       "observable": "UST10Y (10-year bond yield) decreases",
+       "would_contradict": "UST10Y increases"
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "SPY increases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-41bde8eeef9f",
+      "mechanism": "wages -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "BEI5Y in 2021-12",
+       "UST10Y in 2021-12",
+       "SPY in 2021-12"
+      ],
+      "contradicting": [
+       "BEI5Y in 2021-12 with increase",
+       "UST10Y in 2021-12 with increase",
+       "SPY in 2021-12 with increase"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_VIX_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_IG_SPREAD_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_VIX_AHE_2021-12-03#c000"
+      ],
+      "neutral": [
+       "DN_AHE_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_IG_SPREAD_AHE_2021-12-03#c000",
+       "DN_CPI_2021-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 1.0 std below consensus, indicating lower wages than expected, which aligns with the mechanism of reduced inflation expectations leading to lower equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_AHE_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Average hourly earnings release: the latest release before the decision time came in 1.0 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The AHE release was 1.0 std below consensus, supporting the mechanism where lower wages lead to reduced inflation expectations, affecting equity returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "BEI5Y",
+       "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1299999999999999,
+       "z": 0.5537516925667706,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": false,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-12-H2",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "FOMC decision signals rate cuts, lowering long-term Treasury yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2020-3d43afcc584e": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 20
+    },
+    "sha256": "b58c14c4daedbca822d3d67efd5de169733937359f53ef6a5a9860d4d8236e15",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2021-12-H2_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-12-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases risk aversion, widening credit spreads",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 44,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 23
+    },
+    "sha256": "f8b135579ac76b621470e9385942601ea248291a0015a0baba9f260d8995792a",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases instead of increasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2021-12-01 to 2021-12-31",
+       "SPY < 0 in 2021-12-01 to 2021-12-31",
+       "IEF < 0 in 2021-12-01 to 2021-12-31"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2021-12-01 to 2021-12-31",
+       "SPY > 0 in 2021-12-01 to 2021-12-31",
+       "IEF > 0 in 2021-12-01 to 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_UST10Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST10Y_FOMC_2021-12-15#c000",
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This aligns with the mechanism where market stress increases risk aversion, leading to decreased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This aligns with the mechanism where market stress increases risk aversion, leading to decreased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This aligns with the mechanism where market stress increases risk aversion, leading to increased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This contradicts the mechanism where market stress leads to increased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This contradicts the mechanism where market stress leads to increased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by 13.90 points (1.4 std dev) between Dec 1 and Dec 31, indicating market stress. This contradicts the mechanism where market stress leads to decreased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign = -1) instead of increasing (sign = 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign = 1) instead of increasing (sign = 1) during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2021-12-01 to 2021-12-31",
+       "SPY < 0 in 2021-12-01 to 2021-12-31",
+       "IEF < 0 in 2021-12-01 to 2021-12-31"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2021-12-01 to 2021-12-31",
+       "SPY > 0 in 2021-12-01 to 2021-12-31",
+       "IEF > 0 in 2021-12-01 to 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_UST10Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST10Y_FOMC_2021-12-15#c000",
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_AHE_2021-12-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Average hourly earnings release on 2021-12-03 (08:30 ET) to the latest value published by the decision time (2021-12-31), the series fell by -10.73 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 10.73 points from AHE release to decision time, indicating market stress. This aligns with the mechanism of risk aversion reducing equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10-year yield rose by 0.11% from FOMC to decision time, indicating higher risk. This supports the mechanism where market stress widens credit spreads, lowering IEF (Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M spread rose by 0.13%, indicating widening credit spreads. This supports the mechanism where market stress increases risk aversion, lowering LQD (corporate bond prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "VIX fell by 4.67 points from FOMC to decision time, indicating market stress. This contradicts the mechanism of uncertainty increasing stock prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "explanation": "10-year yield rose by 0.12% over the period, indicating higher risk. This contradicts the mechanism of uncertainty increasing IEF (Treasury prices).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "10Y-3M spread rose by 0.11%, indicating widening credit spreads. This contradicts the mechanism of uncertainty increasing LQD (corporate bond prices).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases instead of increasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2021-12",
+       "SPY < 0 in 2021-12",
+       "IEF < 0 in 2021-12"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2021-12",
+       "SPY > 0 in 2021-12",
+       "IEF > 0 in 2021-12"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_UST10Y_FOMC_2021-12-15#c000",
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which aligns with market stress decreasing equity prices (SPY) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which aligns with market stress decreasing Treasury prices (IEF) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which aligns with market stress increasing corporate bond prices (LQD) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which contradicts the mechanism of uncertainty increasing stock prices (SPY) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which contradicts the mechanism of uncertainty decreasing Treasury prices (IEF) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -4.67 points, indicating reduced volatility, which contradicts the mechanism of uncertainty increasing corporate bond prices (LQD) over the next month.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-12-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "inflation",
+   "mechanism": "Market stress drives inflation expectations, increasing Treasury yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-6517235006e4": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1767",
+     "year": 1985,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w2018",
+     "year": 1986,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w12024",
+     "year": 2006,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8390",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8796",
+     "year": 2012,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w19009",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 44,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 23
+    },
+    "sha256": "cfcd14410961d69156e72035e72999ac572e4a7d3d93488865a52bd8af557a82",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign 1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases (sign -1) instead of increasing (sign 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-02cb13cc390b",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2021-12-01 AND UST10Y < 2021-12-31",
+       "SPY > 2021-12-01 AND SPY < 2021-12-31",
+       "IEF > 2021-12-01 AND IEF < 2021-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2021-12-01 AND UST10Y > 2021-12-31",
+       "SPY < 2021-12-01 AND SPY > 2021-12-31",
+       "IEF < 2021-12-01 AND IEF > 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly by decision time, indicating market stress. This supports the link where market stress drives equity price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly by decision time, indicating market stress. This supports the link where market stress drives Treasury price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly by decision time, indicating market stress. This supports the link where market stress drives equity price increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign = -1) instead of increasing (sign = 1), the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing (sign = -1), the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases (sign = 1) instead of increasing (sign = 1), the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": 1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 0 in 2021-12-01 to 2021-12-31",
+       "SPY < 0 in 2021-12-01 to 2021-12-31",
+       "IEF > 0 in 2021-12-01 to 2021-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 0 in 2021-12-01 to 2021-12-31",
+       "SPY > 0 in 2021-12-01 to 2021-12-31",
+       "IEF < 0 in 2021-12-01 to 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_AHE_2021-12-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Average hourly earnings release on 2021-12-03 (08:30 ET) to the latest value published by the decision time (2021-12-31), the series fell by -10.73 (-1.1 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 10.73 points, indicating market stress, which aligns with the mechanism of market stress driving inflation expectations and Treasury yields.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread rose, indicating market stress driving inflation expectations and Treasury yields, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 4.67 points, indicating market stress, which aligns with the mechanism of uncertainty driving stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread rose, indicating market stress driving stock returns via uncertainty.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (sign -1) instead of increasing (sign 1)"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases (sign -1) instead of increasing (sign 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-02cb13cc390b",
+      "mechanism": "uncertainty -> aggregate demand -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2021-12-01 to 2021-12-31",
+       "SPY < 450 in 2021-12-01 to 2021-12-31",
+       "IEF > 150 in 2021-12-01 to 2021-12-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2021-12-01 to 2021-12-31",
+       "SPY > 450 in 2021-12-01 to 2021-12-31",
+       "IEF < 150 in 2021-12-01 to 2021-12-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2021-12-31#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_VIX_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 4.67 points after FOMC, indicating market stress. This supports the link where market stress drives equity price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell after FOMC, indicating market stress. This supports the link where market stress drives Treasury price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell after FOMC, indicating market stress. This supports the link where market stress drives equity price increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.1200000000000001,
+       "z": 0.606643444891536,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-12-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, widening credit spreads",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 43,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 23
+    },
+    "sha256": "0495bfa77756c695a20ad9be063306f49de1f6c23cbbdd2277ea29f1268e5f36",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases during market stress, the hypothesis that market stress increases volatility and widens credit spreads is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases during market stress, the hypothesis that market stress decreases stock prices is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases during market stress, the hypothesis that market stress decreases short-term Treasury yields is contradicted."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases during market stress, the hypothesis that market stress increases short-term Treasury yields is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 AND market_stress = 1",
+       "SPY < 0 AND market_stress = 1",
+       "IEF < 0 AND market_stress = 1"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 AND market_stress = 1",
+       "SPY > 0 AND market_stress = 1",
+       "IEF > 0 AND market_stress = 1"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_UST10Y_FOMC_2021-12-15#c000",
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Average hourly earnings release on 2021-12-03 (08:30 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a rise in the 10-year minus 3-month Treasury yield spread, which is a market stress indicator. This supports the link where market stress (large moves) leads to decreased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The rise in the 10-year minus 3-month Treasury yield spread indicates market stress, which should lead to decreased Treasury prices (IEF) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The increase in the yield spread suggests market stress, which should lead to higher corporate bond prices (LQD) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX fell, indicating reduced market stress, contradicting the link where market stress leads to increased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market stress, contradicting the link where market stress leads to decreased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-31), the series fell by -4.67 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market stress, contradicting the link where market stress leads to increased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign = -1) instead of increasing (sign = 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign = -1) instead of decreasing (sign = -1) during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign = 1) instead of increasing (sign = 1) during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "Find recent data on IG_SPREAD during market stress events",
+       "Find recent data on SPY returns during market stress events",
+       "Find recent data on IEF returns during market stress events"
+      ],
+      "contradicting": [
+       "Find recent data on IG_SPREAD during market stress events where it decreased",
+       "Find recent data on SPY returns during market stress events where it increased",
+       "Find recent data on IEF returns during market stress events where it increased"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_VIX_2021-12-31#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_UST10Y_FOMC_2021-12-15#c000",
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_VIX_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -13.90 points between Dec 1 and Dec 31, indicating market stress. This supports the link where large market moves (VIX) lead to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.13 points, indicating increased market stress that could lead to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.13 points, suggesting market stress that could lead to increased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by -13.90 points, indicating market stress that contradicts the mechanism where market stress leads to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by -13.90 points, indicating market stress that contradicts the mechanism where market stress leads to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by -13.90 points, indicating market stress that contradicts the mechanism where market stress leads to increased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD increases",
+       "would_contradict": "If IG_SPREAD decreases or remains stable"
+      },
+      {
+       "observable": "SPY decreases",
+       "would_contradict": "If SPY increases or remains stable"
+      },
+      {
+       "observable": "IEF decreases",
+       "would_contradict": "If IEF increases or remains stable"
+      },
+      {
+       "observable": "LQD increases",
+       "would_contradict": "If LQD decreases or remains stable"
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0.05",
+       "SPY < 0.05",
+       "IEF > 0.05"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0.05",
+       "SPY > 0.05",
+       "IEF < 0.05"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_VIX_2021-12-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating market stress decreased, but the link requires market stress to cause equity price decreases. The VIX decline suggests reduced market stress, contradicting the mechanism's direction. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause equity price decreases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating reduced market stress, but the link requires market stress to cause Treasury price decreases. The VIX decline suggests less market stress, which might contradict the mechanism. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause Treasury price decreases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating reduced market stress, but the link requires market stress to cause corporate bond price increases. The VIX decline suggests less market stress, which might contradict the mechanism. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause corporate bond price increases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating reduced market stress, but the link requires market stress to cause equity price increases. The VIX decline suggests less market stress, which might contradict the mechanism. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause equity price increases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating reduced market stress, but the link requires market stress to cause Treasury price decreases. The VIX decline suggests less market stress, which might contradict the mechanism. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause Treasury price decreases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2021-12-01 and 2021-12-31 the series fell by -13.90 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-31 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell significantly, indicating reduced market stress, but the link requires market stress to cause corporate bond price increases. The VIX decline suggests less market stress, which might contradict the mechanism. However, the VIX note describes a period with market stress (as it fell from high levels), but the evidence shows a decline, not increase. The link's mechanism requires market stress to cause corporate bond price increases, but the VIX decline indicates reduced volatility, which might imply less market stress. This is complex and requires careful interpretation.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2021-12-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress reduces liquidity, increasing credit spreads",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2020-20bcb717f453": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w19319",
+     "year": 2013,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP5212",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w17584",
+     "year": 2011,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP14279",
+     "year": 2020,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w26647",
+     "year": 2020,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP1995",
+     "year": 1998,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    }
+   ],
+   "evidence_pool": {
+    "n": 40,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 20
+    },
+    "sha256": "aa90c83718e7c8bf7f9df84f54d608d393c6a6bad8da893fc0af254631b7e1dc",
+    "latest_available_at": "2021-12-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases during market stress, it contradicts the hypothesis that market stress increases credit spreads."
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases during market stress, it contradicts the hypothesis that market stress increases volatility."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases during market stress, it contradicts the hypothesis that market stress reduces stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases during market stress, it contradicts the hypothesis that market stress increases bond yields (short-term Treasury yields)."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases during market stress, it contradicts the hypothesis that market stress increases long-term bond demand."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2021-12-31",
+       "VIX > 0 in 2021-12-31",
+       "SPY < 0 in 2021-12-31 (relative to previous period)"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2021-12-31",
+       "VIX < 0 in 2021-12-31",
+       "SPY > 0 in 2021-12-31 (relative to previous period)"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_UST2Y_2021-12-31#c000",
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST10Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_UST10Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by +0.12 over the period, indicating a market stress effect consistent with the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year yield rise suggests market stress, which would decrease IEF prices as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "explanation": "The 10-year yield rise contradicts the mechanism, as market stress would decrease LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "explanation": "The 10-year yield rise indicates market stress, which would decrease SPY prices, contradicting the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year yield rise suggests market stress, which would decrease IEF prices as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2021-12-01 and 2021-12-29 the series rose by +0.12 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "explanation": "The 10-year yield rise contradicts the mechanism, as market stress would decrease LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-31",
+       "change": -13.900000000000002,
+       "z": -1.4428744792857324,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases during market stress, then the hypothesis that market stress reduces liquidity and increases credit spreads is false."
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases during market stress, then the hypothesis that market stress increases volatility (as measured by VIX) is false."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases during market stress, then the hypothesis that market stress reduces stock returns is false."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases during market stress, then the hypothesis that market stress increases short-term Treasury yields (as measured by IEF) is false."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases during market stress, then the hypothesis that market stress increases demand for safe-haven assets (as measured by LQD) is false."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 AND market_stress = 1",
+       "VIX > 0 AND market_stress = 1",
+       "SPY < 0 AND market_stress = 1"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 AND market_stress = 1",
+       "VIX < 0 AND market_stress = 1",
+       "SPY > 0 AND market_stress = 1"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST10Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_UST10Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.08 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.08 (0.7 std dev) from FOMC decision to decision time, indicating market stress. This supports the link where market stress reduces liquidity, increasing credit spreads, which would decrease SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by +0.11 (0.8 std dev) from FOMC decision to decision time, indicating market stress. This supports the link where market stress reduces liquidity, increasing credit spreads, which would decrease IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.11 (0.7 std dev) from FOMC decision to decision time, indicating market stress. This supports the link where market stress reduces liquidity, increasing credit spreads, which would increase LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.08 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 2-year Treasury yield rose by +0.08 (0.7 std dev) from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress would increase SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield rose by +0.11 (0.8 std dev) from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress would decrease IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose by +0.11 (0.7 std dev) from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress would increase LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-31",
+       "change": -13.900000000000002,
+       "z": -1.4428744792857324,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases during market stress, it contradicts the hypothesis that market stress increases credit spreads."
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases during market stress, it contradicts the hypothesis that market stress increases volatility."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases during market stress, it contradicts the hypothesis that market stress decreases stock returns."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases during market stress, it contradicts the hypothesis that market stress increases short-term Treasury returns."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases during market stress, it contradicts the hypothesis that market stress increases short-term Treasury returns."
+      }
+     ],
+     "rival": {
+      "path_id": "p2020-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 AND market_stress = 1",
+       "VIX > 0 AND market_stress = 1",
+       "SPY > 0 AND market_stress = 1"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 AND market_stress = 1",
+       "VIX < 0 AND market_stress = 1",
+       "SPY < 0 AND market_stress = 1"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2021-12-31#c000",
+       "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+       "DN_SLOPE_10Y3M_AHE_2021-12-03#c000",
+       "DN_UST2Y_2021-12-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST10Y_2021-12-31#c000",
+       "DN_BEI5Y_2021-12-31#c000",
+       "DN_UST2Y_FOMC_2021-12-15#c000",
+       "DN_UST10Y_FOMC_2021-12-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2021-12-15#c000",
+       "DN_UST2Y_AHE_2021-12-03#c000",
+       "DN_UST10Y_AHE_2021-12-03#c000",
+       "DN_BEI5Y_AHE_2021-12-03#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by +0.11 (0.8 std dev) from FOMC decision to decision time, indicating market stress. This supports the link where market stress reduces liquidity and increases credit spreads, leading to decreased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M Treasury yield spread rose by +0.11 (0.7 std dev), indicating market stress. This supports the link where market stress increases credit spreads, leading to decreased 7-10Y Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M Treasury yield spread rose by +0.13 (0.6 std dev), indicating market stress. This supports the link where market stress increases credit spreads, leading to increased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield rose by +0.11 (0.8 std dev), indicating market stress. This contradicts the link where market stress would increase equity prices (SPY) via uncertainty -> aggregate demand -> output.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2021-12-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2021-12-15 (14:00 ET) to the latest value published by the decision time (2021-12-29), the series rose by +0.11 (+0.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread rose by +0.11 (0.7 std dev), indicating market stress. This contradicts the link where market stress would increase 7-10Y Treasury prices (IEF) via uncertainty -> aggregate demand -> output.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2021-12-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2021-12-01 and 2021-12-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2021-12-30 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M Treasury yield spread rose by +0.13 (0.6 std dev), indicating market stress. This contradicts the link where market stress would increase corporate bond prices (LQD) via uncertainty -> aggregate demand -> output.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-29",
+       "change": 0.040000000000000036,
+       "z": 0.12925390768884426,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2021-12-01",
+       "window_end": "2021-12-31",
+       "change": -13.900000000000002,
+       "z": -1.4428744792857324,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": -3.0,
+   "F_C": 0.0,
+   "F_I": -3.0
+  },
+  "IEF": {
+   "F_S": -1.0,
+   "F_C": 0.0,
+   "F_I": -2.0
+  },
+  "LQD": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "ab2ae812c2bc88885dbf7c29558d0114cd2d3cf5b25035ecdd90a754e555e151",
+ "packet_sha256": "27b15be10df02dafb510717d740b9978b2d88099f9c7848919e60cec1b403f4d",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

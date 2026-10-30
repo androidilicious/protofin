@@ -1,0 +1,1523 @@
+{
+ "month": "2017-12",
+ "decision_time": "2017-12-29T20:00:00-05:00",
+ "graph_vintage": 2016,
+ "event": [
+  {
+   "description": "Advance retail sales release",
+   "direction": "above consensus",
+   "surprise_z": 2.499,
+   "trigger": "RETAIL_SALES"
+  },
+  {
+   "date": "2017-12-13",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 0.1,
+   "date": "2017-12-21",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.83
+  },
+  {
+   "change": -0.15,
+   "date": "2017-12-26",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -3.23
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.302,
+  "CORE_CPI": -0.418,
+  "CPI": 0.114,
+  "INDUSTRIAL_PRODUCTION": -0.126,
+  "ISM_MANUFACTURING": -0.627,
+  "NFP": 0.893,
+  "PPI": 0.045,
+  "RETAIL_SALES": 2.499
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "RETAIL_SALES",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "retail sales",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 2
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 2,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "RETAIL_SALES",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2638,
+     "completion_tokens": 43
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "retail sales",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2979,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3102,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3152,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3239,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 4,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3326,
+     "completion_tokens": 632
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2017-12-H1",
+   "trigger": "RETAIL_SALES",
+   "channel": "growth",
+   "mechanism": "consumption -> aggregate demand -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "BEI5Y",
+     "sign": 1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2016-438f498a22dd": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w11578",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 32,
+    "by_kind": {
+     "research_claim": 15,
+     "data_note": 17
+    },
+    "sha256": "87961c18118e2f72327e0c3cebe1f94d085131422e93b9fab43cc6832085e191",
+    "latest_available_at": "2017-12-29T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2017-12-H1_s2: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-12-H2",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2016-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 20
+    },
+    "sha256": "e38831235588599ddc8b4856f8dd7a77698fb710f663a9bd373bde0eb79a0766",
+    "latest_available_at": "2017-12-29T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2017-12-H2_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-12-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": 0,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2016-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 42,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 23
+    },
+    "sha256": "8615f29da963a8833494f053c2b49051bf47040afa8bcb31345e7bd4e0fb06f2",
+    "latest_available_at": "2017-12-29T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing, it contradicts the hypothesis."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing, it contradicts the hypothesis."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases instead of staying flat, it contradicts the hypothesis."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases instead of increasing, it contradicts the hypothesis."
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0.01 in 2017-12-29",
+       "SPY < 0 in 2017-12-29",
+       "IEF = 0 in 2017-12-29"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0.01 in 2017-12-29",
+       "SPY > 0 in 2017-12-29",
+       "IEF > 0 in 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000",
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_UST10Y_2017-12-29#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000",
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2017-12-13#c000",
+       "DN_UST10Y_FOMC_2017-12-13#c000",
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after FOMC, indicating market stress, which aligns with the mechanism's volatility component.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after FOMC, indicating market stress, which aligns with the mechanism's volatility component.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly after FOMC, indicating market stress, which aligns with the mechanism's uncertainty component.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": -0.1100000000000001,
+       "z": -0.8680533857895185,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign = -1) instead of increasing (sign = 1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign = -1) instead of decreasing (sign = -1) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign = 0) instead of staying flat (sign = 0) as predicted by the hypothesis"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign = 1) instead of increasing (sign = 1) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0.01 AND date > 2017-12-29",
+       "SPY > 0.01 AND date > 2017-12-29",
+       "IEF > 0.01 AND date > 2017-12-29"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0.01 AND date > 2017-12-29",
+       "SPY < 0.01 AND date > 2017-12-29",
+       "IEF < 0.01 AND date > 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_VIX_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_UST10Y_2017-12-29#c000",
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_RETAIL_SALES_2017-12-14#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2017-12-13#c000",
+       "DN_UST10Y_FOMC_2017-12-13#c000",
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 0.86 points from retail sales release to decision time, indicating increased market volatility. This supports the link where large market moves (volatility) lead to decreased equity prices (SPY) over the next month.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2017-12-01 and 2017-12-29 the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-12-29 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rose post-retail sales but fell overall by decision time. This mixed evidence does not clearly support or contradict the link between market volatility and LQD price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2017-12-01 and 2017-12-29 the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-12-29 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by 0.39 points over the period, indicating decreased market volatility. This contradicts the link where large market moves (uncertainty) lead to increased equity prices (SPY).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": -0.1100000000000001,
+       "z": -0.8680533857895185,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing (sign 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF decreases instead of staying flat during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases instead of increasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2017-12-29",
+       "SPY < 0 in 2017-12-29",
+       "IEF = 0 in 2017-12-29"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2017-12-29",
+       "SPY > 0 in 2017-12-29",
+       "IEF > 0 in 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000",
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_UST10Y_2017-12-29#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000",
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_FOMC_2017-12-13#c000",
+       "DN_UST10Y_FOMC_2017-12-13#c000",
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.12 points after FOMC, indicating increased volatility. This supports the link where large market moves (volatility) lead to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.12 points after FOMC, indicating increased volatility. This supports the link where large market moves (volatility) lead to increased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 0.86 points after retail sales release, indicating increased volatility. This supports the link where large market moves (uncertainty) lead to increased SPY prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": -0.1100000000000001,
+       "z": -0.8680533857895185,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2017-12-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> nominal interest rates -> stock prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2016-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 42,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 23
+    },
+    "sha256": "b225634f74b7383622aa0dc36a88cae4966dc490415c24a3f64f86a4c4ab5772",
+    "latest_available_at": "2017-12-29T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that volatility leads to higher nominal interest rates (as per the mechanism: volatility -> inflation -> nominal interest rates -> stock prices)."
+      },
+      {
+       "observable": "SPY (S&P 500 index) increases",
+       "would_contradict": "If SPY decreases, it contradicts the hypothesis that higher nominal interest rates lead to higher stock prices."
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that higher nominal interest rates lead to lower IEF (as per the predicted mediator: UST10Y has a negative sign)."
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ Liquid Short-Term Treasury Bond ETF) increases",
+       "would_contradict": "If LQD decreases, it contradicts the hypothesis that higher nominal interest rates lead to higher LQD (as per the predicted mediator: UST10Y has a negative sign)."
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2017-12-29#c000",
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000",
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_UST2Y_FOMC_2017-12-13#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_BEI5Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show VIX rose significantly after retail sales and FOMC events, indicating market stress that could drive SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2017-12-01 and 2017-12-28 the series rose by +0.13 (+1.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-12-29 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "2-year Treasury yield rose significantly, suggesting IEF (longer-term Treasury) prices would fall as rates rise.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.11 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-12-29 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating corporate bond prices (LQD) rose as yields fell.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2017-12-01 and 2017-12-29 the series fell by -0.39 (-0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2017-12-29 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell, indicating reduced market stress that could drive SPY increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": 0.06000000000000005,
+       "z": 0.32975094553003964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 4,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield)",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "SPY (S&P 500 index)",
+       "would_contradict": "If SPY decreases (sign -1) instead of increasing (sign +1) as predicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities)",
+       "would_contradict": "If IEF decreases (sign -1) instead of increasing (sign +1) as predicted"
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ Liquid Short-Term Bond ETF)",
+       "would_contradict": "If LQD decreases (sign +1) instead of increasing (sign +1) as predicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2017-12-29#c000",
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000",
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_UST2Y_FOMC_2017-12-13#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_BEI5Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +0.86 points from retail sales release to decision time, indicating increased volatility. This supports the link where large market moves (VIX) precede SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-28), the series fell by -0.02 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell by -0.02 points, indicating decreased Treasury yield spread. This supports the link where large market moves precede IEF (Treasury price) decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.11 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.11 points, indicating increased bond prices (LQD). This supports the link where large market moves precede LQD increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by +1.12 points from FOMC to decision time, indicating increased market stress. This supports the link where large market moves precede SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.06 (-0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y-3M yield spread fell by -0.06 points, indicating decreased Treasury prices (IEF). This supports the link where large market moves precede IEF decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.11 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.11 points, indicating increased LQD prices. This supports the link where large market moves precede LQD increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": 0.06000000000000005,
+       "z": 0.32975094553003964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "SPY (S&P 500 index) increases",
+       "would_contradict": "If SPY decreases"
+      },
+      {
+       "observable": "IEF (10-year Treasury Inflation-Protected Securities) decreases",
+       "would_contradict": "If IEF increases"
+      },
+      {
+       "observable": "LQD (iShares iBoxx $ High Yield Corporate Bond ETF) increases",
+       "would_contradict": "If LQD decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2016-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ],
+      "contradicting": [
+       "UST10Y in 2017-12-29",
+       "SPY in 2017-12-29",
+       "IEF in 2017-12-29"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2017-12-29#c000",
+       "DN_UST2Y_2017-12-29#c000",
+       "DN_BEI5Y_2017-12-29#c000",
+       "DN_SLOPE_10Y3M_2017-12-29#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2017-12-29#c000",
+       "DN_VIX_FOMC_2017-12-13#c000",
+       "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+       "DN_UST2Y_FOMC_2017-12-13#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2017-12-13#c000",
+       "DN_UST2Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_BEI5Y_RETAIL_SALES_2017-12-14#c000",
+       "DN_SLOPE_10Y3M_FOMC_2017-12-13#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2017-12-13#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2017-12-13 (14:00 ET) to the latest value published by the decision time (2017-12-29), the series rose by +1.12 (+0.3 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose by 1.12 points after FOMC, indicating market stress. This supports the link where large market moves (VIX) lead to SPY increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.11 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premiums. This supports the link where market stress leads to IEF price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2017-12-29#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2017-12-01 and 2017-12-28 the series fell by -0.11 (-0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell, indicating lower risk premiums. This supports the link where market stress leads to LQD price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_RETAIL_SALES_2017-12-14#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Advance retail sales release on 2017-12-14 (08:30 ET) to the latest value published by the decision time (2017-12-29), the series rose by +0.86 (+0.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose after retail sales, indicating market stress. This supports the link where market stress leads to SPY increases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2017-12-01",
+       "window_end": "2017-12-28",
+       "change": 0.06000000000000005,
+       "z": 0.32975094553003964,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 2.0
+  },
+  "IEF": {
+   "F_S": -1.0,
+   "F_C": 0.0,
+   "F_I": -2.0
+  },
+  "LQD": {
+   "F_S": 2.0,
+   "F_C": 0.0,
+   "F_I": 2.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "0e4d167099cb5bb9f6c27ca9c1c0cd38735e2e938752a70b23cd55f3688dc810",
+ "packet_sha256": "023fe3315ec2fe2f687a2681c2d25d5ec7cd1e4cab7e5b1e27ad38fc6f0d53db",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

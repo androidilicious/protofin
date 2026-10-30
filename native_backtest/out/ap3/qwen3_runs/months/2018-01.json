@@ -1,0 +1,1946 @@
+{
+ "month": "2018-01",
+ "decision_time": "2018-01-31T20:00:00-05:00",
+ "graph_vintage": 2017,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "above consensus",
+   "surprise_z": 1.693,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "Industrial production release",
+   "direction": "above consensus",
+   "surprise_z": 1.248,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "description": "PPI release",
+   "direction": "below consensus",
+   "surprise_z": -2.19,
+   "trigger": "PPI"
+  },
+  {
+   "date": "2018-01-31",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": 0.09,
+   "date": "2018-01-18",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.56
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.358,
+  "CORE_CPI": 1.693,
+  "CPI": 0.114,
+  "INDUSTRIAL_PRODUCTION": 1.248,
+  "ISM_MANUFACTURING": 0.593,
+  "NFP": -0.59,
+  "PPI": -2.19,
+  "RETAIL_SALES": -0.371
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "paths",
+    "args": {
+     "source": "CORE_CPI",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "repeat_of": 1
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "repeat_of": 1
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "repeat_of": 1
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "repeat_of": 1
+   }
+  ],
+  "turns": 7,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 4,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "CORE_CPI",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2941,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3069,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3147,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3234,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3321,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3408,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "final",
+    "hypotheses": 5,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3495,
+     "completion_tokens": 803
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2018-01-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "inflation -> monetary policy -> output -> stock returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 37,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 24
+    },
+    "sha256": "6d8c036a58e8b94302d5a502d7c544897365c5bc45cbc3f9475f8dc3db69af1f",
+    "latest_available_at": "2018-01-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1), then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be 1), then hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (sign should be 1), then hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign should be -1), then hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (sign should be -1), then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-01",
+       "VIX in 2018-01",
+       "SPY in 2018-01"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-01",
+       "VIX in 2018-01",
+       "SPY in 2018-01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-01-31#c000",
+       "DN_BEI5Y_CORE_CPI_2018-01-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.18 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.18 after Core CPI release, indicating higher risk aversion which typically supports equity prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.18 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.18 after Core CPI release, indicating higher risk aversion which typically supports equity prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 after Core CPI release, indicating lower risk premium which typically supports bond prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.18 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.18 after Core CPI release, indicating higher risk aversion which typically supports equity prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.18 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose by +0.18 after Core CPI release, indicating higher risk aversion which typically supports equity prices.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12",
+         "citation_status": "chunk_not_supplied",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 after Core CPI release, indicating lower risk premium which typically supports bond prices.",
+       "rejected_quotes": 1
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Contradicted",
+      "conflict": false,
+      "n_valid_supporting": 0,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 0,
+      "strong_for": false,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "if UST10Y increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "if VIX decreases (sign -1) instead of increasing"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "if SPY decreases (sign -1) instead of increasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "if IEF increases (sign +1) instead of decreasing"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "if LQD increases (sign +1) instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-3f7ac981605e",
+      "mechanism": "inflation -> money growth -> output growth -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y from 2017-01 to 2018-01",
+       "VIX from 2017-01 to 2018-01",
+       "SPY from 2017-01 to 2018-01"
+      ],
+      "contradicting": [
+       "UST10Y from 2017-01 to 2018-01",
+       "VIX from 2017-01 to 2018-01",
+       "SPY from 2017-01 to 2018-01"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-01-31#c000",
+       "DN_BEI5Y_CORE_CPI_2018-01-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.15 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose significantly after Core CPI release, suggesting potential market reaction to inflation. This aligns with the mechanism where inflation impacts monetary policy and stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell after Core CPI release, indicating a decrease in Treasury prices (IEF), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell over the period, indicating a decrease in LQD prices, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.15 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose significantly after Core CPI release, suggesting a market reaction to inflation that could impact stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell after Core CPI release, indicating a decrease in Treasury prices (IEF), supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell over the period, indicating a decrease in LQD prices, supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1) as predicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases instead of increasing"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreasing"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY returns in 2018-01-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY returns in 2018-01-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-01-31#c000",
+       "DN_BEI5Y_CORE_CPI_2018-01-12#c000",
+       "DN_SLOPE_10Y3M_CORE_CPI_2018-01-12#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.08 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.08 (0.8 std dev) after Core CPI release, suggesting inflation expectations increased, which could support higher equity prices via monetary policy.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 (1.0 std dev) after Core CPI release, indicating tighter credit conditions, which could support higher Treasury prices (IEF) as investors seek safety.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 (1.0 std dev) after Core CPI release, indicating tighter credit conditions, which could support higher corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.08 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate rose by +0.08 (0.8 std dev) after Core CPI release, suggesting inflation expectations increased, which could support higher equity prices via monetary policy.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 (1.0 std dev) after Core CPI release, indicating tighter credit conditions, which could support higher Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2018-01-12#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2018-01-12 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.10 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell by -0.10 (1.0 std dev) after Core CPI release, indicating tighter credit conditions, which could support higher corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Contradicted",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-01-H2",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "output growth -> money growth -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2017-72b38a98737a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 47,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 24
+    },
+    "sha256": "82649ee0ab0ff18eccd4d49cb3aa33d15955c376c865ea7a3743c669d4a3b9e1",
+    "latest_available_at": "2018-01-31T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) increases",
+       "would_contradict": "If SPY decreases instead of increasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury ETF) decreases",
+       "would_contradict": "If IEF increases instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD (10-year Treasury ETF) decreases",
+       "would_contradict": "If LQD increases instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-3a6af57698b6",
+      "mechanism": "output -> inflation -> output gap -> risk premia",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2018-01-31#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2018-01-01 and 2018-01-30 the series rose by +0.28 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose significantly (+0.28 pp) over the period, indicating tightness in the yield curve, which typically supports equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2018-01-01 and 2018-01-30 the series rose by +0.28 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose significantly, suggesting higher short-term yields relative to long-term, which typically leads to lower Treasury prices (IEF) and thus supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread fell, indicating lower corporate bond yields relative to Treasuries, which typically means higher bond prices (LQD) and thus supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2018-01-01 and 2018-01-30 the series rose by +0.28 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10Y-3M yield spread rose, indicating a tighter yield curve, which typically leads to higher equity prices (SPY) through risk premia channels.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2018-01-01 and 2018-01-30 the series rose by +0.28 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "explanation": "The 10Y-3M yield spread rose, suggesting higher short-term yields relative to long-term, which typically leads to lower Treasury prices (IEF), contradicting the hypothesis of increased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "explanation": "The credit spread fell, indicating lower corporate bond yields relative to Treasuries, which typically means higher bond prices (LQD), contradicting the hypothesis of increased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year US Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis that money growth leads to higher inflation and thus higher equity returns."
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases, it contradicts the hypothesis that inflation leads to higher volatility and thus higher equity returns."
+      },
+      {
+       "observable": "SPY (S&P 500 index) increases",
+       "would_contradict": "If SPY decreases, it contradicts the hypothesis that higher inflation leads to higher equity returns."
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis that higher inflation leads to lower short-term Treasury demand."
+      },
+      {
+       "observable": "LQD (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If LQD increases, it contradicts the hypothesis that higher inflation leads to lower long-term Treasury demand."
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-b5a193074c12",
+      "mechanism": "output growth -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2018-01-31#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.10 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.10 (1.2 std dev) after the Industrial production release, indicating potential market reaction to output growth. This supports the link to equity prices via yield changes.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.07 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread fell by -0.07 (0.9 std dev) after the Industrial production release, indicating a decrease in Treasury prices (IEF) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread fell by -0.18 (1.4 std dev) over the period, indicating a decrease in LQD prices as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.10 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield rose by +0.10 (1.2 std dev) after the Industrial production release, indicating potential market reaction to output growth, supporting the link to equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread fell by -0.18 (1.4 std dev) over the period, indicating a decrease in Treasury prices (IEF) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread fell by -0.18 (1.4 std dev) over the period, indicating a decrease in LQD prices as per the mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": true
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) falls",
+       "would_contradict": "If UST10Y rises instead of falls, the hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX (volatility index) rises",
+       "would_contradict": "If VIX falls instead of rises, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY (S&P 500 ETF) rises",
+       "would_contradict": "If SPY falls instead of rises, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF (10-year Treasury ETF) falls",
+       "would_contradict": "If IEF rises instead of falls, the hypothesis is contradicted"
+      },
+      {
+       "observable": "LQD (10-year Treasury ETF) falls",
+       "would_contradict": "If LQD rises instead of falls, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-b5a193074c12",
+      "mechanism": "output growth -> inflation -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-01-31",
+       "VIX in 2018-01-31",
+       "SPY in 2018-01-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-01-31#c000",
+       "DN_BEI5Y_2018-01-31#c000",
+       "DN_SLOPE_10Y3M_2018-01-31#c000",
+       "DN_IG_SPREAD_2018-01-31#c000"
+      ],
+      "contradicting": [
+       "DN_UST2Y_PPI_2018-01-11#c000",
+       "DN_UST2Y_CORE_CPI_2018-01-12#c000",
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_BEI5Y_PPI_2018-01-11#c000"
+      ],
+      "neutral": [
+       "DN_INDUSTRIAL_PRODUCTION_2018-01-31#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_PPI_2018-01-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the PPI release on 2018-01-11 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.03 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts show rising 5-year breakeven inflation and 10Y-3M Treasury yield spread, indicating inflationary pressure that could drive equity prices (SPY) as per mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.07 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Excerpts show falling credit spreads (IEF), indicating lower risk premiums, which aligns with the mechanism's inflation-driven equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series fell by -0.07 (-0.9 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-01-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-01-01 and 2018-01-30 the series fell by -0.18 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-01-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Falling credit spreads (LQD) indicate lower corporate bond prices, consistent with the mechanism's inflation-driven equity returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_PPI_2018-01-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the PPI release on 2018-01-11 (08:30 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.03 (+0.3 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2018-01-17#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): from the close before the Industrial production release on 2018-01-17 (09:15 ET) to the latest value published by the decision time (2018-01-30), the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Rising 5-year breakeven inflation and 10Y-3M yield spread indicate inflationary pressure driving equity prices (SPY).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-30",
+       "change": 0.33000000000000007,
+       "z": 1.8411314274778647,
+       "result": "inconsistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-01-01",
+       "window_end": "2018-01-31",
+       "change": 2.5,
+       "z": 0.6005155397227452,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 6,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 1,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Insufficient",
+   "run_statuses": [
+    "Insufficient",
+    "Insufficient",
+    "Insufficient"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-01-H3",
+   "trigger": "PPI",
+   "channel": "inflation",
+   "mechanism": "inflation -> output gap -> inflation dynamics -> bond yields",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-bb5b70086681": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4583",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w11806",
+     "year": 2005,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP6992",
+     "year": 2008,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 45,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 24
+    },
+    "sha256": "89a5dcd49e1725dfb8168e62a2bdca3a382eae1d84aa129205ac642b3a370d13",
+    "latest_available_at": "2018-01-31T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2018-01-H3_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-01-H4",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2017-059a6b03a78d": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP1219",
+     "year": 1995,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP3210",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP4531",
+     "year": 2004,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 24
+    },
+    "sha256": "cef878352eeba0db0a70be527da266bc6196dee0c7d81af1406bd097f78b993e",
+    "latest_available_at": "2018-01-31T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2018-01-H4_s1: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-01-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 43,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 24
+    },
+    "sha256": "f153c511b57245b977cc5d7e53cf102493ecbcb3f9fc91fcfe23f40ece3e12e6",
+    "latest_available_at": "2018-01-31T19:59:00-05:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2018-01-H5_s3: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 5.0
+  },
+  "IEF": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -5.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -5.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "71f9231cba0192d793802fc14e254476c86efd7850738e923bd329642b1a7bb6",
+ "packet_sha256": "e6d12a453d4349f8705569667a08497d7ad7fb56fca1c4926c7868d48152106d",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

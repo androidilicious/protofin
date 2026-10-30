@@ -220,6 +220,9 @@ def within_approach_results() -> dict:
 
 
 
+VS_LABEL = {"AP3-AP1": "vs_deterministic", "AP3-AP2B": "vs_jev"}
+
+
 def ap3_exploratory_block(cfg: dict, mk, dev, cost: float) -> dict | None:
     """The exploratory (gate-failed) Causal RAG baseline: its real state, and its results once they exist.
 
@@ -267,8 +270,17 @@ def ap3_exploratory_block(cfg: dict, mk, dev, cost: float) -> dict | None:
         "coverage": {"months_with_a_hypothesis": cov.get("scored_months_with_at_least_one_hypothesis"),
                      "months_scored": cov.get("scored_months_present"), "agent_failures": cov.get("n_months_with_agent_failure"),
                      "tests": cov.get("tests"), "failed_tests": cov.get("failed_tests"), "status_counts": cov.get("status_counts") or {}},
-        "vs": {k: {"cer_difference": _r(v["cer_difference"]), "ci95": [_r(x) for x in v["ci95"]],
-                   "p": _r(v["p_two_sided_bootstrap"], 4)} for k, v in (e.get("primary_contrasts_development") or {}).items()},
+        "vs": {VS_LABEL.get(k, k): {"cer_difference": _r(v["cer_difference"]), "ci95": [_r(x) for x in v["ci95"]],
+                                    "p": _r(v["p_two_sided_bootstrap"], 4)}
+               for k, v in (e.get("primary_contrasts_development") or {}).items()},
+        "vs_own_neutral": {"cer_difference": _r(e["vs_own_benchmark"]["cer_difference"]),
+                           "ci95": [_r(x) for x in e["vs_own_benchmark"]["ci95"]],
+                           "p": _r(e["vs_own_benchmark"]["p_two_sided_bootstrap"], 4)},
+        "calibration": {
+            "intercept_only_share": _r((e["calibration"]["g4c_checks"] or {}).get("intercept_only_share"), 4),
+            "calibration_slope": _r((e["calibration"]["g4c_checks"] or {}).get("calibration_slope"), 4),
+            "placebo": {k: _r(v, 6) if isinstance(v, (int, float)) else v
+                        for k, v in (e["calibration"].get("placebo") or {}).items()}},
     })
     return out
 
@@ -583,10 +595,48 @@ def sensitivity_block() -> dict | None:
                          "corr_0x": _r(cp["monthly_net_return_correlation_0x"], 6),
                          "corr_signal_parts": _r(cp["monthly_signal_part_correlation"], 6),
                          "corr_det_vs_committee_1x": _r(r["cross_approach"]["pairwise"]["AP1_vs_AP2A"]["monthly_net_return_correlation_1x"], 6)}
-    out["ap3"] = {"status": r["approaches"]["AP3"]["status"], "months_available": r["approaches"]["AP3"]["months_available"],
-                  "months_required": r["approaches"]["AP3"]["months_required"],
-                  "blockers": r["approaches"]["AP3"]["blockers"],
-                  "designation": r["approaches"]["AP3"]["designation_if_run_on_current_outputs"]}
+    a3 = r["approaches"]["AP3"]
+    computed = "performance" in a3
+    out["ap3"] = {"status": a3["status"], "computed": computed,
+                  "months_available": a3.get("months_available") or a3.get("agent_months"),
+                  "months_required": a3.get("months_required", 95),
+                  "blockers": a3.get("blockers") or [],
+                  "gates_failed": a3.get("gates_failed") or {},
+                  "caveat": a3.get("caveat"), "categorical_note": a3.get("categorical_note"),
+                  "designation": a3.get("designation") or a3.get("designation_if_run_on_current_outputs")}
+    if computed:
+        out["systems"]["rag"] = {
+            "universe": a3["universe"], "neutral_weights": a3["native_neutral_weights"],
+            "neutral_label": mix_label(a3["native_neutral_weights"]),
+            "allocator": a3["allocator"]["kind"], "entry_point": a3["allocator"]["entry_point"],
+            "bounds": a3["allocator"]["bounds"], "role": a3["role"],
+            "exploratory": True, "designation": a3["designation"],
+            "by_scenario": {s: {
+                "net_cer": _r(a3["performance"]["by_scenario"][s]["net_cer"]),
+                "vol": _r(a3["performance"]["by_scenario"][s]["annualized_volatility"]),
+                "sharpe": _r(a3["performance"]["by_scenario"][s]["net_sharpe"], 4),
+                "turnover": _r(a3["performance"]["by_scenario"][s]["annualized_one_way_turnover"], 4),
+                "cost_bp": _r(a3["performance"]["by_scenario"][s]["annualized_cost"] * 1e4, 3),
+                "max_dd": _r(a3["performance"]["by_scenario"][s]["max_drawdown"]),
+                "active_weight": _r(a3["performance"]["by_scenario"][s]["mean_half_sum_abs_active"], 5),
+                "intermediate_change": _r(a3["transmission"]["per_scenario_vs_1x"][s]["mean_abs_intermediate_weight_change_vs_1x"], 5),
+                "final_change": _r(a3["transmission"]["per_scenario_vs_1x"][s]["mean_abs_final_weight_change_vs_1x"], 5),
+                "attenuation": (None if a3["transmission"]["per_scenario_vs_1x"][s]["mean_constraint_attenuation_share"] is None
+                                else _r(a3["transmission"]["per_scenario_vs_1x"][s]["mean_constraint_attenuation_share"], 5)),
+                "binding_months": a3["transmission"]["per_scenario_vs_1x"][s]["months_with_any_binding_bound"],
+                "vs_1x": (None if s == "1x" else {
+                    "cer_difference": _r(a3["statistics"][f"net_cer_{s}_minus_1x"]["point"]),
+                    "ci95": [_r(v) for v in a3["statistics"][f"net_cer_{s}_minus_1x"]["ci95"]],
+                    "p": _r(a3["statistics"][f"net_cer_{s}_minus_1x"]["p_two_sided_bootstrap"], 4)})}
+                for s in scen},
+            "control_net_cer": _r(a3["performance"]["by_scenario"]["control:native_neutral_static"]["net_cer"]),
+            "zero_equals_control": bool(a3["zero_scenario_checks"].get("equals_native_neutral", False)),
+            "reproduces_1x": bool(a3["reproduction_of_1x"]["within_tolerance"]),
+            "signal_variance_share": _r((r["cross_approach"]["per_approach_variance_split"].get("AP3") or {}).get("signal_part_share_of_1x_variance"), 6),
+            "where_attenuated": a3["view_pipeline"]["kind"],
+            "posterior_keeps": _r(a3["view_pipeline"].get("mean_share_of_the_view_the_posterior_keeps"), 5),
+            "view_vs_prior_bp": _r(a3["view_pipeline"].get("mean_abs_view_minus_prior_bp"), 3),
+            "jev_stages": None}
     out["validation"] = {"audit_checks": json.loads(audit.read_text())["n_checks"] if audit.exists() else None,
                          "audit_failures": json.loads(audit.read_text())["n_failed"] if audit.exists() else None,
                          "any_scenario_statistically_clear": False}
@@ -613,6 +663,73 @@ MACRO_LABEL = {"nfp_z": "Payrolls", "retail_sales_z": "Retail sales", "industria
 TILTS = ["strong_equities", "lean_equities", "neutral", "lean_bonds", "strong_bonds"]
 TILT_LABEL = {"strong_equities": "Strong equities", "lean_equities": "Lean equities", "neutral": "Neutral",
               "lean_bonds": "Lean bonds", "strong_bonds": "Strong bonds"}
+
+
+AP3_RUN = ROOT / "native_backtest/out/ap3/qwen3_runs"
+AP3_TRACE = ROOT / "native_backtest/out/sensitivity/ap3_transmission_trace.csv"
+STATUSES = ("Supported", "Contradicted", "Insufficient")
+
+
+def ap3_pipeline_months(months: list) -> dict:
+    """Per-month Causal RAG stage values, from the genuine agent records and the imported evaluation.
+
+    Returns {} unless the full 95-month agent replay exists AND its evaluation has been produced, so a partial or
+    unevaluated run never yields replay values."""
+    ev = AP3_RUN / "evaluation"
+    need = [AP3_RUN / "summary.json", ev / "evaluation.json", ev / "predictions.csv", ev / "AP3_common_matched_dev.csv"]
+    if not all(f.exists() for f in need) or not AP3_TRACE.exists():
+        return {}
+    summary = json.loads((AP3_RUN / "summary.json").read_text())
+    if summary.get("n_months") != summary.get("target_months"):
+        return {}
+    pred = pd.read_csv(ev / "predictions.csv", dtype={"decision_month": str})
+    sim = pd.read_csv(ev / "AP3_common_matched_dev.csv", dtype={"decision_month": str}).set_index("decision_month")
+    tr = pd.read_csv(AP3_TRACE, dtype={"decision_month": str})
+    tr = tr[tr["scenario"] == "1x"].set_index("decision_month")
+    A = ("SPY", "IEF", "LQD")
+    out = {}
+    for m in months:
+        f = AP3_RUN / "months" / f"{m}.json"
+        if not f.exists() or m not in sim.index or m not in tr.index:
+            continue
+        j = json.loads(f.read_text())
+        pm = pred[pred["decision_month"] == m]
+        if pm.empty:
+            continue
+        by = {a: pm[pm["asset"] == a].iloc[0] for a in A if not pm[pm["asset"] == a].empty}
+        one = next(iter(by.values()))
+        t, rr = tr.loc[m], sim.loc[m]
+        hyp = j.get("hypotheses") or []
+        counts = {st: sum(1 for h in hyp if h.get("status") == st) for st in STATUSES}
+        ev_rows = j.get("event") or []
+        calls = len(((j.get("hypothesis_agent") or {}).get("tool_calls")) or [])
+        sf = j.get("status_features") or {}
+        out[m] = {
+            "decision_date": str(j.get("decision_time", ""))[:10], "info_cutoff": str(j.get("decision_time", "")),
+            "graph_vintage": j.get("graph_vintage"),
+            "entry": str(rr["entry_date"]), "exit": str(rr["exit_date"]),
+            "triggers": [{"trigger": e.get("trigger"), "description": e.get("description"),
+                          "direction": e.get("direction"), "z": _r(e.get("surprise_z"), 4)} for e in ev_rows],
+            "evidence_calls": calls,
+            "hypotheses": [{"id": h.get("id"), "trigger": h.get("trigger"), "channel": h.get("channel"),
+                            "status": h.get("status"), "confidence": h.get("confidence_stated"),
+                            "mechanism": h.get("mechanism"),
+                            "assets": {a: h.get("predicted_assets", {}).get(a) for a in A}} for h in hyp],
+            "status_counts": counts, "n_hypotheses": len(hyp),
+            "status_features": {a: {k: _r(v, 3) for k, v in (sf.get(a) or {}).items()} for a in A},
+            "fit": {"n_train": int(one["n_train"]), "alpha": str(one["alpha"]),
+                    "intercept_only": str(one["alpha"]) == "INTERCEPT_ONLY"},
+            "forecast": {a: _r(float(v["prediction_excess_return"]), 6) for a, v in by.items()},
+            "prior": {a: _r(float(t[f"pi_{a}"]), 6) for a in A},
+            "posterior": {a: _r(float(t[f"mu_bl_{a}"]), 6) for a in A},
+            "w_unconstrained": {a: _r(float(t[f"w_unconstrained_{a}"]), 5) for a in A},
+            "weights": {a: _r(float(t[f"w_{a}"]), 5) for a in A},
+            "pretrade": {a: _r(float(rr[f"pretrade_w_{a}"]), 5) for a in A},
+            "binding": ("" if pd.isna(t["bounds_binding"]) else str(t["bounds_binding"])),
+            "turnover": _r(float(rr["one_way_turnover"]), 5), "cost": _r(float(rr["cost"]), 6),
+            "gross": _r(float(rr["gross_excess_return"]), 6), "net": _r(float(rr["net_excess_return"]), 6),
+            "rf": _r(float(rr["rf_return"]), 6)}
+    return out
 
 
 def _row(df, month, **where):
@@ -730,14 +847,18 @@ def pipeline_block(sims: dict) -> dict | None:
              "out": "Turnover, cost and realised return."},
             {"id": "eval", "name": "Performance evaluation", "what": "Scored on the same development months, once the reliability gates pass.",
              "out": "Net excess return and the development metrics."}]}
+    rag = ap3_pipeline_months(months)
     return {
-        "months": months, "stages": stages, "det": det, "jev": jv,
+        "months": months, "stages": stages, "det": det, "jev": jv, **({"rag": rag} if rag else {}),
         "default_month": "2020-02" if "2020-02" in det else (months[0] if months else None),
         "ridge_alpha_counts": {str(k): int(v) for k, v in ridge.items()},
         "ridge_intercept_only_share": _r(ridge.get("INTERCEPT_ONLY", 0) / max(1, int(pred.shape[0])), 4),
-        "rag": {"available": False,
-                "reason": "No genuine Causal RAG outputs exist for the development window, so no stage values are shown.",
-                "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED"},
+        "rag_status": ({"available": True,
+                 "reason": "Genuine qwen3:4b agent outputs that did NOT pass the pre-registered reliability gates.",
+                 "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED"} if rag else
+                {"available": False,
+                 "reason": "No genuine Causal RAG outputs exist for the development window, so no stage values are shown.",
+                 "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED"}),
         "sources": {
             "det": ["stage2/data/model_scoring_panel_E4_meanrule.csv",
                     "stage2/results/dev_rerun_v4_portfolio_2026-10-27/stage2_predictions.csv",
@@ -745,7 +866,11 @@ def pipeline_block(sims: dict) -> dict | None:
                     "native_backtest/out/sensitivity/ap1_scenario_returns.csv"],
             "jev": ["native_backtest/out/decisions/AP2B.jsonl",
                     "native_backtest/out/sensitivity/ap2b_transmission_trace.csv",
-                    "native_backtest/out/sensitivity/ap2b_scenario_returns.csv"]}}
+                    "native_backtest/out/sensitivity/ap2b_scenario_returns.csv"],
+            **({"rag": ["native_backtest/out/ap3/qwen3_runs/months",
+                        "native_backtest/out/ap3/qwen3_runs/evaluation/predictions.csv",
+                        "native_backtest/out/sensitivity/ap3_transmission_trace.csv",
+                        "native_backtest/out/ap3/qwen3_runs/evaluation/AP3_common_matched_dev.csv"]} if rag else {})}}
 
 
 
@@ -757,6 +882,7 @@ DOCS = [
     ("Within-Approach Experiments", "native_backtest/docs/WITHIN_APPROACH_EXPERIMENTS_2026-10-29.md", "experiments"),
     ("Causal RAG run diagnosis", "native_backtest/docs/AP3_QWEN3_RUN1_DIAGNOSIS_2026-10-29.md", "causal-rag"),
     ("Causal RAG exploratory baseline", "native_backtest/docs/AP3_EXPLORATORY_BASELINE_2026-10-29.md", "causal-rag"),
+    ("Causal RAG exploratory backtest", "native_backtest/docs/AP3_EXPLORATORY_BACKTEST_2026-10-29.md", "causal-rag"),
     ("Dashboard redesign inventory", "native_backtest/docs/DASHBOARD_REDESIGN_INVENTORY_2026-10-29.md", "artifacts"),
 ]
 CONFIGS = [

@@ -10,6 +10,7 @@ Usage (repository root): python -m native_backtest.scripts.audit_forecast_to_all
 """
 from __future__ import annotations
 
+import itertools
 import json
 import math
 from pathlib import Path
@@ -23,7 +24,9 @@ REPORT = OUT / "forecast_to_allocation_sensitivity.json"
 PREREG = ROOT / "native_backtest/config/forecast_to_allocation_sensitivity_preregistration_v1.json"
 STAGE2_RUN = ROOT / "stage2/results/dev_rerun_v4_portfolio_2026-10-27"
 DEC = ROOT / "native_backtest/out/decisions"
-ASSETS = {"AP1": ("SPY", "IEF", "LQD"), "AP2B": ("SPY", "TLT"), "AP2A": ("SPY", "TLT")}
+AUDITED: list = []
+ASSETS = {"AP1": ("SPY", "IEF", "LQD"), "AP2B": ("SPY", "TLT"), "AP2A": ("SPY", "TLT"),
+          "AP3": ("SPY", "IEF", "LQD")}
 SCEN = ("0x", "0.5x", "1x", "2x")
 TOL = 1e-9
 checks: list = []
@@ -256,19 +259,32 @@ def audit_reproduction(rep: dict) -> None:
 
 def audit_zero_scenario(rep: dict) -> None:
     pre = json.loads(PREREG.read_text())
-    for system in ("AP1", "AP2B", "AP2A"):
-        neutral = pre["no_signal_controls"][system]["weights"]
+    cfg = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())
+    for system in AUDITED:
+        # the pre-registered definition is the frozen config's own native_neutral_weights; the per-system entries
+        # are a convenience listing, so a system without one (AP3) still has a pre-registered control.
+        listed = pre["no_signal_controls"].get(system)
+        neutral = listed["weights"] if listed else cfg["systems"][system]["native_neutral_weights"]
+        if listed:
+            assert listed["weights"] == cfg["systems"][system]["native_neutral_weights"], system
         t = pd.read_csv(OUT / f"{system.lower()}_transmission_trace.csv").query("scenario == '0x'")
         d = max(abs(t[f"w_{a}"] - w).max() for a, w in neutral.items())
         pubz = rep["approaches"][system]["zero_scenario_checks"]
-        if system == "AP1":
-            close("AP1 0x: distance from the static 45/35/20 control",
+        # A Black-Litterman allocator at lambda = 0 sits NEAR its neutral portfolio but not exactly on it: the
+        # optimizer maximises against Sigma + M while pi was defined as delta Sigma w_eq. That was pre-registered
+        # for AP1 and is a property of the allocator, so AP3 - the other BL allocator - is held to the same
+        # expectation. The capped-tilt allocators have no posterior step and do land on their control exactly.
+        if "vs_native_neutral_static_weights" in pubz:
+            close(f"{system} 0x: distance from the static control",
                   float(d), pubz["vs_native_neutral_static_weights"]["max_abs_weight_difference"])
-            ok("AP1 0x: differs from the static control, as pre-registered", float(d) > 1e-6, {"max_abs_difference": float(d)})
+            ok(f"{system} 0x: differs from the static control by the documented Sigma + M effect, as pre-registered",
+               1e-6 < float(d) < 0.05, {"max_abs_difference": float(d)})
+            ok(f"{system} 0x: that difference is documented, not assumed away",
+               "Sigma + M" in pubz["vs_native_neutral_static_weights"]["why"].replace("\u03a3", "Sigma"))
         else:
             ok(f"{system} 0x: equals the native no-signal control exactly", float(d) <= 1e-9, {"max_abs_difference": float(d)})
     # and the 0x scenario carries no signal at all
-    for system in ("AP1", "AP2A"):
+    for system in [k for k in ("AP1", "AP2A", "AP3") if k in AUDITED]:
         t = pd.read_csv(OUT / f"{system.lower()}_transmission_trace.csv").query("scenario == '0x'")
         a = ASSETS[system]
         d = float(np.abs(t[[f"q_adj_{x}" for x in a]].to_numpy(float) - t[[f"pi_{x}" for x in a]].to_numpy(float)).max())
@@ -280,7 +296,7 @@ def audit_zero_scenario(rep: dict) -> None:
 
 def audit_statistics(rep: dict) -> None:
     m = json.loads((ROOT / "native_backtest/config/framework_config_v1.json").read_text())["metrics"]
-    for system in ("AP1", "AP2B", "AP2A"):
+    for system in AUDITED:
         ret = pd.read_csv(OUT / f"{system.lower()}_scenario_returns.csv")
         s = lambda k: ret[ret["scenario"] == k].sort_values("decision_month")["net_excess_return"].to_numpy(float)
         st = rep["approaches"][system]["statistics"]
@@ -298,11 +314,11 @@ def audit_statistics(rep: dict) -> None:
 
 def audit_cross_approach(rep: dict) -> None:
     net = {}
-    for system in ("AP1", "AP2B", "AP2A"):
+    for system in AUDITED:
         ret = pd.read_csv(OUT / f"{system.lower()}_scenario_returns.csv")
         net[system] = {k: ret[ret["scenario"] == k].sort_values("decision_month")["net_excess_return"].to_numpy(float)
                        for k in SCEN}
-    for a, b in (("AP1", "AP2B"), ("AP1", "AP2A"), ("AP2B", "AP2A")):
+    for a, b in [(x, y) for x, y in itertools.combinations(("AP1", "AP2B", "AP2A", "AP3"), 2) if x in AUDITED and y in AUDITED]:
         pub = rep["cross_approach"]["pairwise"][f"{a}_vs_{b}"]
         close(f"{a} vs {b}: 1x monthly net return correlation",
               float(np.corrcoef(net[a]["1x"], net[b]["1x"])[0, 1]), pub["monthly_net_return_correlation_1x"])
@@ -311,7 +327,7 @@ def audit_cross_approach(rep: dict) -> None:
         close(f"{a} vs {b}: signal-part correlation",
               float(np.corrcoef(net[a]["1x"] - net[a]["0x"], net[b]["1x"] - net[b]["0x"])[0, 1]),
               pub["monthly_signal_part_correlation"])
-    for system in ("AP1", "AP2B", "AP2A"):
+    for system in AUDITED:
         pub = rep["cross_approach"]["per_approach_variance_split"][system]
         sig = net[system]["1x"] - net[system]["0x"]
         close(f"{system}: signal share of 1x variance", float(sig.var(ddof=1) / net[system]["1x"].var(ddof=1)),
@@ -322,13 +338,25 @@ def audit_integrity(rep: dict) -> None:
     ok("the protected window is never scored",
        rep["window"]["development"][1] < rep["window"]["protected_window_start"],
        {"last_development_month": rep["window"]["development"][1], "protected_start": rep["window"]["protected_window_start"]})
-    for system in ("AP1", "AP2B", "AP2A"):
+    for system in AUDITED:
         for f in (f"{system.lower()}_scenario_returns.csv", f"{system.lower()}_transmission_trace.csv"):
             d = pd.read_csv(OUT / f)
             late = [m for m in d["decision_month"].astype(str).unique() if m >= rep["window"]["protected_window_start"]]
             ok(f"{f}: holds no protected month", not late, {"found": late[:5]})
-    ok("Causal RAG is not reported as computed",
-       rep["approaches"]["AP3"]["status"] == "PENDING GENUINE AGENT OUTPUTS", rep["approaches"]["AP3"]["status"])
+    # Causal RAG may be computed now that genuine agent outputs exist, but only ever as a labelled exploratory
+    # diagnostic: it must never be presented as validated while a pre-registered gate is failing.
+    ap3 = rep["approaches"]["AP3"]
+    if ap3["status"] == "PENDING GENUINE AGENT OUTPUTS":
+        ok("Causal RAG is reported as pending, with no scenario values", "performance" not in ap3)
+    else:
+        ok("Causal RAG, if computed, carries the exploratory designation",
+           "EXPLORATORY" in ap3["status"] and ap3.get("designation", "").startswith("EXPLORATORY"), ap3["status"])
+        ok("Causal RAG is never marked validated", ap3.get("validated") is False, ap3.get("validated"))
+        ok("Causal RAG records the gates it failed", bool(ap3.get("gates_failed")), ap3.get("gates_failed"))
+        ok("Causal RAG gate outcomes are unchanged (still failing)",
+           all(v is False for v in (ap3.get("gates") or {}).values()), ap3.get("gates"))
+        ok("Causal RAG categorical assessments were never scaled",
+           "never scaled" in ap3.get("categorical_note", ""), ap3.get("categorical_note"))
     ok("the pre-registration is committed and referenced",
        PREREG.exists() and rep["preregistration"]["file"].endswith("forecast_to_allocation_sensitivity_preregistration_v1.json"))
     pre = json.loads(PREREG.read_text())
@@ -342,12 +370,15 @@ DTB: pd.Series = pd.Series(dtype=float)
 
 
 def main(argv=None) -> int:
-    global PRICES, DTB
+    global PRICES, DTB, AUDITED
     PRICES, DTB = load_prices(), load_rf()
     rep = json.loads(REPORT.read_text())
+    # every approach whose scenarios were actually computed gets the full independent rebuild
+    AUDITED[:] = [k for k in ("AP1", "AP2B", "AP2A", "AP3")
+                  if (OUT / f"{k.lower()}_transmission_trace.csv").exists() and "performance" in rep["approaches"].get(k, {})]
     audit_reproduction(rep)
     audit_zero_scenario(rep)
-    for system in ("AP1", "AP2B", "AP2A"):
+    for system in AUDITED:
         audit_accounting(system, rep)
         audit_transformation(system, rep)
         audit_attenuation(system, rep)

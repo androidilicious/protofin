@@ -1453,24 +1453,526 @@
    "name": "Agentic Causal RAG",
    "short": "Causal RAG",
    "role": "primary",
-   "status": "PENDING GENUINE AGENT OUTPUTS",
-   "reason": "Genuine qwen3:4b outputs cover 12 of the 95 required months (2015-02..2016-01) and both pre-registered reliability gates failed (G3a schema-valid call rate 0.9771 < 0.98; G3b accuracy 0.5667 < 0.80 with 2 opposite-direction errors > 1). No calibrated numerical view series exists for the 46 development months, so no sensitivity scenario can be run.",
-   "months_available": 12,
-   "months_required": 95,
+   "status": "COMPUTED - EXPLORATORY, RELIABILITY GATES FAILED",
+   "universe": [
+    "SPY",
+    "IEF",
+    "LQD"
+   ],
+   "native_neutral_weights": {
+    "SPY": 0.45,
+    "IEF": 0.35,
+    "LQD": 0.2
+   },
+   "allocator": {
+    "kind": "Black-Litterman with a bounded fully invested mean-variance optimum (Causal RAG's own Q and Omega)",
+    "entry_point": "native_backtest/ap3/allocation.py::weights_for_months -> bl_posterior argument q",
+    "bounds": {
+     "SPY": [
+      0.2,
+      0.7
+     ],
+     "IEF": [
+      0.15,
+      0.6
+     ],
+     "LQD": [
+      0.1,
+      0.4
+     ]
+    },
+    "tau": 0.05,
+    "delta": 2.5,
+    "cov_window": 36,
+    "omega_diag": {
+     "SPY": 0.003778185698677562,
+     "IEF": 0.0006031944863114202,
+     "LQD": 0.0008852778400242604
+    },
+    "intermediate_stage": "the optimizer's own all-free candidate: the fully invested optimum with the bounds ignored"
+   },
+   "reproduction_of_1x": {
+    "max_abs_archived_native_weight": 2.3592239273284576e-15,
+    "max_abs_shared_evaluator_net_excess_vs_archived_records": 1.8041124150158794e-16,
+    "tolerance": 1e-10,
+    "within_tolerance": true
+   },
+   "zero_scenario_checks": {
+    "mu_bl_equals_pi_max_abs": 1.3010426069826053e-18,
+    "adjusted_view_equals_pi_max_abs": 0.0,
+    "vs_native_neutral_static_weights": {
+     "max_abs_weight_difference": 0.017046941823625428,
+     "mean_abs_weight_difference": 0.009809465445279138,
+     "why": "the same pre-registered Sigma + M effect as the Deterministic model: at lambda = 0 the posterior mean is exactly the allocator's own equilibrium pi, but the optimizer maximises against Sigma_post = Sigma + M. Nothing is corrected; both references are reported.",
+     "interpretation": "lambda = 0 is the native allocator with no incremental view, not the static neutral portfolio"
+    }
+   },
+   "performance": {
+    "by_scenario": {
+     "0x": {
+      "label": "Neutral (0x)",
+      "lambda": 0.0,
+      "net_cer": 0.03636531155422652,
+      "net_annualized_excess_return": 0.0523313238035444,
+      "cumulative_return": 0.23958139440355675,
+      "net_sharpe": 0.4630399883182486,
+      "max_drawdown": -0.18421988659838384,
+      "annualized_volatility": 0.11301685626248102,
+      "annualized_one_way_turnover": 0.26900836940252787,
+      "total_cost": 0.0010311987493763566,
+      "annualized_cost": 0.0002690083694025278,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": -0.0019762531500532162,
+      "tracking_error_vs_native_no_signal_annualised": 0.002870012837973462,
+      "mean_abs_active_weight_per_asset": 0.009809465445279138,
+      "max_abs_active_weight_any_asset": 0.017046941823625428,
+      "mean_half_sum_abs_active": 0.014714198167918708,
+      "mean_abs_weight_deviation_per_asset": 0.03715083731223798,
+      "max_abs_weight_deviation_any_asset": 0.26507033715613326,
+      "mean_half_sum_abs_deviation": 0.055726255968356966,
+      "max_half_sum_abs_deviation": 0.26507033715613326
+     },
+     "0.5x": {
+      "label": "Weaker (0.5x)",
+      "lambda": 0.5,
+      "net_cer": 0.04662503513623259,
+      "net_annualized_excess_return": 0.06146310054395866,
+      "cumulative_return": 0.2859155088395664,
+      "net_sharpe": 0.5641321236188267,
+      "max_drawdown": -0.18547533294987106,
+      "annualized_volatility": 0.10895160543186529,
+      "annualized_one_way_turnover": 0.7176612334479588,
+      "total_cost": 0.0027510347282171752,
+      "annualized_cost": 0.0007176612334479587,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.0071555235903610435,
+      "tracking_error_vs_native_no_signal_annualised": 0.017074106917265273,
+      "mean_abs_active_weight_per_asset": 0.019346268505144017,
+      "max_abs_active_weight_any_asset": 0.19999999999999998,
+      "mean_half_sum_abs_active": 0.029019402757716025,
+      "mean_abs_weight_deviation_per_asset": 0.01722112348899023,
+      "max_abs_weight_deviation_any_asset": 0.12007595284852624,
+      "mean_half_sum_abs_deviation": 0.025831685233485346,
+      "max_half_sum_abs_deviation": 0.12007595284852624
+     },
+     "1x": {
+      "label": "Original (1x)",
+      "lambda": 1.0,
+      "net_cer": 0.051224170385227204,
+      "net_annualized_excess_return": 0.06587384797771456,
+      "cumulative_return": 0.30817875535126316,
+      "net_sharpe": 0.6084907858486462,
+      "max_drawdown": -0.18674485466774748,
+      "annualized_volatility": 0.10825775756956126,
+      "annualized_one_way_turnover": 1.0636260198616498,
+      "total_cost": 0.004077233076136325,
+      "annualized_cost": 0.00106362601986165,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.011566271024116972,
+      "tracking_error_vs_native_no_signal_annualised": 0.02649200869983909,
+      "mean_abs_active_weight_per_asset": 0.03298638032021213,
+      "max_abs_active_weight_any_asset": 0.25,
+      "mean_half_sum_abs_active": 0.0494795704803182,
+      "mean_abs_weight_deviation_per_asset": 0.0,
+      "max_abs_weight_deviation_any_asset": 0.0,
+      "mean_half_sum_abs_deviation": 0.0,
+      "max_half_sum_abs_deviation": 0.0
+     },
+     "2x": {
+      "label": "Stronger (2x)",
+      "lambda": 2.0,
+      "net_cer": 0.055880887399962116,
+      "net_annualized_excess_return": 0.071118955712028,
+      "cumulative_return": 0.33352290146502916,
+      "net_sharpe": 0.6441328072348449,
+      "max_drawdown": -0.18929771199673495,
+      "annualized_volatility": 0.11041039194592472,
+      "annualized_one_way_turnover": 1.3607093548546418,
+      "total_cost": 0.005216052526942795,
+      "annualized_cost": 0.001360709354854642,
+      "n_months": 46,
+      "mean_active_return_vs_native_no_signal_annualised": 0.0168113787584304,
+      "tracking_error_vs_native_no_signal_annualised": 0.03437164588040953,
+      "mean_abs_active_weight_per_asset": 0.052224979356158704,
+      "max_abs_active_weight_any_asset": 0.25,
+      "mean_half_sum_abs_active": 0.07833746903423806,
+      "mean_abs_weight_deviation_per_asset": 0.022992896500051638,
+      "max_abs_weight_deviation_any_asset": 0.10976462545371504,
+      "mean_half_sum_abs_deviation": 0.03448934475007746,
+      "max_half_sum_abs_deviation": 0.10976462545371506
+     },
+     "control:native_neutral_static": {
+      "label": "control: native_neutral_static",
+      "lambda": null,
+      "net_cer": 0.0377399153452612,
+      "net_annualized_excess_return": 0.05430757695359762,
+      "cumulative_return": 0.24783494834795206,
+      "net_sharpe": 0.4717205812234455,
+      "max_drawdown": -0.18525302467160232,
+      "annualized_volatility": 0.11512657941009596,
+      "annualized_one_way_turnover": 0.26861464735593077,
+      "total_cost": 0.0010296894815310684,
+      "annualized_cost": 0.0002686146473559309,
+      "n_months": 46
+     }
+    },
+    "monthly_net_return_correlation": {
+     "0x": {
+      "0x": 1.0,
+      "0.5x": 0.9905192806,
+      "1x": 0.9745413708,
+      "2x": 0.9551099122
+     },
+     "0.5x": {
+      "0x": 0.9905192806,
+      "0.5x": 1.0,
+      "1x": 0.9959037502,
+      "2x": 0.98600023
+     },
+     "1x": {
+      "0x": 0.9745413708,
+      "0.5x": 0.9959037502,
+      "1x": 1.0,
+      "2x": 0.9968635311
+     },
+     "2x": {
+      "0x": 0.9551099122,
+      "0.5x": 0.98600023,
+      "1x": 0.9968635311,
+      "2x": 1.0
+     }
+    }
+   },
+   "transmission": {
+    "per_scenario_vs_1x": {
+     "0x": {
+      "mean_abs_view_change_vs_1x": 47.174020745640014,
+      "max_abs_view_change_vs_1x": 247.80721168528868,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.03391999742434021,
+      "max_abs_intermediate_weight_change_vs_1x": 0.2607887209139942,
+      "mean_abs_final_weight_change_vs_1x": 0.03496771390896548,
+      "max_abs_final_weight_change_vs_1x": 0.26507033715613326,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": -0.009787493881938522,
+      "max_constraint_attenuation_share": 3.1308289294429414e-14,
+      "months_with_any_binding_bound": 0,
+      "share_of_months_with_any_binding_bound": 0.0,
+      "binding_bound_counts": {}
+     },
+     "0.5x": {
+      "mean_abs_view_change_vs_1x": 23.58701037282001,
+      "max_abs_view_change_vs_1x": 123.90360584264434,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.016959998712170073,
+      "max_abs_intermediate_weight_change_vs_1x": 0.13039436045699704,
+      "mean_abs_final_weight_change_vs_1x": 0.017571003775747166,
+      "max_abs_final_weight_change_vs_1x": 0.12007595284852624,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": -0.01527353864117979,
+      "max_constraint_attenuation_share": 0.07913231501966478,
+      "months_with_any_binding_bound": 2,
+      "share_of_months_with_any_binding_bound": 0.043478260869565216,
+      "binding_bound_counts": {
+       "LQD:lower": 1,
+       "IEF:lower": 1
+      }
+     },
+     "1x": {
+      "mean_abs_view_change_vs_1x": 0.0,
+      "max_abs_view_change_vs_1x": 0.0,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.0,
+      "max_abs_intermediate_weight_change_vs_1x": 0.0,
+      "mean_abs_final_weight_change_vs_1x": 0.0,
+      "max_abs_final_weight_change_vs_1x": 0.0,
+      "months_above_ratio_floor": 0,
+      "months_below_ratio_floor_not_divided": 46,
+      "mean_constraint_attenuation_share": null,
+      "max_constraint_attenuation_share": null,
+      "months_with_any_binding_bound": 3,
+      "share_of_months_with_any_binding_bound": 0.06521739130434782,
+      "binding_bound_counts": {
+       "IEF:upper": 1,
+       "LQD:lower": 1,
+       "IEF:lower,SPY:upper": 1
+      }
+     },
+     "2x": {
+      "mean_abs_view_change_vs_1x": 47.174020745640014,
+      "max_abs_view_change_vs_1x": 247.80721168528868,
+      "view_change_unit": "basis points a month",
+      "mean_abs_intermediate_weight_change_vs_1x": 0.033919997424340216,
+      "max_abs_intermediate_weight_change_vs_1x": 0.26078872091399397,
+      "mean_abs_final_weight_change_vs_1x": 0.02755568661026701,
+      "max_abs_final_weight_change_vs_1x": 0.10976462545371504,
+      "months_above_ratio_floor": 46,
+      "months_below_ratio_floor_not_divided": 0,
+      "mean_constraint_attenuation_share": 0.002076577671630789,
+      "max_constraint_attenuation_share": 1.0,
+      "months_with_any_binding_bound": 10,
+      "share_of_months_with_any_binding_bound": 0.21739130434782608,
+      "binding_bound_counts": {
+       "IEF:lower": 4,
+       "LQD:lower": 2,
+       "SPY:lower": 1,
+       "SPY:lower,IEF:upper": 1,
+       "IEF:upper": 1,
+       "IEF:lower,SPY:upper": 1
+      }
+     }
+    },
+    "local_finite_difference_around_1x": {
+     "definition": "symmetric difference between the 2x and 0.5x scenarios, per month",
+     "mean_abs_weight_change_per_unit_view": 0.0006751952677749984,
+     "median_abs_weight_change_per_unit_view": 0.0006142255027048362,
+     "weight_change_per_lambda_mean": 0.03008446025734277,
+     "view_change_unit": "basis points a month",
+     "months_used": 46,
+     "months_flagged_tiny_view_change": 0
+    }
+   },
+   "view_pipeline": {
+    "kind": "Black-Litterman posterior shrinkage",
+    "mean_abs_view_minus_prior_bp": 47.174020745640014,
+    "mean_abs_posterior_minus_prior_bp": 1.849338642608455,
+    "mean_share_of_the_view_the_posterior_keeps": 0.037107688190118775,
+    "median_share_of_the_view_the_posterior_keeps": 0.04135470657939028,
+    "months_used": 46,
+    "months_flagged_tiny_view": 0,
+    "note": "the posterior weight on the view is tau x Sigma against Omega: a large Omega, estimated from the model's own out-of-sample errors, is what shrinks the view, not any position limit"
+   },
+   "signal_share_of_allocation": {
+    "mean_distance_1x_from_native_neutral": 0.0494795704803182,
+    "mean_distance_0x_from_native_neutral": 0.014714198167918708,
+    "mean_distance_1x_from_0x_the_signal_part": 0.055726255968356966,
+    "max_distance_1x_from_0x_the_signal_part": 0.26507033715613326,
+    "signal_share_of_1x_distance_from_neutral": 1.1262477710982464
+   },
+   "statistics": {
+    "net_cer_0x": {
+     "point": 0.03636531155422652,
+     "ci90": [
+      -0.05478071851248544,
+      0.11956799357193994
+     ],
+     "ci95": [
+      -0.07519489472085991,
+      0.13113268578200413
+     ],
+     "p_two_sided_bootstrap": 0.4772,
+     "share_of_draws_above_zero": 0.7614
+    },
+    "net_cer_0x_minus_1x": {
+     "point": -0.01485885883100068,
+     "ci90": [
+      -0.041954799834181745,
+      0.0012561582330629158
+     ],
+     "ci95": [
+      -0.04566204194385931,
+      0.0020567874567816607
+     ],
+     "p_two_sided_bootstrap": 0.2288,
+     "share_of_draws_above_zero": 0.1144
+    },
+    "net_cer_0x_minus_native_neutral_static": {
+     "point": -0.0013746037910346773,
+     "ci90": [
+      -0.0033683346109126193,
+      0.0006091244228330786
+     ],
+     "ci95": [
+      -0.003762559732373271,
+      0.0009475083579782265
+     ],
+     "p_two_sided_bootstrap": 0.2528,
+     "share_of_draws_above_zero": 0.1264
+    },
+    "net_cer_0.5x": {
+     "point": 0.04662503513623259,
+     "ci90": [
+      -0.04772965754914978,
+      0.13090580715535785
+     ],
+     "ci95": [
+      -0.06810881897087048,
+      0.14451233647337444
+     ],
+     "p_two_sided_bootstrap": 0.3896,
+     "share_of_draws_above_zero": 0.8052
+    },
+    "net_cer_0.5x_minus_1x": {
+     "point": -0.004599135248994614,
+     "ci90": [
+      -0.013387100931064122,
+      0.0010455811611726309
+     ],
+     "ci95": [
+      -0.014964836204018502,
+      0.0016037444592888837
+     ],
+     "p_two_sided_bootstrap": 0.3188,
+     "share_of_draws_above_zero": 0.1594
+    },
+    "net_cer_0.5x_minus_native_neutral_static": {
+     "point": 0.00888511979097139,
+     "ci90": [
+      -0.00216209352181535,
+      0.02864124977936477
+     ],
+     "ci95": [
+      -0.0024593977975754413,
+      0.0304579289744217
+     ],
+     "p_two_sided_bootstrap": 0.6028,
+     "share_of_draws_above_zero": 0.6986
+    },
+    "net_cer_1x": {
+     "point": 0.051224170385227204,
+     "ci90": [
+      -0.045299553445140486,
+      0.13782904517276495
+     ],
+     "ci95": [
+      -0.06568138310632875,
+      0.15110318475032988
+     ],
+     "p_two_sided_bootstrap": 0.3532,
+     "share_of_draws_above_zero": 0.8234
+    },
+    "net_cer_1x_minus_native_neutral_static": {
+     "point": 0.013484255039966003,
+     "ci90": [
+      -0.002834727921454825,
+      0.042231538354091054
+     ],
+     "ci95": [
+      -0.0034642937809273707,
+      0.04532348724654485
+     ],
+     "p_two_sided_bootstrap": 0.5444,
+     "share_of_draws_above_zero": 0.7278
+    },
+    "net_cer_2x": {
+     "point": 0.055880887399962116,
+     "ci90": [
+      -0.04389252059254291,
+      0.14556045094855802
+     ],
+     "ci95": [
+      -0.06402331924719187,
+      0.16106309080628475
+     ],
+     "p_two_sided_bootstrap": 0.3248,
+     "share_of_draws_above_zero": 0.8376
+    },
+    "net_cer_2x_minus_1x": {
+     "point": 0.004656717014734912,
+     "ci90": [
+      -0.0012208088116129172,
+      0.012721968193114747
+     ],
+     "ci95": [
+      -0.0017415144980990201,
+      0.014756779527627892
+     ],
+     "p_two_sided_bootstrap": 0.242,
+     "share_of_draws_above_zero": 0.879
+    },
+    "net_cer_2x_minus_native_neutral_static": {
+     "point": 0.018140972054700916,
+     "ci90": [
+      -0.0037120606635586994,
+      0.05455713552714332
+     ],
+     "ci95": [
+      -0.004883838687157638,
+      0.05978194598052773
+     ],
+     "p_two_sided_bootstrap": 0.3996,
+     "share_of_draws_above_zero": 0.8002
+    },
+    "net_cer_control_native_neutral_static": {
+     "point": 0.0377399153452612,
+     "ci90": [
+      -0.05380485011745837,
+      0.12217343053150087
+     ],
+     "ci95": [
+      -0.07506017878853598,
+      0.1341850776953861
+     ],
+     "p_two_sided_bootstrap": 0.47,
+     "share_of_draws_above_zero": 0.765
+    },
+    "_bootstrap": {
+     "block_months": 6,
+     "replications": 5000,
+     "seed": 20261027,
+     "cer_delta": 2.5,
+     "paired": "every statistic uses the same resampled months"
+    }
+   },
+   "designation": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
+   "validated": false,
    "gates": {
     "G3b": false,
     "G3a": false
    },
-   "designation_if_run_on_current_outputs": "EXPLORATORY \u2014 RELIABILITY GATES FAILED",
-   "designation_preregistered_as": "EXPLORATORY - RELIABILITY GATES FAILED",
-   "planned_entry_point": "the calibrated numerical view produced after the Testing Agent's categorical assessments are encoded and calibrated, never the categorical labels themselves",
-   "explicit_prohibition": "Supported, Contradicted and Insufficient are categories, not magnitudes, and are never multiplied. Scaling applies only downstream of calibration.",
-   "machinery_ready": "the scenario, tracing and statistics machinery in this module is approach-agnostic: it needs a per-month calibrated numerical view, the allocator's own prior, and the native weights it produces. None of that exists for the development window yet.",
-   "blockers": [
-    "83 of 95 development-replay months are not yet run on the free GPU",
-    "G3a schema-valid call rate 0.9771 against a 0.98 floor, from the vendored assessor",
-    "G3b accuracy 0.5667 against 0.80 with 2 opposite-direction errors against a limit of 1"
-   ]
+   "gates_failed": {
+    "G3b": {
+     "accuracy": {
+      "value": 0.5666666666666667,
+      "pass": false
+     },
+     "opposite_direction_errors": {
+      "value": 2,
+      "pass": false
+     },
+     "injection_resisted": {
+      "value": 3,
+      "pass": true
+     },
+     "theory_only_never_supported": {
+      "value": 0,
+      "pass": true
+     }
+    },
+    "G3a": {
+     "months_complete": {
+      "value": 12,
+      "pass": true
+     },
+     "schema_valid_call_rate": {
+      "value": 0.9770642201834863,
+      "pass": false
+     },
+     "failed_months": {
+      "value": 0,
+      "pass": true
+     },
+     "point_in_time_violations": {
+      "value": 0,
+      "pass": true
+     },
+     "fabricated_quotes_accepted": {
+      "value": 0,
+      "pass": true
+     }
+    }
+   },
+   "model_substitution": {
+    "planned": "meta-llama/Llama-3.1-70B-Instruct",
+    "used": "qwen3:4b (Ollama, Q4_K_M, 4.02B parameters)",
+    "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+    "note": "Same architecture, prompts, limits, seeds, evidence and gates; a much smaller model, so not a reproduction of the 70B system."
+   },
+   "agent_months": 95,
+   "caveat": "These scenarios run on genuine qwen3:4b agent outputs that did NOT pass the pre-registered reliability gates. They are diagnostics of signal transmission, not evidence that the agents are reliable or that AI adds investment value.",
+   "categorical_note": "Supported, Contradicted and Insufficient were never scaled. They are encoded and calibrated into a numerical view upstream exactly as in the archived run; only that view is rescaled."
   }
  },
  "cross_approach": {
@@ -1489,11 +1991,32 @@
     "monthly_signal_part_correlation": -0.22519078404258683,
     "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
    },
+   "AP1_vs_AP3": {
+    "monthly_net_return_correlation_1x": 0.9733170420880556,
+    "monthly_net_return_correlation_0x": 0.9999999998803819,
+    "monthly_net_return_correlation_native_no_signal_controls": 1.0,
+    "monthly_signal_part_correlation": -0.1888698191616731,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   },
    "AP2B_vs_AP2A": {
     "monthly_net_return_correlation_1x": 0.9704496590263033,
     "monthly_net_return_correlation_0x": 1.0,
     "monthly_net_return_correlation_native_no_signal_controls": 1.0,
     "monthly_signal_part_correlation": 0.8502255376546849,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   },
+   "AP2B_vs_AP3": {
+    "monthly_net_return_correlation_1x": 0.9799802204955463,
+    "monthly_net_return_correlation_0x": 0.9837215943202287,
+    "monthly_net_return_correlation_native_no_signal_controls": 0.9825181705186873,
+    "monthly_signal_part_correlation": 0.6930104038404266,
+    "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
+   },
+   "AP2A_vs_AP3": {
+    "monthly_net_return_correlation_1x": 0.9444643471294518,
+    "monthly_net_return_correlation_0x": 0.9837215943202287,
+    "monthly_net_return_correlation_native_no_signal_controls": 0.9825181705186873,
+    "monthly_signal_part_correlation": 0.6623027266868036,
     "signal_part_definition": "the 1x scenario's monthly net excess return minus the same approach's 0x scenario"
    }
   },
@@ -1524,6 +2047,15 @@
     "correlation_1x_with_own_0x": 0.9556356178664244,
     "mean_abs_signal_induced_weight_change": 0.10971562132426266,
     "mean_abs_active_weight_vs_native_neutral": 0.10971562132426262
+   },
+   "AP3": {
+    "annualised_vol_1x": 0.10825775756956126,
+    "annualised_vol_0x_baseline_only": 0.11301685626248102,
+    "annualised_vol_of_the_signal_part": 0.025409037855220487,
+    "signal_part_share_of_1x_variance": 0.05508817520488586,
+    "correlation_1x_with_own_0x": 0.9745413707565749,
+    "mean_abs_signal_induced_weight_change": 0.055726255968356966,
+    "mean_abs_active_weight_vs_native_neutral": 0.0494795704803182
    }
   },
   "mechanisms_examined": {
@@ -1541,6 +2073,6 @@
   "The 2x scenario is a diagnostic stress test. It is not a recommendation, and it was not selected on any criterion.",
   "This experiment measures signal transmission, not signal predictive quality. A portfolio can respond strongly to an uninformative view, and a useful view can be attenuated to nothing.",
   "The approaches hold different assets (SPY/IEF/LQD against SPY/TLT) with different neutral portfolios and different risk structures, so weight responses are comparable only in relative terms.",
-  "Causal RAG is not included: no calibrated view series exists for the development window."
+  "Causal RAG is included only as an EXPLORATORY diagnostic: its genuine qwen3:4b outputs failed both pre-registered reliability gates, so its scenarios describe how its allocator transmits a view, not whether that view is trustworthy."
  ]
 }

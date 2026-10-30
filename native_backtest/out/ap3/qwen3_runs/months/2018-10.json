@@ -1,0 +1,1900 @@
+{
+ "month": "2018-10",
+ "decision_time": "2018-10-31T20:00:00-04:00",
+ "graph_vintage": 2017,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.161,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "Advance retail sales release",
+   "direction": "below consensus",
+   "surprise_z": -1.615,
+   "trigger": "RETAIL_SALES"
+  },
+  {
+   "change": 0.1,
+   "date": "2018-10-03",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.41
+  },
+  {
+   "change": 0.1,
+   "date": "2018-10-03",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 2.55
+  },
+  {
+   "change": 7.01,
+   "date": "2018-10-10",
+   "days_at_or_above_threshold": 4,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": 4.73
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.0,
+  "CORE_CPI": -1.161,
+  "CPI": -0.866,
+  "INDUSTRIAL_PRODUCTION": -0.0,
+  "ISM_MANUFACTURING": -0.594,
+  "NFP": -0.67,
+  "PPI": -0.042,
+  "RETAIL_SALES": -1.615
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "retail sales",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core cpi",
+     "target": "sp",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "sp",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "stock prices innovations (sp)",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "sp",
+     "max_paths": 25
+    },
+    "repeat_of": 5
+   }
+  ],
+  "turns": 10,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3033,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "retail sales",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3111,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "market stress",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3464,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core cpi",
+     "target": "sp",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3768,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core cpi",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3894,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "sp",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3973,
+     "completion_tokens": 55
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "sp",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4100,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "stock prices innovations (sp)",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4414,
+     "completion_tokens": 59
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "one-standard-deviation surprise in core cpi",
+     "target": "sp",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4490,
+     "completion_tokens": 55
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "final",
+    "hypotheses": 3,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4590,
+     "completion_tokens": 576
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2018-10-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "Inflation leads to monetary policy adjustments, which affect output and stock returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-cf268a3d364b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP9763",
+     "year": 2013,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0901",
+     "year": 1982,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1117",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP205",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w2333",
+     "year": 1987,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 30,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 17
+    },
+    "sha256": "a5eba5721edafe6da8cb7325d7bf2c3dd3fde6ba82ec44ed4607c6a430b25bdb",
+    "latest_available_at": "2018-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) but the hypothesis predicts a decrease"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign: -1) but the hypothesis predicts a decrease"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) but the hypothesis predicts an increase"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2018-10-31",
+       "SLOPE_10Y3M > 2018-10-31",
+       "VIX > 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2018-10-31",
+       "SLOPE_10Y3M < 2018-10-31",
+       "VIX < 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-10-31#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.13 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.04 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The Core CPI release (2018-10-11) showed a 5-year breakeven inflation rate falling by -0.13, suggesting lower inflation expectations. However, the 2-year Treasury yield also fell by -0.04, indicating a potential market reaction to the CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.13 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.04 (-0.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "The Core CPI release (2018-10-11) showed a 5-year breakeven inflation rate falling by -0.13, suggesting lower inflation expectations. However, the 2-year Treasury yield also fell by -0.04, indicating a potential market reaction to the CPI release.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign should be -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign should be -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign should be 1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2018-10-31",
+       "SLOPE_10Y3M > 2018-10-31",
+       "VIX < 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2018-10-31",
+       "SLOPE_10Y3M < 2018-10-31",
+       "VIX > 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-10-31#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.13 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2018-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2018-10-01 and 2018-10-30 the series fell by -0.13 (-1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts indicate a decline in 5-year breakeven inflation rate (BEI5Y) over the period, consistent with Core CPI release impact on Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.13 (-1.4 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_BEI5Y_2018-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2018-10-01 and 2018-10-30 the series fell by -0.13 (-1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show a decline in 5-year breakeven inflation rate (BEI5Y) over the period, consistent with Core CPI release impact on Treasury prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 2,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-2d1f91f527b8",
+      "mechanism": "inflation -> money growth -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y > 0 in 2018-10-31",
+       "SLOPE_10Y3M > 0 in 2018-10-31",
+       "VIX < 0 in 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2018-10-31#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.04 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release on 2018-10-11 led to a decrease in 2-year Treasury yield (IEF) over the next month, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Core CPI release on 2018-10-11 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.04 (-0.4 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release on 2018-10-11 led to a decrease in 2-year Treasury yield (IEF) over the next month, supporting the link.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-10-H2",
+   "trigger": "RETAIL_SALES",
+   "channel": "growth",
+   "mechanism": "Retail sales growth impacts aggregate demand and output, influencing stock returns",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-438f498a22dd": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w11578",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 32,
+    "by_kind": {
+     "research_claim": 15,
+     "data_note": 17
+    },
+    "sha256": "796f5ff988e1a03a7d368523486934cf249ea0931da2dc6bd9c476e57ec0de5f",
+    "latest_available_at": "2018-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases instead"
+      },
+      {
+       "observable": "SLOPE_10Y3M (10-year yield slope) decreases",
+       "would_contradict": "If SLOPE_10Y3M increases instead"
+      },
+      {
+       "observable": "VIX (volatility index) increases",
+       "would_contradict": "If VIX decreases instead"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_RETAIL_SALES_2018-10-31#c000",
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series rose by +0.15 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.01 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The retail sales release on 2018-10-15 triggered a rise in credit spreads (0.15pp) and a small fall in 2-year Treasury yields (-0.01pp), suggesting a link between retail sales and Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link retail sales to SPY movements. Excerpts focus on Treasury yields and credit spreads, not equity prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 1,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1) then hypothesis is false"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign: -1) then hypothesis is false"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1) then hypothesis is false"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 0,
+       "IEF": -1,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2018-10",
+       "SLOPE_10Y3M > 0.05 in 2018-10",
+       "VIX < 20 in 2018-10"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2018-10",
+       "SLOPE_10Y3M < 0.05 in 2018-10",
+       "VIX > 20 in 2018-10"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_RETAIL_SALES_2018-10-31#c000",
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series rose by +0.15 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The retail sales release on 2018-10-15 caused a significant increase in credit spreads (1.8 std dev), indicating higher risk aversion, which typically correlates with lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series rose by +0.15 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The retail sales release on 2018-10-15 caused a significant increase in credit spreads (1.8 std dev), indicating higher risk aversion, which typically correlates with lower Treasury prices (IEF).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y falls",
+       "would_contradict": "If UST10Y rises instead of falls"
+      },
+      {
+       "observable": "SLOPE_10Y3M falls",
+       "would_contradict": "If SLOPE_10Y3M rises instead of falls"
+      },
+      {
+       "observable": "VIX rises",
+       "would_contradict": "If VIX falls instead of rises"
+      },
+      {
+       "observable": "SPY returns positive",
+       "would_contradict": "If SPY returns negative"
+      },
+      {
+       "observable": "IEF returns negative",
+       "would_contradict": "If IEF returns positive"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-759e84eb709a",
+      "mechanism": "consumption -> interest rates -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_RETAIL_SALES_2018-10-31#c000",
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000",
+       "DN_CPI_2018-10-31#c000",
+       "DN_PPI_2018-10-31#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series fell by -0.01 (-0.1 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a decline in 2-year Treasury yield (IEF) following the retail sales release, supporting the link between retail sales and decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series rose by +0.15 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-10-01 and 2018-10-30 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Retail sales release associated with credit spread increase (supporting evidence) but credit spreads rose over the period without retail sales release (contradicting evidence).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2018-10-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, leading to higher risk premia and lower bond yields",
+   "predicted_assets": {
+    "SPY": 0,
+    "IEF": -1,
+    "LQD": 0
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2017-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 36,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 17
+    },
+    "sha256": "ae4ecb1847a45ae35cc86568e698ce776f0438bc20e880be76e34e13ac3e30f6",
+    "latest_available_at": "2018-10-31T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1)"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1)"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y in 2018-10-31",
+       "SLOPE_10Y3M in 2018-10-31",
+       "VIX in 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y > 0 in 2018-10-31",
+       "SLOPE_10Y3M > 0 in 2018-10-31",
+       "VIX < 0 in 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-10-01 and 2018-10-30 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a rise in the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) over the period, indicating increased market stress and potential lower bond prices, supporting the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address US equity prices (SPY) or market moves in relation to the specified events by the decision time.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign: -1 predicted), then hypothesis is contradicted"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign: -1 predicted), then hypothesis is contradicted"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign: 1 predicted), then hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y > 2.5% in 2018-10-01 to 2018-10-31",
+       "SLOPE_10Y3M > 0.5 in 2018-10-01 to 2018-10-31",
+       "VIX < 25 in 2018-10-01 to 2018-10-31"
+      ],
+      "contradicting": [
+       "UST10Y < 2.5% in 2018-10-01 to 2018-10-31",
+       "SLOPE_10Y3M < 0.5 in 2018-10-01 to 2018-10-31",
+       "VIX > 25 in 2018-10-01 to 2018-10-31"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Advance retail sales release on 2018-10-15 (08:30 ET) to the latest value published by the decision time (2018-10-30), the series rose by +0.15 (+1.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a significant rise in credit spread proxy (Baa corporate yield minus 10-year Treasury yield) after retail sales release, indicating market stress. This aligns with the mechanism where market stress increases volatility and lowers bond prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe US equity prices (SPY) movements or link them to market stress events. The data focuses on credit spreads and Treasury yields, not equity markets.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (sign +1) instead of decreasing (sign -1) during market stress"
+      },
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (sign +1) instead of decreasing (sign -1) during market stress"
+      },
+      {
+       "observable": "VIX",
+       "would_contradict": "If VIX decreases (sign -1) instead of increasing (sign +1) during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2017-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "UST10Y < 2018-10-31 AND market_stress = true",
+       "SLOPE_10Y3M < 2018-10-31 AND market_stress = true",
+       "VIX > 2018-10-31 AND market_stress = true"
+      ],
+      "contradicting": [
+       "UST10Y > 2018-10-31 AND market_stress = true",
+       "SLOPE_10Y3M > 2018-10-31 AND market_stress = true",
+       "VIX < 2018-10-31 AND market_stress = true"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_UST2Y_2018-10-31#c000",
+       "DN_BEI5Y_2018-10-31#c000",
+       "DN_IG_SPREAD_2018-10-31#c000",
+       "DN_UST2Y_CORE_CPI_2018-10-11#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_CORE_CPI_2018-10-11#c000",
+       "DN_UST2Y_RETAIL_SALES_2018-10-15#c000",
+       "DN_IG_SPREAD_CORE_CPI_2018-10-11#c000",
+       "DN_BEI5Y_RETAIL_SALES_2018-10-15#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_RETAIL_SALES_2018-10-15#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2018-10-31#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2018-10-01 and 2018-10-30 the series rose by +0.20 (+1.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2018-10-31 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield (part of IEF) is inversely related to credit spreads. The rise in credit spreads (+0.20 pp) indicates higher risk premia, supporting the mechanism that market stress lowers bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe SPY movements or market stress impacts on equities. Excerpts cover Treasury yields and credit spreads but not equity prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": 0.03000000000000025,
+       "z": 0.1754056091065367,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-30",
+       "change": -0.06999999999999995,
+       "z": -0.42403543949401784,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "VIX",
+       "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+       "expected_sign": 1,
+       "window_start": "2018-10-01",
+       "window_end": "2018-10-31",
+       "change": 9.23,
+       "z": 2.277466740833703,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 1,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "IEF": {
+   "F_S": -3.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "c1dc092759238ea2a013917c3f66b417ebdeff7f0a550dd294bb4ecc688e89cf",
+ "packet_sha256": "a32854094eeb58f11c5450164c6e35165dda411251a3efdc45b5a81e19ea1ade",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

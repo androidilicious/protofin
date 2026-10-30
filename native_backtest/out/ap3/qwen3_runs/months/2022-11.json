@@ -1,0 +1,4771 @@
+{
+ "month": "2022-11",
+ "decision_time": "2022-11-30T20:00:00-05:00",
+ "graph_vintage": 2021,
+ "event": [
+  {
+   "description": "Core CPI release",
+   "direction": "below consensus",
+   "surprise_z": -1.787,
+   "trigger": "CORE_CPI"
+  },
+  {
+   "description": "CPI release",
+   "direction": "below consensus",
+   "surprise_z": -2.285,
+   "trigger": "CPI"
+  },
+  {
+   "date": "2022-11-02",
+   "description": "FOMC decision or communication",
+   "release": "scheduled statement, 14:00 ET",
+   "trigger": "FOMC"
+  },
+  {
+   "change": -0.14,
+   "date": "2022-11-03",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -2.75
+  },
+  {
+   "change": 0.1,
+   "date": "2022-11-09",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "IG_SPREAD",
+   "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+   "trigger": "MARKET_STRESS",
+   "z": 2.46
+  },
+  {
+   "change": -0.29,
+   "date": "2022-11-10",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "SLOPE_10Y3M",
+   "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+   "trigger": "MARKET_STRESS",
+   "z": -4.75
+  },
+  {
+   "change": -0.3,
+   "date": "2022-11-10",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST10Y",
+   "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -5.15
+  },
+  {
+   "change": -0.27,
+   "date": "2022-11-10",
+   "days_at_or_above_threshold": 2,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "UST2Y",
+   "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": -5.42
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": 0.653,
+  "CORE_CPI": -1.787,
+  "CPI": -2.285,
+  "INDUSTRIAL_PRODUCTION": -0.909,
+  "ISM_MANUFACTURING": 0.417,
+  "NFP": 0.107,
+  "PPI": -0.802,
+  "RETAIL_SALES": 0.443
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "repeat_of": 4
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "repeat_of": 3
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "US equities",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "US equities",
+     "limit": 10
+    },
+    "repeat_of": 8
+   }
+  ],
+  "turns": 11,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 3,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "core inflation",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4389,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "CPI",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4677,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "core inflation",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 4962,
+     "completion_tokens": 49
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5084,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5134,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "stock market returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5437,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 6,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5525,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 7,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "SPY",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5820,
+     "completion_tokens": 41
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 8,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "US equities",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 5907,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 9,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "US equities",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6043,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 10,
+    "action": "final",
+    "hypotheses": 6,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 6131,
+     "completion_tokens": 1134
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2022-11-H1",
+   "trigger": "CORE_CPI",
+   "channel": "inflation",
+   "mechanism": "Core inflation below consensus leads to lower output gap, reducing stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-7658a3d76299": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w26450",
+     "year": 2019,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP2246",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2848",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "simulation"
+    },
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4957",
+     "year": 2005,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 33,
+    "by_kind": {
+     "research_claim": 13,
+     "data_note": 20
+    },
+    "sha256": "2b5f10a9ab7d7a43593418684e6cb77e09f77cfc28e55264bddd0e5f4359ec68",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) when core inflation is below consensus"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) when core inflation is below consensus"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative) when core inflation is below consensus"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) when core inflation is below consensus"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) when core inflation is below consensus"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in the period where core inflation was below consensus",
+       "UST10Y in the period where core inflation was below consensus",
+       "UST2Y in the period where core inflation was below consensus"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in the period where core inflation was above consensus",
+       "UST10Y in the period where core inflation was above consensus",
+       "UST2Y in the period where core inflation was above consensus"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_CPI_2022-11-30#c000",
+       "DN_PPI_2022-11-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-11-30#c000"
+      ],
+      "contradicting": [
+       "DN_ISM_MANUFACTURING_2022-11-30#c000",
+       "DN_NFP_2022-11-30#c000",
+       "DN_AHE_2022-11-30#c000",
+       "DN_RETAIL_SALES_2022-11-30#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI release was significantly below consensus (1.8 std dev), suggesting lower inflation expectations which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Core CPI below consensus suggests lower inflation, but VIX fell indicating reduced volatility, which may not directly impact bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Core CPI below consensus implies lower inflation, but credit spreads fell, suggesting market expectations may have shifted differently.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Core CPI significantly below consensus (1.8 std dev) indicates lower inflation expectations, which could reduce stock returns via output gap effects.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.23 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Core CPI below consensus suggests lower inflation, but breakeven inflation fell, indicating potential market expectations shifts that don't directly link to bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 1,
+       "valid_contradicting": 1,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_CORE_CPI_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Macroeconomic data note, Core CPI release: the latest release before the decision time came in 1.8 standard deviations below the consensus expectation (point-in-time standardised surprise, prior-release standardisation)."
+        }
+       ],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "Core CPI below consensus implies lower inflation, but credit spreads fell, suggesting market reactions may not align with the hypothesised mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": true,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (negative) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+       "DN_CPI_2022-11-30#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 points after Core CPI release, indicating market stress that may reflect reduced stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points after Core CPI release, suggesting lower corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points after Core CPI release, indicating lower corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 points after Core CPI release, indicating market stress that may reflect reduced stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points after Core CPI release, suggesting lower Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points after Core CPI release, indicating lower corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, the hypothesis is contradicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, the hypothesis is contradicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11",
+       "UST10Y in 2022-11",
+       "UST2Y in 2022-11"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11",
+       "UST10Y in 2022-11",
+       "UST2Y in 2022-11"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_VIX_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_BEI5Y_FOMC_2022-11-02#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_VIX_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+       "DN_CPI_2022-11-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.23 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeen inflation rate fell by -0.23 (1.0 std dev) after Core CPI release, suggesting lower inflation expectations, which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.23 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeen inflation rate fell by -0.23 (1.0 std dev) after Core CPI release, suggesting lower inflation expectations, which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The credit spread proxy fell by -0.27 (1.0 std dev) after Core CPI release, suggesting lower risk premiums, which could reduce stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 (0.6 std dev) after Core CPI release, indicating reduced market volatility, which could correlate with lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 (0.6 std dev) after Core CPI release, indicating reduced market volatility, which could correlate with lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 (0.6 std dev) after Core CPI release, indicating reduced market volatility, which could correlate with lower stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-11-H2",
+   "trigger": "CPI",
+   "channel": "inflation",
+   "mechanism": "CPI below consensus leads to lower aggregate demand, reducing stock returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-34dc68cf1c0b": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w0550",
+     "year": 1980,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1147",
+     "year": 1983,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1770",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w1771",
+     "year": 1985,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w14259",
+     "year": 2008,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8239",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w16775",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 32,
+    "by_kind": {
+     "research_claim": 12,
+     "data_note": 20
+    },
+    "sha256": "1179d052697e636917749c987555493c34b0d91a618ac374fe3e730393230cec",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2022-11-30",
+       "UST10Y > 0 in 2022-11-30",
+       "UST2Y > 0 in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-11-30#c000",
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell after Core CPI release, indicating market stress response consistent with CPI below consensus leading to lower stock prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link CPI release to IEF movements; all excerpts describe VIX or credit spreads without connecting to Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe LQD (corporate bond prices) movements post-CPI; all excerpts focus on VIX or credit spreads without linking to corporate bonds.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX decline post-Core CPI release suggests market stress, consistent with inflation-driven monetary policy affecting stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link CPI release to IEF (Treasury prices); all excerpts describe VIX or credit spreads without connecting to Treasury yields.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe LQD (corporate bond prices) movements post-CPI; all excerpts focus on VIX or credit spreads without linking to corporate bonds.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M (10-year Treasury yield slope) decreases",
+       "would_contradict": "If SLOPE_10Y3M increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "UST10Y (10-year Treasury yield) decreases",
+       "would_contradict": "If UST10Y increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "UST2Y (2-year Treasury yield) decreases",
+       "would_contradict": "If UST2Y increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "SPY (S&P 500 index) decreases",
+       "would_contradict": "If SPY increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "IEF (iShares 1-3 Year Treasury Bond ETF) decreases",
+       "would_contradict": "If IEF increases, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-11-30#c000",
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.23 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate fell by -0.23 points from CPI release to decision time, indicating a decline in inflation expectations, which supports the mechanism that CPI below consensus leads to lower stock prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread proxy fell by -0.27 points, indicating a decrease in corporate bond prices, which supports the mechanism that CPI below consensus leads to lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The investment-grade credit spread proxy fell by -0.16 points, indicating a decrease in corporate bond prices, which supports the mechanism that CPI below consensus leads to lower stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -5.51 points from CPI release to decision time, indicating reduced market volatility, which supports the mechanism that inflation leads to monetary policy changes affecting stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -5.23 points from FOMC decision to decision time, indicating reduced market volatility, which supports the mechanism that inflation leads to monetary policy changes affecting stock returns.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX fell by -5.23 points from FOMC decision to decision time, indicating reduced market volatility, which supports the mechanism that inflation leads to monetary policy changes affecting stock returns.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive sign) after CPI below consensus, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive sign) after CPI below consensus, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive sign) after CPI below consensus, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive sign) after CPI below consensus, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive sign) after CPI below consensus, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-cf268a3d364b",
+      "mechanism": "inflation -> monetary policy -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "CPI below consensus in 2022-11, SLOPE_10Y3M trend",
+       "CPI below consensus in 2022-11, UST10Y trend",
+       "CPI below consensus in 2022-11, UST2Y trend"
+      ],
+      "contradicting": [
+       "CPI below consensus in 2022-11, SLOPE_10Y3M positive trend",
+       "CPI below consensus in 2022-11, UST10Y positive trend",
+       "CPI below consensus in 2022-11, UST2Y positive trend"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_CPI_2022-11-30#c000",
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_PPI_2022-11-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-11-30#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_VIX_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+       "DN_NFP_2022-11-30#c000",
+       "DN_AHE_2022-11-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 points after Core CPI release, indicating reduced equity market volatility.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address IEF (7-10yr Treasury) price movements post-CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (corporate bond prices) movements post-CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 points after Core CPI release, indicating reduced equity market volatility.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address IEF (7-10yr Treasury) price movements post-CPI release.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (corporate bond prices) movements post-CPI release.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 1,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 1,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-11-H3",
+   "trigger": "FOMC",
+   "channel": "policy_rates",
+   "mechanism": "FOMC decision signals tighter monetary policy, increasing real interest rates, reducing equity returns",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2021-3d43afcc584e": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w8767",
+     "year": 2002,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w9459",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5463",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w12605",
+     "year": 2006,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "bayesian methods"
+    },
+    {
+     "paper_id": "DP7294",
+     "year": 2009,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w16074",
+     "year": 2010,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP10022",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "DP10306",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 34,
+    "by_kind": {
+     "research_claim": 14,
+     "data_note": 20
+    },
+    "sha256": "bcef775af615e5456ef8a08b86c7bcc0e6804de30291adb1bc53755ce728877b",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive slope) after FOMC, the hypothesis that FOMC decision signals tighter monetary policy (increasing real interest rates) would be contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (lower yields) after FOMC, the hypothesis that FOMC decision signals tighter monetary policy (increasing real interest rates) would be contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (lower yields) after FOMC, the hypothesis that FOMC decision signals tighter monetary policy (increasing real interest rates) would be contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (higher returns) after FOMC, the hypothesis that FOMC decision signals tighter monetary policy (reducing equity returns) would be contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (higher returns) after FOMC, the hypothesis that FOMC decision signals tighter monetary policy (reducing equity returns) would be contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M after FOMC 2022-11-30",
+       "UST10Y after FOMC 2022-11-30",
+       "UST2Y after FOMC 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M after FOMC 2022-11-30",
+       "UST10Y after FOMC 2022-11-30",
+       "UST2Y after FOMC 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_VIX_2022-11-30#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000",
+       "DN_VIX_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-11-30#c000",
+       "DN_PPI_2022-11-30#c000",
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-11-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt shows a decline in the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) from FOMC decision on 2022-11-02 to decision time, supporting tighter monetary policy impact on equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The excerpt indicates a decline in the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) over the period, consistent with tighter monetary policy reducing Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The decline in the investment-grade credit spread proxy (Baa corporate yield minus 10-year Treasury yield) suggests tighter monetary policy, which would reduce corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market volatility, contradicting the hypothesis of an increase in US equity prices (SPY) following FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The VIX decline suggests reduced market volatility, contradicting the hypothesis of an increase in 7-10 year Treasury prices (IEF) following FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Release date source: FOMC calendar."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market volatility, contradicting the hypothesis of an increase in US investment-grade corporate bond prices (LQD) following FOMC decisions.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive slope) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases (lower interest rates) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases (lower interest rates) instead of increasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (higher returns) instead of decreasing, the hypothesis is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (higher returns) instead of decreasing, the hypothesis is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_CPI_2022-11-30#c000",
+       "DN_PPI_2022-11-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.23 (-1.0 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a decline in 5-year breakeven inflation rate (negative change) from pre-CPI release to decision time, indicating tighter monetary policy conditions that could reduce equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a decline in the credit spread proxy (negative change) from pre-FOMC to decision time, indicating tighter credit conditions that could reduce Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The quote shows a decline in the credit spread proxy (negative change) from November 1 to decision time, indicating tighter credit conditions that could reduce corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market volatility, contradicting the expected increase in equity prices after FOMC communication.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market volatility, contradicting the expected increase in Treasury prices after FOMC communication.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The VIX decline indicates reduced market volatility, contradicting the expected increase in corporate bond prices after FOMC communication.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases after FOMC"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y decreases instead of increases after FOMC"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y decreases instead of increases after FOMC"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases after FOMC"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases after FOMC"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-059a6b03a78d",
+      "mechanism": "monetary policy shocks -> output -> inflation -> equity returns",
+      "predicted_assets": {
+       "SPY": -1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M after FOMC 2022-11-30",
+       "UST10Y after FOMC 2022-11-30",
+       "UST2Y after FOMC 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M increases after FOMC 2022-11-30",
+       "UST10Y decreases after FOMC 2022-11-30",
+       "UST2Y decreases after FOMC 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_VIX_2022-11-30#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000",
+       "DN_VIX_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_CPI_2022-11-30#c000",
+       "DN_PPI_2022-11-30#c000",
+       "DN_CORE_CPI_2022-11-30#c000",
+       "DN_INDUSTRIAL_PRODUCTION_2022-11-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        },
+        {
+         "chunk_id": "DN_VIX_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show VIX fell by -5.51 points from CPI release to decision time, indicating market stress (lower volatility) after CPI release, which may signal equity price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address IEF (7-10 year Treasury prices) or its relation to FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (corporate bond prices) or its relation to FOMC decisions.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link FOMC decisions to equity returns via output/inflation mechanisms.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link FOMC decisions to Treasury prices via output/inflation mechanisms.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly link FOMC decisions to corporate bond prices via output/inflation mechanisms.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-11-H4",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, reducing risk premia, lowering bond yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 41,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 20
+    },
+    "sha256": "5e831262fbc52f50a6c1bec42ddbe2a3dcd1c124d70860e51f16fe87719d3d69",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This contradicts the link where market stress leads to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This contradicts the link where market stress leads to increased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.23 points from FOMC to decision time, indicating market stress. This contradicts the link where market stress leads to increased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive change) path during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) during market stress, the hypothesis that market stress reduces equity returns is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) during market stress, the hypothesis that market stress reduces bond returns is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2022-11-30",
+       "UST10Y > 0 in 2022-11-30",
+       "UST2Y > 0 in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism that market stress reduces risk premia, lowering bond yields and decreasing equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism that market stress reduces risk premia, lowering bond yields and decreasing Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism that market stress reduces risk premia, lowering bond yields and decreasing corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism that uncertainty increases stock returns (SPY), as market stress typically decreases equity prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (lowering bond yields) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) during market stress, the hypothesis that market stress lowers bond yields is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive change) during market stress, the hypothesis that market stress lowers bond yields is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) during market stress, the hypothesis that market stress lowers equity returns is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) during market stress, the hypothesis that market stress lowers short-term bond returns is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0 during market stress",
+       "UST10Y > 0 during market stress",
+       "UST2Y > 0 during market stress"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0 during market stress",
+       "UST10Y < 0 during market stress",
+       "UST2Y < 0 during market stress"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_VIX_FOMC_2022-11-02#c000"
+      ],
+      "contradicting": [
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_VIX_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points, indicating reduced market stress, which aligns with the mechanism of market stress lowering risk premia and reducing equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.16 percentage points, indicating lower risk premia, which supports the link to decreased Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 percentage points, indicating lower risk premia, which supports the link to decreased corporate bond prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell, indicating reduced market stress, contradicting the mechanism that market stress increases equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2022-11-01 and 2022-11-29 the series fell by -0.16 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "explanation": "Credit spread fell, indicating lower risk premia, contradicting the mechanism that market stress increases Treasury prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "Credit spread fell, indicating lower risk premia, contradicting the mechanism that market stress increases corporate bond prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-11-H5",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, reducing risk premia, lowering bond yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 41,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 20
+    },
+    "sha256": "5e831262fbc52f50a6c1bec42ddbe2a3dcd1c124d70860e51f16fe87719d3d69",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0 in 2022-11-30",
+       "UST10Y > 0 in 2022-11-30",
+       "UST2Y > 0 in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0 in 2022-11-30",
+       "UST10Y < 0 in 2022-11-30",
+       "UST2Y < 0 in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This supports the link where market stress (large move) leads to decreased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress leads to increased equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress leads to decreased Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_FOMC_2022-11-02#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the FOMC decision or communication on 2022-11-02 (14:00 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points from FOMC decision to decision time, indicating market stress. This contradicts the link where market stress leads to increased corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases during market stress"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases during market stress"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases instead of decreases during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2022-11-30",
+       "UST10Y > 0 in 2022-11-30",
+       "UST2Y > 0 in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases stock returns (R:SPY link).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases Treasury returns (R:IEF link).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases corporate bond returns (R:LQD link).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases, the hypothesis is falsified"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases, the hypothesis is falsified"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases instead of decreases, the hypothesis is falsified"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases, the hypothesis is falsified"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases, the hypothesis is falsified"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-01 to 2022-11-30",
+       "UST10Y in 2022-11-01 to 2022-11-30",
+       "UST2Y in 2022-11-01 to 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-01 to 2022-11-30",
+       "UST10Y in 2022-11-01 to 2022-11-30",
+       "UST2Y in 2022-11-01 to 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This supports the link where market stress (large moves) leads to decreased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This supports the link where market stress (large moves) leads to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This supports the link where market stress (large moves) leads to decreased LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This contradicts the link where market stress leads to increased SPY prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This contradicts the link where market stress leads to decreased IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by 5.51 points from CPI release to decision time, indicating market stress. This contradicts the link where market stress leads to increased LQD prices.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2022-11-H6",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "Market stress increases volatility, reducing risk premia, lowering bond yields",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2021-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 41,
+    "by_kind": {
+     "research_claim": 21,
+     "data_note": 20
+    },
+    "sha256": "5e831262fbc52f50a6c1bec42ddbe2a3dcd1c124d70860e51f16fe87719d3d69",
+    "latest_available_at": "2022-11-30T19:59:00-05:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases instead of decreases"
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases instead of decreases"
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases instead of decreases"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreases"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases"
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M > 0",
+       "UST10Y > 0",
+       "UST2Y > 0"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M < 0",
+       "UST10Y < 0",
+       "UST2Y < 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_VIX_FOMC_2022-11-02#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points over the period, indicating market stress that could lower equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2022-11-01 and 2022-11-29 the series fell by -0.35 (-1.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rate fell by -0.35, suggesting lower bond yields which could decrease IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2022-11-01 and 2022-11-29 the series fell by -0.35 (-1.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "5-year breakeven inflation rate fell by -0.35, suggesting lower bond yields which could decrease LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 17:00 ET."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points, indicating market stress that would likely decrease SPY prices, not increase them.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2022-11-01 and 2022-11-29 the series fell by -0.35 (-1.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "explanation": "5-year breakeven inflation rate fell by -0.35, suggesting lower bond yields which would decrease IEF prices, not increase them.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2022-11-01 and 2022-11-29 the series fell by -0.35 (-1.3 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2022-11-30 18:00 ET."
+        }
+       ],
+       "explanation": "5-year breakeven inflation rate fell by -0.35, suggesting lower bond yields which would decrease LQD prices, not increase them.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing equity prices (SPY).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing Treasury prices (IEF).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This aligns with the mechanism where market stress reduces risk premia, lowering bond yields and decreasing corporate bond prices (LQD).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases stock returns (R:SPY link).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases Treasury returns (R:IEF link).",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2022-11-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2022-11-01 and 2022-11-30 the series fell by -5.23 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX fell by -5.23 points between 2022-11-01 and 2022-11-30, indicating market stress. This contradicts the mechanism where uncertainty increases corporate bond returns (R:LQD link).",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "SLOPE_10Y3M",
+       "would_contradict": "If SLOPE_10Y3M increases (positive change) during market stress, the hypothesis that market stress reduces risk premia (via volatility) is contradicted."
+      },
+      {
+       "observable": "UST10Y",
+       "would_contradict": "If UST10Y increases (positive change) during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "UST2Y",
+       "would_contradict": "If UST2Y increases (positive change) path during market stress, the hypothesis that market stress reduces risk premia is contradicted."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) during market stress, the hypothesis that market stress reduces equity returns is contradicted."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) during market stress, the hypothesis that market stress reduces bond returns is contradicted."
+      }
+     ],
+     "rival": {
+      "path_id": "p2021-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "SLOPE_10Y3M in 2022-11-30",
+       "UST10Y in 2022-11-30",
+       "UST2Y in 2022-11-30"
+      ],
+      "contradicting": [
+       "SLOPE_10Y3M > 0 in 2022-11-30",
+       "UST10Y > 0 in 2022-11-30",
+       "UST2Y > 0 in 2022-11-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2022-11-30#c000",
+       "DN_BEI5Y_2022-11-30#c000",
+       "DN_IG_SPREAD_2022-11-30#c000",
+       "DN_VIX_CPI_2022-11-10#c000"
+      ],
+      "contradicting": [
+       "DN_VIX_CORE_CPI_2022-11-10#c000",
+       "DN_VIX_FOMC_2022-11-02#c000",
+       "DN_BEI5Y_CPI_2022-11-10#c000",
+       "DN_BEI5Y_CORE_CPI_2022-11-10#c000"
+      ],
+      "neutral": [
+       "DN_BEI5Y_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_FOMC_2022-11-02#c000",
+       "DN_IG_SPREAD_CPI_2022-11-10#c000",
+       "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX fell by -5.51 points from CPI release to decision time, indicating market stress (large move) and potential SPY decline.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points, indicating lower risk premia and potential IEF decline.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-29), the series fell by -0.27 (-1.0 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Credit spread fell by -0.27 points, indicating lower risk premia and potential LQD decline.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_CORE_CPI_2022-11-10#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Core CPI release on 2022-11-10 (08:30 ET) to the latest value published by the decision time (2022-11-30), the series fell by -5.51 (-0.6 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "explanation": "VIX fell by -5.51 points, indicating market stress that would likely reduce SPY prices, contradicting the expected increase.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "SLOPE_10Y3M",
+       "series_label": "10-year minus 3-month Treasury yield (FRED T10Y3M, percentage points)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.47,
+       "z": -1.6729379748622468,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST10Y",
+       "series_label": "10-year Treasury constant-maturity yield (FRED DGS10, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.3200000000000003,
+       "z": -1.2696203904406222,
+       "result": "consistent",
+       "interpretation": "empirical consistency only; not causal validation"
+      },
+      {
+       "series": "UST2Y",
+       "series_label": "2-year Treasury constant-maturity yield (FRED DGS2, percent)",
+       "expected_sign": -1,
+       "window_start": "2022-11-01",
+       "window_end": "2022-11-29",
+       "change": -0.05999999999999961,
+       "z": -0.2225592526884474,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 2,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": -6.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "IEF": {
+   "F_S": -6.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  },
+  "LQD": {
+   "F_S": -6.0,
+   "F_C": 0.0,
+   "F_I": 0.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "8af38086ff1f06502a0153cee1c77cd830e4f7ffab980a9edf60e315a1132947",
+ "packet_sha256": "063a5a800731182e77f0d7134fbc8fab0ba62172df83c39be9942ffaae47f58d",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

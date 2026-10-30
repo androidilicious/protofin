@@ -205,13 +205,24 @@ def test_each_approach_keeps_its_own_native_pipeline(rep):
     assert "capped tilt" in mech["not_attributable_to_Black_Litterman_alone"]
 
 
-def test_causal_rag_is_pending_and_never_reported_as_computed(rep):
+def test_causal_rag_is_never_reported_as_validated(rep):
+    """Causal RAG may be computed once genuine outputs exist, but only as a labelled exploratory diagnostic."""
     a3 = rep["approaches"]["AP3"]
-    assert a3["status"] == "PENDING GENUINE AGENT OUTPUTS"
-    assert "performance" not in a3 and "transmission" not in a3
-    assert a3["blockers"]
-    assert "EXPLORATORY" in a3["designation_if_run_on_current_outputs"]
-    assert "categor" in a3["explicit_prohibition"].lower()
+    if "performance" not in a3:                       # still pending
+        assert a3["status"] == "PENDING GENUINE AGENT OUTPUTS"
+        assert "transmission" not in a3 and a3["blockers"]
+        assert "EXPLORATORY" in a3["designation_if_run_on_current_outputs"]
+        assert "categor" in a3["explicit_prohibition"].lower()
+        return
+    assert "EXPLORATORY" in a3["status"] and a3["designation"].startswith("EXPLORATORY")
+    assert a3["validated"] is False
+    assert a3["gates_failed"], "it is exploratory precisely because a gate failed"
+    assert all(v is False for v in a3["gates"].values()), "the gate outcomes are unchanged"
+    assert "never scaled" in a3["categorical_note"], "the categories are never treated as magnitudes"
+    assert a3["agent_months"] == 95
+    # the scaling happened at its own native entry point, not through another approach's allocator
+    assert "ap3/allocation.py" in a3["allocator"]["entry_point"]
+    assert a3["reproduction_of_1x"]["within_tolerance"] is True
     for s in COMPUTED:
         assert rep["approaches"][s]["status"] == "computed"
 

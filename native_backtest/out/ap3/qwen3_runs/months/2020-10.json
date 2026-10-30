@@ -1,0 +1,1548 @@
+{
+ "month": "2020-10",
+ "decision_time": "2020-10-30T20:00:00-04:00",
+ "graph_vintage": 2019,
+ "event": [
+  {
+   "description": "Industrial production release",
+   "direction": "below consensus",
+   "surprise_z": -1.194,
+   "trigger": "INDUSTRIAL_PRODUCTION"
+  },
+  {
+   "change": 0.12,
+   "date": "2020-10-22",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "BEI5Y",
+   "series_label": "5-year breakeven inflation rate (FRED T5YIE: 5-year nominal minus 5-year TIPS yield, percent)",
+   "trigger": "MARKET_STRESS",
+   "z": 3.03
+  },
+  {
+   "change": 6.93,
+   "date": "2020-10-28",
+   "days_at_or_above_threshold": 1,
+   "description": "Large market move (mediator daily |z| >= 2)",
+   "series": "VIX",
+   "series_label": "CBOE Volatility Index (VIX), daily close, index points",
+   "trigger": "MARKET_STRESS",
+   "z": 2.8
+  }
+ ],
+ "all_surprises_z": {
+  "AHE": -0.214,
+  "CORE_CPI": 0.0,
+  "CPI": -0.194,
+  "INDUSTRIAL_PRODUCTION": -1.194,
+  "ISM_MANUFACTURING": -0.786,
+  "NFP": -0.445,
+  "PPI": 0.754,
+  "RETAIL_SALES": 0.242
+ },
+ "hypothesis_agent": {
+  "tool_calls": [
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "paths",
+    "args": {
+     "source": "industrial production",
+     "target": "SPY",
+     "max_paths": 25
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    }
+   },
+   {
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "repeat_of": 3
+   }
+  ],
+  "turns": 6,
+  "failure": null,
+  "final_answer_forced": false,
+  "repeated_tool_calls": 1,
+  "turn_protocol": "1.1",
+  "turn_log": [
+   {
+    "turn": 0,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "industrial production",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2219,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 1,
+    "action": "tool",
+    "tool": "paths",
+    "args": {
+     "source": "industrial production",
+     "target": "SPY",
+     "max_paths": 25
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2512,
+     "completion_tokens": 50
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 2,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "spy",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2635,
+     "completion_tokens": 40
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 3,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2684,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 4,
+    "action": "tool",
+    "tool": "search_nodes",
+    "args": {
+     "query": "equity returns",
+     "limit": 10
+    },
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 2981,
+     "completion_tokens": 42
+    },
+    "done_reason": "stop"
+   },
+   {
+    "turn": 5,
+    "action": "final",
+    "hypotheses": 3,
+    "final_answer_requested": false,
+    "tokens": {
+     "prompt_tokens": 3069,
+     "completion_tokens": 505
+    },
+    "done_reason": "stop"
+   }
+  ]
+ },
+ "hypotheses": [
+  {
+   "id": "2020-10-H1",
+   "trigger": "INDUSTRIAL_PRODUCTION",
+   "channel": "growth",
+   "mechanism": "output growth -> money growth -> inflation -> equity returns",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "UST10Y",
+     "sign": -1
+    },
+    {
+     "series": "UST2Y",
+     "sign": -1
+    },
+    {
+     "series": "SLOPE_10Y3M",
+     "sign": -1
+    },
+    {
+     "series": "VIX",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "High",
+   "confidence_caps": [],
+   "cited_pathways": {
+    "p2019-72b38a98737a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "w7257",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2841",
+     "year": 2001,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3689",
+     "year": 2003,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "DP3897",
+     "year": 2003,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4845",
+     "year": 2005,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "var"
+    },
+    {
+     "paper_id": "DP5632",
+     "year": 2006,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP5683",
+     "year": 2006,
+     "evidence_class": "causal_method_tagged",
+     "method": "did"
+    }
+   ],
+   "evidence_pool": {
+    "n": 35,
+    "by_kind": {
+     "research_claim": 23,
+     "data_note": 12
+    },
+    "sha256": "c185f9f43b325d439ee34f536b87e4a2dad9058ea1c2e4ba439ff27e2f84b82d",
+    "latest_available_at": "2020-10-30T19:59:00-04:00"
+   },
+   "testing_runs": [],
+   "status": "Insufficient",
+   "run_statuses": [],
+   "seed_agreement": null,
+   "conflict": false,
+   "test_failure": "testing agent: assessor_2020-10-H1_s2: invalid model output (JSONDecodeError)",
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-10-H2",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> output gap -> risk premia",
+   "predicted_assets": {
+    "SPY": -1,
+    "IEF": -1,
+    "LQD": 1
+   },
+   "predicted_mediators": [
+    {
+     "series": "IG_SPREAD",
+     "sign": 1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-ecc76d5aeb07": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP2271",
+     "year": 1999,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "DP4295",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "w10838",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP4830",
+     "year": 2005,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w25892",
+     "year": 2019,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    },
+    {
+     "paper_id": "w20070",
+     "year": 2014,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "structural estimation"
+    }
+   ],
+   "evidence_pool": {
+    "n": 38,
+    "by_kind": {
+     "research_claim": 20,
+     "data_note": 18
+    },
+    "sha256": "01846f0f126a94e5afd5317a61d75f168dd354a6a74355584038f1b7439dae89",
+    "latest_available_at": "2020-10-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases (sign -1) instead of increasing (sign +1) as predicted"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign +1) instead of decreasing (sign -1) as predicted"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign -1) instead of increasing (sign +1) as predicted"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0.05 AND date > 2020-10-01 AND date < 2020-10-30",
+       "SPY > 0.05 AND date > 2020-10-01 AND date < 2020-10-30",
+       "IEF < 0.05 AND date > 2020-10-01 AND date < 2020-10-30"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0.05 AND date > 2020-10-01 AND date < 2020-10-30",
+       "SPY < 0.05 AND date > 2020-10-01 AND date < 2020-10-30",
+       "IEF > 0.05 AND date > 2020-10-01 AND date < 2020-10-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2020-10-30#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_VIX_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_UST2Y_2020-10-30#c000",
+       "DN_BEI5Y_2020-10-30#c000",
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-30), the series rose by +11.05 (+1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly (11.05 points) from pre-IP release to decision time, indicating market stress that could drive SPY declines.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "10Y yield rose (0.11%) from pre-IP to decision time, suggesting IEF (inverse of yield) could fall.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts directly address LQD (corporate bonds) or its price movement relative to market stress.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-30), the series rose by +11.05 (+1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "VIX rose significantly, indicating market stress that typically causes SPY to fall, contradicting the R:SPY link's prediction of SPY increase.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "10Y yield rose, suggesting IEF (price) would fall, contradicting R:IEF's prediction of IEF decrease.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts address LQD (corporate bonds) or its price movement relative to market stress.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2020-10-01",
+       "window_end": "2020-10-29",
+       "change": -0.14000000000000012,
+       "z": -0.45325187284179974,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD decreases instead of increasing (sign 1) during market stress"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreasing during market stress"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases instead of increasing during market stress"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0 in 2020-10-01 to 2020-10-30",
+       "SPY < 0 in 2020-10-01 to 2020-10-30",
+       "IEF < 0 in 2020-10-01 to 2020-10-30"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0 in 2020-10-01 to 2020-10-30",
+       "SPY > 0 in 2020-10-01 to 2020-10-30",
+       "IEF > 0 in 2020-10-01 to 2020-10-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2020-10-30#c000",
+       "DN_VIX_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000",
+       "DN_UST2Y_2020-10-30#c000"
+      ],
+      "contradicting": [
+       "DN_BEI5Y_2020-10-30#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate increased by +0.13 over the period, indicating rising inflation expectations which could support the mechanism's link to equity price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread increased, suggesting rising risk premiums which could support the mechanism's link to Treasury price decreases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_SLOPE_10Y3M_2020-10-30#c000",
+         "citation_status": "quote_not_found_in_chunk",
+         "quote": "Market data note, 10-year minus 3-month Treasury yield spread (percentage points): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.8 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 1800 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year minus 3-month Treasury yield spread increase indicates rising risk premiums, which could support the mechanism's link to corporate bond price increases.",
+       "rejected_quotes": 1
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX index rose significantly, indicating increased market volatility which could support the mechanism's link to equity price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield increased, suggesting rising interest rates which could support the mechanism's link to Treasury price increases.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-30), the series rose by +11.05 (+1.7 standard deviations relative to changes of the same length over the previous 36 months). Release date source: ALFRED vintage date of the headline series."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX index rose significantly, indicating increased market volatility which could support the mechanism's link to corporate bond price decreases.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2020-10-01",
+       "window_end": "2020-10-29",
+       "change": -0.14000000000000012,
+       "z": -0.45325187284179974,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "IG_SPREAD",
+       "would_contradict": "If IG_SPREAD increases (sign 1) but the hypothesis predicts it should increase, then the hypothesis is not contradicted. Wait, no: the hypothesis predicts IG_SPREAD should increase (sign 1). So a contradiction would be if IG_SPREAD decreases (sign -1) at decision time."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (sign -1 expected) but the hypothesis predicts it should decrease, then the hypothesis is not contradicted. Wait, no: the hypothesis predicts SPY should decrease (sign -1). So a contradiction would be if SPY increases (sign +1) at decision time."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (sign -1 expected) but the hypothesis predicts it should decrease, then the hypothesis is not contradicted. Wait, no: the hypothesis predicts IEF should decrease (sign -1). So a contradiction would be if IEF increases (sign +1) at decision time."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD decreases (sign 1 expected) but the hypothesis predicts it should increase, then the hypothesis is not contradicted. Wait, no: the hypothesis predicts LQD should increase (sign 1). So a contradiction would be if LQD decreases (sign -1) at decision time."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "IG_SPREAD > 0",
+       "SPY < 0",
+       "IEF < 0"
+      ],
+      "contradicting": [
+       "IG_SPREAD < 0",
+       "SPY > 0",
+       "IEF > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_SLOPE_10Y3M_2020-10-30#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000",
+       "DN_BEI5Y_2020-10-30#c000",
+       "DN_VIX_2020-10-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly by 11.32 points, indicating increased market volatility, which aligns with the mechanism's volatility component.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise indicates market stress, which could lead to decreased Treasury prices (IEF) as risk premia increase.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rise suggests increased market stress, which typically leads to higher corporate bond prices (LQD) as investors seek safety.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rise indicates market stress, which typically causes equity prices to fall, not rise, contradicting the hypothesis.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rise suggests market stress, which typically leads to lower Treasury prices (IEF), not higher.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "explanation": "VIX rise indicates market stress, which typically causes corporate bond prices to fall, not rise.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "IG_SPREAD",
+       "series_label": "PROXY for the investment-grade credit spread: Moody's seasoned Baa corporate bond yield minus the 10-year Treasury yield (FRED BAA10Y, percentage points). Not an option-adjusted IG index spread.",
+       "expected_sign": 1,
+       "window_start": "2020-10-01",
+       "window_end": "2020-10-29",
+       "change": -0.14000000000000012,
+       "z": -0.45325187284179974,
+       "result": "uninformative",
+       "interpretation": "empirical consistency only; not causal validation"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Supported"
+   ],
+   "seed_agreement": 1.0,
+   "conflict": false,
+   "test_failure": null,
+   "causal_validation": "not established"
+  },
+  {
+   "id": "2020-10-H3",
+   "trigger": "MARKET_STRESS",
+   "channel": "risk_credit",
+   "mechanism": "volatility -> inflation -> nominal interest rates -> stock prices",
+   "predicted_assets": {
+    "SPY": 1,
+    "IEF": -1,
+    "LQD": -1
+   },
+   "predicted_mediators": [
+    {
+     "series": "FF_FUTURES_6M",
+     "sign": -1
+    }
+   ],
+   "confidence_stated": "High",
+   "confidence_applied": "Medium",
+   "confidence_caps": [
+    "cross_paper"
+   ],
+   "cited_pathways": {
+    "p2019-1804e584921a": "3 links"
+   },
+   "invalid_path_ids_dropped": [],
+   "literature_unsupported": false,
+   "research_records": [
+    {
+     "paper_id": "w10602",
+     "year": 2004,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w0836",
+     "year": 1982,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1162",
+     "year": 1983,
+     "evidence_class": "unspecified_method",
+     "method": "other"
+    },
+    {
+     "paper_id": "w1333",
+     "year": 1984,
+     "evidence_class": "other_method_not_causal_tagged",
+     "method": "fixed effects models"
+    },
+    {
+     "paper_id": "w10724",
+     "year": 2004,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    },
+    {
+     "paper_id": "DP8387",
+     "year": 2011,
+     "evidence_class": "theoretical",
+     "method": "theoretical/non-empirical"
+    }
+   ],
+   "evidence_pool": {
+    "n": 39,
+    "by_kind": {
+     "research_claim": 19,
+     "data_note": 20
+    },
+    "sha256": "52004d7df9784c0c61271c9cce208a54bb5920a2f33c22dcfdc775f1f66d7401",
+    "latest_available_at": "2020-10-30T19:59:00-04:00"
+   },
+   "testing_runs": [
+    {
+     "seed": 1,
+     "implications": [
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M increases instead of decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases instead of increases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases instead of decreases, it contradicts the hypothesis"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases instead of decreases, it contradicts the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 0,
+       "LQD": 0
+      }
+     },
+     "queries": {
+      "supporting": [
+       "FF_FUTURES_6M > 0",
+       "SPY > 0",
+       "IEF < 0"
+      ],
+      "contradicting": [
+       "FF_FUTURES_6M < 0",
+       "SPY < 0",
+       "IEF > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000",
+       "DN_BEI5Y_2020-10-30#c000",
+       "DN_VIX_2020-10-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose by +0.17 over the period, indicating higher interest rates which typically lower stock prices (SPY). This supports the link where market moves increase stock prices via interest rate effects.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield rose, which would decrease IEF (7-10 year Treasury prices) as higher yields mean lower prices. This supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Higher 10-year Treasury yields would decrease LQD (corporate bond prices) as investors seek safer assets. This supports the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "insufficient_evidence",
+       "validated_label": "insufficient_evidence",
+       "valid_supporting": 0,
+       "valid_contradicting": 0,
+       "supporting_quotes": [],
+       "contradicting_quotes": [],
+       "explanation": "No excerpts describe market moves or stock price changes directly. The data focuses on yields and volatility, not stock price dynamics.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 0,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 2,
+     "implications": [
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M increases (not decreases) as predicted by the hypothesis"
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY decreases (not increases) as predicted by the hypothesis"
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (not decreases) as predicted by the hypothesis"
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (not decreases) as predicted by the hypothesis"
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": -1,
+       "LQD": -1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "FF_FUTURES_6M < 0",
+       "SPY > 0",
+       "IEF < 0"
+      ],
+      "contradicting": [
+       "FF_FUTURES_6M > 0",
+       "SPY < 0",
+       "IEF > 0"
+      ]
+     },
+     "retrieved": {
+      "supporting": [],
+      "contradicting": [],
+      "neutral": [
+       "DN_UST2Y_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000",
+       "DN_BEI5Y_2020-10-30#c000",
+       "DN_VIX_2020-10-30#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_BEI5Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 5-year breakeven inflation rate (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.13 (+0.6 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 5-year breakeven inflation rate increase suggests higher inflation expectations, which could drive stock prices up via the mechanism. However, the evidence is indirect and does not directly confirm the link.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 10-year Treasury yield increase indicates higher interest rates, which could lead to lower bond prices (IEF) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST2Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 2-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.02 (+0.1 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 18:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The 2-year Treasury yield increase suggests higher short-term interest rates, which could lead to lower corporate bond prices (LQD) as per the mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX increase indicates higher market volatility, which could drive stock prices up via the uncertainty mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX increase suggests higher market volatility, which could lead to lower Treasury prices (IEF) via the uncertainty mechanism.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months). Value as published by 2020-10-30 17:00 ET."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "The VIX increase indicates higher market volatility, which could lead to lower corporate bond prices (LQD) via the uncertainty mechanism.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      }
+     ],
+     "rubric": {
+      "status": "Supported",
+      "conflict": false,
+      "n_valid_supporting": 3,
+      "n_valid_contradicting": 0,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 3,
+      "strong_for": true,
+      "strong_against": false
+     }
+    },
+    {
+     "seed": 3,
+     "implications": [
+      {
+       "observable": "FF_FUTURES_6M",
+       "would_contradict": "If FF_FUTURES_6M increases (positive change) instead of decreasing, it contradicts the hypothesis that volatility leads to higher nominal interest rates and thus lower stock prices."
+      },
+      {
+       "observable": "SPY",
+       "would_contradict": "If SPY increases (positive change) instead of decreasing, it contradicts the hypothesis that higher nominal interest rates lead to lower stock prices."
+      },
+      {
+       "observable": "IEF",
+       "would_contradict": "If IEF increases (positive change) instead of decreasing, it contradicts the hypothesis that higher nominal interest rates lead to lower bond prices (higher yields) and thus lower stock prices."
+      },
+      {
+       "observable": "LQD",
+       "would_contradict": "If LQD increases (positive change) instead of decreasing, it contradicts the hypothesis that higher nominal interest rates lead to lower bond prices (higher yields) and thus lower stock prices."
+      }
+     ],
+     "rival": {
+      "path_id": "p2019-792fcac4da25",
+      "mechanism": "uncertainty -> aggregate demand -> output -> stock returns",
+      "predicted_assets": {
+       "SPY": 1,
+       "IEF": 1,
+       "LQD": 1
+      }
+     },
+     "queries": {
+      "supporting": [
+       "FF_FUTURES_6M in 2020-10-01 to 2020-10-30",
+       "SPY in 2020-10-01 to 2020-10-30",
+       "IEF in 2020-10-01 to 2020-10-30"
+      ],
+      "contradicting": [
+       "FF_FUTURES_6M in 2020-10-01 to 2020-10-30",
+       "SPY in 2020-10-01 to 2020-10-30",
+       "IEF in 2020-10-01 to 2020-10-30"
+      ]
+     },
+     "retrieved": {
+      "supporting": [
+       "DN_VIX_2020-10-30#c000",
+       "DN_UST10Y_2020-10-30#c000",
+       "DN_UST2Y_2020-10-30#c000",
+       "DN_BEI5Y_2020-10-30#c000"
+      ],
+      "contradicting": [
+       "DN_SLOPE_10Y3M_2020-10-30#c000",
+       "DN_IG_SPREAD_2020-10-30#c000",
+       "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ],
+      "neutral": [
+       "DN_UST2Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_BEI5Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_SLOPE_10Y3M_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+       "DN_IG_SPREAD_INDUSTRIAL_PRODUCTION_2020-10-16#c000"
+      ]
+     },
+     "assessor_called": true,
+     "assessments": [
+      {
+       "edge": "H:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-29), the series rose by +0.11 (+0.8 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "Both excerpts show 10-year Treasury yield rose significantly in the period, indicating higher interest rates which typically reduce stock prices (SPY). This supports the link where market moves increase volatility, leading to higher rates and lower equity prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:IEF",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_UST10Y_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, 10-year Treasury yield (percent): between 2020-10-01 and 2020-10-29 the series rose by +0.17 (+0.9 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The 10-year Treasury yield rose significantly, which would typically decrease IEF (Treasury prices) as higher yields mean lower prices. This contradicts the hypothesised link which predicts a decrease in IEF prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "H:LQD",
+       "model_label": "contradicted",
+       "validated_label": "contradicted",
+       "valid_supporting": 0,
+       "valid_contradicting": 1,
+       "supporting_quotes": [],
+       "contradicting_quotes": [
+        {
+         "chunk_id": "DN_IG_SPREAD_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, investment-grade credit spread proxy, Baa corporate yield minus 10-year Treasury yield (percentage points): between 2020-10-01 and 2020-10-29 the series fell by -0.14 (-0.5 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "explanation": "The investment-grade credit spread fell, indicating lower corporate bond yields relative to Treasuries, which would increase LQD prices. This contradicts the hypothesised link which predicts a decrease in LQD prices.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:SPY",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 2,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        },
+        {
+         "chunk_id": "DN_VIX_INDUSTRIAL_PRODUCTION_2020-10-16#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): from the close before the Industrial production release on 2020-10-16 (09:15 ET) to the latest value published by the decision time (2020-10-30), the series rose by +11.05 (+1.7 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly, indicating increased market volatility. This supports the link where market moves (volatility) lead to higher stock prices (SPY) via uncertainty and aggregate demand.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:IEF",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly, indicating increased market volatility. This supports the link where market moves (volatility) lead to higher IEF prices (Treasury prices) via uncertainty and aggregate demand.",
+       "rejected_quotes": 0
+      },
+      {
+       "edge": "R:LQD",
+       "model_label": "supported",
+       "validated_label": "supported",
+       "valid_supporting": 1,
+       "valid_contradicting": 0,
+       "supporting_quotes": [
+        {
+         "chunk_id": "DN_VIX_2020-10-30#c000",
+         "citation_status": "valid",
+         "quote": "Market data note, VIX equity volatility index (points): between 2020-10-01 and 2020-10-30 the series rose by +11.32 (+1.2 standard deviations relative to changes of the same length over the previous 36 months)."
+        }
+       ],
+       "contradicting_quotes": [],
+       "explanation": "VIX rose significantly, indicating increased market volatility. This supports the link where market moves (volatility) lead to higher LQD prices (corporate bonds) via uncertainty and aggregate demand.",
+       "rejected_quotes": 0
+      }
+     ],
+     "mediator_tests": [
+      {
+       "series": "FF_FUTURES_6M",
+       "result": "unavailable",
+       "reason": "series not in the point-in-time store"
+      }
+     ],
+     "rubric": {
+      "status": "Insufficient",
+      "conflict": true,
+      "n_valid_supporting": 2,
+      "n_valid_contradicting": 2,
+      "mediator_consistent": 0,
+      "mediator_inconsistent": 0,
+      "rival_valid_supporting": 4,
+      "strong_for": true,
+      "strong_against": true
+     }
+    }
+   ],
+   "status": "Supported",
+   "run_statuses": [
+    "Supported",
+    "Supported",
+    "Insufficient"
+   ],
+   "seed_agreement": 0.6666666666666666,
+   "conflict": true,
+   "test_failure": null,
+   "causal_validation": "not established"
+  }
+ ],
+ "status_features": {
+  "SPY": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": 1.0
+  },
+  "IEF": {
+   "F_S": -2.0,
+   "F_C": 0.0,
+   "F_I": -1.0
+  },
+  "LQD": {
+   "F_S": 0.0,
+   "F_C": 0.0,
+   "F_I": -1.0
+  }
+ },
+ "mediators_unavailable": [
+  "FF_FUTURES_6M"
+ ],
+ "record_sha256": "9785f44fb30e2e0323a04d1c14c5e1497d59dffb261b82e412c5b1e4beef7bb6",
+ "packet_sha256": "8b5d8fef119e2e8474d91f65f38bbe5287a0722ae44199116301267b6b5c88d4",
+ "model": "qwen3:4b@359d7dd4bcda",
+ "provider": "ollama_local",
+ "variant": "reduced_evidence",
+ "engineering_mock": false
+}

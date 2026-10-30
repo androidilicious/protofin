@@ -370,6 +370,7 @@ def test_no_experiment_or_approach_is_marked_validated_by_the_exploratory_run():
 # ---------------------------------------------------------------- forecast-to-allocation sensitivity (transmission)
 SENS = json.loads((ROOT / "native_backtest/out/sensitivity/forecast_to_allocation_sensitivity.json").read_text())
 SENS_SRC = {"det": "AP1", "jev": "AP2B", "com": "AP2A"}
+EXPLORATORY_LABEL = "EXPLORATORY \u2014 RELIABILITY GATES FAILED"
 
 
 def test_transmission_section_numbers_come_from_the_experiment():
@@ -414,20 +415,32 @@ def test_transmission_section_is_rendered_as_its_own_section():
         assert f".{cls} " in css, f"{cls} has no styling"
 
 
-def test_transmission_claims_no_significance_and_no_causal_rag_result():
+def test_transmission_claims_no_significance():
     S = D["sensitivity"]
     assert S["validation"]["any_scenario_statistically_clear"] is False
-    for k in SENS_SRC:
+    for k in S["systems"]:
         for s in ("0x", "0.5x", "2x"):
             lo, hi = S["systems"][k]["by_scenario"][s]["vs_1x"]["ci95"]
             assert lo <= 0 <= hi, f"{k} {s} interval excludes zero; the copy says none does"
         assert S["systems"][k]["by_scenario"]["1x"]["vs_1x"] is None            # nothing is compared with itself
         assert S["systems"][k]["reproduces_1x"] is True                          # 1x reproduces the archived run
-    assert "rag" not in S["systems"], "Causal RAG has no computed scenario"
-    assert S["ap3"]["status"].lower().startswith("pending") and S["ap3"]["months_available"] == 12
-    assert S["ap3"]["months_required"] == 95 and S["ap3"]["blockers"]
-    assert S["ap3"]["designation"] == "EXPLORATORY — RELIABILITY GATES FAILED"  # the frozen label, em dash and all
     assert S["validation"]["audit_failures"] == 0 and S["validation"]["audit_checks"] >= 300
+
+
+def test_causal_rag_scenarios_if_computed_stay_exploratory():
+    """Causal RAG may now have scenarios, but only ever as a labelled, never-validated diagnostic."""
+    S = D["sensitivity"]
+    assert S["ap3"]["designation"] == EXPLORATORY_LABEL
+    assert S["ap3"]["months_required"] == 95
+    if not S["ap3"].get("computed"):
+        assert "rag" not in S["systems"] and S["ap3"]["status"].lower().startswith("pending")
+        return
+    assert "EXPLORATORY" in S["ap3"]["status"] and S["ap3"]["gates_failed"]
+    assert "never scaled" in (S["ap3"]["categorical_note"] or "")
+    rag = S["systems"]["rag"]
+    assert rag["exploratory"] is True and rag["designation"] == S["ap3"]["designation"]
+    assert rag["universe"] == ["SPY", "IEF", "LQD"] and rag["reproduces_1x"] is True
+    assert rag["posterior_keeps"] is not None and rag["jev_stages"] is None
 
 
 def test_transmission_keeps_each_approach_in_its_own_native_portfolio():
@@ -491,13 +504,19 @@ def test_pipeline_never_reads_the_future_or_invents_causal_rag():
             assert v["exit"] > v["entry"] and v["exit"] < "2023-03", (k, m)
             # weights are stored rounded to 5 decimals for size, so fully invested within that rounding
             assert abs(sum(v["weights"].values()) - 1) < 5e-5, "weights are fully invested"
-    # the Causal RAG entry is a notice, never month values
-    assert PIPE["rag"]["available"] is False
-    assert set(PIPE["rag"]) == {"available", "reason", "designation"}
-    assert not [k for k in PIPE["rag"] if re.fullmatch(r"\d{4}-\d{2}", k)]
-    assert "GATES FAILED" in PIPE["rag"]["designation"]
-    assert [s["id"] for s in PIPE["stages"]["rag"]] == [s["id"] for s in PIPE["stages"]["det"]]   # same six stages
-    assert "Hypothesis" in PIPE["stages"]["rag"][1]["name"]                                       # its own architecture
+    # the Causal RAG lane is always marked, whether or not it has values
+    assert "GATES FAILED" in PIPE["rag_status"]["designation"]
+    assert [s["id"] for s in PIPE["stages"]["rag"]] == [s["id"] for s in PIPE["stages"]["det"]]
+    assert "Hypothesis" in PIPE["stages"]["rag"][1]["name"]            # its own architecture
+    if not PIPE["rag_status"]["available"]:
+        assert "rag" not in PIPE, "a lane with no genuine output must carry no month values"
+        return
+    assert set(PIPE["rag"]) == set(D["dev"]["months"]), "every development month, or none"
+    for m, v in PIPE["rag"].items():
+        assert v["entry"] > v["decision_date"] and v["exit"] > v["entry"] and v["exit"] < "2023-03", m
+        assert abs(sum(v["weights"].values()) - 1) < 5e-5, m
+        for h in v["hypotheses"]:
+            assert h["status"] in ("Supported", "Contradicted", "Insufficient", None), (m, h["status"])
 
 
 def test_each_pipeline_keeps_its_native_architecture():
@@ -591,16 +610,19 @@ def test_replay_running_metrics_reproduce_the_committed_result():
     assert "to date</b>, not the full-sample result" in js, "running and full-sample figures must be distinguished"
 
 
-def test_replay_never_invents_causal_rag():
+def test_replay_marks_causal_rag_as_exploratory_everywhere():
     js = (ROOT / "mvp/assets/app.js").read_text()
-    assert "if (k === 'rag') return { pending: true }" in js, "the Causal RAG lane can never source month values"
-    assert "No genuine agent output exists for" in js
-    # the lane states the real, current gate outcome rather than a placeholder
+    assert "No genuine agent output exists for" in js, "the pending wording must survive for a future rerun"
     X = D["ap3_exploratory"]
-    assert X["label"] == "EXPLORATORY — RELIABILITY GATES FAILED"
     assert X["gates_failed"] and set(X["gates_failed"]) <= {"G3a", "G3b"}
-    assert X["months_done"] < X["months_needed"]
-    assert "rag" not in D["dev"]["series"], "no Causal RAG performance series exists to replay"
+    # Causal RAG must never join the validated series; its curve comes only from the labelled block
+    assert "rag" not in D["dev"]["series"], "Causal RAG must not appear as a validated development series"
+    assert "const rpSeries = k => { if (k !== 'rag') return S(k);" in js
+    assert "rl-badge" in js and "d.explor" in js, "a lane with exploratory values must show the badge"
+    if X["state"] == "results":
+        assert X["wealth"] and len(X["wealth"]) == len(D["dev"]["months"])
+        assert X["metrics"]["cer"] is not None
+        assert X["coverage"]["months_scored"] == 46
 
 
 def test_replay_reflects_the_latest_committed_agent_run():
