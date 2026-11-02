@@ -88,7 +88,7 @@ class DeterministicMvpTests(unittest.TestCase):
         backtest, metrics = portfolio_backtest(frame, predictions)
         self.assertGreater(len(predictions), 100)
         self.assertGreater(len(backtest), 12)
-        self.assertEqual(len(metrics), 1)
+        self.assertEqual(set(metrics["scenario"]), {"dynamic_three_asset", "sixty_forty", "spy_only"})
         weight_sum = backtest[["equity_weight", "treasury_weight", "ig_credit_weight"]].sum(axis=1)
         self.assertTrue(np.allclose(weight_sum, 1.0))
 
