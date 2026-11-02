@@ -34,7 +34,7 @@ class ReleaseSpec:
 
 
 RELEASE_SPECS = (
-    ReleaseSpec("nfp", "growth", "NFP TCH Index", "nfp_release_cleaned", "nfp_reference_raw"),
+    ReleaseSpec("nfp", "growth", "NFP TCH Index", "nfp_release_raw", "nfp_reference_raw"),
     ReleaseSpec("retail_sales", "growth", "RSTAMOM Index", "retail_sales_release_raw", "retail_sales_reference_raw"),
     ReleaseSpec("industrial_production", "growth", "IP CHNG Index", "industrial_production_release_r", "industrial_production_reference"),
     ReleaseSpec("ism_manufacturing", "growth", "NAPMPMI Index", "ism_manufacturing_release", "ism_manufacturing_reference"),
@@ -62,10 +62,31 @@ FULL_FEATURES = [
     "growth_x_gpr",
     "inflation_x_gpr",
 ]
+REQUIRED_SIGNAL_FEATURES = [
+    "growth_surprise",
+    "inflation_surprise",
+    "anfci",
+    "gpr",
+    "growth_x_anfci",
+    "inflation_x_anfci",
+    "growth_x_gpr",
+    "inflation_x_gpr",
+]
+
+
+def _parse_excel_dates(values: pd.Series) -> pd.Series:
+    """Parse a column that may mix datetimes, ISO strings, and Excel serials."""
+    numeric = pd.to_numeric(values, errors="coerce")
+    serial_mask = numeric.between(20000, 80000)
+    parsed = pd.to_datetime(values.where(~serial_mask), errors="coerce")
+    parsed.loc[serial_mask] = pd.to_datetime(
+        numeric.loc[serial_mask], unit="D", origin="1899-12-30", errors="coerce"
+    )
+    return parsed
 
 
 def _month_end(values: pd.Series) -> pd.Series:
-    return pd.to_datetime(values).dt.to_period("M").dt.to_timestamp("M")
+    return _parse_excel_dates(values).dt.to_period("M").dt.to_timestamp("M")
 
 
 def _parse_yyyymmdd(values: pd.Series) -> pd.Series:
@@ -88,7 +109,7 @@ def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12)
             "Std. dev": "survey_std",
         }
     )
-    release["release_date"] = pd.to_datetime(release["release_date"], errors="coerce")
+    release["release_date"] = _parse_excel_dates(release["release_date"])
     numeric = ["actual_first", "survey_median", "survey_average", "survey_high", "survey_low", "survey_std"]
     for column in numeric:
         release[column] = pd.to_numeric(release[column], errors="coerce")
@@ -100,7 +121,7 @@ def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12)
             "Contributors": "survey_n",
         }
     )
-    reference["reference_period"] = pd.to_datetime(reference["reference_period"], errors="coerce")
+    reference["reference_period"] = _parse_excel_dates(reference["reference_period"])
     reference["release_date"] = _parse_yyyymmdd(reference["eco_release_date"])
     reference = reference.sort_values(["release_date", "reference_period"])
 
@@ -120,6 +141,8 @@ def load_release_table(workbook: Path, spec: ReleaseSpec, min_history: int = 12)
         )
     )
 
+    release = release.dropna(subset=["release_date", "actual_first", "survey_median"])
+    release = release.sort_values("release_date").drop_duplicates("release_date", keep="last")
     clean = release.merge(reference_summary, on="release_date", how="left", validate="one_to_one")
     clean.insert(0, "variable", spec.name)
     clean.insert(1, "group", spec.group)
@@ -299,7 +322,12 @@ def _select_alpha(x: np.ndarray, y: np.ndarray, alphas: Iterable[float]) -> floa
 
 
 def walk_forward_ridge(model: pd.DataFrame, min_train: int = 36) -> tuple[pd.DataFrame, dict[str, float]]:
-    complete_x = model[FULL_FEATURES].notna().all(axis=1)
+    # The supplied policy-path sheets begin in September 2019, while the
+    # release and market histories begin earlier. Preserve the full feature
+    # specification and use past-only median imputation for unavailable
+    # policy fields. Rows still require the macro/risk signals that cannot be
+    # meaningfully imputed.
+    complete_x = model[REQUIRED_SIGNAL_FEATURES].notna().all(axis=1)
     predictions: list[dict[str, object]] = []
     latest_alphas: dict[str, float] = {}
     alpha_grid = [0.01, 0.1, 1.0, 10.0, 100.0]
@@ -310,10 +338,13 @@ def walk_forward_ridge(model: pd.DataFrame, min_train: int = 36) -> tuple[pd.Dat
             train = model.loc[(model.index < idx) & complete_x & model[target_col].notna()]
             if len(train) < min_train:
                 continue
-            x_train = train[FULL_FEATURES].to_numpy(float)
+            train_x = train[FULL_FEATURES].copy()
+            medians = train_x.median(axis=0, skipna=True).fillna(0.0)
+            x_train = train_x.fillna(medians).to_numpy(float)
             y_train = train[target_col].to_numpy(float)
             alpha = _select_alpha(x_train, y_train, alpha_grid)
-            pred = float(_ridge_fit_predict(x_train, y_train, model.loc[[idx], FULL_FEATURES].to_numpy(float), alpha)[0])
+            x_test = model.loc[[idx], FULL_FEATURES].fillna(medians).to_numpy(float)
+            pred = float(_ridge_fit_predict(x_train, y_train, x_test, alpha)[0])
             predictions.append(
                 {
                     "date": model.at[idx, "date"],
@@ -389,12 +420,41 @@ def optimize_weights_grid(
     return result
 
 
-def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _summarize_returns(series: pd.Series) -> dict[str, float]:
+    series = series.dropna()
+    if series.empty:
+        return {"observations": 0, "annualized_return": np.nan, "annualized_volatility": np.nan,
+                "sharpe_zero_rf": np.nan, "maximum_drawdown": np.nan, "cumulative_return": np.nan}
+    wealth = (1 + series).cumprod()
+    drawdown = wealth / wealth.cummax() - 1
+    annual_return = wealth.iloc[-1] ** (12 / len(series)) - 1
+    annual_vol = series.std(ddof=1) * math.sqrt(12)
+    return {
+        "observations": len(series),
+        "annualized_return": annual_return,
+        "annualized_volatility": annual_vol,
+        "sharpe_zero_rf": annual_return / annual_vol if annual_vol > 0 else np.nan,
+        "maximum_drawdown": drawdown.min(),
+        "cumulative_return": wealth.iloc[-1] - 1,
+    }
+
+
+def portfolio_backtest(
+    model: pd.DataFrame,
+    predictions: pd.DataFrame,
+    score_start: pd.Timestamp = pd.Timestamp("2019-03-31"),
+    score_end: pd.Timestamp = pd.Timestamp("2022-12-31"),
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     if predictions.empty:
         return pd.DataFrame(), pd.DataFrame()
     wide = predictions.pivot(index="date", columns="asset", values="forecast_next_month").dropna()
     benchmark = np.array([0.45, 0.35, 0.20])
-    previous = benchmark.copy()
+    previous_pretrade = benchmark.copy()
+    fixed_targets = {
+        "sixty_forty": np.array([0.60, 0.40, 0.0]),
+        "spy_only": np.array([1.0, 0.0, 0.0]),
+    }
+    fixed_pretrade = {key: value.copy() for key, value in fixed_targets.items()}
     rows = []
     evaluated_errors = predictions.dropna(subset=["realized_next_month"]).copy()
     evaluated_errors["error"] = evaluated_errors["forecast_next_month"] - evaluated_errors["realized_next_month"]
@@ -410,15 +470,27 @@ def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[
         omega = error_history.groupby("asset")["error"].var().reindex(ASSETS).to_numpy(float)
         q = forecasts.reindex(ASSETS).to_numpy(float)
         posterior = black_litterman_posterior(covariance, q, omega, benchmark)
-        weights = optimize_weights_grid(posterior, covariance, previous)
+        weights = optimize_weights_grid(posterior, covariance, previous_pretrade)
         current = model.loc[model["date"] == date]
         if current.empty:
             continue
         realized = current[[f"next_{c}" for c in RETURN_COLUMNS]].iloc[0].to_numpy(float)
-        turnover = float(np.abs(weights - previous).sum())
+        turnover = float(np.abs(weights - previous_pretrade).sum())
         gross = float(weights @ realized) if np.isfinite(realized).all() else np.nan
         benchmark_return = float(benchmark @ realized) if np.isfinite(realized).all() else np.nan
         cost = turnover * 5.0 / 10000.0
+        scenario_values = {}
+        for scenario, target in fixed_targets.items():
+            scenario_turnover = float(np.abs(target - fixed_pretrade[scenario]).sum())
+            scenario_gross = float(target @ realized) if np.isfinite(realized).all() else np.nan
+            scenario_cost = scenario_turnover * 5.0 / 10000.0
+            scenario_values.update({
+                f"{scenario}_turnover": scenario_turnover,
+                f"{scenario}_transaction_cost": scenario_cost,
+                f"{scenario}_net_return": scenario_gross - scenario_cost if np.isfinite(scenario_gross) else np.nan,
+            })
+            if np.isfinite(scenario_gross):
+                fixed_pretrade[scenario] = target * (1 + realized) / (1 + scenario_gross)
         rows.append(
             {
                 "date": date,
@@ -429,44 +501,34 @@ def portfolio_backtest(model: pd.DataFrame, predictions: pd.DataFrame) -> tuple[
                 "transaction_cost": cost,
                 "net_return": gross - cost if np.isfinite(gross) else np.nan,
                 "benchmark_return": benchmark_return,
+                **scenario_values,
             }
         )
-        previous = weights
+        if np.isfinite(gross):
+            previous_pretrade = weights * (1 + realized) / (1 + gross)
 
     backtest = pd.DataFrame(rows)
     if backtest.empty:
         return backtest, pd.DataFrame()
-    returns = backtest["net_return"].dropna()
-    benchmark_returns = backtest.loc[returns.index, "benchmark_return"]
-
-    def summarize(series: pd.Series) -> dict[str, float]:
-        wealth = (1 + series).cumprod()
-        drawdown = wealth / wealth.cummax() - 1
-        annual_return = (wealth.iloc[-1] ** (12 / len(series)) - 1) if len(series) else np.nan
-        annual_vol = series.std(ddof=1) * math.sqrt(12)
-        return {
-            "annualized_return": annual_return,
-            "annualized_volatility": annual_vol,
-            "sharpe_zero_rf": annual_return / annual_vol if annual_vol > 0 else np.nan,
-            "maximum_drawdown": drawdown.min(),
-        }
-
-    strategy_stats = summarize(returns)
-    benchmark_stats = summarize(benchmark_returns)
-    metrics = pd.DataFrame(
-        [
-            {
-                "observations": len(returns),
-                **strategy_stats,
-                "average_turnover": backtest["turnover"].mean(),
-                "certainty_equivalent_return": strategy_stats["annualized_return"]
-                - 0.5 * 2.5 * strategy_stats["annualized_volatility"] ** 2,
-                **{f"benchmark_{key}": value for key, value in benchmark_stats.items()},
-                "annualized_excess_return": strategy_stats["annualized_return"]
-                - benchmark_stats["annualized_return"],
-            }
-        ]
-    )
+    scored = backtest[backtest["date"].between(score_start, score_end)].copy()
+    scenario_columns = {
+        "dynamic_three_asset": ("net_return", "turnover"),
+        "sixty_forty": ("sixty_forty_net_return", "sixty_forty_turnover"),
+        "spy_only": ("spy_only_net_return", "spy_only_turnover"),
+    }
+    metric_rows = []
+    for scenario, (return_col, turnover_col) in scenario_columns.items():
+        stats = _summarize_returns(scored[return_col])
+        metric_rows.append({
+            "scenario": scenario,
+            "window_start": score_start,
+            "window_end": score_end,
+            **stats,
+            "average_turnover": scored[turnover_col].mean(),
+            "certainty_equivalent_return": stats["annualized_return"]
+            - 0.5 * 2.5 * stats["annualized_volatility"] ** 2,
+        })
+    metrics = pd.DataFrame(metric_rows)
     return backtest, metrics
 
 

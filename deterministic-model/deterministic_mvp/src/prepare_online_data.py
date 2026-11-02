@@ -16,9 +16,9 @@ import pandas as pd
 URLS = {
     "anfci": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=ANFCI",
     "gpr": "https://www.matteoiacoviello.com/gpr_files/data_gpr_export.dta",
-    "spy": "https://query2.finance.yahoo.com/v8/finance/chart/SPY?range=10y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
-    "ief": "https://query2.finance.yahoo.com/v8/finance/chart/IEF?range=10y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
-    "lqd": "https://query2.finance.yahoo.com/v8/finance/chart/LQD?range=10y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
+    "spy": "https://query2.finance.yahoo.com/v8/finance/chart/SPY?range=15y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
+    "ief": "https://query2.finance.yahoo.com/v8/finance/chart/IEF?range=15y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
+    "lqd": "https://query2.finance.yahoo.com/v8/finance/chart/LQD?range=15y&interval=1d&events=div%2Csplits&includeAdjustedClose=true",
 }
 
 RAW_NAMES = {
@@ -83,7 +83,9 @@ def build_supplemental(raw_dir: Path, output_csv: Path, sources_csv: Path) -> pd
     treasury = prepare_adjusted_return(raw_dir / RAW_NAMES["ief"], "treasury_return")
     credit = prepare_adjusted_return(raw_dir / RAW_NAMES["lqd"], "ig_credit_return")
 
-    start = pd.Timestamp("2018-01-31")
+    # The methodology's training window begins in February 2015. Keep one
+    # prior month so the first scored return has a valid percentage change.
+    start = pd.Timestamp("2015-01-31")
     end = min(frame["date"].max() for frame in [anfci, gpr, equity, treasury, credit])
     panel = pd.DataFrame({"date": pd.date_range(start, end, freq="ME")})
     for frame in [anfci[["date", "anfci"]], gpr[["date", "gpr"]], equity, treasury, credit]:

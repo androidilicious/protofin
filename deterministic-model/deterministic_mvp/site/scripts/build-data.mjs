@@ -2,8 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const siteRoot = path.resolve(import.meta.dirname, "..");
-const mvpRoot = path.resolve(siteRoot, "..");
-const outputRoot = path.join(mvpRoot, "outputs");
+const dataRoot = path.join(siteRoot, "data");
 
 function parseCsv(file) {
   const text = fs.readFileSync(file, "utf8").trim();
@@ -14,9 +13,8 @@ function parseCsv(file) {
     if (char === '"') {
       if (quoted && text[i + 1] === '"') { field += '"'; i++; }
       else quoted = !quoted;
-    } else if (char === "," && !quoted) {
-      row.push(field); field = "";
-    } else if ((char === "\n" || char === "\r") && !quoted) {
+    } else if (char === "," && !quoted) { row.push(field); field = ""; }
+    else if ((char === "\n" || char === "\r") && !quoted) {
       if (char === "\r" && text[i + 1] === "\n") i++;
       row.push(field); rows.push(row); row = []; field = "";
     } else field += char;
@@ -26,97 +24,81 @@ function parseCsv(file) {
   return rows.filter(r => r.some(Boolean)).map(values => Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ""])));
 }
 
-function numericRows(rows) {
+function typed(rows) {
+  const textFields = new Set(["date", "decision_month", "release_date", "variable", "group", "asset", "scenario", "window_start", "window_end", "reference_status"]);
   return rows.map(row => Object.fromEntries(Object.entries(row).map(([key, value]) => {
-    if (key === "date" || key.includes("status") || key.includes("asset") || key.includes("detail") || key.includes("field") || key.includes("source") || key.includes("proxy") || key.includes("transformation") || key.includes("limitation") || key.includes("downloaded")) return [key, value];
+    if (textFields.has(key) || key.endsWith("_date")) return [key, value];
     if (value === "") return [key, null];
-    const number = Number(value);
-    return [key, Number.isFinite(number) ? number : value];
+    const n = Number(value);
+    return [key, Number.isFinite(n) ? n : value];
   })));
 }
 
-const latestSurprise = JSON.parse(fs.readFileSync(path.join(outputRoot, "latest_surprise_signal.json"), "utf8"));
-const latestForecast = JSON.parse(fs.readFileSync(path.join(outputRoot, "latest_forecast.json"), "utf8"));
-const latestPortfolio = JSON.parse(fs.readFileSync(path.join(outputRoot, "latest_portfolio.json"), "utf8"));
-const surpriseSignals = numericRows(parseCsv(path.join(outputRoot, "surprise_signals.csv"))).filter(row => row.growth_surprise !== null);
-const forecastMetrics = numericRows(parseCsv(path.join(outputRoot, "forecast_metrics.csv")));
-const portfolioMetrics = numericRows(parseCsv(path.join(outputRoot, "portfolio_metrics.csv")))[0];
-const backtest = numericRows(parseCsv(path.join(outputRoot, "portfolio_backtest.csv")));
-const ridgePredictions = numericRows(parseCsv(path.join(outputRoot, "ridge_predictions.csv")));
-const modelDataset = numericRows(parseCsv(path.join(outputRoot, "model_dataset.csv")));
-const sources = parseCsv(path.join(mvpRoot, "data_sources.csv"));
-const releases = numericRows(parseCsv(path.join(outputRoot, "clean_releases.csv")));
-const latestMonth = latestSurprise.date.slice(0, 7);
-const latestReleases = releases.filter(row => row.decision_month?.startsWith(latestMonth)).map(row => ({
-  variable: row.variable,
-  group: row.group,
-  release_date: row.release_date,
-  actual: row.actual_first,
-  consensus: row.survey_median,
-  raw_surprise: row.raw_surprise,
-  sigma: row.historical_surprise_sigma,
-  z: row.standardized_surprise,
-}));
-const latestBacktest = backtest.at(-1);
-const blackLitterman = {
-  benchmarkWeights: { equity: 0.45, treasury: 0.35, ig_credit: 0.20 },
-  ridgeViews: latestForecast.forecasts,
-  posteriorReturns: {
-    equity: latestBacktest.equity_bl_return,
-    treasury: latestBacktest.treasury_bl_return,
-    ig_credit: latestBacktest.ig_credit_bl_return,
-  },
-  viewRmse: Object.fromEntries(forecastMetrics.map(row => [row.asset, row.rmse])),
-  settings: { tau: 0.05, riskAversion: 2.5, covarianceWindowMonths: 36, viewMatrix: "Identity" },
-};
+const releases = typed(parseCsv(path.join(dataRoot, "clean_releases.csv")));
+const signals = typed(parseCsv(path.join(dataRoot, "surprise_signals.csv"))).filter(r => Number.isFinite(r.growth_surprise));
+const predictions = typed(parseCsv(path.join(dataRoot, "ridge_predictions.csv")));
+const backtest = typed(parseCsv(path.join(dataRoot, "portfolio_backtest.csv")));
+const metrics = typed(parseCsv(path.join(dataRoot, "portfolio_metrics.csv")));
+const forecastMetrics = typed(parseCsv(path.join(dataRoot, "forecast_metrics.csv")));
+const sources = parseCsv(path.join(dataRoot, "data_sources.csv"));
+const runSummary = JSON.parse(fs.readFileSync(path.join(dataRoot, "run_summary.json"), "utf8"));
 
-const decisionHistory = backtest.map(portfolio => {
-  const date = portfolio.date;
-  const month = date.slice(0, 7);
-  const signal = surpriseSignals.find(row => row.date === date) ?? null;
-  const predictions = ridgePredictions.filter(row => row.date === date);
-  const modelRow = modelDataset.find(row => row.date === date) ?? null;
+function monthReleases(month) {
+  const selected = releases.filter(r => r.decision_month?.startsWith(month) && Number.isFinite(r.standardized_surprise));
+  const latest = new Map();
+  selected.forEach(r => {
+    if (!latest.has(r.variable) || r.release_date > latest.get(r.variable).release_date) latest.set(r.variable, r);
+  });
+  return [...latest.values()].map(r => ({
+    variable: r.variable, group: r.group, releaseDate: r.release_date,
+    actual: r.actual_first, consensus: r.survey_median, raw: r.raw_surprise,
+    priorSigma: r.historical_surprise_sigma, z: r.standardized_surprise,
+  }));
+}
+
+const decisions = backtest.filter(row => row.date <= "2026-09-30").map(row => {
+  const date = row.date;
+  const monthPredictions = predictions.filter(p => p.date === date);
   return {
     date,
-    signal,
-    releases: releases.filter(row => row.decision_month?.startsWith(month)).map(row => ({
-      variable: row.variable,
-      group: row.group,
-      release_date: row.release_date,
-      actual: row.actual_first,
-      consensus: row.survey_median,
-      raw_surprise: row.raw_surprise,
-      sigma: row.historical_surprise_sigma,
-      z: row.standardized_surprise,
-    })),
-    forecasts: Object.fromEntries(predictions.map(row => [row.asset, row.forecast_next_month])),
-    forecastAlpha: Object.fromEntries(predictions.map(row => [row.asset, row.alpha])),
-    realizedAssetReturns: Object.fromEntries(predictions.map(row => [row.asset, row.realized_next_month])),
-    posteriorReturns: {
-      equity: portfolio.equity_bl_return,
-      treasury: portfolio.treasury_bl_return,
-      ig_credit: portfolio.ig_credit_bl_return,
+    phase: date <= "2022-12-31" ? "development" : "sealed",
+    signal: signals.find(s => s.date === date) ?? null,
+    releases: monthReleases(date.slice(0, 7)),
+    forecasts: Object.fromEntries(monthPredictions.map(p => [p.asset, p.forecast_next_month])),
+    alpha: Object.fromEntries(monthPredictions.map(p => [p.asset, p.alpha])),
+    posterior: { equity: row.equity_bl_return, treasury: row.treasury_bl_return, ig_credit: row.ig_credit_bl_return },
+    dynamicWeights: { equity: row.equity_weight, treasury: row.treasury_weight, ig_credit: row.ig_credit_weight },
+    outcomes: {
+      dynamic: { return: row.net_return, turnover: row.turnover, cost: row.transaction_cost },
+      sixtyForty: { return: row.sixty_forty_net_return, turnover: row.sixty_forty_turnover, cost: row.sixty_forty_transaction_cost },
+      spyOnly: { return: row.spy_only_net_return, turnover: row.spy_only_turnover, cost: row.spy_only_transaction_cost },
     },
-    weights: {
-      equity: portfolio.equity_weight,
-      treasury: portfolio.treasury_weight,
-      ig_credit: portfolio.ig_credit_weight,
-    },
-    outcome: {
-      grossReturn: portfolio.gross_return,
-      transactionCost: portfolio.transaction_cost,
-      netReturn: portfolio.net_return,
-      benchmarkReturn: portfolio.benchmark_return,
-      turnover: portfolio.turnover,
-    },
-    nextReturnsFromModel: modelRow ? {
-      equity: modelRow.next_equity_return,
-      treasury: modelRow.next_treasury_return,
-      ig_credit: modelRow.next_ig_credit_return,
-    } : null,
   };
 });
 
-const data = { latestSurprise, latestForecast, latestPortfolio, surpriseSignals, forecastMetrics, portfolioMetrics, backtest, sources, latestReleases, blackLitterman, decisionHistory };
+const scoredBacktest = backtest.filter(r => r.date >= "2020-10-31" && r.date <= "2022-12-31");
+const scenarioSeries = scoredBacktest.map(r => ({ date: r.date, dynamic: r.net_return, sixtyForty: r.sixty_forty_net_return, spyOnly: r.spy_only_net_return }));
+
+const data = {
+  asOf: "2026-10-26",
+  workbook: "deterministic_data2 - Oct26.xlsx",
+  runSummary,
+  signals,
+  forecastMetrics,
+  metrics,
+  scenarioSeries,
+  decisions,
+  latest: decisions.at(-1),
+  sources,
+  methodology: {
+    training: ["2015-02-01", "2019-02-28"],
+    development: ["2019-03-01", "2022-12-31"],
+    scoredOverlap: ["2020-10-31", "2022-12-31"],
+    sealed: ["2023-01-01", "2026-10-26"],
+    costBps: 5,
+    decisionTime: "8:00 p.m. New York time on the last trading day of each month",
+  },
+};
+
 fs.writeFileSync(path.join(siteRoot, "dist", "data.js"), `window.MVP_DATA = ${JSON.stringify(data)};\n`);
-console.log(JSON.stringify({ output: path.join(siteRoot, "dist", "data.js"), latestMonth, releaseCount: latestReleases.length }));
+console.log(JSON.stringify({ decisions: decisions.length, scoredMonths: scenarioSeries.length, latest: data.latest.date }));

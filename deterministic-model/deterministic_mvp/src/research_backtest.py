@@ -1,0 +1,333 @@
+"""Reproducible, past-only signal experiments for the deterministic MVP.
+
+Run from deterministic_mvp: python3 src/research_backtest.py
+This writes a separate research artifact; it does not overwrite the original run.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from deterministic_mvp import (
+    ASSETS, FULL_FEATURES, REQUIRED_SIGNAL_FEATURES,
+    build_clean_releases, build_monthly_features,
+    black_litterman_posterior, optimize_weights_grid,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+RAW = ROOT / "research" / "raw"
+OUT = ROOT / "research" / "outputs"
+WORKBOOK_NAME = "deterministic_data2 - Oct26.xlsx"
+# The repository keeps inputs beside deterministic_mvp. The second location
+# also supports the original capstone workspace layout.
+WORKBOOK = next(
+    (p for p in [ROOT.parent / WORKBOOK_NAME, ROOT.parents[1] / WORKBOOK_NAME] if p.exists()),
+    ROOT.parent / WORKBOOK_NAME,
+)
+BENCHMARK = np.array([.45, .35, .20])
+VARIANTS = {
+    "baseline": {"name": "Original model · rerun", "extra": [], "color": "#008aa1"},
+    "claims": {"name": "+ Unemployment claims", "extra": ["claims_change_3m"], "color": "#9261bd"},
+    "credit": {"name": "+ Credit spread", "extra": ["credit_level", "credit_change_1m"], "color": "#db7931"},
+    "curve": {"name": "+ Yield curve", "extra": ["curve_level"], "color": "#3b71d1"},
+}
+PASSIVE = {
+    "fixed453520": {"name": "Fixed 45 / 35 / 20", "weights": BENCHMARK, "color": "#64748b"},
+    "sixtyForty": {"name": "Fixed 60% SPY / 40% IEF", "weights": np.array([.6, .4, 0]), "color": "#4f9677"},
+    "spyOnly": {"name": "100% SPY", "weights": np.array([1., 0, 0]), "color": "#bd9526"},
+}
+PERIODS = [
+    {"id": "covid_shock", "name": "COVID shock", "start": "2020-02-29", "end": "2020-04-30", "description": "February–April 2020 holding months. Tests loss protection during the sudden market disruption."},
+    {"id": "covid_recovery", "name": "COVID recovery", "start": "2020-05-31", "end": "2020-12-31", "description": "May–December 2020 holding months. Tests participation in the recovery after the initial shock."},
+    {"id": "inflation_2022", "name": "Inflation / rate shock", "start": "2022-01-31", "end": "2022-12-31", "description": "January–December 2022 holding months. Tests the model during the inflation and rate-shock environment."},
+]
+
+
+def adjusted_prices() -> pd.DataFrame:
+    prices = []
+    for ticker, asset in zip(["spy", "ief", "lqd"], ASSETS):
+        result = json.loads((RAW / f"{ticker}_history.json").read_text())["chart"]["result"][0]
+        dates = pd.to_datetime(result["timestamp"], unit="s", utc=True).tz_convert("America/New_York").normalize().tz_localize(None)
+        price = pd.Series(result["indicators"]["adjclose"][0]["adjclose"], index=dates, name=asset).dropna()
+        if price.index.has_duplicates or not (price > 0).all():
+            raise ValueError(f"Invalid price history: {ticker}")
+        prices.append(price)
+    return pd.concat(prices, axis=1, join="inner").sort_index()
+
+
+def economic_observations() -> dict[str, pd.DataFrame]:
+    result = {}
+    for key, series in [("claims", "ICSA"), ("credit", "BAA10Y"), ("curve", "T10Y3M")]:
+        df = pd.read_csv(RAW / f"{key}.csv", parse_dates=["observation_date"])
+        df[series] = pd.to_numeric(df[series], errors="coerce")
+        df = df.dropna().sort_values("observation_date")
+        # Weekly claims refer to a Saturday and normally arrive on Thursday.
+        # Market yields/spreads use a conservative one-business-day delay.
+        df["available_date"] = df["observation_date"] + (pd.Timedelta(days=5) if key == "claims" else pd.offsets.BDay(1))
+        if key == "claims":
+            df["value"] = df[series].rolling(4, min_periods=4).mean()
+        else:
+            df["value"] = df[series]
+        result[key] = df
+    return result
+
+
+def make_panel(prices: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    releases = build_clean_releases(WORKBOOK)
+    features = build_monthly_features(WORKBOOK, releases).set_index("date")
+    anfci = pd.read_csv(ROOT / "data/raw/anfci_fred.csv", parse_dates=["observation_date"])
+    anfci["available_date"] = anfci.observation_date + pd.Timedelta(days=5)
+    gpr = pd.read_stata(ROOT / "data/raw/gpr_caldara_iacoviello.dta", columns=["month", "GPR"])
+    gpr["available_date"] = pd.to_datetime(gpr.month) + pd.offsets.MonthBegin(1) + pd.Timedelta(days=6)
+    economic = economic_observations()
+    rows = []
+    # Build an unscored lookback before training so every candidate feature,
+    # including the three-month claims change, exists by February 2015.
+    for date in pd.date_range("2014-08-31", "2022-11-30", freq="ME"):
+        before = prices.loc[prices.index <= date]
+        after = prices.index[prices.index > date]
+        next_month = date + pd.offsets.MonthEnd(1)
+        exits = prices.index[prices.index > next_month]
+        if before.empty or len(after) == 0 or len(exits) == 0 or date not in features.index:
+            continue
+        decision_date, entry, exit_date = before.index[-1], after[0], exits[0]
+        row = features.loc[date].to_dict()
+        row.update(date=date, decision_date=decision_date, holding_month=next_month, entry=entry, exit=exit_date)
+        # Rebuild the month's composites at the actual last trading-day cutoff.
+        known = releases[(releases.decision_month == date) & (releases.release_date <= decision_date)]
+        for group in ["growth", "inflation"]:
+            row[f"{group}_surprise"] = known.loc[known.group == group].groupby("variable").standardized_surprise.mean().mean()
+        a = anfci.loc[anfci.available_date <= decision_date].dropna(subset=["ANFCI"])
+        g = gpr.loc[gpr.available_date <= decision_date].dropna(subset=["GPR"])
+        row["anfci"] = float(a.iloc[-1].ANFCI) if not a.empty else np.nan
+        row["gpr"] = float(g.iloc[-1].GPR) if not g.empty else np.nan
+        for group in ["growth", "inflation"]:
+            for risk in ["anfci", "gpr"]:
+                row[f"{group}_x_{risk}"] = row[f"{group}_surprise"] * row[risk]
+        for key, df in economic.items():
+            known_values = df[(df.available_date <= decision_date) & df.value.notna()]
+            last = known_values.iloc[-1]
+            row[f"{key}_source_date"] = last.observation_date
+            row[f"{key}_available_date"] = last.available_date
+            row[f"{key}_level"] = float(last.value)
+        row["asset_returns"] = (prices.loc[exit_date] / prices.loc[entry] - 1).to_numpy(float)
+        rows.append(row)
+    panel = pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
+    panel["claims_change_3m"] = panel.claims_level / panel.claims_level.shift(3) - 1
+    panel["credit_change_1m"] = panel.credit_level.diff()
+    # Calendar-month returns are known by decision close and used for covariance.
+    monthly = prices.resample("ME").last().pct_change().dropna()
+    return panel[panel.date >= "2015-02-28"].reset_index(drop=True), monthly
+
+
+def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float) -> np.ndarray:
+    """Training-only imputation/scaling, including within each tuning fold."""
+    medians = pd.DataFrame(x).median().fillna(0).to_numpy()
+    x = np.where(np.isfinite(x), x, medians)
+    test = np.where(np.isfinite(test), test, medians)
+    mean = x.mean(axis=0)
+    std = x.std(axis=0)
+    std[std < 1e-12] = 1
+    scaled = (x - mean) / std
+    y_mean = y.mean(axis=0)
+    beta = np.linalg.solve(scaled.T @ scaled + alpha * np.eye(x.shape[1]), scaled.T @ (y - y_mean))
+    return y_mean + (test - mean) / std @ beta
+
+
+def forecasts(panel: pd.DataFrame, extra: list[str]) -> list[dict]:
+    columns = [*FULL_FEATURES, *extra]
+    valid = panel[[*REQUIRED_SIGNAL_FEATURES, *extra]].notna().all(axis=1)
+    predictions = []
+    for idx, row in panel[valid].iterrows():
+        # A target becomes observable only when its holding interval has ended.
+        train = panel[(panel.exit <= row.decision_date) & valid]
+        if len(train) < 36:
+            continue
+        x = train[columns].to_numpy(float)
+        y = np.stack(train.asset_returns.to_numpy())
+        errors = []
+        alphas = [.01, .1, 1., 10., 100.]
+        # Time-ordered inner folds; never impute using validation rows.
+        folds = range(max(24, len(train) // 2), len(train))
+        for alpha in alphas:
+            squared = []
+            for end in folds:
+                pred = fit_predict(x[:end], y[:end], x[end:end+1], alpha)[0]
+                squared.append((pred - y[end]) ** 2)
+            errors.append(np.mean(squared, axis=0))
+        chosen = np.array(alphas)[np.argmin(np.array(errors), axis=0)]
+        q = np.array([fit_predict(x, y, row[columns].to_numpy(float)[None, :], a)[0, j] for j, a in enumerate(chosen)])
+        predictions.append({"idx": idx, "date": row.date, "decision_date": row.decision_date, "exit": row.exit, "q": q, "actual": row.asset_returns, "alpha": chosen, "training_rows": len(train)})
+    return predictions
+
+
+def monthly_allocation(panel: pd.DataFrame, covariance_returns: pd.DataFrame, prediction_rows: list[dict]) -> list[dict]:
+    previous = BENCHMARK.copy()
+    decisions = []
+    for pred in prediction_rows:
+        row = panel.loc[pred["idx"]]
+        past = [p for p in prediction_rows if p["exit"] <= row.decision_date]
+        if len(past) < 12:
+            continue
+        observed_returns = covariance_returns[covariance_returns.index <= row.decision_date].tail(36)
+        if len(observed_returns) < 24:
+            continue
+        cov = observed_returns.cov().to_numpy(float)
+        omega = np.stack([p["q"] - p["actual"] for p in past]).var(axis=0, ddof=1)
+        posterior = black_litterman_posterior(cov, pred["q"], omega, BENCHMARK)
+        weights = optimize_weights_grid(posterior, cov, previous)
+        turnover = float(np.abs(weights - previous).sum())
+        gross = float(weights @ row.asset_returns)
+        cost = turnover * .0005
+        net = (1 - cost) * (1 + gross) - 1
+        decisions.append({
+            "date": row.date, "decision_date": row.decision_date, "holding_month": row.holding_month,
+            "entry": row.entry, "exit": row.exit, "weights": weights,
+            "forecast": pred["q"], "posterior": posterior,
+            "turnover": turnover, "cost": cost, "net_return": net,
+            "training_rows": pred["training_rows"],
+            "last_training_exit": panel.loc[(panel.exit <= row.decision_date)].exit.max(),
+            "last_error_exit": max(p["exit"] for p in past),
+        })
+        previous = weights * (1 + row.asset_returns) / (1 + gross)
+    return decisions
+
+
+def passive_decisions(panel: pd.DataFrame, target: np.ndarray, dates: set[pd.Timestamp]) -> list[dict]:
+    previous = target.copy()
+    result = []
+    for _, row in panel[panel.date.isin(dates)].iterrows():
+        turnover = float(np.abs(target - previous).sum())
+        gross = float(target @ row.asset_returns)
+        cost = turnover * .0005
+        result.append({"date": row.date, "decision_date": row.decision_date, "holding_month": row.holding_month, "entry": row.entry, "exit": row.exit,
+                       "weights": target.copy(), "turnover": turnover, "cost": cost, "net_return": (1 - cost) * (1 + gross) - 1})
+        previous = target * (1 + row.asset_returns) / (1 + gross)
+    return result
+
+
+def summarize(decisions: list[dict], prices: pd.DataFrame) -> tuple[dict, list[dict]]:
+    if not decisions:
+        raise ValueError("No common decisions in this period")
+    wealth = 100.
+    path = [{"date": decisions[0]["entry"], "wealth": wealth}]
+    for row in decisions:
+        segment = prices.loc[row["entry"]:row["exit"]]
+        opening = wealth * (1 - row["cost"])
+        factors = segment / segment.iloc[0]
+        values = opening * (factors.to_numpy() @ row["weights"])
+        path.extend({"date": d, "wealth": float(v)} for d, v in zip(segment.index, values))
+        wealth = float(values[-1])
+    monthly = np.array([d["net_return"] for d in decisions])
+    wealth_values = np.array([p["wealth"] for p in path])
+    peaks = np.maximum.accumulate(wealth_values)
+    drawdowns = wealth_values / peaks - 1
+    worst_idx = int(drawdowns.argmin())
+    prior_peak_idx = int(wealth_values[:worst_idx+1].argmax())
+    recovered = np.flatnonzero(wealth_values[worst_idx+1:] >= wealth_values[prior_peak_idx])
+    recovered_date = path[worst_idx+1+int(recovered[0])]["date"] if len(recovered) else None
+    errors_check = np.prod(1 + monthly)
+    if not np.isclose(wealth / 100, errors_check, atol=1e-10):
+        raise AssertionError("Daily wealth and monthly net returns do not reconcile")
+    vol = float(monthly.std(ddof=1) * np.sqrt(12)) if len(monthly) > 1 else None
+    ann = float((wealth / 100) ** (12 / len(monthly)) - 1)
+    # Do not annualize short episode returns or present a 3-month Sharpe ranking.
+    stats = {
+        "months": len(monthly), "cumulative_return": wealth / 100 - 1,
+        "annualized_return": ann if len(monthly) >= 12 else None,
+        "annualized_volatility": vol,
+        "sharpe_zero_rf": float(monthly.mean() * 12 / vol) if len(monthly) >= 12 and vol and vol > 0 else None,
+        "maximum_drawdown": float(drawdowns.min()), "average_turnover": float(np.mean([r["turnover"] for r in decisions])),
+        "cost_bps_sum": float(sum(r["cost"] for r in decisions) * 10000),
+        "end_value": wealth, "entry": decisions[0]["entry"], "exit": decisions[-1]["exit"],
+        "recovery_date": recovered_date,
+        "drawdown_trough": path[worst_idx]["date"],
+    }
+    return stats, path
+
+
+def serializable(value):
+    if isinstance(value, dict):
+        return {k: serializable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return [serializable(v) for v in value]
+    if isinstance(value, (pd.Timestamp, datetime)):
+        return value.strftime("%Y-%m-%d")
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (float, np.floating)):
+        return float(value) if np.isfinite(value) else None
+    return value
+
+
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    prices = adjusted_prices()
+    panel, monthly_returns = make_panel(prices)
+    all_decisions = {}
+    all_forecasts = {}
+    for key, meta in VARIANTS.items():
+        prediction_rows = forecasts(panel, meta["extra"])
+        all_forecasts[key] = prediction_rows
+        all_decisions[key] = monthly_allocation(panel, monthly_returns, prediction_rows)
+        print(key, "predictions", len(prediction_rows), "allocations", len(all_decisions[key]), flush=True)
+    common = set.intersection(*(set(d["date"] for d in rows) for rows in all_decisions.values()))
+    for key, meta in PASSIVE.items():
+        all_decisions[key] = passive_decisions(panel, meta["weights"], common)
+    series_meta = {**VARIANTS, **PASSIVE}
+    periods = []
+    for period in PERIODS:
+        selected = {}
+        for key, rows in all_decisions.items():
+            chosen = [d for d in rows if d["date"] in common and pd.Timestamp(period["start"]) <= d["holding_month"] <= pd.Timestamp(period["end"])]
+            stats, path = summarize(chosen, prices)
+            errors = [p for p in all_forecasts.get(key, []) if p["date"] in {d["date"] for d in chosen}]
+            stats["forecast_rmse"] = float(np.sqrt(np.mean(np.stack([(e["q"] - e["actual"]) ** 2 for e in errors])))) if errors else None
+            selected[key] = {"stats": stats, "path": path, "decisions": chosen}
+        baseline_return = selected["baseline"]["stats"]["cumulative_return"]
+        for key, result in selected.items():
+            result["stats"]["difference_vs_baseline"] = result["stats"]["cumulative_return"] - baseline_return
+        periods.append({**period, "results": selected})
+    signal_rows = panel[["date", "decision_date", "claims_change_3m", "credit_level", "credit_change_1m", "curve_level", "claims_source_date", "claims_available_date", "credit_source_date", "credit_available_date", "curve_source_date", "curve_available_date"]]
+    signal_rows.to_csv(OUT / "research_signals.csv", index=False)
+    # Include monthly outputs for the development interval only, never the sealed test.
+    rolling = []
+    holding_months = sorted({d["holding_month"] for d in all_decisions["baseline"] if d["date"] in common})
+    for end in range(11, len(holding_months)):
+        first, last = holding_months[end-11], holding_months[end]
+        results = {}
+        for key, rows in all_decisions.items():
+            chosen = [d for d in rows if d["date"] in common and first <= d["holding_month"] <= last]
+            stats, _ = summarize(chosen, prices)
+            results[key] = stats
+        rolling.append({"start": first, "end": last, "results": results})
+    sources = [
+        {"name": "Initial unemployment claims", "url": "https://fred.stlouisfed.org/series/ICSA", "file": "claims.csv", "feature": "Three-month percentage change in the latest available four-week average", "availability": "Observation Saturday + five calendar days (Thursday); latest revised vintage"},
+        {"name": "Baa corporate–Treasury spread", "url": "https://fred.stlouisfed.org/series/BAA10Y", "file": "credit.csv", "feature": "Spread level and one-month change, percentage points", "availability": "One business day after observation; broad Baa proxy, not LQD OAS"},
+        {"name": "10-year minus 3-month yield curve", "url": "https://fred.stlouisfed.org/series/T10Y3M", "file": "curve.csv", "feature": "Latest available spread level, percentage points", "availability": "One business day after observation"},
+    ]
+    output = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "periods": periods,
+        "rolling_windows": rolling,
+        "variants": {key: {"name": meta["name"], "color": meta["color"], "kind": "model" if key in VARIANTS else "reference"} for key, meta in series_meta.items()},
+        "signal_observations": signal_rows.to_dict("records"),
+        "sources": sources,
+        "settings": {"risk_aversion": 2.5, "tau": .05, "cost_bps_per_dollar": 5, "min_train": 36, "min_prior_errors": 12, "training_start": "2015-02-28", "covariance_months": 36,
+                     "common_first_decision": min(common), "common_last_decision": max(common), "trade_timing": "Last-trading-day decision; enter next trading-day close and exit next rebalance close. Holding month names the entry month.", "development_only": True},
+        "input_hashes": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [WORKBOOK, *sorted(RAW.glob('*'))] if p.is_relative_to(ROOT)},
+        "workbook_sha256": hashlib.sha256(WORKBOOK.read_bytes()).hexdigest(),
+    }
+    (OUT / "research_results.json").write_text(json.dumps(serializable(output), indent=2, allow_nan=False))
+    # Persist all pre-2023 decisions for rolling-window diagnostics and reproducibility.
+    (OUT / "research_decisions.json").write_text(json.dumps(serializable(all_decisions), indent=2, allow_nan=False))
+    print("Saved", OUT / "research_results.json")
+
+
+if __name__ == "__main__":
+    main()
