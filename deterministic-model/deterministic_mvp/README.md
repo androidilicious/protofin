@@ -2,6 +2,24 @@
 
 This MVP implements the quantitative baseline described in the proposal and deliberately excludes RAG, LLMs, and agents.
 
+## Current update
+
+The current workbook is `../deterministic_data2 - Oct26.xlsx`. The older workbook
+is retained for regression checks and the archived presentation. The website
+has a Signal Research tab comparing the original model with separately added
+claims, credit-spread, and yield-curve features, over COVID shock/recovery and 2022.
+
+```bash
+python3 src/research_backtest.py
+node site/scripts/build-research.mjs "$PWD/research/outputs"
+python3 -m unittest discover -s tests -v
+python3 -m http.server 4173 --directory site/dist
+```
+
+Open `http://localhost:4173/research.html`. The research run reads committed raw
+inputs and writes separate outputs in `research/outputs/`; it leaves the earlier
+MVP results intact. See `research/README.md` for complete experiment definitions.
+
 ## What runs with the supplied workbook
 
 The signal engine:
@@ -47,7 +65,7 @@ From this directory:
 
 ```bash
 python3 src/deterministic_mvp.py \
-  --workbook ../deterministic_data1.xlsx \
+  --workbook "../deterministic_data2 - Oct26.xlsx" \
   --output-dir outputs
 ```
 
@@ -55,7 +73,7 @@ With supplemental data:
 
 ```bash
 python3 src/deterministic_mvp.py \
-  --workbook ../deterministic_data1.xlsx \
+  --workbook "../deterministic_data2 - Oct26.xlsx" \
   --supplemental supplemental_monthly.csv \
   --output-dir outputs
 ```
@@ -85,8 +103,8 @@ python3 -m unittest discover -s tests -v
 - Allocation bounds: Equity 20–70%, Treasury 15–60%, IG Credit 10–40%.
 - Black–Litterman `tau`: 0.05; risk aversion: 2.5.
 - Covariance window: trailing 36 monthly returns.
-- Portfolio transaction cost: 5 bps per unit of one-way turnover.
-- Optimizer turnover penalty: 0.5 basis points of utility per unit of one-way turnover.
+- Portfolio transaction cost: 5 bps per dollar traded (sum of absolute weight changes from drifted holdings).
+- Optimizer turnover penalty: 0.5 basis points of utility per unit of that turnover measure.
 
 These are transparent MVP defaults, not proposal facts. Freeze or revise them before opening a locked test set.
 
