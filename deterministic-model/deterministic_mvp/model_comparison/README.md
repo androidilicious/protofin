@@ -157,3 +157,16 @@ metadata saved with each forecast. The generator retains fitted intercepts
 including target-scaling reversal; contributions are scaled back to return
 units. Exporting this metadata does not change forecasts, penalties, weights,
 returns or the experiment specification.
+
+
+### All-model cumulative return chart
+
+The portfolio chart now defaults to the six forecasting models on one shared
+cumulative-net-return axis. Each starts at 0%; the optional dollar view starts
+at $100. The inspected model is drawn last with a thicker line. Colors and line
+patterns remain consistent between returns and drawdowns. Legend buttons show
+each model's exact ending result and toggle line visibility; at least one line
+remains. Hiding lines does not rescale the axis. `Show all lines` restores the
+current view. The comparison menu can include both fixed/prior-only references,
+or focus on the inspected model and references. This is a presentation change;
+all saved forecasts, returns, dates and trading rules remain unchanged.

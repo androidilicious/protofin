@@ -12,8 +12,11 @@ window.ModelVisuals=(()=>{
  const fmtDate=d=>new Date(`${d}T12:00:00`).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
  const fmtMonth=d=>new Date(`${d}T12:00:00`).toLocaleDateString('en-US',{month:'short',year:'numeric'});
  const value=(name,v)=>v==null?'Missing':name.startsWith('lag_')&&name.endsWith('_return')?pct(v):v.toFixed(2);
- const shortName=key=>({historical_mean:'Historical mean',ols:'OLS',ridge:'Ridge',elastic_net:'Elastic Net',ridge_lags:'Ridge + lags',ridge_interactions:'Ridge + interactions',fixed453520:'Fixed 45/35/20'}[key]||key);
+ const shortName=key=>({historical_mean:'Historical mean',ols:'OLS',ridge:'Ridge',elastic_net:'Elastic Net',ridge_lags:'Ridge + lags',ridge_interactions:'Ridge + interactions',fixed453520:'Fixed 45/35/20',prior_only:'BL prior only'}[key]||key);
  let state=null,choose=null,selectedDate=null;
+ let returnView='all',returnUnits='percent';
+ const hiddenReturns=new Set();
+ const linePatterns={historical_mean:'6 4',ols:'',ridge:'',elastic_net:'10 3',ridge_lags:'3 3',ridge_interactions:'12 3 2 3',fixed453520:'2 4',prior_only:'8 3 2 3'};
  const result=()=>state.window.results[state.model];
  const decision=()=>result().decisions.find(d=>d.date===selectedDate);
  const prediction=()=>result().predictions.find(p=>p.date===selectedDate);
@@ -102,21 +105,48 @@ window.ModelVisuals=(()=>{
   $('accuracyBars').innerHTML=keys.map(k=>{const value=state.window.results[k].forecast[state.asset].rmse;return `<button type="button" class="accuracy-row${k===state.model?' is-active':''}" data-model="${k}" aria-pressed="${k===state.model}"><span>${shortName(k)}</span><span class="accuracy-track"><i style="width:${value/max*100}%;background:${state.data.models[k].color}"></i></span><strong>${pct(value)}</strong></button>`;}).join('');
   $('skillGrid').innerHTML=`<table><caption class="visually-hidden">Forecast skill relative to historical mean by model and asset</caption><thead><tr><th>Model</th>${assets.map(a=>`<th>${names[a]}</th>`).join('')}</tr></thead><tbody>${keys.map(k=>`<tr><th>${shortName(k)}</th>${assets.map(a=>{const v=state.window.results[k].forecast[a].oos_r2_vs_mean;return `<td><button type="button" data-model="${k}" data-asset="${a}" class="skill-cell ${v>1e-6?'skill-positive':v< -1e-6?'skill-negative':'skill-neutral'}${k===state.model&&a===state.asset?' is-active':''}" aria-label="${shortName(k)}, ${names[a]}, out-of-sample R squared ${v==null?'unavailable':v.toFixed(3)}" aria-pressed="${k===state.model&&a===state.asset}">${v==null?'—':v.toFixed(3)}</button></td>`;}).join('')}</tr>`).join('')}</tbody></table>`;
  }
+ function returnCandidates(){
+  if(returnView==='all_references')return Object.keys(state.data.models);
+  return returnView==='all'?Object.keys(state.data.models).filter(k=>state.data.models[k].stage!=='reference'):[...new Set([state.model,'historical_mean',...(state.data.models[state.model].stage==='extension'?['ridge']:[]),'fixed453520'])];
+ }
  function portfolioCharts(){
-  const keys=[...new Set([state.model,'historical_mean',...(state.data.models[state.model].stage==='extension'?['ridge']:[]),'fixed453520'])];
-  const paths=keys.map(k=>state.window.results[k].path);
+  const candidates=returnCandidates();
+  let keys=candidates.filter(k=>!hiddenReturns.has(k));
+  if(!keys.length){hiddenReturns.delete(state.model);keys=candidates.filter(k=>!hiddenReturns.has(k));}
+  // Draw the inspected model last so overlapping peer lines cannot obscure it.
+  const drawKeys=[...keys.filter(k=>k!==state.model),...keys.filter(k=>k===state.model)];
+  const paths=drawKeys.map(k=>state.window.results[k].path);
   for(const mode of ['growth','drawdown']){
-   const id=mode==='growth'?'modelChart':'drawdownChart',w=width(id),h=mode==='growth'?340:240,p={l:58,r:22,t:22,b:42};
-   const series=paths.map(rows=>{let peak=rows[0].wealth;return rows.map(r=>{peak=Math.max(peak,r.wealth);return {...r,value:mode==='growth'?r.wealth:r.wealth/peak-1};});});
-   const values=series.flat().map(r=>r.value),lo=mode==='growth'?Math.min(100,...values)-2:Math.min(-.01,...values)*1.1,hi=mode==='growth'?Math.max(100,...values)+2:0;
+   const id=mode==='growth'?'modelChart':'drawdownChart',w=width(id),h=mode==='growth'?360:250,p={l:62,r:22,t:22,b:42};
+   const transform=rows=>{let peak=rows[0].wealth;return rows.map(r=>{peak=Math.max(peak,r.wealth);return {...r,value:mode==='growth'?(returnUnits==='dollars'?r.wealth:r.wealth/100-1):r.wealth/peak-1};});};
+   const series=paths.map(transform);
+   // Keep the scale fixed for this view even when legend entries are hidden.
+   const values=candidates.flatMap(k=>transform(state.window.results[k].path).map(r=>r.value));
+   const anchor=mode==='growth'&&returnUnits==='dollars'?100:0;
+   const padding=mode==='growth'&&returnUnits==='dollars'?2:Math.max(.005,(Math.max(...values)-Math.min(...values))*.06);
+   const lo=mode==='growth'?Math.min(anchor,...values)-padding:Math.min(-.01,...values)*1.1;
+   const hi=mode==='growth'?Math.max(anchor,...values)+padding:0;
    const first=new Date(paths[0][0].date).getTime(),last=new Date(paths[0].at(-1).date).getTime();
-   const x=r=>p.l+(new Date(r.date).getTime()-first)/(last-first)*(w-p.l-p.r),{y,parts}=grid(w,h,p,lo,hi,v=>mode==='growth'?`$${v.toFixed(0)}`:pct(v,hi-lo<.08?1:0));
-   series.forEach((rows,i)=>parts.push(`<path d="${line(rows,x,y,r=>r.value)}" fill="none" stroke="${state.data.models[keys[i]].color}" stroke-width="${i===0?3.2:2}" ${i===1?'stroke-dasharray="7 4"':i>1?'stroke-dasharray="2 4"':''}/>`));
+   const x=r=>p.l+(new Date(r.date).getTime()-first)/(last-first)*(w-p.l-p.r);
+   const format=v=>mode==='growth'&&returnUnits==='dollars'?`$${v.toFixed(0)}`:pct(v,hi-lo<.08?1:0);
+   const {y,parts}=grid(w,h,p,lo,hi,format);
+   series.forEach((rows,i)=>{
+    const key=drawKeys[i],selected=key===state.model,dash=linePatterns[key];
+    const endpoint=rows.at(-1),endLabel=mode==='growth'&&returnUnits==='dollars'?`$${endpoint.value.toFixed(2)}`:pct(endpoint.value);
+    parts.push(`<path data-return-series="${key}" d="${line(rows,x,y,r=>r.value)}" fill="none" stroke="${state.data.models[key].color}" stroke-width="${selected?3.8:1.9}" opacity="${selected?1:.8}" ${dash?`stroke-dasharray="${dash}"`:''}><title>${shortName(key)}: ending ${mode==='growth'?'value':'drawdown'} ${endLabel}</title></path>`);
+    parts.push(`<circle cx="${x(endpoint)}" cy="${y(endpoint.value)}" r="${selected?4.5:2.8}" fill="${state.data.models[key].color}"/>`);
+   });
    dateTicks(parts,series[0],x,h,w);
-   svg(id,w,h,parts,mode==='growth'?'Portfolio values after costs':'Portfolio losses below earlier peaks',`${keys.map(shortName).join(', ')} over the selected window. ${mode==='growth'?'Each starts at $100.':'Drawdown is zero at each new peak and negative below it.'}`);
+   svg(id,w,h,parts,mode==='growth'?'Cumulative portfolio net returns':'Portfolio losses below earlier peaks',`${keys.map(shortName).join(', ')} over the same selected dates. ${mode==='growth'?(returnUnits==='dollars'?'Each starts at $100.':'Cumulative net returns start at zero.'):'Drawdown is zero at each new peak and negative below it.'}`);
   }
-  $('modelLegend').innerHTML=keys.map((k,i)=>`<span><i class="${i===0?'legend-solid':i===1?'legend-dashed':'legend-dotted'}" style="border-color:${state.data.models[k].color}"></i>${shortName(k)} <b>$${state.window.results[k].portfolio.end_value.toFixed(2)}</b></span>`).join('');
-  put('performanceReadout',`${state.data.models[state.model].name}: $100 became $${result().portfolio.end_value.toFixed(2)}; maximum daily drawdown ${pct(result().portfolio.maximum_drawdown)}. These are whole-portfolio results, independent of the asset selected for forecast inspection.`);
+  put('returnsTitle',returnUnits==='dollars'?'Growth of $100 after costs':'Cumulative net returns after costs');
+  put('seriesVisibility',`${keys.length} of ${candidates.length} ${returnView==='all'?'model lines':'series'} visible. Click legend entries to hide or restore lines; at least one stays visible. The axis stays fixed when hiding lines.`);
+  $('modelLegend').innerHTML=candidates.map(k=>{
+   const visible=!hiddenReturns.has(k),dash=linePatterns[k],end=state.window.results[k].portfolio;
+   const label=returnUnits==='dollars'?`$${end.end_value.toFixed(2)}`:pct(end.cumulative_return);
+   return `<button type="button" data-return-model="${k}" aria-pressed="${visible}" ${visible&&keys.length===1?'disabled':''} class="return-legend-item${visible?'':' is-hidden'}${k===state.model?' is-inspected':''}"><i class="${dash?'legend-dashed':'legend-solid'}" style="border-color:${state.data.models[k].color}"></i><span>${shortName(k)}</span><b>${label}</b></button>`;
+  }).join('');
+  put('performanceReadout',`${state.data.models[state.model].name}${hiddenReturns.has(state.model)?' (currently hidden in the chart)':''}: cumulative net return ${pct(result().portfolio.cumulative_return)}; maximum daily drawdown ${pct(result().portfolio.maximum_drawdown)}. ${hiddenReturns.has(state.model)?'':'The inspected model has the bold line. '}These are whole-portfolio returns, independent of the asset selected for forecast inspection.`);
  }
  function allocations(){
   const rows=result().decisions,w=width('allocationChart'),h=230,p={l:52,r:18,t:18,b:42},plotH=h-p.t-p.b,step=(w-p.l-p.r)/rows.length;
@@ -131,7 +161,7 @@ window.ModelVisuals=(()=>{
   $('allocationLegend').innerHTML=`<span>${fmtMonth(decision().holding_month)}</span>`+assets.map((a,i)=>`<span><i class="asset-swatch" style="background:${colors[a]}"></i>${names[a]} <b>${pct(decision().weights[i],0)}</b></span>`).join('');
  }
  function redraw(){if(!state)return;explainDecision();forecastChart();accuracy();portfolioCharts();allocations();}
- function render(next,callback){state=next;choose=callback;if(!result().decisions.some(r=>r.date===selectedDate))selectedDate=worstDate();redraw();}
+ function render(next,callback){if(state&&next.model!==state.model)hiddenReturns.delete(next.model);state=next;choose=callback;if(!result().decisions.some(r=>r.date===selectedDate))selectedDate=worstDate();redraw();}
  function selectDate(value){if(state&&result().decisions.some(r=>r.date===value)){selectedDate=value;redraw();}}
  $('decisionSelect').addEventListener('change',e=>selectDate(e.target.value));
  $('decisionPrev').addEventListener('click',()=>{if(!state)return;const rows=result().decisions,i=rows.findIndex(d=>d.date===selectedDate);if(i>0)selectDate(rows[i-1].date);});
@@ -139,6 +169,18 @@ window.ModelVisuals=(()=>{
  $('largestMiss').addEventListener('click',()=>{if(state)selectDate(worstDate());});
  for(const id of ['forecastChart','allocationChart'])$(id).addEventListener('click',e=>{const target=e.target.closest('[data-date]');if(target)selectDate(target.dataset.date);});
  for(const id of ['accuracyBars','skillGrid'])$(id).addEventListener('click',e=>{const target=e.target.closest('[data-model]');if(target&&choose)choose({model:target.dataset.model,asset:target.dataset.asset});});
+ $('returnView').addEventListener('change',e=>{returnView=e.target.value;hiddenReturns.clear();if(state)portfolioCharts();});
+ $('returnUnits').addEventListener('change',e=>{returnUnits=e.target.value;if(state)portfolioCharts();});
+ $('showAllReturns').addEventListener('click',()=>{hiddenReturns.clear();if(state)portfolioCharts();});
+ $('modelLegend').addEventListener('click',e=>{
+  if(!state)return;
+  const target=e.target.closest('[data-return-model]');if(!target)return;
+  const key=target.dataset.returnModel,candidates=returnCandidates();
+  if(!candidates.includes(key))return;
+  if(hiddenReturns.has(key))hiddenReturns.delete(key);
+  else if(candidates.filter(k=>!hiddenReturns.has(k)).length>1)hiddenReturns.add(key);
+  portfolioCharts();
+ });
  let resizeTimer;
  if(typeof window.addEventListener==='function')window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(redraw,120);});
  return {render,selectDate,getSelectedDate:()=>selectedDate};
