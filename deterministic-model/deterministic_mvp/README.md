@@ -40,6 +40,16 @@ leave-each-episode-out summaries, credit/ANFCI shared-information diagnostics,
 and historical freshness/error-uncertainty displays. Settings are recorded before
 the rerun; these analyses remain exploratory and do not select a production model.
 
+## Model Comparison tab
+
+A separate `site/dist/models.html` compares historical mean, OLS, Ridge and
+Elastic Net on identical one-month targets, followed by isolated Ridge lags and
+ANFCI-interaction extensions. It uses a compact additive information set and
+shared fold-local stability controls. See `model_comparison/README.md` for the
+recorded specification and reproduction commands. Install
+`requirements-comparison.txt` before running the full suite or this experiment.
+The optional BVAR is deferred; no reserved-period evaluation is added.
+
 ## What runs with the supplied workbook
 
 The signal engine:
