@@ -66,8 +66,35 @@ assert.equal(context.window.ModelVisuals.getSelectedDate(),testDate);
 element('skillGrid').listeners.click({target:{closest:()=>({dataset:{model:'ols',asset:'treasury'}})}});
 assert.equal(element('modelSelect').value,'ols');assert.equal(element('assetSelect').value,'treasury');
 assert(element('forecastContext').textContent.includes('IEF'));
+// All-series overlays share dates and scales, support both units and cannot go blank.
+const seriesCount=id=>(element(id).innerHTML.match(/data-return-series=/g)||[]).length;
+assert.equal(seriesCount('modelChart'),6);
+assert.equal(seriesCount('drawdownChart'),6);
+const axisTicks=()=>element('modelChart').innerHTML.match(/<text[^>]*class="viz-tick">[^<]*<\/text>/g);
+const beforeTicks=axisTicks();
+const toggle=key=>element('modelLegend').listeners.click({target:{closest:()=>({dataset:{returnModel:key}})}});
+toggle('ols');
+assert.equal(seriesCount('modelChart'),5);assert.equal(seriesCount('drawdownChart'),5);
+assert(!element('modelChart').innerHTML.includes('data-return-series="ols"'));
+assert.deepEqual(axisTicks(),beforeTicks,'Hiding a line must not rescale the chart');
+element('showAllReturns').listeners.click();assert.equal(seriesCount('modelChart'),6);
+for(const key of models)toggle(key);
+assert.equal(seriesCount('modelChart'),1,'The final visible line must remain');
+element('showAllReturns').listeners.click();
+element('returnUnits').listeners.change({target:{value:'dollars'}});
+assert(element('returnsTitle').textContent.includes('$100'));
+assert(element('modelLegend').innerHTML.includes('$'));
+element('returnUnits').listeners.change({target:{value:'percent'}});
+assert(element('returnsTitle').textContent.includes('Cumulative net returns'));
+assert(element('modelLegend').innerHTML.includes('%'));
+element('returnView').listeners.change({target:{value:'selected'}});
+assert.equal(seriesCount('modelChart'),3);
+element('returnView').listeners.change({target:{value:'all_references'}});
+assert.equal(seriesCount('modelChart'),8);assert.equal(seriesCount('drawdownChart'),8);
+element('returnView').listeners.change({target:{value:'all'}});
+assert.equal(seriesCount('modelChart'),6);
 for(const name of ['index.html','research.html'])assert(fs.readFileSync(path.join(root,name),'utf8').includes('href="models.html"'));
 for(const match of html.matchAll(/(?:src|href)="([^"#]+)"/g)){
  if(!match[1].includes('://'))assert(fs.existsSync(path.resolve(root,match[1])),`Missing linked file ${match[1]}`);
 }
-console.log(`PASS: ${count} window/model/asset states, responsive charts at 310/620/1100px, linked month/model controls, decision coverage and navigation/assets.`);
+console.log(`PASS: ${count} window/model/asset states, responsive charts at 310/620/1100px, linked month/model controls, decision coverage, all-model return overlays, stable scales, line visibility, return units and navigation/assets.`);
