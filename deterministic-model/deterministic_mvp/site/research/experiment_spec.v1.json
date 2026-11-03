@@ -1,0 +1,35 @@
+{
+  "id": "forecast-audit-v1",
+  "recorded_on": "2026-11-02",
+  "status": "exploratory; recorded before rerunning this implementation, after seeing the earlier research",
+  "primary_scope": "all common eligible holding months through December 2022",
+  "reserved_test_start": "2023-01-01",
+  "unchanged_signal_candidates": [
+    "claims",
+    "credit",
+    "curve"
+  ],
+  "benchmarks": [
+    "expanding historical mean through BL",
+    "BL prior without predictive views",
+    "fixed 45/35/20",
+    "fixed 60/40",
+    "SPY only"
+  ],
+  "robustness_checks": {
+    "robust": "Original inputs; clip training and test features to training-only 1st/99th percentiles in every fold; Ridge grid [1,10,100,1000]. No return-forecast cap.",
+    "no_policy": "Original inputs excluding the five policy-path fields; same dates, training minimum, tuning and allocator as baseline. Quantifies dependence on sparse policy history."
+  },
+  "diagnostics": [
+    "per-asset errors and ranges",
+    "training coverage",
+    "standardized input extremes",
+    "additive feature contributions to each forecast",
+    "monthly forecast/posterior/weight and realized-return attribution",
+    "calendar-year returns",
+    "2020-excluded compounded returns"
+  ],
+  "interpretation": "No production selection, significance claim, vintage reconstruction, new horizon search, or reserved-test evaluation. Existing surprise-by-ANFCI/GPR interactions remain included. Robustness settings will not be optimized against episode returns.",
+  "timing_corrections": "Every inner validation target must end by its validation decision date. Policy snapshots dated after the last trading-day cutoff are withheld in all variants.",
+  "inspection_threshold": "Absolute monthly forecasts above 20% are flagged, not clipped."
+}

@@ -17,10 +17,13 @@ fs.copyFileSync(path.join(outputs, 'research_results.json'), path.join(root, 'di
 // Keep the existing downloadable source snapshot consistent with the runnable source.
 const sourceDir = path.join(root, 'research');
 fs.mkdirSync(sourceDir, { recursive: true });
-for (const name of ['deterministic_mvp.py', 'research_backtest.py', 'research_diagnostics.py']) {
+for (const name of ['deterministic_mvp.py', 'research_backtest.py', 'research_diagnostics.py', 'research_inference.py']) {
   fs.copyFileSync(path.join(modelRoot, 'src', name), path.join(sourceDir, name));
 }
-fs.copyFileSync(path.join(modelRoot, 'tests/test_research_backtest.py'), path.join(sourceDir, 'test_research_backtest.py'));
+for (const name of ['test_research_backtest.py', 'test_research_inference.py']) {
+  fs.copyFileSync(path.join(modelRoot, 'tests', name), path.join(sourceDir, name));
+}
 fs.copyFileSync(path.join(modelRoot, 'research/README.md'), path.join(sourceDir, 'README.md'));
 fs.copyFileSync(path.join(modelRoot, 'research/experiment_spec.json'), path.join(sourceDir, 'experiment_spec.json'));
+fs.copyFileSync(path.join(modelRoot, 'research/experiment_spec.v1.json'), path.join(sourceDir, 'experiment_spec.v1.json'));
 console.log(JSON.stringify({periods: data.periods.length, developmentMonths: data.development.results.baseline.stats.months, rollingWindows: data.rolling_windows.length}));
