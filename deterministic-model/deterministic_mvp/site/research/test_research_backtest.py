@@ -2,6 +2,7 @@
 import json
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import numpy as np
@@ -9,7 +10,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from research_backtest import adjusted_prices, make_panel, forecasts, summarize
+from research_backtest import adjusted_prices, make_panel, forecasts, summarize, fit_predict, POLICY_FEATURES, VARIANTS
 
 
 class ResearchTests(unittest.TestCase):
@@ -34,7 +35,7 @@ class ResearchTests(unittest.TestCase):
             for key in ["claims", "credit", "curve"]:
                 self.assertLessEqual(row[f"{key}_available_date"], row.decision_date)
         for period in self.report["periods"]:
-            for key in ["baseline", "claims", "credit", "curve"]:
+            for key in [*VARIANTS, "historical_mean", "prior_only"]:
                 for row in period["results"][key]["decisions"]:
                     self.assertLessEqual(row["last_training_exit"], row["decision_date"])
                     self.assertLessEqual(row["last_error_exit"], row["decision_date"])
@@ -65,7 +66,7 @@ class ResearchTests(unittest.TestCase):
                     weights = np.array(row["weights"])
                     self.assertAlmostEqual(weights.sum(), 1.)
                     self.assertTrue((weights >= 0).all())
-                    if key in ["baseline", "claims", "credit", "curve"]:
+                    if key in [*VARIANTS, "historical_mean", "prior_only"]:
                         self.assertTrue(.2-1e-10 <= weights[0] <= .7+1e-10)
                         self.assertTrue(.15-1e-10 <= weights[1] <= .6+1e-10)
                         self.assertTrue(.1-1e-10 <= weights[2] <= .4+1e-10)
@@ -91,6 +92,65 @@ class ResearchTests(unittest.TestCase):
             for result in period["results"].values():
                 for d in result["decisions"]:
                     self.assertLessEqual(d["holding_month"], "2022-12-31")
+
+    def test_policy_observations_after_cutoff_are_withheld(self):
+        late = self.panel.policy_data_date > self.panel.decision_date
+        self.assertTrue(self.panel.loc[late, POLICY_FEATURES].isna().all().all())
+        for key in ["anfci", "gpr"]:
+            self.assertTrue((self.panel[f"{key}_assumed_available_date"] <= self.panel.decision_date).all())
+
+    def test_inner_folds_only_use_completed_targets(self):
+        panel = self.panel[self.panel.date <= "2019-01-31"].copy()
+        panel["growth_surprise"] = np.arange(len(panel), dtype=float)
+        calls = []
+
+        def checked_fit(x, y, test, *args, **kwargs):
+            train_ids, test_id = x[:, 0].astype(int), int(test[0, 0])
+            self.assertTrue((panel.iloc[train_ids].exit <= panel.iloc[test_id].decision_date).all())
+            calls.append(test_id)
+            return fit_predict(x, y, test, *args, **kwargs)
+
+        with patch("research_backtest.fit_predict", side_effect=checked_fit):
+            forecasts(panel, [])
+        self.assertGreater(len(calls), 0)
+
+    def test_robust_inputs_and_forecast_decomposition(self):
+        rng = np.random.default_rng(18)
+        x = rng.normal(size=(45, 3))
+        x[:30, 2] = np.nan
+        y = rng.normal(0, .01, size=(45, 3))
+        first, info = fit_predict(x, y, np.full((1, 3), 1e6), 10., robust=True, details=True)
+        second = fit_predict(x, y, np.full((1, 3), 1e12), 10., robust=True)
+        np.testing.assert_allclose(first, second)
+        np.testing.assert_allclose(first[0], info["intercept"] + info["contributions"].sum(axis=0))
+        self.assertEqual(info["observed_training_rows"][2], 15)
+        self.assertTrue(info["input_clipped"].all())
+
+    def test_forecast_audit_reconstructs_predictions(self):
+        rows = forecasts(self.panel[self.panel.date <= "2019-01-31"], [])
+        for row in rows:
+            for j, asset in enumerate(["equity", "treasury", "ig_credit"]):
+                audit = row["audit"][asset]
+                self.assertAlmostEqual(row["q"][j], audit["intercept"] + sum(f["contribution"] for f in audit["features"]))
+
+    def test_attribution_and_development_samples_reconcile(self):
+        report = self.report
+        samples = [r["stats"]["months"] for r in report["development"]["results"].values()]
+        self.assertEqual(len(set(samples)), 1)
+        self.assertIn("historical_mean", report["development"]["results"])
+        self.assertIn("prior_only", report["development"]["results"])
+        for key, rows in report["monthly_attribution"].items():
+            self.assertEqual(len(rows), samples[0])
+            for row in rows:
+                self.assertAlmostEqual(sum(row["asset_return_contribution"]) + row["cost_effect"], row["net_return_difference"])
+        self.assertEqual(sum(y["results"]["baseline"]["months"] for y in report["calendar_years"]), samples[0])
+
+    def test_historical_mean_uses_only_observed_returns(self):
+        rows = forecasts(self.panel[self.panel.date <= "2019-01-31"], [], historical_mean=True)
+        for row in rows:
+            train = self.panel[self.panel.exit <= row["decision_date"]]
+            expected = np.stack(train.asset_returns).mean(axis=0)
+            np.testing.assert_allclose(row["q"], expected)
 
 
 if __name__ == "__main__":

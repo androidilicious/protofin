@@ -5,9 +5,9 @@ The original website remains at `dist/index.html`. New experiments are at
 for the locked model or an evaluation of 2023 onward.
 
 Local model source:
-`determinisitic model/deterministic_mvp/src/research_backtest.py`.
+`src/research_backtest.py` (relative to `deterministic_mvp`).
 
-The copied code in this directory imports the existing deterministic model's
+The code in `src/` imports the existing deterministic model's
 release cleaning, macro features, Black–Litterman, and constrained optimizer.
 The reproducible original run and raw downloads live in `deterministic_mvp/research/`.
 
@@ -60,3 +60,60 @@ not a full real-time vintage archive. The policy-path workbook starts September
 training column is missing). No policy history is synthesized. Small samples,
 limited recessions, and overlapping rolling windows cannot establish robustness.
 The experiments do not automatically select a new production model.
+
+## Forecast audit iteration (November 2026)
+
+The settings for this exploratory iteration are recorded in `experiment_spec.json`
+and its hash is embedded in the report, along with the exact model/research code
+hashes. This is **not** a preregistered independent confirmation: the earlier
+COVID and 2022 results had already been examined.
+
+Priorities implemented:
+
+- Per-asset RMSE, MAE, bias, forecast/realized ranges, and worst-error dates.
+  The largest miss is decomposed into the training return mean plus feature
+  contributions, with standardized inputs and observed training-row counts.
+  The 20% monthly forecast flag is an inspection aid, not a forecast cap.
+- Historical-mean returns are computed from completed training targets and
+  passed through the same empirical-uncertainty BL pipeline. Prior-only
+  portfolios omit predictive views, using the same covariance, bounds and cost
+  accounting. Both wait for the same evaluation dates as the learned models.
+- Fixed robustness checks retain the original as a reference: `robust` clips
+  inputs to training-only 1st/99th percentiles and uses Ridge penalties
+  `[1, 10, 100, 1000]`; `no_policy` removes the five policy-path fields. Neither
+  is automatically selected or optimized against episode portfolio returns.
+- Inner tuning folds now require each training return interval to have ended
+  by its validation decision date, just as the outer forecast does. Policy
+  snapshots after the last trading-day cutoff are withheld, retaining the
+  source date and a withholding flag for audit. These timing corrections apply
+  to all variants, so previously saved episode numbers can change.
+- The primary result is the full common development history. Calendar-year
+  results label partial years; the 2020-excluded summary compounds retained
+  months from the continuous run without retraining/resetting holdings. Those
+  disconnected intervals do not define an uninterrupted investable path.
+- Monthly candidate-minus-baseline forecast, BL-return, weight and realized
+  asset-contribution differences are recorded. Gross asset contributions plus
+  the multiplicative cost effect reconcile exactly to the monthly net-return
+  difference. They are not an attribution of compounded episode returns.
+
+`research_forecasts.json` retains all past-only forecasts and their complete
+feature diagnostics. `research_decisions.json` retains continuous portfolio
+paths; `research_results.json` contains page-ready comparisons and attribution.
+Regenerate the research page with
+`node site/scripts/build-research.mjs "$PWD/research/outputs"`
+from the model directory. The builder also refreshes
+`site/research/` source snapshots, avoiding stale copies.
+
+Units are monthly **decimal total returns** for targets and views and monthly
+decimal-return covariance for BL. Feature yields/spreads remain in percentage
+points and are scaled inside training folds. There is no risk-free return series
+in this experiment; the views are not converted to cash-excess returns. No
+annualization is applied before BL. This audit exposes that convention rather
+than inventing a cash history.
+
+ANFCI and GPR now retain source and **assumed** availability dates in the signal
+export. These remain revised histories, not actual release timestamps or an
+ALFRED vintage reconstruction. The reserved January 2023 onward test is still
+untouched. Multi-horizon tests, vintage collection and bootstrap inference are
+not part of this iteration. Existing growth/inflation × ANFCI/GPR interactions
+already test conditional responses; no duplicate interaction search was added.

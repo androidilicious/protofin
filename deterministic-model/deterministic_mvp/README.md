@@ -20,6 +20,20 @@ Open `http://localhost:4173/research.html`. The research run reads committed raw
 inputs and writes separate outputs in `research/outputs/`; it leaves the earlier
 MVP results intact. See `research/README.md` for complete experiment definitions.
 
+## Forecast-audit iteration
+
+The research tab now starts with all 44 common development holding months
+(May 2019–December 2022), then allows episode inspection. It adds per-asset
+forecast diagnostics, forecast-to-allocation attribution, historical-mean and
+BL-prior-only references, fixed robust-input and no-policy sensitivity checks,
+and calendar-year / 2020-excluded comparisons. Inner tuning targets must be
+complete by each validation cutoff, and policy snapshots after the trading-day
+cutoff are withheld. Earlier numerical results therefore should not be reused.
+
+Settings and limitations are recorded in `research/experiment_spec.json` and
+`research/README.md`. Results remain exploratory and the 2023-onward reserved
+test remains unevaluated.
+
 ## What runs with the supplied workbook
 
 The signal engine:
