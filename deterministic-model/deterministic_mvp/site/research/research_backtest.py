@@ -58,6 +58,21 @@ PERIODS = [
 ]
 
 
+def input_hashes() -> dict[str, str]:
+    """Fingerprint every raw data file consumed by this experiment.
+
+    The workbook is fingerprinted separately because it lives above ROOT.
+    Availability lags do not turn these latest-history inputs into real-time vintages.
+    """
+    inputs = [
+        *sorted(RAW.glob("*")),
+        ROOT / "data/raw/anfci_fred.csv",
+        ROOT / "data/raw/gpr_caldara_iacoviello.dta",
+    ]
+    return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in inputs if p.is_file()}
+
+
 def adjusted_prices() -> pd.DataFrame:
     prices = []
     for ticker, asset in zip(["spy", "ief", "lqd"], ASSETS):
@@ -402,7 +417,7 @@ def main():
         "sources": sources,
         "settings": {"risk_aversion": 2.5, "tau": .05, "cost_bps_per_dollar": 5, "min_train": 36, "min_prior_errors": 12, "training_start": "2015-02-28", "covariance_months": 36,
                      "common_first_decision": min(common), "common_last_decision": max(common), "trade_timing": "Last-trading-day decision; enter next trading-day close and exit next rebalance close. Holding month names the entry month.", "development_only": True},
-        "input_hashes": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in [WORKBOOK, *sorted(RAW.glob('*'))] if p.is_relative_to(ROOT)},
+        "input_hashes": input_hashes(),
         "workbook_sha256": hashlib.sha256(WORKBOOK.read_bytes()).hexdigest(),
     }
     output.update(research_diagnostics(all_decisions, all_forecasts, prices, common, summarize, VARIANTS))

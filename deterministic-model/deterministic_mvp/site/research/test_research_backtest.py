@@ -1,5 +1,6 @@
 """Checks for timing, cost accounting, and isolation of research experiments."""
 import json
+import hashlib
 import sys
 import unittest
 from unittest.mock import patch
@@ -10,7 +11,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from research_backtest import adjusted_prices, make_panel, forecasts, summarize, fit_predict, POLICY_FEATURES, VARIANTS
+from research_backtest import adjusted_prices, make_panel, forecasts, summarize, fit_predict, input_hashes, WORKBOOK, POLICY_FEATURES, VARIANTS
 
 
 class ResearchTests(unittest.TestCase):
@@ -151,6 +152,17 @@ class ResearchTests(unittest.TestCase):
             train = self.panel[self.panel.exit <= row["decision_date"]]
             expected = np.stack(train.asset_returns).mean(axis=0)
             np.testing.assert_allclose(row["q"], expected)
+
+    def test_report_fingerprints_every_consumed_data_source(self):
+        expected = input_hashes()
+        self.assertEqual(len(expected), 8)
+        self.assertIn("data/raw/anfci_fred.csv", expected)
+        self.assertIn("data/raw/gpr_caldara_iacoviello.dta", expected)
+        self.assertEqual(self.report["input_hashes"], expected)
+        self.assertEqual(self.report["workbook_sha256"], hashlib.sha256(WORKBOOK.read_bytes()).hexdigest())
+        self.assertEqual(self.report["specification_sha256"], hashlib.sha256((ROOT / "research/experiment_spec.json").read_bytes()).hexdigest())
+        for name, digest in self.report["code_hashes"].items():
+            self.assertEqual(digest, hashlib.sha256((ROOT / "src" / name).read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

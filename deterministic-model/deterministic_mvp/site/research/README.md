@@ -117,3 +117,25 @@ ALFRED vintage reconstruction. The reserved January 2023 onward test is still
 untouched. Multi-horizon tests, vintage collection and bootstrap inference are
 not part of this iteration. Existing growth/inflation × ANFCI/GPR interactions
 already test conditional responses; no duplicate interaction search was added.
+
+## Coverage check against the research review
+
+This is an implemented first iteration, not completion of every recommendation.
+The review priorities map to the repository as follows:
+
+| Recommendation | Current coverage |
+| --- | --- |
+| Audit extreme forecasts and units | Implemented: per-asset errors/ranges, feature contributions, standardized inputs, observed training counts, monthly unit conventions and robust-input sensitivity. The original unstable model is retained as a diagnostic reference, not certified as stable. |
+| Attribute gains and add simple model references | Implemented: monthly forecast → BL → weights → realized-return attribution, historical mean through BL, prior-only BL, and fixed 45/35/20 on common dates and cost rules. |
+| Distinguish conditions from surprises | Labels and descriptions preserve the distinction. Claims consensus surprises, duration-adjusted credit and ANFCI/credit redundancy analysis are not implemented. |
+| Test conditional responses and horizons | Growth/inflation × ANFCI/GPR interactions already exist. One-month allocation remains the primary experiment. No release-day, three-month or six-month targets were added. |
+| Strengthen episode evidence | Full eligible history, calendar years, continuous holdings and a 2020-excluded summary are implemented. Event-boundary shifts, paired block bootstrap and a full leave-each-episode-out set remain pending. Earlier stress episodes cannot be forced into the sample before its May 2019 allocation start. |
+| Improve data provenance and protect the test | Assumed source/availability dates, all eight consumed data-file hashes, workbook hash, code hashes, recorded experiment settings and a pre-2023 research boundary are implemented. Actual historical release timestamps and real-time vintages are not reconstructed. The final model/evaluation criteria have not been frozen, and no reserved-period evaluation was added. |
+| Quantify missing policy history | The no-policy ablation uses identical dates to the imputed-policy baseline. A separate policy model trained only on fully observed policy history is not implemented: there are only 37 complete feature rows before the research cutoff, and none of its decision dates has 36 completed complete-policy targets, even before requiring 12 prior forecast errors. |
+| Decision-support diagnostics | Extreme-forecast flags, training coverage, model sensitivities and saved view-error variance are available. A dedicated freshness/uncertainty dashboard is not implemented. |
+
+ANFCI/GPR hashes identify the exact revised files used; they do **not** cure the
+vintage limitation. Similarly, an exploratory settings record is not a frozen
+production specification or evidence of out-of-sample success. The robust-input
+sensitivity combines clipping and stronger shrinkage; it does not isolate their
+separate effects.
