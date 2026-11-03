@@ -120,3 +120,40 @@ returns. Comparisons are exploratory, not multiple-testing-adjusted discoveries.
 No risk-free return series is supplied; views are monthly total returns.
 No 2023-onward holding month is evaluated. The January 3, 2023 quote only closes
 December 2022. The production model and final evaluation remain unfrozen.
+
+
+## Reading the model visually
+
+The Model Comparison tab now starts with a linked monthly decision explorer.
+Choose a period, model, asset and holding month. The first selected month is the
+largest absolute forecast miss in the current window; month/model/asset choices
+remain linked across the charts. Previous/next and the month picker provide
+keyboard access to the same decisions as the chart hit areas.
+
+The explorer shows:
+
+1. Raw input values, any training-quantile clipping, and optional scaling details.
+2. The fitted intercept and signed per-input contributions in percentage points
+   of monthly return. The terms exactly sum to the forecast at full precision.
+   Contributions depend on the current fitted model; they are not causal effects.
+3. The exact historical-risk prior, raw forecast and BL estimate, plus the
+   standard deviation of earlier forecast errors. BL uses all three assets and
+   their covariance, so no one-dimensional confidence or blend percentage is
+   invented. The displayed prior includes the same tiny covariance regularizer
+   used by the actual BL function.
+4. The fully invested allocation, actual binding bounds, turnover and cost, then
+   the observed asset return and net portfolio return, explicitly labeled as
+   outcomes observed afterward.
+
+Additional views compare monthly forecasts with realized returns, rank RMSE on
+a shared zero-based scale, display per-asset OOS R², and show daily growth,
+drawdowns and monthly asset weights. Models and assets keep separate color
+mappings; line styles, direct values and native controls supplement color.
+Charts size their axes and text from the actual container width instead of
+shrinking fixed desktop viewboxes. Exact tables remain available in details.
+
+`base_return`, `feature_contributions` and `preprocessing` are explanatory
+metadata saved with each forecast. The generator retains fitted intercepts
+including target-scaling reversal; contributions are scaled back to return
+units. Exporting this metadata does not change forecasts, penalties, weights,
+returns or the experiment specification.
