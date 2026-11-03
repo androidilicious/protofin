@@ -87,7 +87,9 @@ def prepare_fold(x, y, test, spec):
     target_scale[target_scale < 1e-12] = 1.
     return {"x": (x-mean)/scale, "y": (y-target_mean)/target_scale,
             "test": (test-mean)/scale, "target_mean": target_mean, "target_scale": target_scale,
-            "clipped": test[0] != raw_test[0], "training_rows": len(x)}
+            "clipped": test[0] != raw_test[0], "training_rows": len(x),
+            "raw_input": raw_test[0], "used_input": test[0], "feature_mean": mean,
+            "feature_scale": scale, "clip_low": low, "clip_high": high}
 
 
 def fit_method(fold: dict, method: str, spec: dict, alpha=None, l1_ratio=None):
@@ -95,14 +97,17 @@ def fit_method(fold: dict, method: str, spec: dict, alpha=None, l1_ratio=None):
     coefficients = np.zeros((len(ASSETS), x.shape[1]))
     standardized = np.zeros((len(test), len(ASSETS)))
     iterations = np.zeros(len(ASSETS), dtype=int)
+    intercept = np.zeros(len(ASSETS))
     if method == "ols":
         estimator = LinearRegression(fit_intercept=True).fit(x, y)
         standardized = estimator.predict(test)
         coefficients = estimator.coef_
+        intercept = estimator.intercept_
     elif method == "ridge":
         estimator = Ridge(alpha=float(alpha)*len(x), fit_intercept=True, solver="svd").fit(x, y)
         standardized = estimator.predict(test)
         coefficients = estimator.coef_
+        intercept = estimator.intercept_
     elif method == "elastic_net":
         for j in range(len(ASSETS)):
             with warnings.catch_warnings():
@@ -113,13 +118,16 @@ def fit_method(fold: dict, method: str, spec: dict, alpha=None, l1_ratio=None):
             standardized[:, j] = estimator.predict(test)
             coefficients[j] = estimator.coef_
             iterations[j] = estimator.n_iter_
+            intercept[j] = estimator.intercept_
     elif method != "mean":
         raise ValueError(f"Unknown method: {method}")
     prediction = fold["target_mean"] + standardized*fold["target_scale"]
     if not np.isfinite(prediction).all():
         raise ValueError(f"Nonfinite {method} forecast")
     return prediction[0], {"nonzero": (np.abs(coefficients) > 1e-10).sum(axis=1),
-                           "coefficients": coefficients, "iterations": iterations}
+                           "coefficients": coefficients, "iterations": iterations,
+                           "base_return": fold["target_mean"] + intercept*fold["target_scale"],
+                           "contributions": coefficients*fold["test"][0]*fold["target_scale"][:, None]}
 
 
 def parameter_grid(method: str, spec: dict):
@@ -172,11 +180,12 @@ def comparison_forecasts(panel: pd.DataFrame, key: str, spec: dict):
             positions = scores.argmin(axis=0)
             chosen = [grid[i] for i in positions]
             cv_errors = scores[positions, np.arange(len(ASSETS))]
-        q, nonzero, coefficients, iterations = [], [], [], []
+        q, nonzero, coefficients, iterations, base_returns, contributions = [], [], [], [], [], []
         for j, params in enumerate(chosen):
             pred, info = candidate(row, params)
             q.append(pred[j]); nonzero.append(info["nonzero"][j])
             coefficients.append(info["coefficients"][j]); iterations.append(info["iterations"][j])
+            base_returns.append(info["base_return"][j]); contributions.append(info["contributions"][j])
         fold = prepared(row)
         predictions.append({"idx": idx, "date": row.date, "decision_date": row.decision_date, "exit": row.exit,
                             "q": np.array(q), "actual": row.asset_returns, "training_rows": len(train),
@@ -185,6 +194,11 @@ def comparison_forecasts(panel: pd.DataFrame, key: str, spec: dict):
                             "last_validation_exit": train.exit.max() if validation_dates else None,
                             "validation_folds": len(validation_dates), "feature_columns": columns,
                             "nonzero_features": nonzero, "coefficients": coefficients, "iterations": iterations,
+                            "base_return": base_returns, "feature_contributions": contributions,
+                            "preprocessing": {"raw_input": fold["raw_input"], "used_input": fold["used_input"],
+                                              "standardized_input": fold["test"][0],
+                                              "training_mean": fold["feature_mean"], "training_scale": fold["feature_scale"],
+                                              "clip_low": fold["clip_low"], "clip_high": fold["clip_high"]},
                             "input_clipped": fold["clipped"].tolist(),
                             "max_abs_standardized_input": float(np.abs(fold["test"]).max()), "audit": {}})
     return predictions
@@ -209,16 +223,23 @@ def per_asset_metrics(rows, mean_rows):
     return result
 
 
-def summarize_window(decisions, predictions, dates, prices):
+def summarize_window(decisions, predictions, dates, prices, covariance_returns):
     results = {}
     means = predictions["historical_mean"]
     for key, rows in decisions.items():
-        selected = [d for d in rows if d["date"] in dates]
+        selected = []
+        for decision in rows:
+            if decision["date"] not in dates:
+                continue
+            covariance = covariance_returns.loc[covariance_returns.index <= decision["decision_date"]].tail(36).cov().to_numpy(float)
+            # Match the exact regularized covariance used inside BL for predictive views.
+            prior_cov = covariance + np.eye(len(ASSETS))*1e-8 if key != "prior_only" else covariance
+            selected.append({**decision, "bl_prior": 2.5*prior_cov @ BENCHMARK, "covariance": covariance})
         stats, path = summarize(selected, prices)
         forecast_rows = [p for p in predictions.get(key, []) if p["date"] in dates]
         results[key] = {"portfolio": stats, "forecast": per_asset_metrics(forecast_rows, means), "path": path,
                         "decisions": selected,
-                        "predictions": [{k: v for k, v in p.items() if k not in ["audit", "coefficients"]} for p in forecast_rows]}
+                        "predictions": [{k: v for k, v in p.items() if k != "audit"} for p in forecast_rows]}
     return results
 
 
@@ -241,16 +262,16 @@ def main():
     all_meta = {**METHODS, "fixed453520": {"name": "Fixed 45 / 35 / 20", "stage": "reference", "color": "#8a959e"},
                 "prior_only": {"name": "BL prior only", "stage": "reference", "color": "#86765c"}}
     windows = [{"id": "development", "name": "Full development history", "description": "All common eligible holding months. This is the primary comparison.",
-                "results": summarize_window(decisions, predictions, common, prices)}]
+                "results": summarize_window(decisions, predictions, common, prices, covariance_returns)}]
     for period in PERIODS:
         dates = {d["date"] for d in decisions["historical_mean"] if d["date"] in common and
                  pd.Timestamp(period["start"]) <= d["holding_month"] <= pd.Timestamp(period["end"])}
         if dates:
-            windows.append({**period, "results": summarize_window(decisions, predictions, dates, prices)})
+            windows.append({**period, "results": summarize_window(decisions, predictions, dates, prices, covariance_returns)})
     years = []
     for year in sorted({d["holding_month"].year for d in decisions["historical_mean"] if d["date"] in common}):
         dates = {d["date"] for d in decisions["historical_mean"] if d["date"] in common and d["holding_month"].year == year}
-        result = summarize_window(decisions, predictions, dates, prices)
+        result = summarize_window(decisions, predictions, dates, prices, covariance_returns)
         years.append({"year": year, "partial_year": result["ridge"]["portfolio"]["months"] < 12,
                       "results": {k: {"portfolio": v["portfolio"], "forecast": v["forecast"]} for k,v in result.items()}})
     sources = ["model_comparison.py", "research_backtest.py", "research_diagnostics.py", "research_inference.py", "deterministic_mvp.py"]

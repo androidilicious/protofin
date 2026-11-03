@@ -47,7 +47,13 @@ function render(){
  const predictions=new Map(selected.predictions.map(p=>[p.date,p]));
  node('modelDecisionTable').innerHTML=selected.decisions.map(d=>{const p=predictions.get(d.date),j=assetIndex[asset],alpha=p.alpha[j],l1=p.l1_ratio[j];return `<tr><td>${month(d.holding_month)}</td><td>${date(d.decision_date)} → ${date(d.entry)} → ${date(d.exit)}</td><td>${triple(d.forecast)}</td><td>${triple(d.posterior)}</td><td>${triple(d.view_error_variance.map(v=>Math.sqrt(v)))}</td><td>${triple(d.weights)}</td><td>${alpha==null?'No tuning':`${alpha}${l1==null?'':` / ${l1}`}`}</td><td>${pct(d.net_return)}</td></tr>`;}).join('');
  node('modelYearTable').innerHTML=C.calendar_years.map(y=>{const s=y.results[model],p=s.portfolio;return `<tr><td>${y.year} · ${p.months} months${y.partial_year?' (partial)':''}</td><td>${pct(p.cumulative_return)}</td><td>${pct(y.results.historical_mean.portfolio.cumulative_return)}</td><td>${pct(y.results.ridge.portfolio.cumulative_return)}</td><td>${pct(p.maximum_drawdown)}</td><td>${ratio(s.forecast[asset].oos_r2_vs_mean)}</td></tr>`;}).join('');
- chart(w);
+ if(window.ModelVisuals){
+  window.ModelVisuals.render({data:C,window:w,model,asset},choice=>{
+   if(choice.model){model=choice.model;node('modelSelect').value=model;}
+   if(choice.asset){asset=choice.asset;node('assetSelect').value=asset;}
+   render();
+  });
+ }else chart(w);
 }
 node('modelPeriodTabs').innerHTML=C.windows.map((w,i)=>`<button type="button" data-window="${w.id}" aria-pressed="${i===0}"><span>0${i+1}</span>${w.name}</button>`).join('');
 document.querySelectorAll('[data-window]').forEach(b=>b.addEventListener('click',()=>{windowId=b.dataset.window;render();}));

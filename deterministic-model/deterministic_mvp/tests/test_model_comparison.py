@@ -152,6 +152,30 @@ class ModelComparisonTests(unittest.TestCase):
             self.assertEqual(digest,hashlib.sha256((ROOT/name).read_bytes()).hexdigest())
         self.assertEqual(self.report['environment']['scikit_learn'],'1.6.1')
 
+    def test_visual_explanations_reconstruct_every_saved_forecast(self):
+        for key, rows in self.forecasts.items():
+            for row in rows:
+                contribution = np.asarray(row['feature_contributions'])
+                np.testing.assert_allclose(np.asarray(row['base_return']) + contribution.sum(axis=1), row['q'], atol=1e-12)
+                prep = row['preprocessing']
+                np.testing.assert_allclose(prep['used_input'], np.clip(prep['raw_input'], prep['clip_low'], prep['clip_high']))
+                np.testing.assert_allclose(prep['standardized_input'], (np.asarray(prep['used_input'])-prep['training_mean'])/prep['training_scale'])
+                self.assertEqual(contribution.shape, (3,len(row['feature_columns'])))
+                if key=='historical_mean':
+                    np.testing.assert_allclose(contribution, 0.)
+
+    def test_displayed_bl_prior_and_posterior_match_exact_allocation_math(self):
+        from deterministic_mvp import black_litterman_posterior
+        benchmark=np.array([.45,.35,.20])
+        for key, result in self.report['windows'][0]['results'].items():
+            for row in result['decisions']:
+                covariance=np.asarray(row['covariance'])
+                if key in METHODS:
+                    prior=2.5*(covariance+np.eye(3)*1e-8)@benchmark
+                    np.testing.assert_allclose(row['bl_prior'], prior)
+                    posterior=black_litterman_posterior(covariance,np.asarray(row['forecast']),np.asarray(row['view_error_variance']),benchmark)
+                    np.testing.assert_allclose(row['posterior'],posterior)
+
 
 if __name__=='__main__':
     unittest.main()
