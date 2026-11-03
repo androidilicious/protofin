@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
+from research_inference import inference_report
 
 ASSETS = ["equity", "treasury", "ig_credit"]
 
@@ -52,7 +53,7 @@ def monthly_attribution(selected: list[dict], baseline: list[dict]) -> list[dict
     return result
 
 
-def research_diagnostics(all_decisions, all_forecasts, prices, common, summarize, variants):
+def research_diagnostics(all_decisions, all_forecasts, prices, common, summarize, variants, panel, periods, specification):
 
     decisions = {k: [d for d in rows if d["date"] in common] for k, rows in all_decisions.items()}
     primary = {}
@@ -76,6 +77,7 @@ def research_diagnostics(all_decisions, all_forecasts, prices, common, summarize
         chosen = [d for d in rows if d["holding_month"].year != 2020]
         excluded[key] = {"months": len(chosen), "cumulative_return": float(np.prod([1+d["net_return"] for d in chosen])-1)}
     return {
+        **inference_report(decisions, panel, periods, specification),
         "development": {"start": min(common), "end": max(common), "results": primary},
         "calendar_years": calendar_years,
         "excluding_2020": {"description": "Compound retained months from the continuous run; skip 2020 without retraining or restarting holdings. Disconnected intervals, not a tradable uninterrupted path.", "results": excluded},

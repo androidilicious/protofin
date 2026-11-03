@@ -34,6 +34,12 @@ Settings and limitations are recorded in `research/experiment_spec.json` and
 `research/README.md`. Results remain exploratory and the 2023-onward reserved
 test remains unevaluated.
 
+The v2 extension adds isolated clipping/shrinkage checks, a fold-local policy
+coverage safeguard, paired block-bootstrap intervals, episode-boundary shifts,
+leave-each-episode-out summaries, credit/ANFCI shared-information diagnostics,
+and historical freshness/error-uncertainty displays. Settings are recorded before
+the rerun; these analyses remain exploratory and do not select a production model.
+
 ## What runs with the supplied workbook
 
 The signal engine:
