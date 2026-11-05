@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import platform
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 from research_diagnostics import research_diagnostics, forecast_diagnostics
+from research_stability import stability_report
 
 from deterministic_mvp import (
     ASSETS, FULL_FEATURES, REQUIRED_SIGNAL_FEATURES,
@@ -173,6 +175,7 @@ def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float,
     """
     if min_policy_observations and (feature_names is None or len(feature_names) != x.shape[1]):
         raise ValueError("Feature names are required for the policy coverage safeguard")
+    original_x, original_test = x.copy(), test.copy()
     observed = np.isfinite(x).sum(axis=0)
     supported = np.ones(x.shape[1], dtype=bool)
     if min_policy_observations:
@@ -207,6 +210,10 @@ def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float,
         "training_scale": std, "constant_training_column": constant,
         "input_clipped": (test[0] != raw_test[0]), "supported": supported,
         "training_return_min": y.min(axis=0), "training_return_max": y.max(axis=0),
+        "raw_input": original_test[0], "input_imputed": ~np.isfinite(original_test[0]),
+        "imputation_median": medians, "training_mean": mean,
+        "processed_input": test[0], "coefficient": beta,
+        "distinct_observed_values": np.array([len(np.unique(c[np.isfinite(c)])) for c in original_x.T]),
     }
 
 
@@ -255,7 +262,14 @@ def forecasts(panel: pd.DataFrame, extra: list[str], include_policy: bool = True
                                   "training_scale": info["training_scale"][i],
                                   "constant_training_column": bool(info["constant_training_column"][i]),
                                   "input_clipped": bool(info["input_clipped"][i]),
-                                  "enabled": bool(info["supported"][i])}
+                                  "enabled": bool(info["supported"][i]),
+                                  "raw_input": info["raw_input"][i],
+                                  "input_imputed": bool(info["input_imputed"][i]),
+                                  "imputation_median": info["imputation_median"][i],
+                                  "training_mean": info["training_mean"][i],
+                                  "processed_input": info["processed_input"][i],
+                                  "coefficient": info["coefficient"][i, j],
+                                  "distinct_observed_values": int(info["distinct_observed_values"][i])}
                                  for i, c in enumerate(columns)],
                 }
         predictions.append({"idx": idx, "date": row.date, "decision_date": row.decision_date,
@@ -426,10 +440,11 @@ def main():
     ]
     output = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "environment": {"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__},
         "specification": specification,
         "specification_sha256": hashlib.sha256(SPEC_PATH.read_bytes()).hexdigest(),
         "code_hashes": {name: hashlib.sha256((ROOT / "src" / name).read_bytes()).hexdigest()
-                        for name in ["research_backtest.py", "deterministic_mvp.py", "research_diagnostics.py", "research_inference.py"]},
+                        for name in ["research_backtest.py", "deterministic_mvp.py", "research_diagnostics.py", "research_inference.py", "research_stability.py"]},
         "periods": periods,
         "rolling_windows": rolling,
         "variants": {key: {"name": meta["name"], "color": meta["color"], "kind": "model" if key in VARIANTS else "model_reference" if key in MODEL_REFERENCES else "reference"} for key, meta in series_meta.items()},
@@ -441,6 +456,7 @@ def main():
         "workbook_sha256": hashlib.sha256(WORKBOOK.read_bytes()).hexdigest(),
     }
     output.update(research_diagnostics(all_decisions, all_forecasts, prices, common, summarize, VARIANTS, panel, PERIODS, specification))
+    output["stability"] = stability_report(panel, all_forecasts, all_decisions, common, WORKBOOK, specification)
     (OUT / "research_forecasts.json").write_text(json.dumps(serializable(all_forecasts), indent=2, allow_nan=False))
     (OUT / "research_results.json").write_text(json.dumps(serializable(output), indent=2, allow_nan=False))
     # Persist all pre-2023 decisions for rolling-window diagnostics and reproducibility.

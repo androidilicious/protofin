@@ -5,7 +5,12 @@ const modelRoot = path.resolve(root, '..');
 const outputs = process.argv[2];
 if (!outputs) throw new Error('Pass the absolute path to deterministic_mvp/research/outputs');
 const data = JSON.parse(fs.readFileSync(path.join(outputs, 'research_results.json'), 'utf8'));
-if (data.periods.length !== 3 || !data.settings.development_only || !data.development || !data.specification_sha256) throw new Error('Unexpected research scope or missing audit');
+if (data.periods.length !== 3 || !data.settings.development_only || !data.development || !data.specification_sha256 || !data.stability) throw new Error('Unexpected research scope or missing audit');
+for (const cohort of Object.values(data.stability.cohorts)) {
+  const dates = Object.values(cohort.timeline).map(rows => rows.map(r => r.holding_month));
+  if (!dates.every(d => JSON.stringify(d) === JSON.stringify(dates[0]))) throw new Error('Unmatched stability dates');
+  if (dates.flat().some(d => d > '2022-12-31')) throw new Error('Reserved-test month in stability artifact');
+}
 for (const period of [...data.periods, data.development]) {
   const dates = Object.values(period.results).map(r => r.decisions.map(d => d.holding_month));
   if (!dates.every(d => JSON.stringify(d) === JSON.stringify(dates[0]))) throw new Error('Unmatched sample dates');
@@ -17,13 +22,15 @@ fs.copyFileSync(path.join(outputs, 'research_results.json'), path.join(root, 'di
 // Keep the existing downloadable source snapshot consistent with the runnable source.
 const sourceDir = path.join(root, 'research');
 fs.mkdirSync(sourceDir, { recursive: true });
-for (const name of ['deterministic_mvp.py', 'research_backtest.py', 'research_diagnostics.py', 'research_inference.py']) {
+for (const name of ['deterministic_mvp.py', 'research_backtest.py', 'research_diagnostics.py', 'research_inference.py', 'research_stability.py']) {
   fs.copyFileSync(path.join(modelRoot, 'src', name), path.join(sourceDir, name));
 }
-for (const name of ['test_research_backtest.py', 'test_research_inference.py']) {
+for (const name of ['test_research_backtest.py', 'test_research_inference.py', 'test_research_stability.py']) {
   fs.copyFileSync(path.join(modelRoot, 'tests', name), path.join(sourceDir, name));
 }
 fs.copyFileSync(path.join(modelRoot, 'research/README.md'), path.join(sourceDir, 'README.md'));
+fs.copyFileSync(path.join(modelRoot, 'research/STABILITY_REVIEW.md'), path.join(sourceDir, 'STABILITY_REVIEW.md'));
 fs.copyFileSync(path.join(modelRoot, 'research/experiment_spec.json'), path.join(sourceDir, 'experiment_spec.json'));
 fs.copyFileSync(path.join(modelRoot, 'research/experiment_spec.v1.json'), path.join(sourceDir, 'experiment_spec.v1.json'));
+fs.copyFileSync(path.join(modelRoot, 'research/experiment_spec.v2.json'), path.join(sourceDir, 'experiment_spec.v2.json'));
 console.log(JSON.stringify({periods: data.periods.length, developmentMonths: data.development.results.baseline.stats.months, rollingWindows: data.rolling_windows.length}));

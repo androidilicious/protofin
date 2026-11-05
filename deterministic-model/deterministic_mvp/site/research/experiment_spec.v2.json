@@ -1,0 +1,67 @@
+{
+  "id": "forecast-audit-v2",
+  "recorded_on": "2026-11-02",
+  "status": "exploratory extension recorded before its rerun, after examining the v1 research; no independent confirmation",
+  "primary_scope": "all common eligible holding months through December 2022",
+  "reserved_test_start": "2023-01-01",
+  "unchanged_signal_candidates": [
+    "claims",
+    "credit",
+    "curve"
+  ],
+  "benchmarks": [
+    "expanding historical mean through BL",
+    "BL prior without predictive views",
+    "fixed 45/35/20",
+    "fixed 60/40",
+    "SPY only"
+  ],
+  "robustness_checks": {
+    "robust": "Original inputs; clip training and test features to training-only 1st/99th percentiles in every fold; Ridge grid [1,10,100,1000]. No return-forecast cap.",
+    "no_policy": "Original inputs excluding the five policy-path fields; same dates, training minimum, tuning and allocator as baseline. Quantifies dependence on sparse policy history.",
+    "clip_only": "Training-fold 1st/99th percentile clipping with original Ridge grid [0.01,0.1,1,10,100].",
+    "shrink_only": "No input clipping; stronger Ridge grid [1,10,100,1000].",
+    "supported_policy": "Original Ridge grid and no clipping; a policy feature is disabled in each training/validation fold until it has 12 finite observed training values. The threshold is a fixed sensitivity setting, not a selected production rule."
+  },
+  "diagnostics": [
+    "per-asset errors and ranges",
+    "training coverage",
+    "standardized input extremes",
+    "additive feature contributions to each forecast",
+    "monthly forecast/posterior/weight and realized-return attribution",
+    "calendar-year returns",
+    "2020-excluded compounded returns"
+  ],
+  "interpretation": "No production selection, significance claim, vintage reconstruction, new horizon search, or reserved-test evaluation. Existing surprise-by-ANFCI/GPR interactions remain included. Robustness settings will not be optimized against episode returns.",
+  "timing_corrections": "Every inner validation target must end by its validation decision date. Policy snapshots dated after the last trading-day cutoff are withheld in all variants.",
+  "inspection_threshold": "Absolute monthly forecasts above 20% are flagged, not clipped.",
+  "previous_specification_sha256": "2e3178c98cc59d11243ea8ffb3b5c4ccc096edc6204412606106b8490bf18a4a",
+  "inference": {
+    "bootstrap": {
+      "method": "paired circular moving-block bootstrap of monthly net-return differences versus baseline, conditional on the fitted continuous runs",
+      "replications": 3000,
+      "seed": 20261102,
+      "block_lengths": [
+        3,
+        6,
+        12
+      ],
+      "confidence": 0.95,
+      "statistic": "mean monthly net-return difference; unadjusted percentile intervals, exploratory, no multiple-comparison correction and no model refitting"
+    },
+    "episode_boundary_offsets_months": [
+      -1,
+      0,
+      1
+    ],
+    "episode_boundary_rule": "Shift starts and ends independently. Evaluate only complete windows within the common development history. Never clip requests into the reserved test or reset holdings.",
+    "leave_out": "Exclude each named episode from the continuous development run without retraining; compound retained months only.",
+    "credit_redundancy": "Report ANFCI and credit-level/change correlations on common development dates, plus expanding past-only prediction of each credit feature from contemporaneous known ANFCI level/change; 24 prior feature rows minimum. Descriptive shared information, not causal or proof of redundancy."
+  },
+  "deferred": [
+    "real-time vintage/release timestamp reconstruction",
+    "release-day and 3/6-month targets",
+    "duration-adjusted credit and claims-consensus data",
+    "final production freeze and reserved-period evaluation"
+  ]
+}

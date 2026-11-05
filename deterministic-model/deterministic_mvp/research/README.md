@@ -186,3 +186,20 @@ exploratory analyses, without automatic model selection.
 Release-day and 3/6-month targets, new consensus/duration-adjusted credit inputs,
 real-time vintage reconstruction, and a final production freeze/test are not
 implemented by this extension. The reserved historical test remains excluded.
+
+## V3: focused forecast-stability investigation
+
+See [STABILITY_REVIEW.md](STABILITY_REVIEW.md) for the reproduced January 2020
+calculation, controlled comparison, findings and pre-test decision requirements.
+The new **Forecast stability** section in Signal Research compares existing
+repairs before portfolio returns. It reports per-asset MAE, RMSE, matched
+historical-mean OOS R², largest absolute forecasts and all 20% warning events
+on both the full 57-forecast sample and the 44 common portfolio months.
+Calendar-year forecast metrics and allocation-limit frequencies are included.
+
+The trace retains original workbook levels/differences, completed-target policy
+rows, medians, raw/processed inputs, scale, distinct finite training values and
+coefficients. The original forecasts and 23.99% portfolio result are preserved.
+No model, signal, penalty grid or output cap is added. No final specification is
+selected, and no post-2022 holding month is evaluated. Prior v2 settings are
+preserved in `experiment_spec.v2.json`. All comparisons remain exploratory.
