@@ -1,7 +1,7 @@
 const R = window.RESEARCH_DATA;
-const modelKeys = Object.keys(R.variants).filter(k=>R.variants[k].kind==='model');
+const modelKeys = ['baseline','claims','credit','curve'];
 const periods = [{id:'development', name:'Full development history', description:'Primary comparison: every common eligible holding month through December 2022. Strategies run continuously before episode slices.', ...R.development}, ...R.periods];
-const allKeys = Object.keys(R.variants);
+const allKeys = [...modelKeys,'historical_mean','prior_only','fixed453520','sixtyForty','spyOnly'];
 const el = id => document.getElementById(id);
 const put = (id, text) => { el(id).textContent = text; };
 const percent = (v, digits=2) => v == null ? '—' : `${(v*100).toFixed(digits)}%`;
@@ -9,9 +9,10 @@ const pp = v => { const rounded=Math.abs(v)<.00005?0:v; return `${rounded > 0 ? 
 const dateLabel = d => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
 const monthLabel = d => new Date(`${d}T12:00:00`).toLocaleDateString('en-US', {month:'short',year:'numeric'});
 let periodId = 'development';
-let variantId = 'baseline';
+let variantId = 'claims';
 let referenceId = 'historical_mean';
 const featureInfo = {
+  corrected: {label:'Updated model · locked rules', title:'Limit extreme inputs and require enough policy history', description:'Use the same Ridge regression method, with safeguards for unusual inputs and policy data with too little history or variation.', formula:'Limit inputs to the earlier training range’s 1st/99th percentiles. Use policy inputs only after 12 original observations and the recorded variation checks.', timing:'Repeat these checks using earlier data in every training window. Black–Litterman estimates uncertainty from this version’s own earlier prediction errors. The model rules are locked.'},
   clip_only: {label:'Isolate preprocessing', title:'Clip extreme inputs only', description:'Keep the original Ridge grid and signals. Only training-fold input clipping changes, so its effect can be compared with stronger shrinkage.', formula:'Clip features to training 1st / 99th percentiles; α = 0.01, 0.1, 1, 10, 100.', timing:'Quantiles and scaling are fitted only on completed training data inside each validation fold.'},
   shrink_only: {label:'Isolate regularization', title:'Apply stronger shrinkage only', description:'Keep original inputs without clipping. Only the Ridge penalty grid changes.', formula:'No input clipping; α = 1, 10, 100, 1000.', timing:'Penalties are selected with the same completed-target chronological validation.'},
   supported_policy: {label:'Sparse-history safeguard', title:'Require observed policy history before using a policy feature', description:'Each policy feature is disabled until that training fold contains 12 observed values. Imputed entries do not count toward the threshold.', formula:'Observed policy training values < 12 → feature contribution fixed at zero. Original Ridge grid; no clipping.', timing:'The observation count is recomputed inside every training and validation fold. This is a fixed sensitivity check, not a chosen production policy.'},
@@ -42,8 +43,6 @@ function chart(period) {
 function explain(period) {
   const selected=period.results[variantId].stats, base=period.results.baseline.stats;
   const delta=selected.difference_vs_baseline;
-  const models=modelKeys.map(key=>({key,stats:period.results[key].stats}));
-  const best=models.reduce((a,b)=>a.stats.cumulative_return>b.stats.cumulative_return?a:b);
   const returnStatement=variantId==='baseline'
     ? `The rerun original model returned ${percent(base.cumulative_return)}. Use the selector to see whether each added signal changes the result.`
     : `${R.variants[variantId].name} returned ${percent(selected.cumulative_return)}, ${Math.abs(delta)<.00005?'approximately the same as':delta>0?'above':'below'} the original model’s ${percent(base.cumulative_return)} (${pp(delta)}).`;
@@ -58,11 +57,11 @@ function explain(period) {
   };
   const rmse=selected.forecast_rmse ?? pooled(period.results[variantId]);
   const baseRmse=base.forecast_rmse ?? pooled(period.results.baseline);
-  el('researchExplanation').innerHTML=`<p class="kicker">Reading this result</p><h3>${period.name}: what changed?</h3><div class="research-explanation-grid"><div><h4>Return</h4><p>${returnStatement}</p></div><div><h4>Risk and recovery</h4><p>${riskStatement} ${recovery}</p></div></div><p><strong>Across the model experiments:</strong> ${R.variants[best.key].name} had the highest total return in this window (${percent(best.stats.cumulative_return)}). This is a description of this episode, not a selection of a new model.</p><details><summary>Inspect forecast accuracy before Black–Litterman</summary><p>Selected model Ridge RMSE: ${percent(rmse)}. Original model: ${percent(baseRmse)}. This is the pooled root mean squared error across all three assets and holding months, before BL moderation. Lower is better.${rmse>.2?' Raw Ridge forecasts were unstable within this selected period. Large errors show extrapolation risk; BL moderation and allocation limits reduce the influence of these views.':''}</p></details>`;
+  el('researchExplanation').innerHTML=`<p class="kicker">Reading this result</p><h3>${period.name}: what changed?</h3><div class="research-explanation-grid"><div><h4>Return</h4><p>${returnStatement}</p></div><div><h4>Risk and recovery</h4><p>${riskStatement} ${recovery}</p></div></div><p>This initial signal study uses the original model, which produced unstable forecasts. Treat these comparisons as exploratory until the signals are retested on the corrected reference model. <a href="framework.html#stability">Read the reliability checks</a>.</p><details><summary>Inspect forecast accuracy before Black–Litterman</summary><p>Selected model Ridge RMSE: ${percent(rmse)}. Original model: ${percent(baseRmse)}. This is the pooled root mean squared error across all three assets and holding months, before BL moderation. Lower is better.${rmse>.2?' Raw Ridge forecasts were unstable within this selected period. Large errors show extrapolation risk; BL moderation and allocation limits reduce the influence of these views.':''}</p></details>`;
 }
 
 function decisionRows(period) {
-  const signalName={baseline:'Existing macro inputs',claims:'Claims change, 3 months',credit:'Credit spread / 1m change',curve:'10y − 3m yield spread',robust:'Original inputs with robust preprocessing',no_policy:'Original inputs without policy fields',clip_only:'Original inputs with clipping only',shrink_only:'Original inputs with stronger shrinkage',supported_policy:'Original inputs with policy coverage safeguard'};
+  const signalName={corrected:'Corrected primary · clipping and policy eligibility',baseline:'Existing macro inputs',claims:'Claims change, 3 months',credit:'Credit spread / 1m change',curve:'10y − 3m yield spread',robust:'Original inputs with robust preprocessing',no_policy:'Original inputs without policy fields',clip_only:'Original inputs with clipping only',shrink_only:'Original inputs with stronger shrinkage',supported_policy:'Original inputs with policy coverage safeguard'};
   put('signalColumn',signalName[variantId]);
   el('researchDecisions').innerHTML=period.results[variantId].decisions.map(d=>{
     const s=R.signal_observations.find(r=>r.date===d.date);
@@ -129,14 +128,12 @@ function inferenceChecks(period) {
 
 const developmentStats=R.development.results.baseline.stats;
 const developmentDecisions=R.development.results.baseline.decisions;
-put('developmentSummary',`${developmentStats.months} common holding months, ${monthLabel(developmentDecisions[0].holding_month)}–${monthLabel(developmentDecisions.at(-1).holding_month)}. The original returned ${percent(developmentStats.cumulative_return)}; the historical-mean reference returned ${percent(R.development.results.historical_mean.stats.cumulative_return)}.`);
-el('unitAudit').innerHTML=Object.entries(R.unit_audit).map(([key,value])=>`<p><strong>${key.replaceAll('_',' ')}:</strong> ${value}</p>`).join('');
+put('developmentSummary',`${developmentStats.months} common holding months, ${monthLabel(developmentDecisions[0].holding_month)}–${monthLabel(developmentDecisions.at(-1).holding_month)}. One-month return targets. Each addition is compared with the same original baseline.`);
 el('referenceSelect').value=referenceId;
 
 el('periodTabs').innerHTML=periods.map((p,i)=>`<button type="button" data-period="${p.id}" aria-pressed="${i===0}"><span>0${i+1}</span>${p.name}</button>`).join('');
 document.querySelectorAll('[data-period]').forEach(b=>b.addEventListener('click',()=>{periodId=b.dataset.period;render();}));
 el('variantSelect').addEventListener('change',e=>{variantId=e.target.value;render();});
 el('referenceSelect').addEventListener('change',e=>{referenceId=e.target.value;render();});
-el('researchSources').innerHTML=R.sources.map(s=>`<article><a href="${s.url}" target="_blank" rel="noopener">${s.name} ↗</a><p>${s.feature}</p><p>${s.availability}</p></article>`).join('');
 put('researchGenerated',`Research run ${new Date(R.generated_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'America/New_York'})}`);
 consistency();render();

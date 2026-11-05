@@ -11,7 +11,7 @@ import pandas as pd
 
 from deterministic_mvp import ASSETS, REQUIRED_SIGNAL_FEATURES, _parse_excel_dates
 
-STABILITY_KEYS = ["baseline", "supported_policy", "no_policy", "clip_only", "shrink_only", "robust", "historical_mean"]
+STABILITY_KEYS = ["corrected", "baseline", "supported_policy", "no_policy", "clip_only", "shrink_only", "robust", "historical_mean"]
 BOUNDS = np.array([[.20, .70], [.15, .60], [.10, .40]])
 
 
@@ -172,11 +172,65 @@ def stability_report(panel, all_forecasts, all_decisions, common, workbook, spec
         calendar.append({"year": year, "partial_year": len(dates) != 12,
                          "results": {k: matched_metrics(rows, selected["historical_mean"], threshold) for k, rows in selected.items()}})
     return {
-        "status": "Exploratory development investigation; original forecasts retained, no automatic production selection or reserved-test evaluation.",
+        "status": "Corrected primary explicitly selected for numerical safeguards; historical variants retained as diagnostic comparisons. No reserved-test evaluation.",
         "threshold": threshold, "comparison_order": STABILITY_KEYS,
         "threshold_interpretation": "Inspection threshold fixed before this investigation. Zero flags does not establish forecast accuracy or a calibrated prediction interval. Returns are never capped.",
         "cohorts": cohorts, "calendar_years": calendar,
         "allocation_limits": {k: allocation_limits([r for r in all_decisions[k] if r["date"] in common]) for k in STABILITY_KEYS},
         "january_2020": january_trace(panel, all_forecasts, workbook),
         "evaluation_rules": config,
+    }
+
+
+def primary_report(spec, report, all_forecasts, all_decisions, common, spec_hash):
+    """Evaluate the fixed correction; no return-based ranking or retuning."""
+    rows = all_forecasts["corrected"]
+    decisions = [r for r in all_decisions["corrected"] if r["date"] in common]
+    cohorts = report["stability"]["cohorts"]
+    decomposition_ok = all(np.isclose(r["q"][j], audit["intercept"] + sum(f["contribution"] for f in audit["features"]),
+                                     rtol=0, atol=1e-10)
+                           for r in rows for j, audit in enumerate(r["audit"].values()))
+    disabled_ok = all(f["contribution"] == 0 for r in rows for a in r["audit"].values()
+                      for f in a["features"] if not f["enabled"])
+    training_ok = all(r["last_training_exit"] <= r["decision_date"] for r in rows)
+    error_history_ok = True
+    for d in decisions:
+        earlier = [r for r in rows if r["exit"] <= d["decision_date"]]
+        own_omega = np.array([r["q"] - r["actual"] for r in earlier]).var(axis=0, ddof=1)
+        error_history_ok &= bool(np.allclose(d["view_error_variance"], own_omega, rtol=0, atol=1e-14))
+    bounds = np.array(spec["portfolio"]["bounds"])
+    weights_ok = all(np.isclose(sum(d["weights"]), 1) and (d["weights"] >= bounds[:, 0]-1e-10).all()
+                     and (d["weights"] <= bounds[:, 1]+1e-10).all() for d in decisions)
+    costs_ok = all(np.isclose(d["cost"], d["turnover"] * spec["portfolio"]["cost_bps_per_dollar_traded"] / 10000,
+                             rtol=0, atol=1e-14) and np.isclose(d["net_return"], (1-d["cost"])*(1+d["gross_return"])-1,
+                                                              rtol=0, atol=1e-14) for d in decisions)
+    checks = {"finite_forecasts": bool(np.isfinite([r["q"] for r in rows]).all()),
+              "decomposition_reconciles": decomposition_ok, "disabled_contributions_zero": disabled_ok,
+              "completed_training_targets": training_ok, "own_completed_bl_error_history": error_history_ok,
+              "portfolio_bounds": weights_ok, "costs_reconcile": costs_ok,
+              "no_reserved_holding_month": all(d["holding_month"] <= pd.Timestamp(spec["evaluation"]["development_last_holding_month"]) for d in decisions),
+              "zero_extreme_flags_both_cohorts": all(c["results"]["corrected"]["extreme_asset_months"] == 0 for c in cohorts.values())}
+    predictive_claims = {}
+    for asset in ASSETS:
+        predictive_claims[asset] = all(c["results"]["corrected"]["assets"][asset]["oos_r2_vs_historical_mean"] > 0
+                                      and c["results"]["corrected"]["assets"][asset]["mae"] <= c["results"]["historical_mean"]["assets"][asset]["mae"]
+                                      for c in cohorts.values())
+    comparisons = ["corrected", "historical_mean", "fixed453520", "sixtyForty", "spyOnly", "prior_only", "clip_only", "baseline"]
+    activations = []
+    for r in rows:
+        activations.append({"decision_date": r["decision_date"],
+                            "policy_features": [f for f in r["audit"]["equity"]["features"] if f["feature"].startswith("policy_")]})
+    return {
+        "key": "corrected", "specification": spec, "specification_sha256": spec_hash,
+        "selection_basis": "Clipping-only candidate plus source-history/variation safeguards fixed before this correction's development run. No threshold search to recover portfolio returns.",
+        "numerical_acceptance": {"passed": all(checks.values()), "checks": checks},
+        "predictive_claims": predictive_claims,
+        "forecast_conclusion": "Per-asset improvement is descriptive and requires positive OOS R2 and no worse MAE in both cohorts. Numerical stability alone is insufficient.",
+        "comparisons": comparisons,
+        "portfolio_results": {k: report["development"]["results"][k]["stats"] for k in comparisons},
+        "calendar_years": [{"year": y["year"], "partial_year": y["partial_year"],
+                            "results": {k: y["results"][k] for k in comparisons}} for y in report["calendar_years"]],
+        "policy_activation": activations,
+        "reserved_test": {"evaluated": False, "team_nonexposure_confirmed": False},
+        "original_result_label": "Original unstable diagnostic comparison, not the corrected primary result.",
     }

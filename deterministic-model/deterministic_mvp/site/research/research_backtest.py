@@ -16,6 +16,7 @@ import pandas as pd
 
 from research_diagnostics import research_diagnostics, forecast_diagnostics
 from research_stability import stability_report
+from corrected_primary import primary_spec, policy_source_dates, policy_support, verify_freeze, FREEZE_PATH, PRIMARY_SPEC_PATH, SOURCE_FILES
 
 from deterministic_mvp import (
     ASSETS, FULL_FEATURES, REQUIRED_SIGNAL_FEATURES,
@@ -35,7 +36,8 @@ WORKBOOK = next(
 )
 BENCHMARK = np.array([.45, .35, .20])
 VARIANTS = {
-    "baseline": {"name": "Original model · rerun", "extra": [], "color": "#008aa1"},
+    "corrected": {"name": "Corrected primary · clipped + policy checks", "extra": [], "color": "#087e8b", "primary": True},
+    "baseline": {"name": "Original model · unstable diagnostic", "extra": [], "color": "#008aa1"},
     "claims": {"name": "+ Unemployment claims", "extra": ["claims_change_3m"], "color": "#9261bd"},
     "credit": {"name": "+ Credit spread", "extra": ["credit_level", "credit_change_1m"], "color": "#db7931"},
     "curve": {"name": "+ Yield curve", "extra": ["curve_level"], "color": "#3b71d1"},
@@ -115,6 +117,7 @@ def make_panel(prices: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     gpr = pd.read_stata(ROOT / "data/raw/gpr_caldara_iacoviello.dta", columns=["month", "GPR"])
     gpr["available_date"] = pd.to_datetime(gpr.month) + pd.offsets.MonthBegin(1) + pd.Timedelta(days=6)
     economic = economic_observations()
+    policy_sources = policy_source_dates(WORKBOOK)
     rows = []
     # Build an unscored lookback before training so every candidate feature,
     # including the three-month claims change, exists by February 2015.
@@ -134,6 +137,9 @@ def make_panel(prices: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         if row["policy_withheld_after_cutoff"]:
             for feature in POLICY_FEATURES:
                 row[feature] = np.nan
+        for feature in POLICY_FEATURES:
+            source = policy_sources.loc[date, f"{feature}__source"] if date in policy_sources.index else pd.NaT
+            row[f"{feature}__source"] = source if pd.notna(source) and source <= decision_date else pd.NaT
         # Rebuild the month's composites at the actual last trading-day cutoff.
         known = releases[(releases.decision_month == date) & (releases.release_date <= decision_date)]
         for group in ["growth", "inflation"]:
@@ -167,12 +173,17 @@ def make_panel(prices: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float,
                 robust: bool = False, details: bool = False,
-                feature_names: list[str] | None = None, min_policy_observations: int = 0):
+                feature_names: list[str] | None = None, min_policy_observations: int = 0,
+                primary: dict | None = None, policy_sources: np.ndarray | None = None):
     """All preprocessing is fitted on this training fold, never on test rows.
 
     The optional robust sensitivity clips *inputs*, not predicted returns, to
     fixed training quantiles. The original model remains unchanged for comparison.
     """
+    if primary:
+        robust = True
+        if feature_names is None:
+            raise ValueError("Corrected primary requires named features")
     if min_policy_observations and (feature_names is None or len(feature_names) != x.shape[1]):
         raise ValueError("Feature names are required for the policy coverage safeguard")
     original_x, original_test = x.copy(), test.copy()
@@ -186,11 +197,19 @@ def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float,
     test = np.where(np.isfinite(test), test, medians)
     raw_test = test.copy()
     if robust:
-        lower, upper = np.quantile(x, [.01, .99], axis=0)
+        quantiles = primary["preprocessing"]["clip_quantiles"] if primary else [.01, .99]
+        lower, upper = np.quantile(x, quantiles, axis=0)
         x, test = np.clip(x, lower, upper), np.clip(test, lower, upper)
     mean = x.mean(axis=0)
     std = x.std(axis=0)
-    constant = std < 1e-12
+    processed_std = std.copy()
+    constant = std < (primary["preprocessing"]["numerical_constant_std"] if primary else 1e-12)
+    guard = None
+    if primary:
+        guard = policy_support(original_x, processed_std, feature_names, policy_sources, primary["preprocessing"]["policy"])
+        supported &= guard["supported"] & ~constant
+        for i in np.flatnonzero(constant):
+            guard["disabled_reasons"][i].append("constant_processed_training")
     std[constant] = 1
     scaled = (x - mean) / std
     standardized_test = (test - mean) / std
@@ -214,28 +233,40 @@ def fit_predict(x: np.ndarray, y: np.ndarray, test: np.ndarray, alpha: float,
         "imputation_median": medians, "training_mean": mean,
         "processed_input": test[0], "coefficient": beta,
         "distinct_observed_values": np.array([len(np.unique(c[np.isfinite(c)])) for c in original_x.T]),
+        "processed_std": processed_std, "policy_guard": guard,
     }
 
 
 def forecasts(panel: pd.DataFrame, extra: list[str], include_policy: bool = True,
               robust: bool = False, historical_mean: bool = False,
-              stronger_shrinkage: bool | None = None, min_policy_observations: int = 0) -> list[dict]:
+              stronger_shrinkage: bool | None = None, min_policy_observations: int = 0,
+              primary: dict | None = None) -> list[dict]:
     columns = [c for c in FULL_FEATURES if include_policy or c not in POLICY_FEATURES] + extra
+    if primary:
+        if columns != primary["features"] or extra or not include_policy or historical_mean:
+            raise ValueError("Corrected primary requires its recorded feature set")
+        if (panel.holding_month > primary["evaluation"]["development_last_holding_month"]).any():
+            raise ValueError("Reserved holding months cannot enter the corrected-primary development run")
+        robust, stronger_shrinkage = True, False
     valid = panel[[*REQUIRED_SIGNAL_FEATURES, *extra]].notna().all(axis=1)
     predictions = []
     for idx, row in panel[valid].iterrows():
         train = panel[(panel.exit <= row.decision_date) & valid]
-        if len(train) < 36:
+        if len(train) < (primary["training"]["min_completed_outer_targets"] if primary else 36):
             continue
         x = train[columns].to_numpy(float)
         y = np.stack(train.asset_returns.to_numpy())
+        if primary and any((train[f"{c}__source"] > train.decision_date).any() for c in POLICY_FEATURES):
+            raise ValueError("Policy source after its historical decision cutoff")
+        sources = np.column_stack([train[f"{c}__source"].to_numpy(dtype="datetime64[ns]") if c in POLICY_FEATURES
+                                   else np.full(len(train), np.datetime64("NaT", "ns")) for c in columns]) if primary else None
         audit = {}
         if historical_mean:
             q, chosen = y.mean(axis=0), None
         else:
             errors = []
             stronger = robust if stronger_shrinkage is None else stronger_shrinkage
-            alphas = [1., 10., 100., 1000.] if stronger else [.01, .1, 1., 10., 100.]
+            alphas = primary["ridge"]["alphas"] if primary else ([1., 10., 100., 1000.] if stronger else [.01, .1, 1., 10., 100.])
             folds = range(max(24, len(train) // 2), len(train))
             for alpha in alphas:
                 squared = []
@@ -243,14 +274,16 @@ def forecasts(panel: pd.DataFrame, extra: list[str], include_policy: bool = True
                     # Embargo overlapping intervals inside tuning, as at the outer decision.
                     available = train.iloc[:end].exit <= train.iloc[end].decision_date
                     pred = fit_predict(x[:end][available], y[:end][available], x[end:end+1], alpha, robust,
-                                       feature_names=columns, min_policy_observations=min_policy_observations)[0]
+                                       feature_names=columns, min_policy_observations=min_policy_observations,
+                                       primary=primary, policy_sources=sources[:end][available] if primary else None)[0]
                     squared.append((pred - y[end]) ** 2)
                 errors.append(np.mean(squared, axis=0))
             chosen = np.array(alphas)[np.argmin(np.array(errors), axis=0)]
             q = np.empty(len(ASSETS))
             for j, asset in enumerate(ASSETS):
                 pred, info = fit_predict(x, y, row[columns].to_numpy(float)[None, :], chosen[j], robust, details=True,
-                                         feature_names=columns, min_policy_observations=min_policy_observations)
+                                         feature_names=columns, min_policy_observations=min_policy_observations,
+                                         primary=primary, policy_sources=sources)
                 q[j] = pred[0, j]
                 audit[asset] = {
                     "intercept": info["intercept"][j],
@@ -269,7 +302,12 @@ def forecasts(panel: pd.DataFrame, extra: list[str], include_policy: bool = True
                                   "training_mean": info["training_mean"][i],
                                   "processed_input": info["processed_input"][i],
                                   "coefficient": info["coefficient"][i, j],
-                                  "distinct_observed_values": int(info["distinct_observed_values"][i])}
+                                  "distinct_observed_values": int(info["distinct_observed_values"][i]),
+                                  **({"unique_source_observations": int(info["policy_guard"]["unique_source_observations"][i]),
+                                      "distinct_resolution_bins": int(info["policy_guard"]["distinct_resolution_bins"][i]),
+                                      "observed_source_std": info["policy_guard"]["observed_source_std"][i],
+                                      "processed_training_std": info["processed_std"][i],
+                                      "disabled_reasons": info["policy_guard"]["disabled_reasons"][i]} if primary else {})}
                                  for i, c in enumerate(columns)],
                 }
         predictions.append({"idx": idx, "date": row.date, "decision_date": row.decision_date,
@@ -279,25 +317,31 @@ def forecasts(panel: pd.DataFrame, extra: list[str], include_policy: bool = True
     return predictions
 
 
-def monthly_allocation(panel: pd.DataFrame, covariance_returns: pd.DataFrame, prediction_rows: list[dict], use_views: bool = True) -> list[dict]:
-    previous = BENCHMARK.copy()
+def monthly_allocation(panel: pd.DataFrame, covariance_returns: pd.DataFrame, prediction_rows: list[dict], use_views: bool = True,
+                       primary: dict | None = None) -> list[dict]:
+    settings = primary["portfolio"] if primary else {}
+    benchmark = np.array(settings.get("starting_weights", BENCHMARK))
+    previous = benchmark.copy()
     decisions = []
     for pred in prediction_rows:
         row = panel.loc[pred["idx"]]
         past = [p for p in prediction_rows if p["exit"] <= row.decision_date]
-        if len(past) < 12:
+        if len(past) < settings.get("min_prior_errors", 12):
             continue
-        observed_returns = covariance_returns[covariance_returns.index <= row.decision_date].tail(36)
-        if len(observed_returns) < 24:
+        observed_returns = covariance_returns[covariance_returns.index <= row.decision_date].tail(settings.get("covariance_months", 36))
+        if len(observed_returns) < settings.get("min_covariance_months", 24):
             continue
         cov = observed_returns.cov().to_numpy(float)
         omega = np.stack([p["q"] - p["actual"] for p in past]).var(axis=0, ddof=1)
-        posterior = (black_litterman_posterior(cov, pred["q"], omega, BENCHMARK)
-                     if use_views else 2.5 * cov @ BENCHMARK)
-        weights = optimize_weights_grid(posterior, cov, previous)
+        posterior = (black_litterman_posterior(cov, pred["q"], omega, benchmark,
+                                             tau=settings.get("tau", .05), risk_aversion=settings.get("risk_aversion", 2.5))
+                     if use_views else 2.5 * cov @ benchmark)
+        weights = optimize_weights_grid(posterior, cov, previous, **({"bounds": settings["bounds"],
+                                        "risk_aversion": settings["risk_aversion"], "turnover_penalty": settings["turnover_penalty"],
+                                        "step": settings["grid_step"]} if primary else {}))
         turnover = float(np.abs(weights - previous).sum())
         gross = float(weights @ row.asset_returns)
-        cost = turnover * .0005
+        cost = turnover * (settings["cost_bps_per_dollar_traded"] / 10000 if primary else .0005)
         net = (1 - cost) * (1 + gross) - 1
         decisions.append({
             "date": row.date, "decision_date": row.decision_date, "holding_month": row.holding_month,
@@ -385,8 +429,11 @@ def serializable(value):
 
 
 def main():
+    if FREEZE_PATH.exists():
+        verify_freeze()
     OUT.mkdir(parents=True, exist_ok=True)
     specification = json.loads(SPEC_PATH.read_text())
+    primary = primary_spec()
     prices = adjusted_prices()
     panel, monthly_returns = make_panel(prices)
     all_decisions = {}
@@ -395,9 +442,10 @@ def main():
         prediction_rows = forecasts(panel, meta["extra"],
                                    include_policy=meta.get("include_policy", True), robust=meta.get("robust", False),
                                    stronger_shrinkage=meta.get("stronger_shrinkage"),
-                                   min_policy_observations=meta.get("min_policy_observations", 0))
+                                   min_policy_observations=meta.get("min_policy_observations", 0),
+                                   primary=primary if meta.get("primary") else None)
         all_forecasts[key] = prediction_rows
-        all_decisions[key] = monthly_allocation(panel, monthly_returns, prediction_rows)
+        all_decisions[key] = monthly_allocation(panel, monthly_returns, prediction_rows, primary=primary if meta.get("primary") else None)
         print(key, "predictions", len(prediction_rows), "allocations", len(all_decisions[key]), flush=True)
     all_forecasts["historical_mean"] = forecasts(panel, [], historical_mean=True)
     all_decisions["historical_mean"] = monthly_allocation(panel, monthly_returns, all_forecasts["historical_mean"])
@@ -420,7 +468,7 @@ def main():
         for key, result in selected.items():
             result["stats"]["difference_vs_baseline"] = result["stats"]["cumulative_return"] - baseline_return
         periods.append({**period, "results": selected})
-    signal_rows = panel[["date", "decision_date", "claims_change_3m", "credit_level", "credit_change_1m", "curve_level", "claims_source_date", "claims_available_date", "credit_source_date", "credit_available_date", "curve_source_date", "curve_available_date", "anfci_source_date", "anfci_assumed_available_date", "gpr_source_date", "gpr_assumed_available_date", "policy_data_date", "policy_withheld_after_cutoff", "growth_surprise", "inflation_surprise", "anfci", "gpr", *POLICY_FEATURES]]
+    signal_rows = panel[["date", "decision_date", "claims_change_3m", "credit_level", "credit_change_1m", "curve_level", "claims_source_date", "claims_available_date", "credit_source_date", "credit_available_date", "curve_source_date", "curve_available_date", "anfci_source_date", "anfci_assumed_available_date", "gpr_source_date", "gpr_assumed_available_date", "policy_data_date", "policy_withheld_after_cutoff", "growth_surprise", "inflation_surprise", "anfci", "gpr", *POLICY_FEATURES, *[f"{c}__source" for c in POLICY_FEATURES]]]
     signal_rows.to_csv(OUT / "research_signals.csv", index=False)
     # Include monthly outputs for the development interval only, never the sealed test.
     rolling = []
@@ -444,7 +492,7 @@ def main():
         "specification": specification,
         "specification_sha256": hashlib.sha256(SPEC_PATH.read_bytes()).hexdigest(),
         "code_hashes": {name: hashlib.sha256((ROOT / "src" / name).read_bytes()).hexdigest()
-                        for name in ["research_backtest.py", "deterministic_mvp.py", "research_diagnostics.py", "research_inference.py", "research_stability.py"]},
+                        for name in SOURCE_FILES},
         "periods": periods,
         "rolling_windows": rolling,
         "variants": {key: {"name": meta["name"], "color": meta["color"], "kind": "model" if key in VARIANTS else "model_reference" if key in MODEL_REFERENCES else "reference"} for key, meta in series_meta.items()},
@@ -457,6 +505,8 @@ def main():
     }
     output.update(research_diagnostics(all_decisions, all_forecasts, prices, common, summarize, VARIANTS, panel, PERIODS, specification))
     output["stability"] = stability_report(panel, all_forecasts, all_decisions, common, WORKBOOK, specification)
+    from research_stability import primary_report
+    output["primary"] = primary_report(primary, output, all_forecasts, all_decisions, common, hashlib.sha256(PRIMARY_SPEC_PATH.read_bytes()).hexdigest())
     (OUT / "research_forecasts.json").write_text(json.dumps(serializable(all_forecasts), indent=2, allow_nan=False))
     (OUT / "research_results.json").write_text(json.dumps(serializable(output), indent=2, allow_nan=False))
     # Persist all pre-2023 decisions for rolling-window diagnostics and reproducibility.

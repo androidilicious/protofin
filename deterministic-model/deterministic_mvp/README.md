@@ -4,19 +4,33 @@ This MVP implements the quantitative baseline described in the proposal and deli
 
 ## Current update
 
+The corrected primary is **corrected-primary-v1** in
+[`research/primary_spec.json`](research/primary_spec.json). See
+[`research/PRIMARY_MODEL.md`](research/PRIMARY_MODEL.md) for its fixed clipping,
+policy source-history/variation gates, complete forecast→BL→allocation rerun,
+evaluation criteria and freeze workflow. The primary site results are at
+`framework.html#primary`; the earlier MVP remains a labeled diagnostic archive.
+The original unstable 23.99% is retained only for comparison.
+
 The current workbook is `../deterministic_data2 - Oct26.xlsx`. The older workbook
-is retained for regression checks and the archived presentation. The website
-has a Signal Research tab comparing the original model with separately added
-claims, credit-spread, and yield-curve features, over COVID shock/recovery and 2022.
+is absent from this checkout, so its legacy regression class cannot run without
+that fixture. The website now has Research overview, Backtesting framework, and
+Experiments & results pages. The experiments separate added signals, forecasting
+methods, and a planned forecast-horizon extension. The added-signal study compares
+the original model with separately added claims, credit-spread, and yield-curve
+features; it has not yet been rerun on the corrected reference model. See
+[`site/README.md`](site/README.md) for the page structure and frontend checks.
 
 ```bash
 python3 src/research_backtest.py
+python3 src/corrected_primary.py freeze
+python3 src/corrected_primary.py verify-freeze
 node site/scripts/build-research.mjs "$PWD/research/outputs"
 python3 -m unittest discover -s tests -v
 python3 -m http.server 4173 --directory site/dist
 ```
 
-Open `http://localhost:4173/research.html`. The research run reads committed raw
+Open `http://localhost:4173/`. The research run reads committed raw
 inputs and writes separate outputs in `research/outputs/`; it leaves the earlier
 MVP results intact. See `research/README.md` for complete experiment definitions.
 

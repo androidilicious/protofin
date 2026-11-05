@@ -1,5 +1,10 @@
 # Deterministic signal research
 
+**Current primary:** [Corrected primary model v1](PRIMARY_MODEL.md), specified
+in `primary_spec.json` and fingerprinted in `primary_freeze.json`. V1–V3 notes
+below are historical investigations; the v4 run adds the explicitly selected
+corrected model. The original 23.99% is an unstable diagnostic comparison.
+
 The original website remains at `dist/index.html`. New experiments are at
 `dist/research.html`. These are development experiments, not a replacement
 for the locked model or an evaluation of 2023 onward.

@@ -1,0 +1,55 @@
+{
+  "id": "corrected-primary-v1",
+  "selected_on": "2026-11-05",
+  "status": "Primary specification selected after development diagnostics, before running this new rule. Exploratory development result; not independently selected.",
+  "variant": "corrected",
+  "features": ["growth_surprise", "inflation_surprise", "policy_3m_level", "policy_6m_level", "policy_path_slope", "policy_3m_change", "policy_6m_change", "anfci", "gpr", "growth_x_anfci", "inflation_x_anfci", "growth_x_gpr", "inflation_x_gpr"],
+  "preprocessing": {
+    "imputation": "Finite training median per feature; zero only if entirely missing. Fit separately inside every inner and outer training fold.",
+    "clip_quantiles": [0.01, 0.99],
+    "quantile_method": "linear; computed on training rows after training-only imputation",
+    "scaling": "Training mean and population standard deviation (ddof=0), after clipping. Apply training bounds, center and scale to validation/current inputs.",
+    "numerical_constant_std": 1e-12,
+    "disabled_feature": "Zero both training and prediction standardized columns; coefficient/contribution exactly zero.",
+    "policy": {
+      "min_source_observations": 12,
+      "min_distinct_resolution_bins": 3,
+      "resolution_percentage_points": 0.01,
+      "min_observed_std_percentage_points": 0.01,
+      "min_processed_std_percentage_points": 0.01,
+      "counting": "Only finite original source observations whose source date is at or before that row's decision cutoff; each source date counts once per feature. Imputed or carried-forward-only rows do not create observed history.",
+      "variation": "Observed-only std on unique eligible source snapshots; distinct values are numpy rint(value/0.01) bins. Also require processed training std after imputation/clipping. Thresholds are inclusive.",
+      "rationale": "Retain the existing twelve-observation sensitivity as a minimum, strengthen it to distinct source snapshots and three distinct one-basis-point bins, and reject sub-one-basis-point standard deviations. One basis point is an explicit economic-resolution engineering choice, not a validated optimum. Rules will not be tuned against development portfolio returns."
+    }
+  },
+  "ridge": {
+    "alphas": [0.01, 0.1, 1.0, 10.0, 100.0],
+    "objective": "Sum squared loss plus alpha times squared coefficient norm; unpenalized training-target-mean intercept, targets in monthly decimal returns.",
+    "tuning": "Same chronological per-asset MSE tuning as clipping-only; inner targets must finish by validation cutoff. Fixed alpha order breaks ties. All preprocessing and policy checks are refit in every fold."
+  },
+  "training": {"start": "2015-02-28", "min_completed_outer_targets": 36, "inner_first_index_rule": "max(24, n_train // 2); embargo incomplete training intervals before each validation decision"},
+  "portfolio": {
+    "assets": ["SPY", "IEF", "LQD"], "starting_weights": [0.45, 0.35, 0.20],
+    "bounds": [[0.20, 0.70], [0.15, 0.60], [0.10, 0.40]],
+    "risk_aversion": 2.5, "tau": 0.05, "grid_step": 0.01,
+    "turnover_penalty": 0.00005,
+    "covariance_months": 36, "min_covariance_months": 24, "min_prior_errors": 12,
+    "cost_bps_per_dollar_traded": 5,
+    "covariance": "Last 36 known calendar-close monthly returns, at least 24; sample covariance.",
+    "view_uncertainty": "Sample variance (ddof=1) of this corrected model's own prior completed forecast errors, at least 12. Recomputed from the start; no original-model error history reused.",
+    "execution": "Decide at 8pm New York on last trading day; enter next trading-day adjusted close, exit next rebalance adjusted close. Continuous holdings with drift and multiplicative trading costs. Initial mix already funded."
+  },
+  "evaluation": {
+    "development_last_holding_month": "2022-12-31",
+    "forecast_cohorts": ["all matched forecasts including allocation warm-up", "common portfolio holding dates"],
+    "benchmarks": ["historical_mean", "fixed453520", "sixtyForty", "spyOnly", "prior_only"],
+    "diagnostic_comparisons": ["baseline", "clip_only"],
+    "warning_absolute_monthly_return": 0.20,
+    "numerical_acceptance": "Finite forecasts, exact decomposition within 1e-10, no policy contribution when disabled, prior-only preprocessing/target/error timing, reconciled wealth/costs/bounds, zero 20% warning flags over both development cohorts. Failure is reported; no output cap, silent fallback or automatic retuning.",
+    "forecast_reporting": "Per-asset MAE/RMSE, OOS R2 against matched expanding historical mean, largest absolute forecast and warning counts; calendar years and policy activation reasons.",
+    "predictive_claim_rule": "Claim per-asset development improvement only if OOS R2 > 0 and MAE <= expanding historical mean in both cohorts. Report failures explicitly; this is descriptive, not a significance claim.",
+    "portfolio_reporting": "Net cumulative return, daily maximum drawdown, turnover, costs, allocation-limit frequency and calendar-year returns on identical continuous dates. No minimum return target and no selection to restore 23.99%."
+  },
+  "reserved_test": {"start": "2023-01-01", "run_authorized": false, "team_nonexposure_confirmed": false, "rule": "Never evaluate in these development commands. Freeze hashes before a separately authorized evaluation; first confirm whether the team has examined this period. Do not retune after seeing reserved results."},
+  "data_limitations": "Latest revised macro histories and assumed release lags remain; no ALFRED real-time vintage reconstruction. A numerical correction does not cure revised-data bias."
+}

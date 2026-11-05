@@ -8,7 +8,7 @@
   const assetKeys = ['equity', 'treasury', 'ig_credit'], assetNames = ['SPY', 'IEF', 'LQD'];
   const name = k => report.variants[k].name;
   get('stabilityModel').innerHTML = S.comparison_order.map(k => `<option value="${k}">${name(k)}</option>`).join('');
-  get('stabilityModel').value = 'clip_only';
+  get('stabilityModel').value = 'corrected';
 
   function chart(rows, reference, j, key) {
     const W=1000, H=340, p={l:74,r:24,t:24,b:38};
@@ -36,10 +36,10 @@
     const cohort=S.cohorts[get('stabilityCohort').value], j=Number(get('stabilityAsset').value), asset=assetKeys[j], key=get('stabilityModel').value;
     const metrics=cohort.results, base=metrics.baseline;
     get('stabilityCoverage').textContent = `${base.months} matched forecast months (${base.asset_months} asset-months), decisions ${date(cohort.first_decision)}–${date(cohort.last_decision)}. All holding months end by December 2022.`;
-    get('stabilityVerdict').textContent = 'Clipping removes the warning flags; accuracy still needs a benchmark.';
-    const stable=['clip_only','robust'].filter(k=>metrics[k].extreme_asset_months===0);
+    get('stabilityVerdict').textContent = report.primary.numerical_acceptance.passed ? 'The corrected primary passes the recorded numerical checks.' : 'The corrected primary needs attention: numerical checks failed.';
+    const stable=['corrected','clip_only','robust'].filter(k=>metrics[k].extreme_asset_months===0);
     const worse=S.comparison_order.filter(k=>k!=='historical_mean' && Object.values(metrics[k].assets).every(a=>a.oos_r2_vs_historical_mean<0));
-    get('stabilityFinding').textContent = `Across all three assets, ${stable.map(name).join(' and ')} have no forecasts beyond ±20% in this sample. The coverage safeguard has ${metrics.supported_policy.extreme_asset_months} flagged asset-month(s); removing policy has ${metrics.no_policy.extreme_asset_months}. ${worse.length} of the 6 learned versions have higher squared forecast error than the historical mean for every asset. Stability improves without establishing useful predictive skill.`;
+    get('stabilityFinding').textContent = `Across all three assets, ${stable.map(name).join(', ')} have no forecasts beyond ±20% in this sample. The coverage safeguard has ${metrics.supported_policy.extreme_asset_months} flagged asset-month(s); removing policy has ${metrics.no_policy.extreme_asset_months}. ${worse.length} of the ${S.comparison_order.length-1} learned versions have higher squared forecast error than the historical mean for every asset. Stability and predictive skill are evaluated separately.`;
     get('stabilityForecastTable').innerHTML=S.comparison_order.map(k=>{const m=metrics[k].assets[asset];return `<tr class="${k===key?'selected-row':''}"><td>${name(k)}</td><td>${pct(m.mae)}</td><td>${pct(m.rmse)}</td><td>${m.oos_r2_vs_historical_mean?.toFixed(3)??'—'}</td><td>${pct(m.largest_absolute_forecast)}<small class="research-type">${date(m.largest_forecast_decision)} decision</small></td><td>${m.extreme_count} / ${metrics[k].months} (${pct(m.extreme_rate)})</td></tr>`;}).join('');
     chart(cohort.timeline[key],cohort.timeline.historical_mean,j,key);
     get('stabilityEvents').innerHTML=S.comparison_order.flatMap(k=>cohort.extreme_events[k].map(e=>`<tr><td>${name(k)}</td><td>${date(e.decision_date)}</td><td>${assetNames[assetKeys.indexOf(e.asset)]}</td><td>${pct(e.forecast)}</td><td>${pct(e.actual)}</td><td>${e.dominant_feature?`${e.dominant_feature.feature}: ${pct(e.dominant_feature.contribution)}`:'—'}</td></tr>`)).join('') || '<tr><td colspan="6">No flags in this sample.</td></tr>';

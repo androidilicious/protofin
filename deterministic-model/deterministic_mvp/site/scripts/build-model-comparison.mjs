@@ -28,3 +28,4 @@ fs.writeFileSync(path.join(site,'dist/model-comparison-data.js'),`window.MODEL_C
 fs.mkdirSync(path.join(site,'dist/downloads'),{recursive:true});
 fs.copyFileSync(file,path.join(site,'dist/downloads/model-comparison-results.json'));
 console.log(JSON.stringify({models:Object.keys(data.models).length,forecastMonths:data.sample.common_forecast_months,portfolioMonths:data.sample.common_portfolio_months}));
+await import('./build-site.mjs');

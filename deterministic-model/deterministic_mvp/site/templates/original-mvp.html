@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive deterministic macro-surprise model and three portfolio scenarios." />
+  <title>Original MVP archive · Deterministic Macro Model</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview"><span class="brand-mark">D</span><span>Deterministic <b>Macro Model</b></span></a>
+    <nav aria-label="Page sections"><a href="#method">Method</a><a href="#surprise">Surprise</a><a href="#scenarios">Scenarios</a><a href="#replay">Replay</a></nav>
+    <span class="asof">Data through Oct 26, 2026</span>
+  </header>
+  <nav class="page-tabs shell" aria-label="Research pages"><a href="index.html">Research overview</a><a href="framework.html">Backtesting framework</a><a href="research.html">Experiments &amp; results</a></nav>
+
+  <main>
+    <section class="shell panel" style="margin-top:28px;border-left:4px solid #087e8b"><h2>Original MVP archive</h2><p>This page preserves the earlier demonstration and its results. Use the research overview for the current contribution, completed experiments and limitations.</p><a class="secondary" href="index.html">Return to research overview →</a></section>
+    <section id="overview" class="hero shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Legacy MVP · diagnostic archive</p>
+        <h1>One signal.<br />Three portfolios.</h1>
+        <p class="lede">Your original three-asset model starts at 45% SPY, 35% IEF, and 20% LQD, then adjusts the mix each month. Compare it with fixed 60/40 and S&amp;P 500 portfolios.</p>
+        <div class="hero-actions"><a class="primary" href="#scenarios">Compare scenarios</a><a class="secondary" href="research.html">Test signals &amp; market periods</a><a class="secondary" href="#surprise">Try the surprise</a></div>
+      </div>
+      <div class="hero-visual" aria-label="Three portfolio scenarios">
+        <article><span>01</span><b>Original three-asset model</b><small>45% SPY · 35% IEF · 20% LQD</small><div class="mini-stack"><i>45%</i><i>35%</i><i>20%</i></div></article>
+        <article><span>02</span><b>60 / 40</b><small>SPY · IEF</small><div class="mini-stack fixed"><i></i><i></i></div></article>
+        <article><span>03</span><b>S&amp;P 500</b><small>SPY only</small><div class="mini-stack equity"><i></i></div></article>
+      </div>
+    </section>
+
+    <section id="method" class="block shell">
+      <div class="section-head"><div><p class="kicker">Test design</p><h2>What is learned, shown, and sealed</h2></div><p>Development results are visible. January 2023 onward remains reserved and its realized performance is hidden.</p></div>
+      <div class="timeline">
+        <article class="train"><span>Training</span><b>Feb 2015 – Feb 2019</b><small>Models learn. Nothing scored.</small></article>
+        <article class="develop"><span>Development</span><b>Mar 2019 – Dec 2022</b><small>Diagnostics shown here.</small><em>Common scored overlap: Oct 2020 – Dec 2022</em></article>
+        <article class="sealed"><span>Historical test · sealed</span><b>Jan 2023 – Oct 2026</b><small>Outcomes hidden until freeze.</small></article>
+      </div>
+      <div class="pipeline" aria-label="Model pipeline">
+        <article><span>01</span><b>8 releases</b><small>Actual vs. forecast</small></article><i>→</i>
+        <article><span>02</span><b>Surprise</b><small>Miss ÷ earlier miss volatility</small></article><i>→</i>
+        <article><span>03</span><b>Macro state</b><small>Growth · inflation · risk</small></article><i>→</i>
+        <article><span>04</span><b>Ridge forecast</b><small>Next-month returns</small></article><i>→</i>
+        <article><span>05</span><b>Black–Litterman</b><small>Moderate uncertain views</small></article><i>→</i>
+        <article><span>06</span><b>Weights</b><small>Long only · 5 bp cost</small></article>
+      </div>
+    </section>
+
+    <section id="surprise" class="block shell">
+      <div class="section-head"><div><p class="kicker">Interactive signal</p><h2>How a release becomes a surprise</h2></div><p>The denominator is calculated from earlier forecast misses only, so today’s release cannot change its own scale.</p></div>
+      <div class="surprise-grid">
+        <div class="control-card">
+          <label>Release<select id="releaseSelect"></select></label>
+          <div class="input-grid"><label>Actual<input id="actualInput" type="number" step="any" /></label><label>Forecast<input id="forecastInput" type="number" step="any" /></label></div>
+          <label>Earlier miss volatility<input id="volInput" type="number" step="any" min="0.0001" /></label>
+        </div>
+        <div class="formula-card" aria-live="polite">
+          <div><span>Release miss</span><b id="rawFormula">Actual − forecast = 0</b></div>
+          <div class="formula-arrow">↓</div>
+          <div class="main-formula"><span>Standardized surprise</span><strong id="zFormula">0.00σ</strong><small id="signalMeaning">In line with expectations</small></div>
+          <div class="scale"><span>Below</span><div><i id="scaleMarker"></i></div><span>Above</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="scenarios" class="block shell">
+      <div class="section-head"><div><p class="kicker">Development evidence</p><h2>Three scenarios on the same months</h2></div><p>All returns use adjusted SPY, IEF, and LQD prices and the same 5 bp per dollar traded cost rule.</p></div>
+      <div class="scenario-tabs" role="tablist" aria-label="Portfolio scenarios">
+        <button class="active" data-scenario="dynamic" type="button"><span>01</span>Original three-asset model</button>
+        <button data-scenario="sixtyForty" type="button"><span>02</span>60% SPY / 40% IEF</button>
+        <button data-scenario="spyOnly" type="button"><span>03</span>100% S&amp;P 500</button>
+      </div>
+      <div class="scenario-focus">
+        <div><p class="kicker" id="scenarioLabel">Original three-asset model</p><h3 id="scenarioTitle">Start at 45 / 35 / 20</h3><p id="scenarioDescription">The model adjusts the original starting allocation each month.</p><p id="allocationCaption" class="allocation-caption">Starting allocation</p><div id="scenarioAllocation" class="allocation-strip"></div></div>
+        <div class="metric-callouts"><div><span>Annual return</span><b id="focusReturn">—</b></div><div><span>Volatility</span><b id="focusVol">—</b></div><div><span>Sharpe</span><b id="focusSharpe">—</b></div><div><span>Max drawdown</span><b id="focusDrawdown">—</b></div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><div><h3>Growth of $100</h3><p>Common scored overlap · Oct 2020–Dec 2022</p></div><div class="legend"><span class="dynamic-dot">Original model</span><span class="mix-dot">60/40</span><span class="spy-dot">S&amp;P 500</span></div></div>
+        <svg id="performanceChart" viewBox="0 0 1000 320" role="img" aria-label="Growth of 100 dollars for three portfolio scenarios"></svg>
+      </div>
+      <div class="comparison-table-wrap"><table><thead><tr><th>Scenario</th><th>Annual return</th><th>Volatility</th><th>Sharpe</th><th>Max drawdown</th><th>Cumulative</th></tr></thead><tbody id="comparisonBody"></tbody></table></div>
+      <div class="comparison-explanation panel" aria-labelledby="comparisonExplanationTitle">
+        <p class="kicker">What the comparison tells us</p>
+        <h3 id="comparisonExplanationTitle">The original model reduced fluctuations, but earned less</h3>
+        <p>Across these 27 development decisions, the S&amp;P 500 portfolio delivered the highest return. The original three-asset model had the lowest volatility, but its lower return outweighed that reduction in risk.</p>
+        <div class="comparison-takeaways">
+          <article><b>S&amp;P 500: highest growth, largest swings</b><p>100% SPY earned 11.9% annualized and 28.7% cumulatively. It also had the highest volatility (19.5%) and the deepest peak-to-trough loss (−23.9%).</p></article>
+          <article><b>60/40: a middle ground</b><p>The fixed mix earned 4.3% annualized and 9.9% cumulatively, with lower volatility than SPY alone. Its −20.5% drawdown was the smallest of the three.</p></article>
+          <article><b>Original model: less volatility, weaker results</b><p>The model earned 1.1% annualized and 2.4% cumulatively. Volatility was lowest at 12.5%, but its −21.1% drawdown was slightly worse than 60/40. Its Sharpe of 0.08 was also the lowest.</p></article>
+        </div>
+        <p><strong>What this means for the MVP:</strong> The model did not outperform either fixed portfolio in this development sample. It reduced volatility, but the results do not yet show that its forecasts and allocation changes added value.</p>
+        <details><summary>How to read the metrics</summary><p><strong>Annual return</strong> is the compounded growth rate expressed per year. <strong>Cumulative return</strong> is the total gain across the sample. <strong>Volatility</strong> measures how much monthly returns fluctuate, expressed annually. <strong>Max drawdown</strong> is the largest observed fall from a previous portfolio peak. <strong>Sharpe</strong> compares return with volatility; higher is better. Here it uses annualized return divided by annualized volatility and assumes a zero cash rate.</p></details>
+      </div>
+      <p class="evidence-note">This development sample is short. Results describe this period; they do not establish future outperformance.</p>
+    </section>
+
+    <section id="replay" class="block shell">
+      <div class="section-head"><div><p class="kicker">Decision replay</p><h2>Open any model decision</h2></div><label class="month-label">Decision month<select id="monthSelect"></select></label></div>
+      <div id="sealedNotice" class="sealed-notice" hidden><b>Historical test is sealed.</b><span>Signals and model weights are shown for demonstration. Realized returns remain hidden.</span></div>
+      <div class="replay-grid">
+        <article class="panel"><p class="kicker">Macro state</p><div class="state-pair"><div><span>Growth</span><b id="growthState">—</b></div><div><span>Inflation</span><b id="inflationState">—</b></div></div><div id="releaseBars" class="release-bars"></div></article>
+        <article class="panel"><p class="kicker">Ridge → Black–Litterman</p><div id="forecastRows" class="forecast-rows"></div><p class="bl-note"><b>Σ</b> = how assets move together. <b>Ω</b> = how uncertain each forecast is. More uncertainty means less weight on the Ridge view.</p></article>
+        <article class="panel"><p class="kicker">Model allocation this month</p><div id="weightGraphic" class="weight-graphic"></div><div id="weightLegend" class="weight-legend"></div><p class="bl-note">Starting allocation: 45% SPY / 35% IEF / 20% LQD. These bars show the model’s adjusted weights for the selected month.</p></article>
+        <article class="panel outcome"><p class="kicker">Subsequent outcome</p><div id="outcomeBox"></div></article>
+      </div>
+    </section>
+
+    <section id="model-details" class="block shell">
+      <div class="section-head"><div><p class="kicker">The original model, explained</p><h2>How the starting mix becomes a decision</h2></div><p>The original three assets stay the same. Their weights change as the model combines economic news, forecasts, and risk.</p></div>
+      <div class="source-grid">
+        <article><b>1. Start with 45 / 35 / 20</b><p>45% SPY holds U.S. equities. 35% IEF holds 7–10 year U.S. Treasuries. 20% LQD holds investment-grade corporate bonds. This neutral mix anchors Black–Litterman.</p></article>
+        <article><b>2. Summarize the news</b><p>Payrolls, retail sales, industrial production, and ISM form the Growth surprise. CPI, Core CPI, PPI, and hourly earnings form the Inflation surprise. Each group averages its available standardized surprises.</p></article>
+        <article><b>3. Forecast each asset</b><p>Ridge estimates next-month returns for SPY, IEF, and LQD using earlier data. Shrinkage limits extreme forecasts. Policy expectations, financial conditions (ANFCI), and geopolitical risk (GPR) add context.</p></article>
+        <article><b>4. Blend and allocate</b><p>Black–Litterman combines the starting mix’s implied returns with Ridge forecasts. The optimizer then balances expected return, risk, and turnover within allocation limits.</p></article>
+      </div>
+      <div class="bl-detail panel">
+        <p class="kicker">Black–Litterman after Ridge</p><h3>Starting mix + model views + uncertainty → moderated returns</h3>
+        <div class="source-grid">
+          <article><b>Prior (π)</b><p>The neutral return estimate implied by the 45 / 35 / 20 starting mix and asset covariance.</p></article>
+          <article><b>Views (Q)</b><p>The three Ridge return forecasts. The replay above shows each raw view alongside its BL result.</p></article>
+          <article><b>Covariance (Σ)</b><p>Capital sigma: how asset returns move together, estimated from up to 36 earlier months.</p></article>
+          <article><b>Uncertainty (Ω)</b><p>Capital omega: each view’s earlier forecast-error variance. Higher uncertainty reduces the view’s influence.</p></article>
+        </div>
+        <p class="bl-note">Allocation limits: SPY 20–70%, IEF 15–60%, LQD 10–40%. Weights sum to 100%. The 60/40 and SPY-only reference portfolios keep their fixed allocations.</p>
+      </div>
+      <div class="previous-link"><b>The previous detailed page is saved.</b><p>You can still open the original presentation, including its longer Black–Litterman walkthrough and signal charts. It uses the earlier dataset and results.</p><a class="secondary" href="previous/index.html">Open previous MVP page →</a></div>
+    </section>
+
+    <section class="block shell sources">
+      <div class="section-head"><div><p class="kicker">Data and limits</p><h2>What is in the updated MVP</h2></div></div>
+      <div class="source-grid"><article><b>Macro releases</b><p>Eight Bloomberg release and consensus series from the Oct 26 workbook. Surprise scaling uses prior observations only.</p></article><article><b>Risk context</b><p>Chicago Fed ANFCI and Caldara–Iacoviello GPR. Both use latest revised history, not a locked real-time vintage.</p></article><article><b>Asset returns</b><p>SPY, IEF, and LQD adjusted-close returns. ETF history in the current source begins in October 2016.</p></article><article><b>Policy history</b><p>The workbook’s 3-month and 6-month implied policy paths begin in September 2019. Earlier missing policy fields use past-only median imputation inside Ridge.</p></article></div>
+    </section>
+  </main>
+  <footer class="shell"><span>Deterministic Macro Model MVP</span><span>Updated source · October 2026</span></footer>
+  <script src="data.js"></script><script src="app.js"></script>
+</body>
+</html>
