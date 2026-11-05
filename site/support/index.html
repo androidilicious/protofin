@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protofin · Decision support</title>
+<style>
+:root { --bg:#0f1218; --card:#171b24; --inner:#1e2330; --line:#2a3040; --t1:#e8eaf0; --t2:#aab0c0; --t3:#6f768a; --accent:#7c6cf0; --pos:#3fbf8a; --neg:#e06c6c; --warn:#e0a84c;
+  --c-STATIC:#9aa3b5; --c-PLACEBO:#5c6378; --c-DET:#e0a84c; --c-JEV:#7c6cf0; --c-COMMITTEE:#4fa3e0; --c-CAUSAL_RAG:#3fbfb0; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--t1); font:15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif }
+a { color:var(--accent) }
+header { padding:18px 24px; border-bottom:1px solid var(--line); display:flex; gap:18px; align-items:center; flex-wrap:wrap }
+header b { font-size:17px } header nav a { margin-right:14px; color:var(--t2); text-decoration:none } header nav a.on { color:var(--t1) }
+main { max-width:1280px; margin:0 auto; padding:24px 16px 60px; display:flex; flex-direction:column; gap:22px }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px }
+.inner { background:var(--inner); border:1px solid var(--line); border-radius:10px; padding:14px }
+.eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--t3); font-weight:600 }
+h1 { font-size:26px; line-height:1.2; margin:6px 0 10px } h2 { font-size:18px; margin:0 0 6px } h3 { font-size:15px; margin:0 0 4px }
+.t2 { color:var(--t2) } .t3 { color:var(--t3) } .mono { font-family:ui-monospace, Consolas, monospace; font-variant-numeric:tabular-nums }
+.seg { display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden } .seg button { background:transparent; color:var(--t2); border:0; padding:7px 12px; cursor:pointer; font:inherit } .seg button.on { background:var(--accent); color:#fff }
+.controls { display:flex; gap:16px; flex-wrap:wrap; align-items:center }
+.controls label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--t3) }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:14px }
+.plug { display:flex; flex-direction:column; gap:10px; cursor:pointer; border:1px solid var(--line) } .plug.on { border-color:var(--accent) }
+.plug .name { font-weight:700; font-size:16px } .chip { display:inline-block; font-size:11px; padding:2px 8px; border:1px solid var(--line); border-radius:999px; color:var(--t2); margin-left:6px }
+.chip.worse { border-color:var(--neg); color:var(--neg) } .chip.better { border-color:var(--pos); color:var(--pos) } .chip.warn { border-color:var(--warn); color:var(--warn) }
+.big { font-size:26px; font-weight:700 } .row { display:flex; justify-content:space-between; gap:10px } .bar { height:8px; border-radius:4px; background:var(--line); position:relative; overflow:hidden } .bar i { position:absolute; top:0; bottom:0; background:var(--accent) }
+table { width:100%; border-collapse:collapse; font-size:13px } th, td { text-align:right; padding:6px 8px; border-bottom:1px solid var(--line) } th { color:var(--t3); font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase } td:first-child, th:first-child { text-align:left }
+pre { white-space:pre-wrap; word-break:break-word; background:var(--inner); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:13px; margin:0 }
+.trace p { margin:6px 0 } .trace .who { color:var(--accent); font-weight:600; font-size:12px; letter-spacing:.08em; text-transform:uppercase }
+canvas { width:100%; height:300px; display:block }
+.verdict { font-size:16px } .pos { color:var(--pos) } .neg { color:var(--neg) }
+@media (max-width:640px) { main { padding:16px 16px 48px } h1 { font-size:22px } }
+</style>
+</head>
+<body>
+<header><b>Protofin</b><nav><a href="../index.html">Overview</a><a class="on" href="./">Decision support</a></nav></header>
+<main>
+  <section class="card">
+    <div class="eyebrow">Decision support · evidence plugins on one gate</div>
+    <h1>How much should a manager believe each piece of evidence this month?</h1>
+    <p class="t2" style="max-width:900px;margin:0">Every plugin answers the same masked month. The harness calibrates the answer, measures how often that plugin has been right lately (its trust, Ω), blends it with Black-Litterman and shows what following it would have done, next to doing nothing and a placebo. The allocation is the consequence, not the advice.</p>
+    <div class="controls" style="margin-top:14px">
+      <label>Funds<div class="seg" id="fundSeg"><button data-v="spy_tlt" class="on">SPY / TLT 60/40</button><button data-v="spy_ief_lqd">SPY / IEF / LQD 45/35/20</button></div></label>
+      <label>How a forecast is read<div class="seg" id="mapSeg"><button data-v="sign" class="on">As stated</button><button data-v="ridge">Either way</button></div></label>
+      <label>Month<select id="monthSel" style="background:var(--inner);color:var(--t1);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit"></select></label>
+      <span class="t3" id="window"></span>
+    </div>
+  </section>
+
+  <section class="grid" id="plugins"></section>
+
+  <section class="card">
+    <div class="row" style="align-items:baseline;flex-wrap:wrap"><h2 id="traceTitle">Trace</h2><span class="t3" id="traceSub"></span></div>
+    <div class="grid" style="grid-template-columns:1.2fr 1fr">
+      <div class="inner trace" id="trace"></div>
+      <div class="inner"><h3>This month in the pipeline</h3><table id="chain"></table><p class="t3" style="font-size:12px;margin:8px 0 0">Q = calibrated view (monthly excess return). Ω = trust: mean squared error of the plugin's own past views; bigger means less weight. π = the market-implied return for the fixed mix. μ = the Black-Litterman blend. w = the weight after the optimizer.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="align-items:baseline;flex-wrap:wrap"><h2>If a manager had followed it</h2><span class="t3">$100 from March 2019, after costs · the dotted line is doing nothing</span></div>
+    <canvas id="nav"></canvas>
+    <table id="score" style="margin-top:12px"></table>
+    <p class="t3" style="font-size:12px;margin:8px 0 0">Score = net CER = 12 × (mean monthly excess return − 1.25 × its variance). Ranges from a paired 6-month block bootstrap, 5,000 draws. “Can't tell” means the range includes zero.</p>
+  </section>
+
+  <section class="card">
+    <h2>Registry</h2>
+    <p class="t2" style="margin:0 0 10px">A plugin is a folder with a manifest and a <code>plugin.py</code> that returns typed answers from saved runs. The harness never calls a model; it scores what was saved. See <code>decision_support/README.md</code>.</p>
+    <table id="registry"></table>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const NAME = { STATIC: 'Doing nothing', PLACEBO: 'Placebo', DET: 'Deterministic model', JEV: 'Jev', COMMITTEE: 'AI committee', CAUSAL_RAG: 'Causal RAG' };
+const KEYS = ['DET', 'COMMITTEE', 'JEV', 'CAUSAL_RAG', 'PLACEBO'];
+const pct = (x, d = 2) => x == null ? '—' : (x * 100).toFixed(d) + '%';
+const pts = x => (x >= 0 ? '+' : '') + (x * 100).toFixed(2);
+let D, fund = 'spy_tlt', mapping = 'sign', month = '2019-03', sel = 'JEV';
+const runKey = () => (fund === 'spy_tlt' ? 'spy60' : 'f3') + '_' + mapping;
+const run = () => D.runs[runKey()];
+const verdict = c => !c ? '' : c.lo > 0 ? '<span class="chip better">better than doing nothing</span>' : c.hi < 0 ? '<span class="chip worse">worse than doing nothing</span>' : '<span class="chip">can\'t tell</span>';
+
+function seg(id, fn) { $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$(id).children].forEach(x => x.classList.toggle('on', x === b)); fn(b.dataset.v); }); }
+
+function render() {
+  const R = run(), S = R.systems, assets = R.assets;
+  $('window').textContent = `${R.development[0]} to ${R.development[1]} · ${R.months} months scored · 2023 onward sealed`;
+  const months = Object.keys(S.DET.chain); if (!months.includes(month)) month = months[0];
+  $('monthSel').innerHTML = months.map(m => `<option ${m === month ? 'selected' : ''}>${m}</option>`).join('');
+  // plugin cards: trust this month, what it said, how it has done
+  $('plugins').innerHTML = KEYS.filter(k => S[k]).map(k => {
+    const s = S[k], ch = s.chain[month], omega = assets.map(a => ch[`omega_${a}`]);
+    const q = assets.map(a => ch[`q_${a}`]);
+    const t = (D.traces[fund][k.toLowerCase()] || {})[month];
+    const stated = t && Object.keys(t.stated || {}).length ? assets.map(a => t.stated[a]) : null;
+    const kval = ch[`alpha_${assets[0]}`];
+    const man = D.manifests[k.toLowerCase()] || {};
+    const trust = k === 'PLACEBO' ? null : 1 / Math.sqrt(omega[0]);
+    return `<div class="card plug ${k === sel ? 'on' : ''}" data-k="${k}">
+      <div><span class="name" style="color:var(--c-${k})">${NAME[k]}</span>${man.exploratory ? '<span class="chip warn">exploratory</span>' : ''}</div>
+      <div class="t3" style="font-size:12px">${k === 'PLACEBO' ? 'No forecast; the same machinery. Shows what tilting alone costs.' : (man.title || '')}</div>
+      <div class="row"><span class="t2">Said this month</span><span class="mono">${stated ? stated.map((v, i) => `${assets[i]} ${v == null ? '—' : (+v).toFixed(2)}`).join(' · ') : (k === 'DET' ? '8 surprise z-scores' : '—')}</span></div>
+      <div class="row"><span class="t2">Calibrated view Q</span><span class="mono">${q.map((v, i) => `${assets[i]} ${pct(v)}`).join(' · ')}</span></div>
+      <div class="row"><span class="t2">Scale k / α this month</span><span class="mono">${String(kval)}</span></div>
+      <div class="row"><span class="t2">Trust Ω (${assets[0]})</span><span class="mono">${omega[0].toExponential(2)}</span></div>
+      <div class="row"><span class="t2">Weight if followed</span><span class="mono">${assets.map(a => `${a} ${pct(ch[`w_${a}`], 0)}`).join(' · ')}</span></div>
+      <div class="row" style="align-items:baseline"><span class="t2">Record, ${R.months} months</span><span><b class="${s.vs_static.d < 0 ? 'neg' : 'pos'}">${pts(s.vs_static.d)} pts/yr</b></span></div>
+      <div>${verdict(s.vs_static)}</div></div>`;
+  }).join('');
+  [...$('plugins').children].forEach(c => c.addEventListener('click', () => { sel = c.dataset.k; render(); }));
+  renderTrace(); renderChart(); renderScore(); renderRegistry();
+}
+
+function renderTrace() {
+  const R = run(), S = R.systems, assets = R.assets, k = sel, ch = S[k].chain[month];
+  const t = (D.traces[fund][k.toLowerCase()] || {})[month];
+  $('traceTitle').textContent = `${NAME[k]} · ${month}`;
+  $('traceSub').textContent = t && t.confidence != null ? `self-reported confidence ${t.confidence} (recorded, not used)` : '';
+  let html = '';
+  if (!t) html = `<p class="t2">${k === 'PLACEBO' ? 'The placebo says nothing. Its view is the historical average, so it shows the cost of tilting with no information.' : 'No saved answer for this month.'}</p>`;
+  else if (k === 'COMMITTEE') html = ['economist', 'risk_manager', 'cio', 'grounding'].map(r => t.trace[r] ? `<p><span class="who">${r.replace('_', ' ')}</span><br>${t.trace[r]}</p>` : '').join('') + `<p class="t3" style="font-size:12px">CIO views, % for the month: ${JSON.stringify(t.trace.cio_views_pct)} · confidence ${t.trace.confidence_word}</p>`;
+  else if (k === 'JEV') html = `<p><span class="who">answers</span><br>${t.trace.p_stocks_beat_bonds != null ? `P(stocks beat bonds) = ${t.trace.p_stocks_beat_bonds} · choice: ${t.trace.choice} · expected tilt ${(+t.trace.expected_tilt).toFixed(2)}` : `P(SPY beats IEF) = ${t.trace.p_spy_beats_ief} · P(LQD beats IEF) = ${t.trace.p_lqd_beats_ief} · best fund: ${t.trace.best_fund}`}</p><pre>${JSON.stringify(t.trace.tilt_probabilities || t.trace.p_best, null, 1)}</pre><p class="t3" style="font-size:12px">Tilt points: strong equities +3, lean +1.5, neutral 0, lean bonds −1.5, strong bonds −3. Only the order and spacing matter; k rescales the number.</p>`;
+  else if (k === 'CAUSAL_RAG') html = `<p><span class="who">status features</span><br>per fund: F_S = signed count of Supported chains, F_C Contradicted, F_I Insufficient</p><pre>${JSON.stringify(t.trace.status_features, null, 1)}</pre><p class="t3" style="font-size:12px">${t.trace.n_hypotheses} hypotheses · model ${t.trace.model} · ${t.trace.status || ''}</p>`;
+  else if (k === 'DET') html = `<p><span class="who">surprise z-scores</span><br>${t.trace.note}</p><pre>${JSON.stringify(t.trace.surprise_z, null, 1)}</pre>`;
+  $('trace').innerHTML = html;
+  $('chain').innerHTML = `<tr><th>fund</th><th>Q</th><th>Ω</th><th>π</th><th>μ</th><th>w</th></tr>` + assets.map(a => `<tr><td>${a}</td><td class="mono">${pct(ch[`q_${a}`])}</td><td class="mono">${ch[`omega_${a}`].toExponential(2)}</td><td class="mono">${pct(ch[`pi_${a}`])}</td><td class="mono">${pct(ch[`mu_${a}`])}</td><td class="mono">${pct(ch[`w_${a}`], 1)}</td></tr>`).join('');
+}
+
+function renderChart() {
+  const R = run(), S = R.systems, c = $('nav'), dpr = devicePixelRatio || 1;
+  const W = c.clientWidth, H = 300; c.width = W * dpr; c.height = H * dpr; const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const keys = ['STATIC', ...KEYS.filter(k => S[k])];
+  const series = {}; let lo = 95, hi = 105;
+  for (const k of keys) { let v = 100; series[k] = S[k].series.net_excess_return.map(r => (v *= 1 + r)); lo = Math.min(lo, ...series[k]); hi = Math.max(hi, ...series[k]); }
+  const n = series.STATIC.length, L = 44, Rp = 12, T = 12, B = 28;
+  const x = i => L + (W - L - Rp) * i / (n - 1), y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  g.clearRect(0, 0, W, H); g.font = '11px system-ui'; g.fillStyle = '#6f768a'; g.strokeStyle = '#2a3040';
+  for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4; g.beginPath(); g.moveTo(L, y(v)); g.lineTo(W - Rp, y(v)); g.stroke(); g.fillText(v.toFixed(0), 4, y(v) + 4); }
+  const months = S.STATIC.series.months; for (let i = 0; i < n; i += 6) g.fillText(months[i], x(i) - 18, H - 8);
+  const css = getComputedStyle(document.documentElement);
+  let lx = L + 8;   // legend across the top: the lines end within a point of each other, so end labels would overlap
+  for (const k of keys) { g.beginPath(); g.setLineDash(k === 'STATIC' ? [5, 4] : []); g.lineWidth = k === sel ? 3 : k === 'STATIC' ? 2 : 1.4; g.strokeStyle = css.getPropertyValue(`--c-${k}`).trim(); series[k].forEach((v, i) => i ? g.lineTo(x(i), y(v)) : g.moveTo(x(i), y(v))); g.stroke();
+    const label = `${NAME[k]} ${series[k][n - 1].toFixed(1)}`; g.setLineDash([]); g.fillStyle = g.strokeStyle; g.fillRect(lx, T + 2, 14, 3); g.fillText(label, lx + 18, T + 8); lx += 18 + g.measureText(label).width + 16; }
+  g.setLineDash([]);
+}
+
+function renderScore() {
+  const R = run(), S = R.systems;
+  const row = k => { const s = S[k], c = s.vs_static; return `<tr${k === 'STATIC' ? ' style="background:var(--inner)"' : ''}><td style="color:var(--c-${k})"><b>${NAME[k]}</b></td><td class="mono">${pct(s.net_cer)}</td><td class="mono ${c && c.d < 0 ? 'neg' : 'pos'}">${c ? pts(c.d) : '—'}</td><td class="mono t2">${c ? `${pts(c.lo)} to ${pts(c.hi)}` : ''}</td><td class="mono">${s.sharpe == null ? '' : s.sharpe.toFixed(2)}</td><td class="mono neg">${pct(s.max_drawdown, 1)}</td><td class="mono">${s.turnover == null ? '' : s.turnover.toFixed(2) + '×'}</td><td>${k === 'STATIC' ? '<span class="chip">the bar</span>' : verdict(c)}</td></tr>`; };
+  $('score').innerHTML = `<tr><th>approach</th><th>score / yr</th><th>vs doing nothing</th><th>95% range</th><th>Sharpe</th><th>worst drop</th><th>trading / yr</th><th>verdict</th></tr>` + ['STATIC', ...KEYS.filter(k => S[k])].map(row).join('');
+}
+
+function renderRegistry() {
+  const R = run();
+  $('registry').innerHTML = `<tr><th>plugin</th><th>kind</th><th>states a direction</th><th>fund sets</th><th>status in this run</th><th>author</th></tr>` + Object.entries(D.manifests).map(([n, m]) => { const st = R.plugins[n] || {}; return `<tr><td><b>${n}</b>${m.exploratory ? ' <span class="chip warn">exploratory</span>' : ''}<div class="t3" style="font-size:12px;max-width:520px;white-space:normal">${m.description}</div></td><td>${m.kind}</td><td>${m.states_direction ? 'yes' : 'no'}</td><td>${(m.fund_sets || []).join(', ')}</td><td>${st.status || ''}${st.coverage != null ? ` · coverage ${pct(st.coverage, 0)}` : ''}</td><td>${m.author || ''}</td></tr>`; }).join('');
+}
+
+seg('fundSeg', v => { fund = v; render(); });
+seg('mapSeg', v => { mapping = v; render(); });
+$('monthSel').addEventListener('change', e => { month = e.target.value; render(); });
+addEventListener('resize', () => D && renderChart());
+fetch('../data/support.json').then(r => r.json()).then(d => { D = d; render(); }).catch(e => { $('plugins').innerHTML = `<div class="card">Could not load ../data/support.json: ${e}. Run <code>python -m decision_support.export_site</code> first.</div>`; });
+</script>
+</body>
+</html>
