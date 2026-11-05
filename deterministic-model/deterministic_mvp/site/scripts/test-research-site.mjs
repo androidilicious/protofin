@@ -30,9 +30,12 @@ for(const [name,html] of pages){
     if(hash&&target.endsWith('.html'))assert(ids(fs.readFileSync(target,'utf8')).includes(hash),`Missing anchor: ${name} → ${ref}`);
   }
 }
-assert(pages.get('horizons.html').includes('not yet been implemented or backtested'));
-assert(!pages.get('horizons.html').includes('<select'),'Do not imply an implemented horizon selector');
-assert(pages.get('research.html').includes('added signals have not yet been rerun'));
+assert(pages.get('horizons.html').includes('Development extension completed for 3- and 6-month targets'));
+assert(pages.get('horizons.html').includes('A rolling 12-month evaluation window is not a 12-month forecast'));
+assert(pages.get('horizons.html').includes('src="horizons.js"'));
+assert(pages.get('research.html').includes('corrected-model rerun'));
+assert(pages.get('research.html').includes('id="corrected-signals"'));
+assert(pages.get('research.html').includes('src="corrected-signals.js"'));
 assert(!pages.get('research.html').includes('id="stability"'));
 assert(pages.get('framework.html').includes('id="stability"'));
 assert(!pages.get('index.html').includes('id="performanceChart"'),'Legacy MVP cannot remain the homepage');
@@ -71,4 +74,4 @@ const details={tagName:'DETAILS',open:false,parentElement:null};
 const target={tagName:'SECTION',parentElement:details,scrollIntoView(){revealed=true;}};
 vm.runInNewContext(routeScript,{location:{pathname:'/framework.html',hash:'#primary'},document:{getElementById:()=>target},window:{addEventListener(){}},requestAnimationFrame:fn=>fn()});
 assert(details.open&&revealed,'Saved reference-model links must open the containing details panel');
-console.log('PASS: 5 research pages, 3 main tabs, study subtabs, unique headings/IDs, links/assets, separate samples, planned horizon status, archived MVP and saved-link compatibility.');
+console.log('PASS: research pages, 3 main tabs, study subtabs, unique headings/IDs, links/assets, separate samples, corrected signal rerun and horizon extension status, archived MVP and saved-link compatibility.');

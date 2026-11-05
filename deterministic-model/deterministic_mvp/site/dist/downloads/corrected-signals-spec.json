@@ -1,0 +1,19 @@
+{
+  "id": "corrected-signals-v1",
+  "recorded_on": "2026-11-05",
+  "status": "Recorded before this rerun. Development extension of the frozen corrected reference; not a replacement primary or an independent confirmation.",
+  "parent": "corrected-primary-v1",
+  "variants": {
+    "baseline": {"name": "Corrected baseline", "extra": [], "color": "#087e8b"},
+    "claims": {"name": "+ Unemployment claims", "extra": ["claims_change_3m"], "color": "#9261bd"},
+    "credit": {"name": "+ Credit spread", "extra": ["credit_level", "credit_change_1m"], "color": "#db7931"},
+    "curve": {"name": "+ Yield curve", "extra": ["curve_level"], "color": "#3b71d1"}
+  },
+  "rules": "Inherit the frozen primary preprocessing, policy source/variation gates, alpha grid, complete-target chronological tuning, minimum histories and full allocation settings. Apply training-only imputation, 1st/99th percentile clipping and scaling to added inputs too. Tune each asset and candidate separately using the unchanged grid. Rebuild each candidate's past-error variance and continuous portfolio from its own forecasts, including warm-up. No return-based threshold or feature search.",
+  "eligibility": "Require identical baseline and added-input eligibility throughout training and forecast history; abort if this dataset cannot support that comparison. Match all forecast and allocated decision dates across candidates and historical mean; never silently trim away primary dates.",
+  "reproduction": "Rerun the corrected baseline and require forecasts, alpha choices, allocations, error variances and costs to reproduce the frozen saved run within 1e-10 before reporting extensions.",
+  "evaluation": "All matched forecast dates including warm-up, then common allocated dates. Report per-asset MAE, RMSE, OOS R2 against matched historical mean and change versus corrected baseline; largest absolute forecasts and 20% flags. Then net return, daily drawdown, turnover, costs, weight-limit frequency, calendar years, episodes and rolling 12-month windows. Reuse previously recorded block-bootstrap settings without retuning. No automatic winner selection.",
+  "development_last_holding_month": "2022-12-31",
+  "reserved_test": {"evaluated": false, "run_authorized": false},
+  "preservation": "Write separate corrected_signals_* artifacts. Preserve primary freeze/spec/code and original signal results. Revised histories and assumed availability lags remain limitations."
+}

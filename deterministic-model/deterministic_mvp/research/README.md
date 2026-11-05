@@ -119,7 +119,9 @@ than inventing a cash history.
 ANFCI and GPR now retain source and **assumed** availability dates in the signal
 export. These remain revised histories, not actual release timestamps or an
 ALFRED vintage reconstruction. The reserved January 2023 onward test is still
-untouched. Multi-horizon tests and vintage collection remain deferred. Paired
+untouched. The separate three- and six-month horizon extension is recorded in
+`horizons_spec.json` and writes `outputs/horizon_results.json`; vintage collection
+remains deferred. Paired
 block-bootstrap inference is implemented in the v2 extension below. Existing growth/inflation × ANFCI/GPR interactions
 already test conditional responses; no duplicate interaction search was added.
 
@@ -133,7 +135,7 @@ The review priorities map to the repository as follows:
 | Audit extreme forecasts and units | Implemented: per-asset errors/ranges, feature contributions, standardized inputs, observed training counts, monthly unit conventions and robust-input sensitivity. The original unstable model is retained as a diagnostic reference, not certified as stable. |
 | Attribute gains and add simple model references | Implemented: monthly forecast → BL → weights → realized-return attribution, historical mean through BL, prior-only BL, and fixed 45/35/20 on common dates and cost rules. |
 | Distinguish conditions from surprises | Labels and descriptions preserve the distinction. Shared-information diagnostics compare credit with ANFCI using correlations and past-only projections; they do not establish causal redundancy. Claims consensus surprises and duration-adjusted credit remain deferred. |
-| Test conditional responses and horizons | Growth/inflation × ANFCI/GPR interactions already exist. One-month allocation remains the primary experiment. No release-day, three-month or six-month targets were added. |
+| Test conditional responses and horizons | Growth/inflation × ANFCI/GPR interactions already exist. The one-month allocation remains the frozen primary; a separate corrected-model development extension now evaluates three- and six-month cumulative targets with explicit overlap and non-overlap rules. |
 | Strengthen episode evidence | Full eligible history, calendar years, continuous holdings and a 2020-excluded summary are implemented. Event-boundary shifts, paired block bootstrap and a leave-each-named-episode-out set are implemented in v2. Earlier stress episodes cannot be forced into the sample before its May 2019 allocation start. |
 | Improve data provenance and protect the test | Assumed source/availability dates, all eight consumed data-file hashes, workbook hash, code hashes, recorded experiment settings and a pre-2023 research boundary are implemented. Actual historical release timestamps and real-time vintages are not reconstructed. The final model/evaluation criteria have not been frozen, and no reserved-period evaluation was added. |
 | Quantify missing policy history | The no-policy ablation uses identical dates to the imputed-policy baseline. A separate policy model trained only on fully observed policy history is not implemented: there are only 37 complete feature rows before the research cutoff, and none of its decision dates has 36 completed complete-policy targets, even before requiring 12 prior forecast errors. |

@@ -16,9 +16,10 @@ The current workbook is `../deterministic_data2 - Oct26.xlsx`. The older workboo
 is absent from this checkout, so its legacy regression class cannot run without
 that fixture. The website now has Research overview, Backtesting framework, and
 Experiments & results pages. The experiments separate added signals, forecasting
-methods, and a planned forecast-horizon extension. The added-signal study compares
+methods, and a forecast-horizon extension. The added-signal study compares
 the original model with separately added claims, credit-spread, and yield-curve
-features; it has not yet been rerun on the corrected reference model. See
+features, with a separate corrected-model development rerun recorded in
+`research/corrected_signals_spec.json`. See
 [`site/README.md`](site/README.md) for the page structure and frontend checks.
 
 ```bash
@@ -62,7 +63,9 @@ ANFCI-interaction extensions. It uses a compact additive information set and
 shared fold-local stability controls. See `model_comparison/README.md` for the
 recorded specification and reproduction commands. Install
 `requirements-comparison.txt` before running the full suite or this experiment.
-The optional BVAR is deferred; no reserved-period evaluation is added.
+The optional BVAR is deferred; no reserved-period evaluation is added. The horizon
+extension now evaluates three- and six-month cumulative targets through December
+2022 under its separately recorded overlap and non-overlapping portfolio rules.
 
 ## What runs with the supplied workbook
 

@@ -1,0 +1,15 @@
+{
+  "id": "forecast-horizons-v1",
+  "recorded_on": "2026-11-05",
+  "status": "Development horizon extension. The frozen one-month primary remains unchanged.",
+  "horizons_months": [3, 6],
+  "target": "Cumulative adjusted-close asset return from the first trading-day close after the decision cutoff through the first trading-day close after the Hth future month-end.",
+  "forecast_dates": "Monthly decision dates with a completed target available for training. A target may enter training only after its exit date. All input processing, policy eligibility checks and alpha tuning remain fold-local and inherit corrected-primary-v1.",
+  "overlap": "Three- and six-month targets are allowed to overlap for the forecast-accuracy sample because each monthly decision is a separate prediction. Error summaries describe dependence and do not treat overlapping targets as independent observations.",
+  "portfolio": "For portfolio results, use the first eligible forecast and then the next forecast whose entry is after the prior H-month exit. Each position is held for the full H-month target interval; there are no overlapping holdings. Covariance uses the latest 36 completed H-month return observations with at least 12 required. Black–Litterman uses the same tau, risk aversion, bounds, grid and 5 bp cost rule, with all quantities expressed in H-month return units.",
+  "benchmarks": ["Expanding historical mean through Black–Litterman", "Fixed 45/35/20", "Fixed 60/40", "SPY only"],
+  "evaluation": "Report per-asset MAE, RMSE and OOS R2 against the expanding historical mean for all eligible monthly forecast dates, plus largest forecast and 20% warning counts. Report non-overlapping portfolio return, daily drawdown, turnover and costs as descriptive secondary results. No reserved-period outcome is used.",
+  "development_last_holding_month": "2022-12-31",
+  "reserved_test": {"evaluated": false, "run_authorized": false},
+  "limitations": "The sample is short for six-month non-overlapping portfolio results. Revised macro histories and assumed availability lags remain. A rolling 12-month evaluation window is a diagnostic evaluation sample, not a 12-month forecast target."
+}
