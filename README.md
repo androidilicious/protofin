@@ -73,7 +73,7 @@ npx wrangler login      # once; opens the browser
 deploy.cmd              # rebuilds signals + a fresh committee run from the local .env, then publishes site/
 ```
 
-`wrangler.toml` names the project (`protofin`) and the output folder. Deploys happen from a laptop, so the only credential anywhere is Wrangler's local login.
+`wrangler.toml` names the project (`protofin`) and the output folder. Deploys happen from a laptop by default, so the only credential needed is Wrangler's local login. The weekday workflow can also publish the site after each run: add two repository secrets, `CLOUDFLARE_API_TOKEN` (an API token with the "Cloudflare Pages: Edit" permission) and `CLOUDFLARE_ACCOUNT_ID`. Without them the publish step is skipped.
 
 ### Where secrets live
 
@@ -81,7 +81,7 @@ deploy.cmd              # rebuilds signals + a fresh committee run from the loca
 | --- | --- | --- |
 | Your OpenAI key, used for local runs and to record the saved committee replies | `.env` on your machine, git-ignored | Only the local scripts |
 | The same key, for the live-backtest endpoint only | Cloudflare Pages secret `OPENAI_API_KEY`, set with `npx wrangler pages secret put` | Only `functions/api/committee.js`. It accepts a month index, builds the prompts itself from the committed month data, runs the three persona calls, and returns replies and timings. Rate-limited per visitor address (60 months/day, 12/minute) and site-wide (300 months/day, sized to the free KV write quota) with KV counters; limits are `[vars]` in `wrangler.toml` |
-| GitHub | Nothing | The workflow references no secrets |
+| GitHub | Optional: `OPENAI_API_KEY` for the stored committee run; `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` to publish | Only the weekday workflow. Each step is skipped when its secret is absent |
 | Visitors | Nothing | Saved runs need no key; the live endpoint spends the site's budget within the limits above |
 
 ---
@@ -179,7 +179,7 @@ What is not done yet, stated plainly:
 | `research/` | Backtester, masked replay, skill and validation scripts; `out/` holds the paid replay results |
 | `docs/` | Flow diagram spec and builder, architecture note, screenshot |
 | `deploy.cmd`, `wrangler.toml` | One-command publish to Cloudflare Pages |
-| `.github/workflows/build-signals.yml` | Weekday signals refresh, no secrets |
+| `.github/workflows/build-signals.yml` | Weekday signals refresh and harness run; publishes the site when Cloudflare secrets are set |
 | `harness/` | Signal harness: plugin contract, three source plugins, append-only store, deterministic scoring |
 | `data/store/` | Dated record of every reading the harness has fetched, one CSV per series |
 | `tests/` | Unit tests for the harness (no network) |
