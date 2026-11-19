@@ -8,6 +8,8 @@ on:
     branches: [main]
     paths-ignore:
       - "site/data/signals.json"
+      - "site/data/harness.json"
+      - "data/store/**"
 
 permissions:
   contents: write
@@ -36,11 +38,16 @@ jobs:
         run: |
           python scripts/build_signals.py --reference
           cp docs/protofin-pipeline.html site/protofin-pipeline.html
+      - name: Run the signal harness (store every reading, score the alert)
+        continue-on-error: true     # a broken source must not stop the existing signals build
+        run: python -m harness.run
       - name: Commit refreshed signals
         run: |
           git config user.name "protofin-bot"
           git config user.email "protofin-bot@users.noreply.github.com"
           git add site/data/signals.json site/protofin-pipeline.html data/news/fomc_index.csv
+          if [ -d data/store ]; then git add data/store; fi
+          if [ -f site/data/harness.json ]; then git add site/data/harness.json; fi
           git diff --cached --quiet || git commit -m "signals: $(date -u +%F)"
           git push
       # Deployment to Cloudflare Pages is done from a laptop with `deploy.cmd` (wrangler login), so
