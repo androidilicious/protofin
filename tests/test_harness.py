@@ -51,6 +51,13 @@ class StoreTests(unittest.TestCase):
         then = store.series("x", as_of="2026-01-15T00:00:00+00:00", store_dir=self.dir)
         self.assertEqual(then.iloc[-1], 1.0)                           # what we knew in January
 
+    def test_sources_are_recorded_once(self):
+        store.append([R("x", "2026-01-01", 1.0), R("x", "2026-01-02", 2.0)], "p", self.dir)
+        import json
+        with open(os.path.join(self.dir, store.SOURCES_FILE), encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh), {"x": ["test"]})
+        self.assertNotIn("source", store.read("x", self.dir).columns)
+
     def test_nan_is_skipped(self):
         c = store.append([R("x", "2026-01-01", float("nan"))], "p", self.dir)
         self.assertEqual(sum(c.values()), 0)

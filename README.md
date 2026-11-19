@@ -142,7 +142,7 @@ python -m unittest discover -s tests -v
 
 A plugin labelled `restricted` is fetched and scored but never written to the store, so the repository can stay public.
 
-**Store** (`data/store/<series>.csv`). Append-only. Each row has the date the value describes and the time it was fetched, so the store can answer "what did we know on day X". Rows are tagged `backfill` (history loaded the first time a series was seen, as published that day), `live` (a new date seen on a later run, which is true point-in-time data) or `revision` (a date we held, republished with a different value). The weekday Action runs the harness and commits the store. That only happens on the default branch, so the live record starts on the day this is merged.
+**Store** (`data/store/<series>.csv`). Append-only. Each row has the date the value describes and the time it was fetched, so the store can answer "what did we know on day X". Where each series came from is kept once in `data/store/sources.json`. Rows are tagged `backfill` (history loaded the first time a series was seen, as published that day), `live` (a new date seen on a later run, which is true point-in-time data) or `revision` (a date we held, republished with a different value). The weekday Action runs the harness and commits the store. That only happens on the default branch, so the live record starts on the day this is merged.
 
 **Score** (`harness/scoring.py`, settings in `harness/alerts.py`). One alert so far: a rise of at least 0.25 percentage points in the 10-year Treasury yield over the next 20 trading days. For each signal:
 

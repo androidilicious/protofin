@@ -10,6 +10,7 @@ vintage
   revision  a date we already held, republished with a different value.
 """
 import csv
+import json
 import os
 from datetime import datetime, timezone
 
@@ -17,7 +18,8 @@ import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORE_DIR = os.path.join(BASE_DIR, "data", "store")
-COLUMNS = ["date", "value", "vintage", "fetched_at", "plugin", "source"]
+COLUMNS = ["date", "value", "vintage", "fetched_at", "plugin"]
+SOURCES_FILE = "sources.json"   # where each series came from, kept once instead of on every row
 
 
 def _path(series, store_dir=None):
@@ -33,8 +35,7 @@ def read(series, store_dir=None):
     path = _path(series, store_dir)
     if not os.path.exists(path):
         return pd.DataFrame(columns=COLUMNS)
-    return pd.read_csv(path, dtype={"date": str, "vintage": str, "fetched_at": str,
-                                    "plugin": str, "source": str})
+    return pd.read_csv(path, dtype={"date": str, "vintage": str, "fetched_at": str, "plugin": str})
 
 
 def append(readings, plugin, store_dir=None, fetched_at=None):
@@ -64,9 +65,10 @@ def append(readings, plugin, store_dir=None, fetched_at=None):
                 vintage = "backfill" if first_time else "live"
             latest[r.date] = value
             counts[vintage] += 1
-            rows.append([r.date, repr(value), vintage, fetched_at, plugin, r.source])
+            rows.append([r.date, repr(value), vintage, fetched_at, plugin])
         if not rows:
             continue
+        _record_sources(series, {r.source for r in items}, store_dir)
         path = _path(series, store_dir)
         new_file = not os.path.exists(path)
         with open(path, "a", newline="", encoding="utf-8") as fh:
@@ -75,6 +77,20 @@ def append(readings, plugin, store_dir=None, fetched_at=None):
                 writer.writerow(COLUMNS)
             writer.writerows(rows)
     return counts
+
+
+def _record_sources(series, sources, store_dir=None):
+    path = os.path.join(store_dir or STORE_DIR, SOURCES_FILE)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            known = json.load(fh)
+    except (OSError, ValueError):
+        known = {}
+    merged = sorted(set(known.get(series, [])) | set(sources))
+    if merged != known.get(series):
+        known[series] = merged
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(known, fh, indent=1, sort_keys=True)
 
 
 def series(name, as_of=None, store_dir=None):
