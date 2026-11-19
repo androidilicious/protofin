@@ -1,0 +1,31 @@
+name: Harness check
+
+# Runs on pull requests that touch the harness. It runs the unit tests, then a dry run
+# against the live sources so a broken source shows up before the change is merged.
+# Nothing is written or committed.
+on:
+  pull_request:
+    paths:
+      - "harness/**"
+      - "tests/**"
+      - "macro_indexes.py"
+      - ".github/workflows/harness-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the harness dependencies (no torch needed)
+        run: pip install "numpy>=1.26" "pandas>=2.1" "xlrd>=2.0.1"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Dry run against the live sources
+        run: python -m harness.run --dry-run

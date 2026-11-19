@@ -120,6 +120,47 @@ Findings from the September 2026 run, 273 months: the mask held except for the 2
 
 ---
 
+## Signal harness (branch `signal-harness`, first step)
+
+A second pipeline that sits beside the committee and does not replace it. It reads sources through plugins, keeps a dated record of every reading, and turns them into one risk score. No language model is called.
+
+```
+python -m harness.run             # fetch, store, score, write site/data/harness.json
+python -m harness.run --dry-run   # fetch and score, write nothing
+python -m harness.run --no-fetch  # score from the existing store
+python -m unittest discover -s tests -v
+```
+
+**Plugins** (`harness/plugins/`). Each one turns a source into dated readings and nothing else. To add a source, write a class with `name`, `series`, `licence` and `fetch()`, and list it in `harness/plugins/__init__.py`.
+
+| Plugin | Series | Source | Licence label |
+| --- | --- | --- | --- |
+| `fred_rates` | `us10y`, `us2y`, `us3m` | Federal Reserve H.15 via FRED | public |
+| `uncertainty` | `epu`, `gpr` | PolicyUncertainty.com; Caldara and Iacoviello | attribution |
+| `fomc_tone` | `fomc_tone` | `data/news/fomc_index.csv` (our FOMC-RoBERTa scores) | public |
+
+A plugin labelled `restricted` is fetched and scored but never written to the store, so the repository can stay public.
+
+**Store** (`data/store/<series>.csv`). Append-only. Each row has the date the value describes and the time it was fetched, so the store can answer "what did we know on day X". Rows are tagged `backfill` (history loaded the first time a series was seen, as published that day), `live` (a new date seen on a later run, which is true point-in-time data) or `revision` (a date we held, republished with a different value). The weekday Action runs the harness and commits the store. That only happens on the default branch, so the live record starts on the day this is merged.
+
+**Score** (`harness/scoring.py`, settings in `harness/alerts.py`). One alert so far: a rise of at least 0.25 percentage points in the 10-year Treasury yield over the next 20 trading days. For each signal:
+
+- **R, trust**: set by hand.
+- **S, strength**: distance of today's reading from the mean of its own previous window (252 trading days for daily series), in standard deviations, divided by 3 and capped at 1. Today is excluded from its own baseline.
+- **P, path**: `0.7 ** (steps - 1)`, where steps is the number of links to the target on the causal map.
+- **H, track record**: on past days when this signal pointed at the risk (signed z of 1 or more), how often the yield then jumped, divided by how often it jumps anyway. A signal that did twice as well as chance scores 1.0, one that did no better scores 0.5. With fewer than 20 past events H is set to 0.5 and flagged.
+
+`points = 40 x R x S x P x H x direction`, and `score = 30 + sum of points`, kept between 0 and 100. The range is 8 points either side, widened by up to 12 as more signals lack a usable track record.
+
+What is not done yet, stated plainly:
+
+- The score is a gauge, not a probability. The resting level (30), the points cap (40), the 0.7 path decay and the range widths are placeholders, not fitted values.
+- H is counted on overlapping 20-day windows of backfilled history, so it overstates how much independent evidence there is. EPU and GPR history is as revised by their authors.
+- The direction assigned to each signal is a hypothesis. H is the only check on it so far.
+- The live sources could not be reached from the environment this was written in. The pull request check runs the plugins against the real sources.
+
+---
+
 ## Repository map
 
 | Path | Purpose |
@@ -138,10 +179,14 @@ Findings from the September 2026 run, 273 months: the mask held except for the 2
 | `docs/` | Flow diagram spec and builder, architecture note, screenshot |
 | `deploy.cmd`, `wrangler.toml` | One-command publish to Cloudflare Pages |
 | `.github/workflows/build-signals.yml` | Weekday signals refresh, no secrets |
+| `harness/` | Signal harness: plugin contract, three source plugins, append-only store, deterministic scoring |
+| `data/store/` | Dated record of every reading the harness has fetched, one CSV per series |
+| `tests/` | Unit tests for the harness (no network) |
+| `.github/workflows/harness-check.yml` | Runs the tests and a dry run against live sources on pull requests |
 | `data/news/fomc_index.csv` | Derived FOMC hawkishness index, committed so a clone works without the classifier |
 | `app.py`, `cli_app.py` | Earlier prototypes, kept for reference |
 
-Git-ignored: `.env`, root `state/` and `runs/`, downloaded data under `data/` (except the FOMC index), large regenerable backtest outputs, and the machine-specific `.claude/`, `.cursor/`, `.commandcode/`, `.agent/` symlink folders. The archify renderer under `.agents/skills/archify` is committed without its examples and tests.
+Git-ignored: `.env`, root `state/` and `runs/`, downloaded data under `data/` (except the FOMC index and the harness store), large regenerable backtest outputs, and the machine-specific `.claude/`, `.cursor/`, `.commandcode/`, `.agent/` symlink folders. The archify renderer under `.agents/skills/archify` is committed without its examples and tests.
 
 ---
 
