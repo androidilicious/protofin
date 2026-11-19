@@ -1,0 +1,201 @@
+{
+ "generated_at": "2026-11-19T22:59:24+00:00",
+ "plugins": [
+  {
+   "plugin": "treasury_yields",
+   "title": "Treasury yields",
+   "licence": "public",
+   "series": [
+    "us10y",
+    "us2y",
+    "us3m"
+   ],
+   "readings": 27678,
+   "added": {
+    "backfill": 27678,
+    "live": 0,
+    "revision": 0
+   },
+   "status": "ok"
+  },
+  {
+   "plugin": "uncertainty",
+   "title": "Policy and geopolitical uncertainty",
+   "licence": "attribution",
+   "series": [
+    "epu",
+    "gpr"
+   ],
+   "readings": 30592,
+   "added": {
+    "backfill": 30592,
+    "live": 0,
+    "revision": 0
+   },
+   "status": "ok"
+  },
+  {
+   "plugin": "fomc_tone",
+   "title": "Fed statements",
+   "licence": "public",
+   "series": [
+    "fomc_tone"
+   ],
+   "readings": 158,
+   "added": {
+    "backfill": 158,
+    "live": 0,
+    "revision": 0
+   },
+   "status": "ok"
+  }
+ ],
+ "store": {
+  "epu": {
+   "rows": 15297,
+   "live": 0,
+   "backfill": 15297,
+   "revision": 0,
+   "first": "1985-01-01",
+   "last": "2026-11-18"
+  },
+  "fomc_tone": {
+   "rows": 158,
+   "live": 0,
+   "backfill": 158,
+   "revision": 0,
+   "first": "2008-01-22",
+   "last": "2026-09-16"
+  },
+  "gpr": {
+   "rows": 15295,
+   "live": 0,
+   "backfill": 15295,
+   "revision": 0,
+   "first": "1985-01-01",
+   "last": "2026-11-16"
+  },
+  "us10y": {
+   "rows": 9227,
+   "live": 0,
+   "backfill": 9227,
+   "revision": 0,
+   "first": "1990-01-02",
+   "last": "2026-11-19"
+  },
+  "us2y": {
+   "rows": 9227,
+   "live": 0,
+   "backfill": 9227,
+   "revision": 0,
+   "first": "1990-01-02",
+   "last": "2026-11-19"
+  },
+  "us3m": {
+   "rows": 9224,
+   "live": 0,
+   "backfill": 9224,
+   "revision": 0,
+   "first": "1990-01-02",
+   "last": "2026-11-19"
+  }
+ },
+ "alerts": [
+  {
+   "id": "us10y_jump",
+   "title": "10-year yield jump",
+   "status": "ok",
+   "as_of": "2026-11-19",
+   "target": "us10y",
+   "target_value": 5.04,
+   "horizon_days": 20,
+   "threshold": 0.25,
+   "score": 39,
+   "low": 31,
+   "high": 47,
+   "level": "low",
+   "base": 30,
+   "signals_used": 4,
+   "signals_total": 4,
+   "drivers": [
+    {
+     "id": "fomc_tone",
+     "label": "Fed statement tone (hawkish minus dovish)",
+     "series": "fomc_tone",
+     "status": "ok",
+     "reading_date": "2026-09-16",
+     "reading": 0.416,
+     "z": 1.59,
+     "R": 0.9,
+     "S": 0.532,
+     "P": 1.0,
+     "H": 0.557,
+     "H_default": false,
+     "events": 1135,
+     "hit_rate": 0.174,
+     "base_rate": 0.157,
+     "points": 10.7,
+     "text": "Fed statement tone (hawkish minus dovish) is 1.6 standard deviations above its normal"
+    },
+    {
+     "id": "us2y_chg20",
+     "label": "2-year Treasury yield, 20-day change",
+     "series": "us2y",
+     "status": "ok",
+     "reading_date": "2026-11-19",
+     "reading": 4.76,
+     "z": -0.74,
+     "R": 1.0,
+     "S": 0.246,
+     "P": 1.0,
+     "H": 0.59,
+     "H_default": false,
+     "events": 1570,
+     "hit_rate": 0.185,
+     "base_rate": 0.157,
+     "points": -5.8,
+     "text": "2-year Treasury yield, 20-day change is 0.7 standard deviations below its normal"
+    },
+    {
+     "id": "epu_mean30",
+     "label": "Economic policy uncertainty, 30-day mean",
+     "series": "epu",
+     "status": "ok",
+     "reading_date": "2026-11-18",
+     "reading": 288.06,
+     "z": -0.72,
+     "R": 0.6,
+     "S": 0.24,
+     "P": 0.7,
+     "H": 0.715,
+     "H_default": false,
+     "events": 1685,
+     "hit_rate": 0.224,
+     "base_rate": 0.157,
+     "points": 2.9,
+     "text": "Economic policy uncertainty, 30-day mean is 0.7 standard deviations below its normal"
+    },
+    {
+     "id": "gpr_mean30",
+     "label": "Geopolitical risk, 30-day mean",
+     "series": "gpr",
+     "status": "ok",
+     "reading_date": "2026-11-16",
+     "reading": 189.5475,
+     "z": -0.45,
+     "R": 0.6,
+     "S": 0.151,
+     "P": 0.7,
+     "H": 0.46,
+     "H_default": false,
+     "events": 1632,
+     "hit_rate": 0.144,
+     "base_rate": 0.157,
+     "points": 1.2,
+     "text": "Geopolitical risk, 30-day mean is 0.5 standard deviations below its normal"
+    }
+   ],
+   "note": "Risk score out of 100 with a range. It is a gauge, not a probability."
+  }
+ ]
+}
