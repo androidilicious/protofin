@@ -22,7 +22,9 @@ def collect(plugins, store_dir, fetched_at):
         row = {"plugin": plugin.name, "title": plugin.title, "licence": plugin.licence,
                "series": list(plugin.series)}
         try:
-            readings = plugin.fetch()
+            lasts = [store.stats(name, store_dir)["last"] for name in plugin.series]
+            since = min(lasts) if lasts and all(lasts) else None   # None until every series has history
+            readings = plugin.fetch(since=since)
             row["readings"] = len(readings)
             if plugin.licence == RESTRICTED:
                 row["status"] = "fetched, not stored (restricted licence)"
@@ -39,6 +41,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dry-run", action="store_true", help="use a temporary store and write nothing")
     ap.add_argument("--no-fetch", action="store_true", help="score from the existing store only")
+    ap.add_argument("--strict", action="store_true", help="exit 1 if any source fails or an alert has no score")
     args = ap.parse_args(argv)
 
     if BASE_DIR not in sys.path:
@@ -83,6 +86,8 @@ def main(argv=None):
     failed = [r for r in report if r["status"].startswith("failed")]
     if report and len(failed) == len(report):
         return 1    # every source failed: let the caller see it
+    if args.strict and (failed or any(a["score"] is None for a in alerts)):
+        return 1
     return 0
 
 

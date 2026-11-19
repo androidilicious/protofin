@@ -12,7 +12,7 @@ import pandas as pd
 from harness import scoring, store
 from harness.alerts import US10Y_JUMP
 from harness.contract import Reading
-from harness.plugins import fomc_tone, fred_rates, uncertainty
+from harness.plugins import fomc_tone, treasury_yields, uncertainty
 
 
 def R(series, date, value):
@@ -57,14 +57,34 @@ class StoreTests(unittest.TestCase):
 
 
 class PluginParseTests(unittest.TestCase):
+    def test_treasury_csv(self):
+        text = ('Date,"1 Mo","3 Mo","2 Yr","10 Yr","30 Yr"\n'
+                '11/18/2026,4.10,4.05,3.90,4.47,4.80\n'
+                '11/17/2026,4.11,N/A,3.88,4.41,4.78\n')
+        out = treasury_yields.parse_treasury(text, "u")
+        got = sorted((r.series, r.date, r.value) for r in out)
+        self.assertEqual(got, [("us10y", "2026-11-17", 4.41), ("us10y", "2026-11-18", 4.47),
+                               ("us2y", "2026-11-17", 3.88), ("us2y", "2026-11-18", 3.9),
+                               ("us3m", "2026-11-18", 4.05)])
+
+    def test_treasury_csv_rejects_garbage(self):
+        with self.assertRaises(ValueError):
+            treasury_yields.parse_treasury("<html>blocked</html>", "u")
+
     def test_fred_csv(self):
         text = "observation_date,DGS10\n2026-11-16,4.41\n2026-11-17,.\n2026-11-18,4.47\n"
-        out = fred_rates.parse(text, "us10y", "u")
+        out = treasury_yields.parse_fred(text, "us10y", "u")
         self.assertEqual([(r.date, r.value) for r in out], [("2026-11-16", 4.41), ("2026-11-18", 4.47)])
 
     def test_fred_csv_rejects_garbage(self):
         with self.assertRaises(ValueError):
-            fred_rates.parse("<html>blocked</html>", "us10y", "u")
+            treasury_yields.parse_fred("<html>blocked</html>", "us10y", "u")
+
+    def test_treasury_falls_back_to_fred(self):
+        p = treasury_yields.TreasuryYields()
+        p._from_treasury = lambda since: (_ for _ in ()).throw(TimeoutError("down"))
+        p._from_fred = lambda: ["fallback"]
+        self.assertEqual(p.fetch(), ["fallback"])
 
     def test_uncertainty_series_to_readings(self):
         s = pd.Series([100.0, np.nan, 120.0], index=pd.to_datetime(["2026-01-01", "2026-01-02", "2026-01-03"]))

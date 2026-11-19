@@ -24,7 +24,7 @@ class FomcTone(Plugin):
     def __init__(self, path=INDEX):
         self.path = path
 
-    def fetch(self):
+    def fetch(self, since=None):
         df = pd.read_csv(self.path)
         return [Reading(series="fomc_tone", date=str(d), value=float(v), source=SOURCE, unit="score -1..1")
                 for d, v in zip(df["date"], df["score"]) if pd.notna(v)]

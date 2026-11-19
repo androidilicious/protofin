@@ -128,6 +128,7 @@ A second pipeline that sits beside the committee and does not replace it. It rea
 python -m harness.run             # fetch, store, score, write site/data/harness.json
 python -m harness.run --dry-run   # fetch and score, write nothing
 python -m harness.run --no-fetch  # score from the existing store
+python -m harness.run --dry-run --strict   # as above, and exit 1 if a source fails
 python -m unittest discover -s tests -v
 ```
 
@@ -135,7 +136,7 @@ python -m unittest discover -s tests -v
 
 | Plugin | Series | Source | Licence label |
 | --- | --- | --- | --- |
-| `fred_rates` | `us10y`, `us2y`, `us3m` | Federal Reserve H.15 via FRED | public |
+| `treasury_yields` | `us10y`, `us2y`, `us3m` | US Treasury daily par yield curve; Federal Reserve H.15 via FRED as fallback | public |
 | `uncertainty` | `epu`, `gpr` | PolicyUncertainty.com; Caldara and Iacoviello | attribution |
 | `fomc_tone` | `fomc_tone` | `data/news/fomc_index.csv` (our FOMC-RoBERTa scores) | public |
 

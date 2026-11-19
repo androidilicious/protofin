@@ -24,15 +24,17 @@ class Reading:
 
 class Plugin:
     """Base class for a source plugin."""
-    name = ""          # short id, e.g. "fred_rates"
+    name = ""          # short id, e.g. "treasury_yields"
     title = ""         # label for people, e.g. "Treasury yields"
     licence = PUBLIC
     series = ()        # ids of the series this plugin produces
 
-    def fetch(self):
+    def fetch(self, since=None):
         """Return every Reading the source currently publishes (history included).
 
         The store keeps only what is new or changed, so returning the full history on
-        every run is expected and safe.
+        every run is expected and safe. `since` is the latest date already stored for
+        this plugin (or None on the first run). A plugin whose source is split into many
+        files may use it to skip old ones. Most plugins ignore it.
         """
         raise NotImplementedError

@@ -20,7 +20,7 @@ class Uncertainty(Plugin):
     licence = ATTRIBUTION
     series = ("epu", "gpr")
 
-    def fetch(self):
+    def fetch(self, since=None):
         import macro_indexes  # imported here so the harness loads without xlrd installed
         out = []
         for series, loader, key in (("epu", macro_indexes.load_epu, "epu"), ("gpr", macro_indexes.load_gpr, "gpr")):
