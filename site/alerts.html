@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protofin · Risk alert</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+    <style>
+        :root { --bg:#0b1020; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(79,140,255,.18), transparent 60%); --surface:#111a2e; --surface-2:#0d1526; --surface-3:#18233a; --border:#263250; --border-strong:#33415f; --text:#e8ecf5; --text-2:#b4bdd1; --muted:#7b869f; --faint:#566178; --accent:#5b96ff; --accent-soft:rgba(91,150,255,.14); --pos:#34d399; --neg:#f87171; --warn:#fbbf24; --purple:#b79cff; --teal:#2dd4bf; --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace; --shadow:0 10px 30px rgba(0,0,0,.35); }
+        html.light { --bg:#f3f5f9; --bg-grad: radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.10), transparent 60%); --surface:#fff; --surface-2:#f7f9fc; --surface-3:#eef2f8; --border:#dfe4ee; --border-strong:#c9d2e0; --text:#0f172a; --text-2:#3b465c; --muted:#6b7486; --faint:#8b94a7; --accent:#2563eb; --accent-soft:rgba(37,99,235,.10); --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --purple:#6d28d9; --teal:#0f766e; --shadow:0 8px 24px rgba(15,23,42,.08); }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+        body { background-image: var(--bg-grad); background-attachment: fixed; min-height: 100vh; }
+        .mono { font-family: var(--mono); }
+        .wrap { max-width: 1024px; margin: 0 auto; padding: 0 24px; }
+        .topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(10px); background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 1px solid var(--border); }
+        .topbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-top: 12px; padding-bottom: 12px; }
+        .brand { font-weight: 800; letter-spacing: .04em; font-size: 20px; }
+        .brand span { color: var(--accent); }
+        .grow { flex: 1; }
+        .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+        .btn { display: inline-block; border-radius: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; padding: 10px 20px; background: transparent; border: 1px solid var(--border-strong); color: var(--text-2); text-decoration: none; cursor: pointer; font-family: inherit; }
+        .btn:hover { border-color: var(--accent); color: var(--text); }
+        .btn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        main.wrap { padding-top: 32px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 24px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 24px; }
+        h1 { margin: 6px 0 0 0; font-size: 28px; font-weight: 800; }
+        .muted { color: var(--muted); } .t2 { color: var(--text-2); }
+        .scoreRow { display: flex; flex-wrap: wrap; align-items: center; gap: 28px; margin-top: 18px; }
+        .score { font-size: 88px; font-weight: 800; line-height: 1; }
+        .of { color: var(--muted); font-size: 18px; margin-left: 8px; }
+        .side { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+        .pill { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; border: 1px solid currentColor; }
+        .track { position: relative; height: 12px; border-radius: 6px; background: var(--surface-3); }
+        .band { position: absolute; top: 0; height: 12px; border-radius: 6px; background: var(--border-strong); }
+        .mark { position: absolute; top: -4px; width: 4px; height: 20px; border-radius: 2px; background: var(--text); }
+        .low { color: var(--accent); } .moderate { color: var(--warn); } .high { color: var(--neg); }
+        .scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
+        th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 600; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+        td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .up { color: var(--neg); } .down { color: var(--accent); }
+        .callout { border-left: 3px solid var(--warn); background: var(--surface-2); padding: 12px 16px; border-radius: 0 10px 10px 0; font-size: 13.5px; color: var(--text-2); line-height: 1.6; }
+        .calc { font-family: var(--mono); font-size: 13px; background: var(--surface-3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; line-height: 1.7; margin-top: 12px; }
+        p { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="topbar"><div class="wrap">
+        <div><div class="brand"><span>Protofin</span> Risk alert</div><div class="eyebrow">signal harness, scored by fixed arithmetic</div></div>
+        <div class="grow"></div>
+        <a href="./index.html" class="btn">Dashboard</a>
+        <button id="themeBtn" class="btn" type="button">Light mode</button>
+    </div></div>
+
+    <main class="wrap">
+        <div class="card">
+            <div class="eyebrow" id="asOf">Loading</div>
+            <h1 id="title">Risk alert</h1>
+            <p class="muted" id="what" style="margin:6px 0 0 0"></p>
+            <div class="scoreRow" id="scoreRow" hidden>
+                <div><span class="score" id="score"></span><span class="of">of 100</span></div>
+                <div class="side">
+                    <div><span class="pill" id="level"></span> <span class="t2" id="range" style="margin-left:10px"></span></div>
+                    <div class="track" role="img" id="meter"><div class="band" id="band"></div><div class="mark" id="mark"></div></div>
+                    <div class="muted" style="font-size:13px">A gauge of how strongly today's signals point at the risk. It is not a probability.</div>
+                </div>
+            </div>
+            <p class="t2" id="problem" hidden></p>
+        </div>
+
+        <div class="card">
+            <div class="eyebrow" style="margin-bottom:10px">Why: each signal and its four parts</div>
+            <div class="scroll"><table>
+                <thead><tr><th>Signal</th><th class="num">Points</th><th class="num">z</th><th class="num">R trust</th><th class="num">S strength</th><th class="num">P path</th><th class="num">H record</th></tr></thead>
+                <tbody id="drivers"></tbody>
+            </table></div>
+            <div class="calc" id="sum"></div>
+            <p class="muted" style="font-size:13px;margin:12px 0 0 0">z is how far today's reading sits from its own normal, in standard deviations. Points = 40 x R x S x P x H, positive when the signal raises the risk. H marked * is a default of 0.5 because there were fewer than 20 past events to count.</p>
+        </div>
+
+        <div class="card">
+            <div class="eyebrow" style="margin-bottom:10px">Sources and the dated store</div>
+            <div class="scroll"><table>
+                <thead><tr><th>Series</th><th>First date</th><th>Last date</th><th class="num">Rows</th><th class="num">Live</th><th class="num">Backfill</th><th class="num">Revisions</th></tr></thead>
+                <tbody id="store"></tbody>
+            </table></div>
+            <p class="muted" style="font-size:13px;margin:12px 0 0 0" id="plugins"></p>
+        </div>
+
+        <div class="callout">
+            The resting level of 30, the 40-point cap and the width of the range are settings, not fitted values. Backfill rows are each source's history as published on the first day we loaded it, so they can include later revisions. Live rows are what we actually saw on the day. The direction given to each signal is a hypothesis that the H column checks against history.
+        </div>
+    </main>
+
+    <script>
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        function td(text, cls) { var c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; }
+        function fmt(v, d) { return (v === null || v === undefined) ? 'n/a' : Number(v).toFixed(d); }
+
+        try { if (localStorage.getItem('protofin-theme') === 'light') document.documentElement.className = 'light'; } catch (e) {}
+        function label() { $('themeBtn').textContent = document.documentElement.className === 'light' ? 'Dark mode' : 'Light mode'; }
+        label();
+        $('themeBtn').addEventListener('click', function () {
+            var next = document.documentElement.className === 'light' ? 'dark' : 'light';
+            document.documentElement.className = next;
+            try { localStorage.setItem('protofin-theme', next); } catch (e) {}
+            label();
+        });
+
+        function render(data) {
+            var a = (data.alerts || [])[0];
+            if (!a) { $('asOf').textContent = 'No alert in the data file'; return; }
+            $('title').textContent = a.title;
+            if (a.score === null || a.score === undefined) {
+                $('asOf').textContent = 'Not scored';
+                $('problem').hidden = false;
+                $('problem').textContent = 'The alert could not be scored: ' + a.status + '.';
+            } else {
+                $('asOf').textContent = 'As of ' + a.as_of + ' · built ' + String(data.generated_at || '').replace('T', ' ').slice(0, 16) + ' UTC';
+                $('what').textContent = 'Risk that the 10-year Treasury yield rises by at least ' + a.threshold + ' percentage points over the next ' + a.horizon_days + ' trading days. Today it is ' + fmt(a.target_value, 2) + '%.';
+                $('scoreRow').hidden = false;
+                $('score').textContent = a.score;
+                $('score').className = 'score ' + a.level;
+                $('level').textContent = a.level + ' risk';
+                $('level').className = 'pill ' + a.level;
+                $('range').textContent = 'Range ' + a.low + ' to ' + a.high + ' · ' + a.signals_used + ' of ' + a.signals_total + ' signals';
+                $('band').style.left = a.low + '%';
+                $('band').style.width = (a.high - a.low) + '%';
+                $('mark').style.left = 'calc(' + a.score + '% - 2px)';
+                $('meter').setAttribute('aria-label', 'Score ' + a.score + ' on a scale of 0 to 100, range ' + a.low + ' to ' + a.high);
+            }
+            var body = $('drivers'), total = 0;
+            (a.drivers || []).forEach(function (d) {
+                var tr = document.createElement('tr');
+                if (d.status !== 'ok') {
+                    tr.appendChild(td(d.label + ' (' + d.status + ')'));
+                    for (var i = 0; i < 6; i++) tr.appendChild(td('n/a', 'num'));
+                } else {
+                    total += d.points;
+                    tr.appendChild(td(d.text + '. Reading ' + d.reading + ' on ' + d.reading_date + '.'));
+                    tr.appendChild(td((d.points > 0 ? '+' : '') + fmt(d.points, 1), 'num ' + (d.points > 0 ? 'up' : 'down')));
+                    tr.appendChild(td((d.z > 0 ? '+' : '') + fmt(d.z, 2), 'num'));
+                    tr.appendChild(td(fmt(d.R, 2), 'num'));
+                    tr.appendChild(td(fmt(d.S, 2), 'num'));
+                    tr.appendChild(td(fmt(d.P, 2), 'num'));
+                    tr.appendChild(td(fmt(d.H, 2) + (d.H_default ? '*' : ''), 'num'));
+                }
+                body.appendChild(tr);
+            });
+            if (a.score !== null && a.score !== undefined) {
+                $('sum').textContent = 'resting level ' + a.base + ' ' + (total >= 0 ? '+' : '-') + ' ' + Math.abs(total).toFixed(1) + ' points from signals = ' + a.score;
+            }
+            var sb = $('store');
+            Object.keys(data.store || {}).sort().forEach(function (name) {
+                var s = data.store[name], tr = document.createElement('tr');
+                tr.appendChild(td(name, 'mono'));
+                tr.appendChild(td(s.first || 'n/a'));
+                tr.appendChild(td(s.last || 'n/a'));
+                ['rows', 'live', 'backfill', 'revision'].forEach(function (k) { tr.appendChild(td(Number(s[k] || 0).toLocaleString('en-US'), 'num')); });
+                sb.appendChild(tr);
+            });
+            $('plugins').textContent = (data.plugins || []).map(function (p) { return p.title + ': ' + p.status; }).join(' · ');
+        }
+
+        if (window.__HARNESS__) { render(window.__HARNESS__); return; }
+        fetch('./data/harness.json', { cache: 'no-store' })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(render)
+            .catch(function (e) { $('asOf').textContent = 'Could not load data/harness.json (' + e.message + ')'; });
+    })();
+    </script>
+</body>
+</html>
